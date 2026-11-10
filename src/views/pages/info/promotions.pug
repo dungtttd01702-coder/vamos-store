@@ -1,0 +1,40 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        span.text-vamos-dark.font-bold Ưu đãi HOT
+
+  .vamos-container.py-12
+    .text-center.max-w-xl.mx-auto.mb-10
+      span.text-xs.font-bold.text-vamos-red.uppercase.tracking-widest ƯU ĐÃI ĐẶC BIỆT
+      h1.text-3xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif") KHUYẾN MÃI & MÃ GIẢM GIÁ
+      p.text-xs.text-gray-500.mt-2 Sao chép mã voucher và nhập tại bước thanh toán để nhận ngay ưu đãi
+
+    .grid.grid-cols-1.gap-6.max-w-4xl.mx-auto(class="md:grid-cols-3")
+      .bg-white.p-6.rounded-vamos-xl.border-2.border-dashed.border-red-300.flex.flex-col.justify-between.shadow-vamos-card
+        div
+          span.badge-sale GIẢM 50.000Đ
+          h3.text-lg.font-bold.text-vamos-dark.mt-2(style="font-family:'Space Grotesk',sans-serif") VAMOS50K
+          p.text-xs.text-gray-500.mt-1 Đơn hàng từ 500.000đ khi đặt mua bất kỳ mẫu giày nào
+        button.btn-primary.text-xs.py-2.px-4.mt-4.w-full(type="button" onclick="copyVoucher('VAMOS50K', this)")
+          | SAO CHÉP MÃ
+
+      .bg-white.p-6.rounded-vamos-xl.border-2.border-dashed.border-orange-300.flex.flex-col.justify-between.shadow-vamos-card
+        div
+          span.badge-hot GIẢM 100.000Đ
+          h3.text-lg.font-bold.text-vamos-dark.mt-2(style="font-family:'Space Grotesk',sans-serif") VAMOS100
+          p.text-xs.text-gray-500.mt-1 Đơn hàng từ 1.000.000đ áp dụng toàn bộ sản phẩm
+        button.btn-primary.text-xs.py-2.px-4.mt-4.w-full(type="button" onclick="copyVoucher('VAMOS100', this)")
+          | SAO CHÉP MÃ
+
+      .bg-white.p-6.rounded-vamos-xl.border-2.border-dashed.border-green-300.flex.flex-col.justify-between.shadow-vamos-card
+        div
+          span.badge-new FREESHIP
+          h3.text-lg.font-bold.text-vamos-dark.mt-2(style="font-family:'Space Grotesk',sans-serif") FREESHIP TOÀN QUỐC
+          p.text-xs.text-gray-500.mt-1 Tự động áp dụng khi giỏ hàng từ 500.000đ trở lên
+        .bg-green-50.text-green-700.text-xs.font-bold.py-2.px-4.rounded-lg.text-center.mt-4
+          | ✓ ÁP DỤNG TỰ ĐỘNG

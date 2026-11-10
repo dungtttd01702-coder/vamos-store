@@ -1,0 +1,60 @@
+@startuml ad-03-order-processing
+title QUY TRÌNH XỬ LÝ ĐƠN HÀNG NỘI BỘ - VAMOS STORE
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #2B2D42
+skinparam ActivityFontColor #2B2D42
+skinparam ArrowColor #2B2D42
+
+|Quản trị viên (Admin)|
+start
+:Mở Danh sách đơn hàng quản trị;
+:Tìm kiếm và chọn một đơn hàng;
+|Hệ thống VAMOS STORE|
+:Tải chi tiết đơn, thông tin người nhận, snapshot sản phẩm;
+:Hiển thị trạng thái hiện tại và các hành động được phép;
+
+|Quản trị viên (Admin)|
+if (Đơn hàng đang ở trạng thái nào?) then (PENDING - Chờ xác nhận)
+    if (Khách hủy hoặc Đơn giả mạo?) then (Hủy đơn)
+        :Chọn "Hủy đơn nội bộ" & Nhập lý do bắt buộc;
+        |Hệ thống VAMOS STORE|
+        :Bắt đầu Transaction;
+        :Đổi order_status = CANCELLED;
+        :Tự động hoàn trả tồn kho các biến thể;
+        :Ghi log inventory_transactions & order_status_histories;
+        :Commit Transaction;
+        :Báo hủy đơn thành công;
+        stop
+    else (Hợp lệ)
+        :Bấm "Xác nhận đơn";
+        |Hệ thống VAMOS STORE|
+        :Cập nhật order_status = CONFIRMED;
+        :Lưu order_status_histories;
+    endif
+elseif (CONFIRMED - Đã xác nhận)
+    :Bấm "Chuyển đóng gói / Chuẩn bị hàng";
+    |Hệ thống VAMOS STORE|
+    :Cập nhật order_status = PROCESSING;
+    :Lưu order_status_histories;
+elseif (PROCESSING - Đang chuẩn bị)
+    :Bấm "Bàn giao giao hàng";
+    |Hệ thống VAMOS STORE|
+    :Cập nhật order_status = SHIPPING;
+    :Lưu order_status_histories;
+elseif (SHIPPING - Đang giao)
+    :Bấm "Xác nhận giao thành công & Đã thu COD";
+    |Hệ thống VAMOS STORE|
+    :Cập nhật order_status = COMPLETED;
+    :Tự động cập nhật payment_status = PAID;
+    :Ghi nhận doanh thu thực tế;
+    :Lưu order_status_histories;
+endif
+
+|Quản trị viên (Admin)|
+:Xem thông báo cập nhật trạng thái thành công;
+stop
+@enduml
+

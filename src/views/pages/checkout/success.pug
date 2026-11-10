@@ -1,0 +1,96 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        span.text-vamos-dark.font-bold Đặt hàng thành công
+
+  .vamos-container.py-12
+    .max-w-2xl.mx-auto.bg-white.rounded-vamos-xl.border.border-vamos-border.p-8.shadow-vamos-card(class="md:p-10")
+      //- Success Icon & Title
+      .text-center.mb-8
+        .w-16.h-16.bg-green-100.text-green-600.rounded-full.flex.items-center.justify-center.mx-auto.mb-4.text-3xl
+          | ✓
+        h1.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+          | ĐẶT HÀNG THÀNH CÔNG!
+        p.text-xs.text-gray-500.mt-1
+          | Cảm ơn bạn đã tin tưởng lựa chọn VAMOS STORE. Đơn hàng của bạn đã được tiếp nhận.
+
+      //- Order Meta Snapshot
+      .bg-vamos-bg-light.p-4.rounded-vamos-lg.border.border-gray-100.space-y-2.text-xs.mb-6
+        .flex.justify-between
+          span.text-gray-500 Mã đơn hàng:
+          span.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")= `#${order.order_code}`
+        .flex.justify-between
+          span.text-gray-500 Trạng thái đơn hàng:
+          span.font-bold.text-orange-600= order.order_status === 'PENDING' ? 'Chờ xác nhận (PENDING)' : order.order_status
+        .flex.justify-between
+          span.text-gray-500 Phương thức thanh toán:
+          span.font-bold.text-vamos-dark= 'COD (Thanh toán khi nhận hàng)'
+        .flex.justify-between
+          span.text-gray-500 Trạng thái thanh toán:
+          span.font-bold.text-gray-600= order.payment_status === 'UNPAID' ? 'Chưa thanh toán (Trả khi nhận hàng)' : order.payment_status
+
+      //- Delivery Info
+      .border-t.border-gray-100.py-4.space-y-1.text-xs.mb-4
+        h3.font-bold.text-vamos-dark.mb-2(style="font-family:'Space Grotesk',sans-serif") THÔNG TIN GIAO NHẬN HÀNG
+        p
+          strong Người nhận:&nbsp;
+          span= order.recipient_name_snapshot
+        p
+          strong Số điện thoại:&nbsp;
+          span= order.recipient_phone_snapshot
+        p
+          strong Địa chỉ nhận hàng:&nbsp;
+          span= order.delivery_address_snapshot
+        if order.customer_note
+          p
+            strong Ghi chú:&nbsp;
+            span.italic= order.customer_note
+
+      //- Items Summary
+      .border-t.border-gray-100.pt-4.mb-6
+        h3.font-bold.text-vamos-dark.mb-3.text-xs(style="font-family:'Space Grotesk',sans-serif") SẢN PHẨM ĐÃ ĐẶT
+        .divide-y.divide-gray-100
+          each it in order.items
+            .flex.items-center.justify-between.gap-3.text-xs(class="py-2.5")
+              .flex.items-center.gap-3
+                if it.image_url
+                  img.w-10.h-10.rounded.object-contain.border.border-gray-100(src=it.image_url alt=it.product_name_snapshot)
+                div
+                  h4.font-bold.text-vamos-dark= it.product_name_snapshot
+                  p.text-gray-400= `${it.color_snapshot} | Size: ${it.size_snapshot} | SL: ${it.quantity}`
+              .font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.line_total)
+
+        //- Total
+        .border-t.border-gray-200.mt-4.pt-3.space-y-1.text-xs
+          .flex.justify-between
+            span.text-gray-500 Tiền hàng:
+            span.font-bold= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
+          if order.discount_amount > 0
+            .flex.justify-between.text-vamos-red
+              span Giảm giá voucher:
+              span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
+          .flex.justify-between
+            span.text-gray-500 Phí vận chuyển:
+            span.font-bold= order.shipping_fee === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
+          .border-t.border-gray-100.pt-2.flex.justify-between.items-baseline.text-sm
+            span.font-bold.text-vamos-dark Tổng thanh toán COD:
+            span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+              = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)
+
+      //- Reminders & CTA
+      .p-4.rounded-vamos-lg.bg-orange-50.border.border-orange-200.text-xs.text-orange-800.mb-6
+        p.font-bold 📌 Lưu ý nhận hàng:
+        p.mt-1
+          | Quý khách vui lòng để ý điện thoại khi nhân viên giao hàng liên hệ. Quý khách được quyền kiểm tra hàng trước khi thanh toán tiền mặt đúng với số tiền trên hóa đơn.
+
+      .flex.flex-col.gap-3(class="sm:flex-row")
+        a.flex-1.btn-primary.text-xs.py-3.text-center(href="/account/orders")
+          | Xem Lịch Sử Đơn Hàng
+        a.flex-1.btn-outline.text-xs.py-3.text-center(href="/products")
+          | Tiếp Tục Mua Sắm

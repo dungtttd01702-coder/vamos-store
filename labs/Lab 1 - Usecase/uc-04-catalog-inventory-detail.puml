@@ -1,0 +1,54 @@
+@startuml uc-04-catalog-inventory-detail
+title SƠ ĐỒ CHI TIẾT: QUẢN TRỊ SẢN PHẨM & TỒN KHO (UC-11 & UC-12) - VAMOS STORE
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+    ArrowColor #2B2D42
+}
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #E94B35
+    FontColor #E94B35
+    FontSize 14
+}
+
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "VAMOS STORE - Quản trị Sản phẩm & Kho" {
+    usecase "UC-12: Quản lý sản phẩm & danh mục" as UC12
+    usecase "Quản lý biến thể size/màu" as UC_VariantMgmt
+    usecase "Quản lý hình ảnh sản phẩm" as UC_ImageMgmt
+    
+    usecase "UC-11: Quản lý tồn kho" as UC11
+    usecase "Điều chỉnh tồn kho" as UC_AdjustStock
+}
+
+' Liên kết Actor
+Admin -- UC12
+Admin -- UC11
+Admin -- UC_AdjustStock
+
+' Quan hệ <<include>> (Quản lý sản phẩm bắt buộc có biến thể và ảnh)
+UC12 ..> UC_VariantMgmt : "<<include>>"
+UC12 ..> UC_ImageMgmt : "<<include>>"
+
+' Quan hệ <<extend>> (Điều chỉnh tồn kho khi kiểm kê lệch kho)
+UC_AdjustStock ..> UC11 : "<<extend>>\n[kiểm kê lệch kho;\nbắt buộc lý do]"
+
+@enduml

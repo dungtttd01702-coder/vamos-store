@@ -1,0 +1,136 @@
+extends ../../layouts/main
+
+block content
+  //- ── BREADCRUMB ──
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        a.transition-colors(class="hover:text-vamos-red" href="/cart") Giỏ hàng
+        span /
+        span.text-vamos-dark.font-bold Thanh toán COD
+
+  //- ── MAIN CHECKOUT CONTAINER ──
+  .vamos-container.py-8
+    h1.text-2xl.font-black.text-vamos-dark.mb-6(style="font-family:'Space Grotesk',sans-serif")
+      | THANH TOÁN ĐƠN HÀNG (COD)
+
+    form(action="/checkout" method="POST")
+      .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
+
+        //- ── COLUMN 1: SHIPPING ADDRESS & RECIPIENT (7 cols) ──
+        .space-y-6(class="lg:col-span-7")
+          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+              | 1. THÔNG TIN GIAO NHẬN HÀNG
+            
+            .space-y-4
+              .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+                div
+                  label.form-label(for="recipient_name") Họ và tên người nhận *
+                  input#recipient_name.form-input(
+                    type="text"
+                    name="recipient_name"
+                    value=formData.recipientName
+                    placeholder="Ví dụ: Nguyễn Văn A"
+                    required
+                  )
+                div
+                  label.form-label(for="recipient_phone") Số điện thoại *
+                  input#recipient_phone.form-input(
+                    type="tel"
+                    name="recipient_phone"
+                    value=formData.recipientPhone
+                    placeholder="Ví dụ: 0901234567"
+                    required
+                  )
+
+              div
+                label.form-label(for="full_address") Địa chỉ giao hàng cụ thể *
+                textarea#full_address.form-input(
+                  name="full_address"
+                  rows="3"
+                  placeholder="Số nhà, tên đường, thôn/ấp, phường/xã, quận/huyện, tỉnh/thành phố..."
+                  required
+                )= formData.deliveryAddress
+
+              div
+                label.form-label(for="customer_note") Ghi chú cho đơn hàng (tùy chọn)
+                input#customer_note.form-input(
+                  type="text"
+                  name="customer_note"
+                  placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."
+                )
+
+          //- Payment Method Block (COD Only as per rules)
+          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+              | 2. PHƯƠNG THỨC THANH TOÁN
+            
+            .p-4.rounded-vamos-lg.border-2.border-vamos-red.bg-red-50.flex.items-start.gap-3
+              input#pay_cod.mt-1.text-vamos-red(type="radio" name="payment_method" value="COD" checked required)
+              label.cursor-pointer(for="pay_cod")
+                .flex.items-center.gap-2
+                  span.font-bold.text-sm.text-vamos-dark Thanh toán tiền mặt khi nhận hàng (COD)
+                  span.badge-sale COD
+                p.text-xs.text-gray-600.mt-1.leading-relaxed
+                  | Quý khách được quyền mở hộp kiểm tra đúng mẫu, đúng size và hình thức sản phẩm trước khi thanh toán tiền mặt cho nhân viên giao hàng.
+
+        //- ── COLUMN 2: ORDER SUMMARY & CONFIRMATION (5 cols) ──
+        .space-y-6(class="lg:col-span-5")
+          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.sticky.top-20
+            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+              | TÓM TẮT ĐƠN HÀNG (#{items.length} SẢN PHẨM)
+
+            //- Items preview
+            .max-h-60.overflow-y-auto.divide-y.divide-gray-100.mb-4.pr-1
+              each item in items
+                .py-3.flex.items-center.gap-3
+                  .w-12.h-12.rounded-lg.bg-gray-50.p-1.border.border-gray-100.flex-shrink-0.flex.items-center.justify-center
+                    if item.image_url
+                      img.w-full.h-full.object-contain(src=item.image_url alt=item.product_name)
+                    else
+                      span.text-xs.text-gray-400 SP
+                  .flex-grow.min-w-0
+                    h4.text-xs.font-bold.text-vamos-dark.truncate= item.product_name
+                    p.text-xs.text-gray-400= `${item.color_name} | Size: ${item.size_name} | SL: ${item.quantity}`
+                  .text-right.flex-shrink-0
+                    span.text-xs.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
+
+            //- Voucher Code Input
+            .mb-4.pt-3.border-t.border-gray-100
+              label.form-label.text-xs(for="voucher_code") Mã giảm giá Voucher
+              .flex.gap-2
+                input#voucher_code.form-input.text-xs(
+                  type="text"
+                  name="voucher_code"
+                  placeholder="Nhập mã: VAMOS50K"
+                )
+
+            //- Calculations
+            .space-y-2.text-xs.border-t.border-gray-100.pt-4
+              .flex.justify-between
+                span.text-gray-500 Tiền hàng tạm tính:
+                span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
+              .flex.justify-between
+                span.text-gray-500 Phí vận chuyển:
+                if shippingFee === 0
+                  span.font-bold.text-green-600 Miễn phí vận chuyển
+                else
+                  span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)
+              .border-t.border-gray-100.pt-3.flex.justify-between.items-baseline
+                span.text-sm.font-bold.text-vamos-dark Tổng thanh toán:
+                span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)
+
+            //- Submit Button
+            button.mt-6.w-full.btn-primary.text-xs.py-4(type="submit")
+              | XÁC NHẬN ĐẶT HÀNG (COD)
+
+            p.text-center.text-xs.text-gray-400.mt-3
+              | Bằng việc đặt hàng, quý khách đồng ý với Điều khoản mua sắm và Chính sách đổi trả 7 ngày của VAMOS STORE.
+

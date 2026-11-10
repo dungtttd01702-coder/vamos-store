@@ -1,0 +1,70 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        span.text-vamos-dark.font-bold Thông tin tài khoản
+
+  .vamos-container.py-8
+    .flex.flex-col.gap-8(class="lg:flex-row")
+      //- Left Account Menu
+      aside.w-full.flex-shrink-0(class="lg:w-64")
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .flex.items-center.gap-3.pb-4.border-b.border-gray-100.mb-4
+            .w-10.h-10.rounded-full.bg-vamos-dark.text-white.flex.items-center.justify-center.font-bold.text-sm
+              = (profile.full_name || profile.email).charAt(0).toUpperCase()
+            div
+              .text-xs.font-bold.text-vamos-dark= profile.full_name || 'Khách hàng'
+              .text-xs.text-gray-400.truncate= profile.email
+          nav.space-y-1.text-xs.font-semibold
+            a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/orders")
+              span 📦
+              span Đơn hàng của tôi
+            a.flex.items-center.gap-2.px-3.py-2.rounded-lg.bg-red-50.text-vamos-red(href="/account/profile")
+              span 👤
+              span Thông tin tài khoản
+            a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/addresses")
+              span 📍
+              span Sổ địa chỉ giao hàng
+
+      //- Main Content Area
+      main.flex-grow
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.max-w-xl
+          h1.text-xl.font-black.text-vamos-dark.mb-6(style="font-family:'Space Grotesk',sans-serif")
+            | THÔNG TIN CÁ NHÂN
+
+          form.space-y-4(action="/account/profile" method="POST")
+            div
+              label.form-label(for="email") Địa chỉ Email (không thể thay đổi)
+              input#email.form-input.bg-gray-100.text-gray-500.cursor-not-allowed(
+                type="email"
+                value=profile.email
+                disabled
+              )
+
+            div
+              label.form-label(for="full_name") Họ và tên
+              input#full_name.form-input(
+                type="text"
+                name="full_name"
+                value=profile.full_name || ''
+                placeholder="Nguyễn Văn A"
+                required
+              )
+
+            div
+              label.form-label(for="phone") Số điện thoại liên hệ
+              input#phone.form-input(
+                type="tel"
+                name="phone"
+                value=profile.phone || ''
+                placeholder="0901234567"
+              )
+
+            div.pt-2
+              button.btn-primary.text-xs.py-3.px-6(type="submit")
+                | Lưu Thay Đổi
+

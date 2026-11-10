@@ -1,0 +1,255 @@
+extends ../layouts/main
+
+block content
+  //- ════════════════════════════════════════════════════
+  //- 1. HERO CAMPAIGN BANNER (Stitch Design: Kinetic)
+  //- ════════════════════════════════════════════════════
+  if banners && banners.length > 0
+    - const banner = banners[0]
+    section.relative.bg-white.overflow-hidden.border-b.border-gray-100
+      .vamos-container.py-8(class="md:py-16")
+        .grid.items-center.gap-8(class="grid-cols-1 lg:grid-cols-12")
+          //- Left Text Column (7 cols)
+          .space-y-6(class="lg:col-span-7")
+            .inline-flex.items-center.gap-2.px-3.py-1.rounded-full.bg-red-50.border.border-red-200
+              span.w-2.h-2.rounded-full.bg-vamos-red.animate-ping
+              span.text-xs.font-bold.text-vamos-red.uppercase.tracking-wider CHIẾN DỊCH XUÂN HÈ 2025
+
+            h1.text-3xl.font-black.text-vamos-dark.tracking-tight.leading-none(class="sm:text-5xl lg:text-6xl" style="font-family:'Space Grotesk',sans-serif")
+              | VAMOS HUNTER X
+              br
+              span.text-vamos-red BƯỚC TIẾN VÔ CỰC
+
+            p.text-base.text-gray-600.max-w-xl.leading-relaxed(class="md:text-lg")
+              | Đột phá cùng cấu trúc đế đệm trợ lực thế hệ mới LiteFlex 3.0 kết hợp sợi dệt Liteknit đa chiều. Bứt phá mọi giới hạn tốc độ và phong cách trên từng dặm phố.
+
+            //- Fast specs
+            .grid.grid-cols-3.gap-4.py-2.max-w-md
+              .border-l-2.border-vamos-red.pl-3
+                .text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") 280g
+                .text-xs.text-gray-500.font-medium Siêu nhẹ
+              .border-l-2.border-vamos-red.pl-3
+                .text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") +65%
+                .text-xs.text-gray-500.font-medium Hoàn trả lực
+              .border-l-2.border-vamos-red.pl-3
+                .text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") 100%
+                .text-xs.text-gray-500.font-medium Cao su bám
+
+            //- Dual CTAs
+            .flex.flex-wrap.items-center.gap-4.pt-2
+              a.btn-primary(href="/products")
+                span KHÁM PHÁ NGAY
+                svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                  path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3")
+              a.btn-outline(href="/promotions")
+                span ƯU ĐÃI HOT 🔥
+
+          //- Right Visual Column (5 cols)
+          .relative.flex.items-center.justify-center(class="lg:col-span-5")
+            .relative.w-full.max-w-md.aspect-square.flex.items-center.justify-center
+              //- Radial background glow
+              .absolute.inset-0.rounded-full.bg-gradient-to-tr.from-red-100.to-orange-50.opacity-70.filter.blur-2xl
+              img.relative.z-10.w-full.h-auto.object-contain.drop-shadow-2xl.transition-transform.duration-500(class="hover:scale-105" src=banner.image_url alt="VAMOS Hunter X")
+
+  //- ════════════════════════════════════════════════════
+  //- 2. SELLING COMMITMENTS BAR (4 pillars)
+  //- ════════════════════════════════════════════════════
+  section.bg-white.border-b.border-gray-100.py-6
+    .vamos-container
+      .grid.grid-cols-2.gap-4(class="lg:grid-cols-4 lg:gap-6")
+        .flex.items-center.gap-3.p-3.rounded-vamos-lg.bg-vamos-bg-light
+          .w-10.h-10.rounded-lg.bg-red-50.text-vamos-red.flex.items-center.justify-center.flex-shrink-0.font-bold.text-lg 💵
+          div
+            h4.text-xs.font-bold.text-vamos-dark.uppercase Thanh toán COD
+            p.text-xs.text-gray-500 Nhận hàng, kiểm tra mới trả tiền
+
+        .flex.items-center.gap-3.p-3.rounded-vamos-lg.bg-vamos-bg-light
+          .w-10.h-10.rounded-lg.bg-blue-50.text-blue-600.flex.items-center.justify-center.flex-shrink-0.font-bold.text-lg 🔄
+          div
+            h4.text-xs.font-bold.text-vamos-dark.uppercase Đổi hàng 7 ngày
+            p.text-xs.text-gray-500 Đổi size linh hoạt, nhanh gọn
+
+        .flex.items-center.gap-3.p-3.rounded-vamos-lg.bg-vamos-bg-light
+          .w-10.h-10.rounded-lg.bg-green-50.text-green-600.flex.items-center.justify-center.flex-shrink-0.font-bold.text-lg 🛡️
+          div
+            h4.text-xs.font-bold.text-vamos-dark.uppercase 100% Chính hãng
+            p.text-xs.text-gray-500 Đảm bảo chất lượng quốc gia
+
+        .flex.items-center.gap-3.p-3.rounded-vamos-lg.bg-vamos-bg-light
+          .w-10.h-10.rounded-lg.bg-purple-50.text-purple-600.flex.items-center.justify-center.flex-shrink-0.font-bold.text-lg ⚡
+          div
+            h4.text-xs.font-bold.text-vamos-dark.uppercase Giao nhanh 24-48h
+            p.text-xs.text-gray-500 Đóng gói cẩn thận 2 lớp hộp
+
+  //- ════════════════════════════════════════════════════
+  //- 3. FLASH SALE GIỜ VÀNG (Stitch Spec: Dark Block)
+  //- ════════════════════════════════════════════════════
+  if flashSaleProducts && flashSaleProducts.length > 0
+    section.py-12.bg-white
+      .vamos-container
+        .bg-vamos-dark.text-white.rounded-vamos-xl.p-6(class="md:p-10" style="background:#111111")
+          .flex.flex-col.gap-4.mb-8(class="md:flex-row md:items-center md:justify-between")
+            div
+              .inline-flex.items-center.gap-2.px-2.rounded.bg-red-600.text-white.text-xs.font-bold.uppercase.mb-2(class="py-0.5")
+                span ⚡ GIỜ VÀNG GIÁ SỐC
+              h2.text-2xl.font-black(class="md:text-3xl" style="font-family:'Space Grotesk',sans-serif") FLASH SALE ĐANG DIỄN RA
+              p.text-xs.text-gray-400 Số lượng có hạn - Giảm đến 40% chỉ trong hôm nay
+            
+            //- Countdown Timer UI
+            .flex.items-center.gap-2
+              span.text-xs.text-gray-400.font-semibold Kết thúc sau:
+              .flex.items-center.gap-1.font-mono.text-sm.font-bold
+                span#flash-hour.bg-gray-800.text-white.px-2.py-1.rounded.border.border-gray-700 05
+                span :
+                span#flash-min.bg-gray-800.text-white.px-2.py-1.rounded.border.border-gray-700 42
+                span :
+                span#flash-sec.bg-vamos-red.text-white.px-2.py-1.rounded 19
+
+          //- Flash Sale Product Grid
+          .grid.grid-cols-2.gap-4(class="md:grid-cols-4 md:gap-6")
+            each prod in flashSaleProducts
+              .bg-white.rounded-vamos-lg.p-4.text-vamos-dark.flex.flex-col.justify-between.transition-all.duration-300(class="hover:-translate-y-1 hover:shadow-2xl")
+                .relative.aspect-square.bg-gray-50.rounded-lg.overflow-hidden.mb-3
+                  img.w-full.h-full.object-contain(src=prod.imageUrl alt=prod.name)
+                  if prod.discountPercent > 0
+                    span.badge-sale.absolute.top-2.left-2= `-${prod.discountPercent}%`
+                div
+                  span.text-xs.text-gray-400.font-semibold.uppercase= prod.brand
+                  h3.text-sm.font-bold.text-vamos-dark.line-clamp-2.mt-1
+                    a(class="hover:text-vamos-red" href=`/products/${prod.slug}`)= prod.name
+                  .mt-2.flex.items-baseline.gap-2
+                    span.price-current
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.salePrice)
+                    if prod.hasDiscount
+                      span.price-original
+                        = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.originalPrice)
+                //- Stock progress
+                .mt-3.pt-2.border-t.border-gray-100
+                  .flex.justify-between.text-xs.text-gray-500.font-medium.mb-1
+                    span Đã bán 78%
+                    span.text-vamos-red.font-bold Còn 5 đôi
+                  .w-full.bg-gray-100.rounded-full.overflow-hidden(class="h-1.5")
+                    .bg-vamos-red.rounded-full(class="h-1.5" style="width: 78%")
+                a.mt-3.w-full.btn-primary.text-xs.py-2(href=`/products/${prod.slug}`)
+                  | Mua Ngay
+
+  //- ════════════════════════════════════════════════════
+  //- 4. QUICK CATEGORY SELECTOR (Stitch Spec: 4-6 cards)
+  //- ════════════════════════════════════════════════════
+  section.py-12.bg-vamos-bg-light
+    .vamos-container
+      .flex.justify-between.items-end.mb-8
+        div
+          span.text-xs.font-bold.uppercase.tracking-widest.text-vamos-red Danh Mục
+          h2.section-title DANH MỤC NỔI BẬT
+          p.section-subtitle Đa dạng phong cách cho mọi bước đi hàng ngày
+        a.text-sm.font-bold.text-vamos-dark.transition-colors(class="hover:text-vamos-red" href="/categories") Xem tất cả &rarr;
+
+      .grid.grid-cols-2.gap-4(class="md:grid-cols-4 md:gap-6")
+        if categories && categories.length > 0
+          each cat in categories
+            a.group.relative.rounded-vamos-xl.overflow-hidden.bg-white.border.border-gray-100.shadow-vamos-card.transition-all.duration-300(class="hover:shadow-vamos-hover hover:-translate-y-1" href=`/products?cat=${cat.slug}`)
+              .aspect-square.overflow-hidden.bg-gray-50.flex.items-center.justify-center.p-4
+                if cat.slug === 'sneaker-nam'
+                  img.w-full.h-full.object-contain.transition-transform.duration-500(class="group-hover:scale-110" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80" alt=cat.name)
+                else if cat.slug === 'sneaker-nu'
+                  img.w-full.h-full.object-contain.transition-transform.duration-500(class="group-hover:scale-110" src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=600&q=80" alt=cat.name)
+                else if cat.slug === 'giay-the-thao'
+                  img.w-full.h-full.object-contain.transition-transform.duration-500(class="group-hover:scale-110" src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?auto=format&fit=crop&w=600&q=80" alt=cat.name)
+                else
+                  img.w-full.h-full.object-contain.transition-transform.duration-500(class="group-hover:scale-110" src="https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=600&q=80" alt=cat.name)
+              .p-4.text-center.border-t.border-gray-50
+                h3.text-sm.font-bold.text-vamos-dark.transition-colors(class="group-hover:text-vamos-red")= cat.name
+                p.text-xs.text-gray-400(class="mt-0.5")= `${cat.product_count || 0} sản phẩm`
+
+  //- ════════════════════════════════════════════════════
+  //- 5. LATEST PRODUCTS GRID (Stitch Spec: Product Card)
+  //- ════════════════════════════════════════════════════
+  section.py-12.bg-white
+    .vamos-container
+      .flex.justify-between.items-end.mb-8
+        div
+          span.text-xs.font-bold.uppercase.tracking-widest.text-vamos-red Khám Phá
+          h2.section-title SẢN PHẨM MỚI NHẤT
+          p.section-subtitle Thiết kế tiên phong, êm ái trên từng dặm đường
+        a.text-sm.font-bold.text-vamos-dark.transition-colors(class="hover:text-vamos-red" href="/products") Xem toàn bộ cửa hàng &rarr;
+
+      .grid.grid-cols-2.gap-4(class="md:grid-cols-4 md:gap-6")
+        each prod in latestProducts
+          .product-card.flex.flex-col.justify-between
+            //- Image Container
+            .relative.aspect-square.bg-gray-50.p-4.flex.items-center.justify-center.overflow-hidden
+              img.product-card-img(src=prod.imageUrl alt=prod.name)
+              .absolute.top-3.left-3.flex.flex-col.gap-1
+                if prod.hasDiscount
+                  span.badge-sale= `-${prod.discountPercent}%`
+                if prod.isNew
+                  span.badge-new MỚI
+            //- Info
+            .p-4.flex-grow.flex.flex-col.justify-between
+              div
+                span.text-xs.text-gray-400.font-semibold.uppercase= prod.brand
+                h3.text-sm.font-bold.text-vamos-dark.line-clamp-2.mt-1
+                  a(class="hover:text-vamos-red" href=`/products/${prod.slug}`)= prod.name
+              .mt-3
+                .flex.items-baseline.gap-2
+                  if prod.hasDiscount
+                    span.price-current
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.salePrice)
+                    span.price-original
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.originalPrice)
+                  else
+                    span.price-no-sale
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.salePrice)
+
+                a.mt-3.w-full.btn-outline.text-xs.py-2.justify-center(href=`/products/${prod.slug}`)
+                  | Xem chi tiết
+
+  //- ════════════════════════════════════════════════════
+  //- 6. BRAND HERITAGE SECTION (Stitch Spec)
+  //- ════════════════════════════════════════════════════
+  section.py-16.bg-vamos-dark.text-white(style="background:#0F172A")
+    .vamos-container
+      .grid.items-center.gap-10(class="grid-cols-1 lg:grid-cols-12")
+        .space-y-4(class="lg:col-span-6")
+          span.text-xs.font-bold.uppercase.tracking-widest.text-vamos-red DI SẢN THƯƠNG HIỆU
+          h2.text-3xl.font-black.leading-tight(style="font-family:'Space Grotesk',sans-serif")
+            | 20+ NĂM ĐỒNG HÀNH
+            br
+            span.text-vamos-red NÂNG NIU BÀN CHÂN VIỆT
+          p.text-sm.leading-relaxed.text-gray-300
+            | VAMOS STORE tự hào mang đến những sản phẩm giày dép chất lượng cao, thiết kế độc quyền phù hợp với vóc dáng và thói quen vận động của người Việt Nam.
+          .grid.grid-cols-3.gap-4.pt-4.border-t.border-gray-800
+            div
+              .text-2xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif") 500K+
+              .text-xs.text-gray-400 Đôi giày đã bán
+            div
+              .text-2xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif") 98%
+              .text-xs.text-gray-400 Hài lòng về êm ái
+            div
+              .text-2xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif") 100%
+              .text-xs.text-gray-400 Sản xuất tiêu chuẩn
+        .relative(class="lg:col-span-6")
+          .rounded-vamos-xl.overflow-hidden.border.border-gray-800.shadow-2xl
+            img.w-full.h-80.object-cover(src="https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=1000&q=80" alt="VAMOS Workshop")
+
+block scripts
+  script.
+    // Flash sale countdown simulation
+    (function() {
+      let totalSec = 5 * 3600 + 42 * 60 + 19;
+      const hEl = document.getElementById('flash-hour');
+      const mEl = document.getElementById('flash-min');
+      const sEl = document.getElementById('flash-sec');
+      if (!hEl || !mEl || !sEl) return;
+      setInterval(function() {
+        if (totalSec <= 0) return;
+        totalSec--;
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        hEl.textContent = String(h).padStart(2, '0');
+        mEl.textContent = String(m).padStart(2, '0');
+        sEl.textContent = String(s).padStart(2, '0');
+      }, 1000);
+    })();

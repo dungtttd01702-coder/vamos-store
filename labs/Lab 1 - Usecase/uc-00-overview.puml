@@ -1,0 +1,90 @@
+@startuml uc-00-overview
+title SƠ ĐỒ USE CASE TỔNG QUAN (14 USE CASES CHUẨN HÓA) - VAMOS STORE
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+    ArrowColor #2B2D42
+}
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #E94B35
+    FontColor #E94B35
+    FontSize 14
+}
+
+' Danh sách 3 Actors chính (Bên trái: Người mua, Bên phải: Quản trị)
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Customer)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+
+' Quan hệ kế thừa
+Customer -up-|> Guest : "kế thừa"
+
+rectangle "VAMOS STORE - Hệ thống Website bán giày" {
+
+    package "Tài khoản & Xác thực" {
+        usecase "UC-01: Đăng ký tài khoản" as UC01
+        usecase "UC-02: Đăng nhập" as UC02
+        usecase "UC-03: Khôi phục mật khẩu" as UC03
+        usecase "UC-04: Quản lý hồ sơ & địa chỉ" as UC04
+    }
+
+    package "Mua sắm & Đặt hàng" {
+        usecase "UC-05: Tìm kiếm & xem sản phẩm" as UC05
+        usecase "UC-06: Quản lý giỏ hàng" as UC06
+        usecase "UC-07: Đặt hàng COD" as UC07
+    }
+
+    package "Đơn hàng cá nhân" {
+        usecase "UC-08: Tra cứu & theo dõi đơn hàng" as UC08
+        usecase "UC-09: Hủy đơn hàng" as UC09
+    }
+
+    package "Quản trị & Vận hành (Admin)" {
+        usecase "UC-10: Xử lý & cập nhật đơn hàng" as UC10
+        usecase "UC-11: Quản lý tồn kho" as UC11
+        usecase "UC-12: Quản lý sản phẩm & danh mục" as UC12
+        usecase "UC-13: Quản lý mã giảm giá" as UC13
+        usecase "UC-14: Xem báo cáo doanh thu" as UC14
+    }
+}
+
+' Liên kết Khách vãng lai (Guest)
+Guest -- UC01
+Guest -- UC02
+Guest -- UC03
+Guest -- UC05
+
+' Liên kết Khách hàng (Customer)
+Customer -- UC04
+Customer -- UC06
+Customer -- UC07
+Customer -- UC08
+
+' Mở rộng Hủy đơn (Extend có điều kiện)
+UC09 ..> UC08 : "<<extend>>\n[đơn PENDING]"
+
+' Liên kết Quản trị viên (Admin)
+Admin -- UC10
+Admin -- UC11
+Admin -- UC12
+Admin -- UC13
+Admin -- UC14
+
+@enduml

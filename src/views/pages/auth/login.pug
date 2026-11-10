@@ -1,0 +1,51 @@
+extends ../../layouts/main
+
+block content
+  .flex.items-center.justify-center.py-12.px-4(class="min-h-[70vh]")
+    .max-w-md.w-full.bg-white.p-8.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+      .text-center.mb-8
+        a.inline-flex.items-center.gap-1.mb-3(href="/")
+          span.text-3xl.font-black.tracking-widest(style="font-family:'Space Grotesk',sans-serif;color:#E11B22") VAMOS
+          span.text-sm.font-black.tracking-widest.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") STORE
+        h2.text-xl.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") ĐĂNG NHẬP TÀI KHOẢN
+        p.text-xs.text-gray-500.mt-1 Nhập thông tin để tiếp tục trải nghiệm mua sắm
+
+      if error_msg
+        .mb-5.p-3.bg-red-50.border.border-red-200.rounded-lg.text-xs.text-red-700
+          = error_msg
+
+      form.space-y-4(action="/auth/login" method="POST")
+        input(type="hidden" name="returnUrl" value=returnUrl)
+
+        div
+          label.form-label(for="email") Địa chỉ Email
+          input#email.form-input(
+            type="email"
+            name="email"
+            value=email || ''
+            placeholder="user@example.com"
+            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+            title="Vui lòng nhập địa chỉ email hợp lệ có đuôi tên miền (ví dụ: example@gmail.com)"
+            required
+            autocomplete="email"
+          )
+
+        div
+          .flex.justify-between.items-center(class="mb-1.5")
+            label.form-label.mb-0(for="password") Mật khẩu
+            a.text-xs.text-vamos-red(class="hover:underline" href="/auth/forgot-password") Quên mật khẩu?
+          input#password.form-input(
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          )
+
+        button.w-full.btn-primary.text-xs.mt-2(class="py-3.5" type="submit")
+          | ĐĂNG NHẬP NGAY
+
+      .mt-6.text-center.border-t.border-gray-100.pt-6
+        p.text-xs.text-gray-600
+          | Chưa có tài khoản?&nbsp;
+          a.font-bold.text-vamos-red(class="hover:underline" href="/auth/register") Đăng ký thành viên mới

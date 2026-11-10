@@ -1,0 +1,66 @@
+@startuml ad-01-auth
+title QUY TRÌNH ĐĂNG KÝ VÀ ĐĂNG NHẬP - VAMOS STORE
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #2B2D42
+skinparam ActivityFontColor #2B2D42
+skinparam ArrowColor #2B2D42
+
+|Người dùng (Guest)|
+start
+:Mở trang web VAMOS STORE;
+if (Đã có tài khoản?) then (Có)
+    :Chọn Đăng nhập;
+    :Nhập Email và Mật khẩu;
+    |Hệ thống VAMOS STORE|
+    :Kiểm tra tài khoản theo Email;
+    if (Email tồn tại?) then (Không)
+        :Báo lỗi "Email hoặc mật khẩu không chính xác";
+        stop
+    else (Có)
+        if (Tài khoản bị khóa?) then (Có)
+            :Báo lỗi "Tài khoản bị tạm khóa";
+            stop
+        else (Không)
+            :So sánh mật khẩu với mã băm bcrypt;
+            if (Mật khẩu khớp?) then (Không)
+                :Báo lỗi "Email hoặc mật khẩu không chính xác";
+                stop
+            else (Có)
+                :Tạo Session bảo mật (req.session.user);
+                if (Vai trò là Admin?) then (Admin)
+                    :Điều hướng đến /admin/dashboard;
+                else (Customer)
+                    :Điều hướng về Trang chủ / Giỏ hàng;
+                endif
+                stop
+            endif
+        endif
+    endif
+else (Chưa)
+    |Người dùng (Guest)|
+    :Chọn Đăng ký;
+    :Nhập Họ tên, Email, SĐT, Mật khẩu, Xác nhận MK;
+    |Hệ thống VAMOS STORE|
+    :Validate dữ liệu bắt buộc & định dạng;
+    :Kiểm tra tính duy nhất của Email;
+    if (Email đã tồn tại?) then (Có)
+        :Báo lỗi "Email đã được đăng ký";
+        stop
+    else (Không)
+        if (Xác nhận MK khớp?) then (Không)
+            :Báo lỗi "Mật khẩu xác nhận không khớp";
+            stop
+        else (Có)
+            :Băm mật khẩu bằng bcrypt;
+            :Tạo tài khoản mới (role = CUSTOMER, status = active);
+            :Thông báo đăng ký thành công;
+            :Chuyển hướng đến trang Đăng nhập;
+            stop
+        endif
+    endif
+endif
+@enduml
+

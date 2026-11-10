@@ -1,0 +1,48 @@
+@startuml ad-04-order-cancellation
+title QUY TRÌNH HỦY ĐƠN HÀNG VÀ HOÀN TỒN KHO - VAMOS STORE
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #2B2D42
+skinparam ActivityFontColor #2B2D42
+skinparam ArrowColor #2B2D42
+
+|Khách hàng (Customer)|
+start
+:Mở chi tiết đơn hàng cá nhân;
+|Hệ thống VAMOS STORE|
+:Kiểm tra trạng thái đơn hiện tại;
+if (Trạng thái đơn là PENDING?) then (Không - Đơn đã CONFIRMED/PROCESSING/SHIPPING)
+    :Ẩn nút Hủy đơn;
+    |Khách hàng (Customer)|
+    :Xem thông báo "Đơn đã tiếp nhận xử lý, vui lòng gọi Hotline để hỗ trợ";
+    stop
+else (Có - Đơn còn PENDING)
+    :Hiển thị nút "Hủy đơn hàng";
+    |Khách hàng (Customer)|
+    :Bấm nút "Hủy đơn hàng";
+    :Xác nhận đồng ý hủy trong hộp thoại popup;
+    
+    |Hệ thống VAMOS STORE|
+    :Bắt đầu Database Transaction;
+    :Khóa bản ghi đơn hàng (SELECT ... FOR UPDATE);
+    if (Trạng thái đơn vẫn là PENDING?) then (Đã bị thay đổi trong lúc thao tác)
+        :Rollback Transaction;
+        :Thông báo đơn vừa được xử lý, không thể hủy;
+        stop
+    else (Vẫn PENDING)
+        :Cập nhật orders.order_status = 'CANCELLED';
+        :Duyệt từng dòng order_items của đơn;
+        :Cộng hoàn trả số lượng vào product_variants.stock_quantity;
+        :Ghi log hoàn kho vào inventory_transactions;
+        :Ghi log lịch sử trạng thái vào order_status_histories;
+        :Commit Transaction (Đảm bảo hoàn kho đúng 1 lần);
+        |Khách hàng (Customer)|
+        :Nhận thông báo "Hủy đơn hàng thành công";
+        :Giao diện cập nhật sang trạng thái ĐÃ HỦY;
+        stop
+    endif
+endif
+@enduml
+

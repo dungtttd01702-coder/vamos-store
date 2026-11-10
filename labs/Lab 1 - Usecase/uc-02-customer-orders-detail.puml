@@ -1,0 +1,50 @@
+@startuml uc-02-customer-orders-detail
+title SƠ ĐỒ CHI TIẾT: PHÂN HỆ ĐƠN HÀNG CÁ NHÂN (UC-08 & UC-09) - VAMOS STORE
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+    ArrowColor #2B2D42
+}
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #E94B35
+    FontColor #E94B35
+    FontSize 14
+}
+
+actor "Khách hàng" as Customer
+
+rectangle "VAMOS STORE - Phân hệ Đơn hàng cá nhân" {
+    usecase "Xem lịch sử đơn hàng" as UC_OrderList
+    usecase "UC-08: Tra cứu & theo dõi đơn hàng" as UC08
+    usecase "UC-09: Hủy đơn hàng" as UC09
+}
+
+' Liên kết Actor
+Customer -- UC_OrderList
+Customer -- UC08
+Customer -- UC09
+
+' Quan hệ <<include>> (Theo dõi tiến trình thuộc luồng xem đơn hàng)
+UC08 ..> UC_OrderList : "<<include>>"
+
+' Quan hệ <<extend>> (Chỉ mở rộng hủy đơn khi đơn ở trạng thái PENDING)
+UC09 ..> UC08 : "<<extend>>\n[đơn ở trạng thái PENDING]"
+
+@enduml

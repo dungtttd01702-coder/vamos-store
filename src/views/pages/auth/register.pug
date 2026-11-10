@@ -1,0 +1,82 @@
+extends ../../layouts/main
+
+block content
+  .flex.items-center.justify-center.py-12.px-4(class="min-h-[75vh]")
+    .max-w-md.w-full.bg-white.p-8.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+      .text-center.mb-8
+        a.inline-flex.items-center.gap-1.mb-3(href="/")
+          span.text-3xl.font-black.tracking-widest(style="font-family:'Space Grotesk',sans-serif;color:#E11B22") VAMOS
+          span.text-sm.font-black.tracking-widest.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") STORE
+        h2.text-xl.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") ĐĂNG KÝ TÀI KHOẢN
+        p.text-xs.text-gray-500.mt-1 Trở thành thành viên VAMOS để nhận các ưu đãi độc quyền
+
+      if error_msg
+        .mb-5.p-3.bg-red-50.border.border-red-200.rounded-lg.text-xs.text-red-700
+          = error_msg
+
+      form.space-y-4(action="/auth/register" method="POST")
+        div
+          label.form-label(for="full_name") Họ và tên
+          input#full_name.form-input(
+            type="text"
+            name="full_name"
+            value=formData ? formData.full_name : ''
+            placeholder="Ví dụ: Nguyễn Văn A"
+            required
+            autocomplete="name"
+          )
+
+        div
+          label.form-label(for="email") Địa chỉ Email *
+          input#email.form-input(
+            type="email"
+            name="email"
+            value=formData ? formData.email : ''
+            placeholder="user@example.com"
+            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+            title="Vui lòng nhập địa chỉ email hợp lệ có đuôi tên miền (ví dụ: example@gmail.com)"
+            required
+            autocomplete="email"
+          )
+
+        div
+          label.form-label(for="phone") Số điện thoại (tùy chọn)
+          input#phone.form-input(
+            type="tel"
+            name="phone"
+            value=formData ? formData.phone : ''
+            placeholder="0901234567"
+            pattern="(0|\\+84)[3|5|7|8|9][0-9]{8}"
+            title="Số điện thoại Việt Nam 10 chữ số (ví dụ: 0901234567)"
+            autocomplete="tel"
+          )
+
+        div
+          label.form-label(for="password") Mật khẩu *
+          input#password.form-input(
+            type="password"
+            name="password"
+            placeholder="Tối thiểu 6 ký tự"
+            minlength="6"
+            required
+            autocomplete="new-password"
+          )
+
+        div
+          label.form-label(for="confirm_password") Xác nhận mật khẩu *
+          input#confirm_password.form-input(
+            type="password"
+            name="confirm_password"
+            placeholder="Nhập lại mật khẩu"
+            minlength="6"
+            required
+            autocomplete="new-password"
+          )
+
+        button.w-full.btn-primary.text-xs.mt-2(class="py-3.5" type="submit")
+          | TẠO TÀI KHOẢN NGAY
+
+      .mt-6.text-center.border-t.border-gray-100.pt-6
+        p.text-xs.text-gray-600
+          | Đã có tài khoản?&nbsp;
+          a.font-bold.text-vamos-red(class="hover:underline" href="/auth/login") Đăng nhập tại đây

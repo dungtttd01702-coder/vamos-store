@@ -1,0 +1,51 @@
+@startuml uc-03-order-operations-detail
+title SƠ ĐỒ CHI TIẾT: PHÂN HỆ XỬ LÝ ĐƠN HÀNG ADMIN (UC-10) - VAMOS STORE
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+    ArrowColor #2B2D42
+}
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #E94B35
+    FontColor #E94B35
+    FontSize 14
+}
+
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "VAMOS STORE - Phân hệ Xử lý Đơn hàng" {
+    usecase "UC-10: Xử lý & cập nhật đơn hàng" as UC10
+    usecase "Tra cứu thông tin người nhận" as UC_CustomerInfo
+    usecase "Cập nhật trạng thái đơn" as UC_UpdateStatus
+    usecase "Hủy đơn hàng nội bộ" as UC_CancelInternal
+}
+
+' Liên kết Actor
+Admin -- UC10
+Admin -- UC_CancelInternal
+
+' Quan hệ <<include>> (Quy trình xử lý đơn bắt buộc phải xem thông tin và chuyển trạng thái)
+UC10 ..> UC_CustomerInfo : "<<include>>"
+UC10 ..> UC_UpdateStatus : "<<include>>"
+
+' Quan hệ <<extend>> (Nhánh rẽ hủy đơn khi có yêu cầu hợp lệ)
+UC_CancelInternal ..> UC_UpdateStatus : "<<extend>>\n[đơn PENDING/CONFIRMED;\nbắt buộc lý do & hoàn kho]"
+
+@enduml

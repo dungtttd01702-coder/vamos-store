@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.agents
+.markdown-collab
+report
+labs
+docs
+.env
+.DS_Store
+

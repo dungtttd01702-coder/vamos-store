@@ -1,0 +1,48 @@
+@startuml ad-05-inventory-adjustment
+title QUY TRÌNH ĐIỀU CHỈNH TỒN KHO THỦ CÔNG - VAMOS STORE
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #2B2D42
+skinparam ActivityFontColor #2B2D42
+skinparam ArrowColor #2B2D42
+
+|Quản trị viên (Admin)|
+start
+:Mở Quản lý tồn kho;
+:Tìm kiếm biến thể sản phẩm theo SKU hoặc Tên;
+:Bấm nút "Điều chỉnh tồn";
+|Hệ thống VAMOS STORE|
+:Hiển thị số lượng tồn hiện tại của biến thể;
+:Hiển thị form nhập: Loại điều chỉnh, Số lượng, Lý do bắt buộc;
+
+|Quản trị viên (Admin)|
+:Chọn loại điều chỉnh (Nhập thêm / Xuất kiểm kê / Hàng hỏng);
+:Nhập số lượng thay đổi;
+:Nhập Lý do điều chỉnh (bắt buộc);
+:Bấm "Xác nhận điều chỉnh";
+
+|Hệ thống VAMOS STORE|
+:Kiểm tra lý do không được để trống;
+if (Thiếu lý do?) then (Có)
+    :Báo lỗi "Vui lòng nhập lý do điều chỉnh tồn kho";
+    stop
+else (Đầy đủ)
+    :Tính toán số tồn kho mới (new_quantity);
+    if (new_quantity < 0?) then (Âm tồn)
+        :Báo lỗi "Số lượng tồn kho không thể âm";
+        stop
+    else (Hợp lệ >= 0)
+        :Bắt đầu Database Transaction;
+        :Cập nhật product_variants.stock_quantity = new_quantity;
+        :Tạo bản ghi kiểm toán trong inventory_transactions\n(variant_id, old_qty, new_qty, change_qty, reason, admin_id);
+        :Commit Transaction;
+        |Quản trị viên (Admin)|
+        :Nhận thông báo "Điều chỉnh tồn kho thành công";
+        :Danh sách tồn kho được cập nhật tức thời;
+        stop
+    endif
+endif
+@enduml
+

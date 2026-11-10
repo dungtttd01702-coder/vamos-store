@@ -1,0 +1,76 @@
+//- ══════════════════════════════════════════════════
+//- VAMOS STORE – Footer (Stitch Design System)
+//- ══════════════════════════════════════════════════
+footer(style="background:#0B131F;color:#E5E7EB")
+  .vamos-container.pt-14.pb-8
+
+    //- ── TOP ROW: 4 columns ──
+    .grid.gap-10(class="grid-cols-1 md:grid-cols-2 lg:grid-cols-4")
+
+      //- Col 1: Brand
+      div
+        a.flex.items-center.gap-1.mb-4(href="/")
+          span.text-2xl.font-black.tracking-widest(style="font-family:'Space Grotesk',sans-serif;color:#E11B22") VAMOS
+          span.text-xl.font-black.tracking-widest.text-white(style="font-family:'Space Grotesk',sans-serif") STORE
+        p.text-sm.leading-relaxed(style="color:#94A3B8")
+          | VAMOS STORE – Thương hiệu bán lẻ giày sneaker, giày thể thao và sandal hiện đại.
+          | Đồng hành cùng phong cách trẻ trung và tự tin của bạn.
+        .mt-4.flex.items-center.gap-3
+          a.w-8.h-8.rounded-full.flex.items-center.justify-center.transition-colors(style="background:#1F2937" class="hover:bg-vamos-red" href="#" title="Facebook")
+            svg.w-4.h-4.fill-current.text-white(viewBox="0 0 24 24")
+              path(d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z")
+          a.w-8.h-8.rounded-full.flex.items-center.justify-center.transition-colors(style="background:#1F2937" class="hover:bg-vamos-red" href="#" title="Instagram")
+            svg.w-4.h-4.fill-current.text-white(viewBox="0 0 24 24")
+              path(d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01M6.5 2h11A4.5 4.5 0 0122 6.5v11a4.5 4.5 0 01-4.5 4.5h-11A4.5 4.5 0 012 17.5v-11A4.5 4.5 0 016.5 2z")
+          a.w-8.h-8.rounded-full.flex.items-center.justify-center.transition-colors(style="background:#1F2937" class="hover:bg-vamos-red" href="#" title="TikTok")
+            svg.w-4.h-4.fill-current.text-white(viewBox="0 0 24 24")
+              path(d="M9 12a4 4 0 104 4V4a5 5 0 005 5")
+
+      //- Col 2: Sản phẩm
+      div
+        p.text-sm.font-bold.uppercase.tracking-wider.mb-4(style="color:#F8F9FA;font-family:'Space Grotesk',sans-serif") Khám Phá
+        nav.space-y-2.text-sm
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/products?cat=sneaker-nam") Sneaker Nam
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/products?cat=sneaker-nu") Sneaker Nữ
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/products?cat=giay-the-thao") Giày Thể Thao
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/products?cat=sandal-dep") Sandal & Dép
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/promotions") Khuyến Mãi HOT 🔥
+
+      //- Col 3: Chính sách
+      div
+        p.text-sm.font-bold.uppercase.tracking-wider.mb-4(style="color:#F8F9FA;font-family:'Space Grotesk',sans-serif") Hỗ Trợ
+        nav.space-y-2.text-sm
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/about") Giới thiệu VAMOS
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/policies/shipping") Chính sách giao hàng (COD)
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/policies/return") Đổi trả 7 ngày
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/policies/warranty") Bảo hành chính hãng
+          a.block.transition-colors(style="color:#94A3B8" class="py-0.5 hover:text-white" href="/policies/privacy") Bảo mật thông tin
+
+      //- Col 4: Liên hệ & newsletter
+      div
+        p.text-sm.font-bold.uppercase.tracking-wider.mb-4(style="color:#F8F9FA;font-family:'Space Grotesk',sans-serif") Liên Hệ
+        .space-y-2.text-sm.mb-5
+          p(style="color:#94A3B8")
+            span 📍&nbsp;
+            | 137 Nguyễn Thị Thập, Liên Chiểu, TP. Đà Nẵng
+          p(style="color:#94A3B8")
+            span 📞&nbsp;
+            a.font-semibold.text-white(href="tel:19002126") 1900 2126
+            span(style="color:#94A3B8")  (8:00 – 21:00)
+          p(style="color:#94A3B8")
+            span 📧&nbsp;
+            | contact@vamos.vn
+        //- COD badge
+        .inline-flex.items-center.gap-2.text-xs.font-bold.px-3.py-2.rounded-vamos-md(style="background:#1F2937;color:#AEEA00;border:1px solid #374151")
+          span 💵
+          span COD – Thanh toán khi nhận hàng
+
+    //- ── DIVIDER ──
+    .h-px.my-8(style="background:#1F2937")
+
+    //- ── BOTTOM BAR ──
+    .flex.flex-col.items-center.justify-between.gap-3.text-xs(class="sm:flex-row" style="color:#4B5563")
+      span © 2025 VAMOS STORE. Bản quyền thuộc về Nhóm phát triển dự án VAMOS STORE. Tất cả các quyền được bảo lưu.
+      .flex.items-center.gap-2
+        span.px-2.py-1.rounded.font-semibold(style="background:#1F2937;color:#AEEA00") 🛡 SSL
+        span.px-2.py-1.rounded.font-semibold(style="background:#1F2937;color:#94A3B8") FPT Polytechnic Đà Nẵng · JAV102

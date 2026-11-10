@@ -1,0 +1,59 @@
+@startuml ad-02-checkout-cod
+title QUY TRÌNH ĐẶT HÀNG COD VÀ TRỪ TỒN KHO - VAMOS STORE
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #2B2D42
+skinparam ActivityFontColor #2B2D42
+skinparam ArrowColor #2B2D42
+
+|Khách hàng (Customer)|
+start
+:Mở Giỏ hàng và chọn "Tiến hành đặt hàng";
+:Chọn/nhập Địa chỉ nhận hàng;
+if (Có mã giảm giá?) then (Có)
+    :Nhập mã Voucher và bấm Áp dụng;
+    |Hệ thống VAMOS STORE|
+    :Kiểm tra Voucher (thời hạn, lượt dùng, đơn tối thiểu);
+    if (Voucher hợp lệ?) then (Hợp lệ)
+        :Tính số tiền giảm giá (discount_amount);
+        :Cập nhật tổng tiền thanh toán;
+    else (Không hợp lệ)
+        :Báo lỗi lý do voucher không hợp lệ;
+    endif
+endif
+
+|Khách hàng (Customer)|
+:Xác nhận phương thức thanh toán COD;
+:Nhập ghi chú giao hàng (nếu có);
+:Bấm nút "XÁC NHẬN ĐẶT HÀNG";
+
+|Hệ thống (Database Transaction)|
+:Bắt đầu Database Transaction;
+:Khóa dòng kiểm tra tồn kho các biến thể (SELECT ... FOR UPDATE);
+if (Tất cả biến thể đủ số lượng tồn?) then (Không đủ)
+    :Rollback Transaction;
+    |Khách hàng (Customer)|
+    :Hiển thị lỗi "Biến thể hết hàng/không đủ tồn kho";
+    stop
+else (Đủ tồn kho)
+    |Hệ thống (Database Transaction)|
+    :Tạo mã đơn hàng ngẫu nhiên (order_code);
+    :Lưu bản ghi orders (order_status = PENDING, COD, UNPAID);
+    :Lưu danh sách order_items (snapshot tên SP, SKU, size, màu, đơn giá);
+    :Trừ số lượng tồn kho trong product_variants;
+    :Ghi nhật ký biến động kho vào inventory_transactions;
+    if (Có dùng Voucher?) then (Có)
+        :Tăng used_count của Voucher lên 1;
+    endif
+    :Ghi vết lịch sử vào order_status_histories (PENDING);
+    :Xóa các sản phẩm đã đặt khỏi cart_items;
+    :Commit Transaction;
+    |Khách hàng (Customer)|
+    :Chuyển hướng đến màn hình Kết quả đặt hàng;
+    :Hiển thị Mã đơn hàng và Tổng tiền COD cần chuẩn bị;
+    stop
+endif
+@enduml
+

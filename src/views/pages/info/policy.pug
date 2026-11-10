@@ -1,0 +1,40 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        a.transition-colors(class="hover:text-vamos-red" href="/policies/shipping") Chính sách
+        span /
+        span.text-vamos-dark.font-bold= title
+
+  .vamos-container.py-12
+    .max-w-3xl.mx-auto.bg-white.p-8.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card(class="md:p-12")
+      h1.text-2xl.font-black.text-vamos-dark.border-b.border-gray-100.pb-4.mb-6(class="md:text-3xl" style="font-family:'Space Grotesk',sans-serif")= title
+      
+      .text-sm.text-gray-600.leading-relaxed.space-y-4
+        if policyType === 'shipping'
+          h3.text-base.font-bold.text-vamos-dark 1. Hình thức giao hàng và thanh toán COD
+          p
+            | VAMOS STORE áp dụng phương thức giao hàng tận nơi và thanh toán tiền mặt khi nhận hàng (Cash on Delivery - COD) trên toàn quốc.
+          p
+            | Quý khách được phép mở hộp kiểm tra mẫu mã, màu sắc và kích cỡ giày trước khi thanh toán tiền cho nhân viên giao vận.
+          h3.text-base.font-bold.text-vamos-dark 2. Phí vận chuyển
+          p
+            | • Miễn phí vận chuyển toàn quốc cho tất cả các đơn hàng có giá trị từ 500.000 VNĐ trở lên.
+          p
+            | • Áp dụng phí vận chuyển đồng giá 30.000 VNĐ cho các đơn hàng dưới 500.000 VNĐ.
+        else if policyType === 'returns'
+          h3.text-base.font-bold.text-vamos-dark 1. Điều kiện đổi trả
+          p
+            | • Sản phẩm còn nguyên tem mác, hộp và chưa qua sử dụng ngoài trời.
+          p
+            | • Thời gian yêu cầu đổi trả trong vòng 7 ngày kể từ ngày nhận hàng thành công.
+          h3.text-base.font-bold.text-vamos-dark 2. Hỗ trợ đổi size
+          p
+            | VAMOS hỗ trợ đổi size linh hoạt và nhanh chóng nếu quý khách mang không vừa chân.
+        else
+          p
+            | VAMOS STORE cam kết mang đến sự hài lòng tuyệt đối cho khách hàng với các tiêu chuẩn chất lượng cao nhất, bảo vệ quyền lợi và bảo mật thông tin cá nhân của người tiêu dùng theo quy định của pháp luật.

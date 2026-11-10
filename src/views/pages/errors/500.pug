@@ -1,0 +1,16 @@
+extends ../../layouts/main
+
+block content
+  .container.mx-auto.px-4.py-20.text-center
+    .max-w-xl.mx-auto
+      .text-8xl.font-black.text-red-600.mb-4 500
+      h1.text-2xl.font-bold.text-gray-800.mb-2 Đã Xảy Ra Lỗi Hệ Thống
+      p.text-sm.text-gray-600.mb-6
+        = message || 'Máy chủ đang gặp sự cố gián đoạn tạm thời. Chúng tôi đang xử lý, xin quý khách vui lòng quay lại sau ít phút.'
+      if stack
+        .bg-gray-900.text-red-400.text-left.p-4.rounded-lg.text-xs.font-mono.overflow-x-auto.mb-6
+          pre= stack
+      .flex.justify-center.space-x-4
+        a.btn-primary(href="/") Quay Lại Trang Chủ
+        a.btn-outline(href="javascript:location.reload()") Thử Lại
+

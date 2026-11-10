@@ -1,0 +1,83 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-dark.text-white.py-6.border-b.border-gray-800
+    .vamos-container
+      .flex.items-center.justify-between
+        div
+          span.text-xs.font-bold.text-vamos-red.uppercase.tracking-widest QUẢN TRỊ VIÊN
+          h1.text-2xl.font-black.mt-1(style="font-family:'Space Grotesk',sans-serif") BẢNG ĐIỀU KHIỂN HỆ THỐNG (ADMIN)
+        .flex.items-center.gap-3
+          a.btn-outline.text-xs.py-2.px-4.border-gray-600.text-white(class="hover:bg-gray-800" href="/") Về Cửa Hàng
+          a.btn-primary.text-xs.py-2.px-4(href="/admin/orders") Quản Lý Đơn Hàng
+
+  .vamos-container.py-8
+    //- 4 KPI Stat Cards
+    .grid.grid-cols-2.gap-4.mb-8(class="lg:grid-cols-4 lg:gap-6")
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+        .text-xs.text-gray-400.font-semibold.uppercase Doanh Thu Thực
+        .text-2xl.font-black.text-vamos-red.mt-1(style="font-family:'Space Grotesk',sans-serif")
+          = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue)
+        .text-xs.text-gray-400.mt-1 (Không tính đơn đã hủy)
+
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+        .text-xs.text-gray-400.font-semibold.uppercase Tổng Đơn Hàng
+        .text-2xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif")
+          = stats.totalOrders
+        .text-xs.text-gray-400.mt-1 Tất cả thời gian
+
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+        .text-xs.text-gray-400.font-semibold.uppercase Đơn Chờ Xác Nhận
+        .text-2xl.font-black.text-orange-600.mt-1(style="font-family:'Space Grotesk',sans-serif")
+          = stats.pendingOrders
+        .text-xs.text-orange-600.font-semibold.mt-1 Cần duyệt đơn ngay
+
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+        .text-xs.text-gray-400.font-semibold.uppercase Sản Phẩm Hoạt Động
+        .text-2xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif")
+          = stats.totalProducts
+        .text-xs.text-green-600.font-semibold.mt-1 Đang bán trực tuyến
+
+    .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
+      //- Recent Orders (8 cols)
+      .space-y-4(class="lg:col-span-8")
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .flex.items-center.justify-between.pb-4.border-b.border-gray-100.mb-4
+            h2.text-sm.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif")
+              | ĐƠN HÀNG GẦN ĐÂY
+            a.text-xs.font-bold.text-vamos-red(class="hover:underline" href="/admin/orders") Xem tất cả &rarr;
+
+          if recentOrders && recentOrders.length > 0
+            .divide-y.divide-gray-100
+              each o in recentOrders
+                .py-3.flex.items-center.justify-between.gap-3.text-xs
+                  div
+                    span.font-bold.text-vamos-dark= `#${o.order_code}`
+                    span.text-gray-400.ml-2= o.recipient_name_snapshot
+                    p.text-gray-400.text-xs= new Date(o.created_at).toLocaleString('vi-VN')
+                  .text-right
+                    .font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
+                    span.px-2.rounded.text-xs.font-bold(
+                      class=(o.order_status === 'PENDING' ? 'bg-orange-100 text-orange-700 py-0.5' : (o.order_status === 'CANCELLED' ? 'bg-red-100 text-red-700 py-0.5' : 'bg-blue-100 text-blue-700 py-0.5'))
+                    )= o.order_status
+                  a.btn-outline.text-xs.py-1.px-3(href=`/admin/orders/${o.id}`) Xử lý
+          else
+            p.text-xs.text-gray-400.py-4.text-center Chưa có đơn hàng nào
+
+      //- Low Stock Alerts (4 cols)
+      .space-y-4(class="lg:col-span-4")
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          h2.text-sm.font-bold.text-vamos-dark.uppercase.pb-4.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            | ⚠️ CẢNH BÁO TỒN KHO THẤP
+          if lowStockItems && lowStockItems.length > 0
+            .divide-y.divide-gray-100
+              each it in lowStockItems
+                .py-3.flex.items-center.justify-between.text-xs
+                  div
+                    h4.font-bold.text-vamos-dark.truncate= it.product_name
+                    p.text-gray-400= `${it.color_name} - Size ${it.size_name} (#${it.sku})`
+                  .text-right
+                    span.font-black.text-sm.text-red-600(style="font-family:'Space Grotesk',sans-serif")= `${it.stock_quantity} đôi`
+          else
+            p.text-xs.text-green-600.py-4.text-center ✓ Mọi biến thể đều đủ hàng trong kho

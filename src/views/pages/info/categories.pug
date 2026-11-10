@@ -1,0 +1,30 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        span.text-vamos-dark.font-bold Danh mục sản phẩm
+
+  .vamos-container.py-12
+    .text-center.max-w-xl.mx-auto.mb-10
+      span.text-xs.font-bold.text-vamos-red.uppercase.tracking-widest BỘ SƯU TẬP
+      h1.text-3xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif") DANH MỤC GIÀY DÉP VAMOS
+      p.text-xs.text-gray-500.mt-2 Lựa chọn kiểu dáng phù hợp với phong cách và hoạt động hàng ngày của bạn
+
+    .grid.grid-cols-1.gap-6(class="md:grid-cols-2")
+      each cat in categories
+        a.group.bg-white.rounded-vamos-xl.border.border-vamos-border.p-6.shadow-vamos-card.transition-all.duration-300.flex.items-center.justify-between(
+          class="hover:border-red-200 hover:shadow-vamos-hover hover:-translate-y-1"
+          href=`/products?cat=${cat.slug}`
+        )
+          div
+            h2.text-xl.font-black.text-vamos-dark.transition-colors(class="group-hover:text-vamos-red" style="font-family:'Space Grotesk',sans-serif")= cat.name
+            p.text-xs.text-gray-500.mt-1= cat.description || 'Sản phẩm giày sneaker, thể thao và sandal hiện đại'
+            span.inline-flex.items-center.gap-1.mt-4.text-xs.font-bold.text-vamos-red(class="group-hover:underline")
+              span Khám phá sản phẩm
+              span &rarr;
+          .w-14.h-14.bg-red-50.rounded-vamos-lg.flex.items-center.justify-center.text-vamos-red.font-black.text-lg(style="font-family:'Space Grotesk',sans-serif")
+            = cat.product_count || 0

@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-white text-vamos-dark antialiased;
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* ═══ BUTTONS ═══ */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
+           bg-vamos-red text-white font-bold text-sm uppercase tracking-wider
+           hover:bg-vamos-red-dark transition-all duration-200
+           shadow-vamos-cta hover:shadow-vamos-hover hover:scale-[1.02]
+           focus:outline-none focus:ring-2 focus:ring-vamos-red focus:ring-offset-2;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
+           bg-vamos-dark text-white font-bold text-sm uppercase tracking-wider
+           hover:bg-vamos-charcoal transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-vamos-dark focus:ring-offset-2;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
+           border-2 border-vamos-dark text-vamos-dark font-bold text-sm uppercase tracking-wider
+           hover:bg-vamos-dark hover:text-white transition-all duration-200;
+  }
+  .btn-outline-red {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
+           border-2 border-vamos-red text-vamos-red font-bold text-sm uppercase tracking-wider
+           hover:bg-vamos-red hover:text-white transition-all duration-200;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           text-vamos-muted font-medium text-sm
+           hover:text-vamos-dark hover:bg-vamos-bg-subtle transition-all duration-200;
+  }
+
+  /* ═══ BADGES ═══ */
+  .badge-new {
+    @apply inline-block px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-lime-400 text-lime-900;
+  }
+  .badge-sale {
+    @apply inline-block px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-vamos-red text-white;
+  }
+  .badge-hot {
+    @apply inline-block px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-vamos-orange text-white;
+  }
+  .badge-tag {
+    @apply inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full bg-vamos-bg-subtle text-vamos-slate;
+  }
+
+  /* ═══ PRODUCT CARD ═══ */
+  .product-card {
+    @apply bg-white border border-gray-100 rounded-vamos-lg overflow-hidden
+           transition-all duration-300 cursor-pointer
+           hover:border-red-200 hover:shadow-vamos-hover hover:-translate-y-1;
+  }
+  .product-card-img {
+    @apply w-full aspect-square object-contain mix-blend-multiply
+           transition-transform duration-500;
+  }
+  .product-card:hover .product-card-img {
+    @apply scale-105;
+  }
+
+  /* ═══ FORM CONTROLS ═══ */
+  .form-input {
+    @apply w-full px-4 py-3 rounded-lg border border-vamos-border bg-vamos-bg-light
+           text-vamos-dark placeholder-vamos-muted text-sm
+           focus:outline-none focus:ring-2 focus:ring-vamos-red focus:border-transparent
+           transition-all duration-200;
+  }
+  .form-label {
+    @apply block text-sm font-semibold text-vamos-dark mb-1.5;
+  }
+
+  /* ═══ SIZE SELECTOR ═══ */
+  .size-box {
+    @apply w-11 h-11 flex items-center justify-center border-2 border-vamos-border rounded-lg
+           font-bold text-sm text-vamos-dark transition-all duration-150 cursor-pointer
+           hover:border-vamos-red hover:text-vamos-red;
+  }
+  .size-box.active {
+    @apply border-vamos-red bg-vamos-red text-white;
+  }
+  .size-box.out-of-stock {
+    @apply bg-gray-50 text-gray-300 border-dashed cursor-not-allowed relative overflow-hidden;
+  }
+
+  /* ═══ COLOR SWATCH ═══ */
+  .color-swatch {
+    @apply w-7 h-7 rounded-full border-2 border-white ring-2 ring-gray-200 cursor-pointer
+           transition-all duration-150 hover:ring-vamos-red hover:scale-110;
+  }
+  .color-swatch.active {
+    @apply ring-vamos-red scale-110;
+  }
+
+  /* ═══ SECTION HEADINGS ═══ */
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply text-2xl font-bold text-vamos-dark tracking-tight;
+  }
+  .section-subtitle {
+    @apply text-sm text-vamos-muted mt-1;
+  }
+
+  /* ═══ CONTAINER ═══ */
+  .vamos-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ═══ PRICE DISPLAY ═══ */
+  .price-current {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply text-lg font-bold text-vamos-red;
+  }
+  .price-original {
+    @apply text-sm text-gray-400 line-through;
+  }
+  .price-no-sale {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply text-lg font-bold text-vamos-dark;
+  }
+
+  /* ═══ ANNOUNCEMENT TICKER ═══ */
+  .ticker-wrap {
+    @apply overflow-hidden whitespace-nowrap;
+  }
+  .ticker-content {
+    @apply inline-block animate-[marquee_30s_linear_infinite];
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+

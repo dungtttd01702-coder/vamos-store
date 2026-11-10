@@ -1,0 +1,91 @@
+extends ../../layouts/main
+
+block content
+  .bg-vamos-dark.text-white.py-6.border-b.border-gray-800
+    .vamos-container
+      .flex.items-center.justify-between
+        div
+          span.text-xs.font-bold.text-vamos-red.uppercase.tracking-widest QUẢN TRỊ VIÊN
+          h1.text-2xl.font-black.mt-1(style="font-family:'Space Grotesk',sans-serif") QUẢN LÝ ĐƠN HÀNG (COD)
+        .flex.items-center.gap-3
+          a.btn-outline.text-xs.py-2.px-4.border-gray-600.text-white(class="hover:bg-gray-800" href="/admin/dashboard") Dashboard
+          a.btn-outline.text-xs.py-2.px-4.border-gray-600.text-white(class="hover:bg-gray-800" href="/") Về Cửa Hàng
+
+  .vamos-container.py-8
+    //- Filter & Search Bar
+    .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+      form.flex.flex-col.gap-4(class="md:flex-row md:items-center md:justify-between" action="/admin/orders" method="GET")
+        .flex.flex-wrap.items-center.gap-2
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === '' ? 'bg-vamos-dark text-white py-1.5' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 py-1.5'
+            href="/admin/orders"
+          ) Tất cả
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === 'PENDING' ? 'bg-orange-500 text-white py-1.5' : 'bg-orange-50 text-orange-700 hover:bg-orange-100 py-1.5'
+            href="/admin/orders?status=PENDING"
+          ) Chờ xác nhận
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === 'CONFIRMED' ? 'bg-blue-600 text-white py-1.5' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 py-1.5'
+            href="/admin/orders?status=CONFIRMED"
+          ) Đã xác nhận
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === 'SHIPPING' ? 'bg-purple-600 text-white py-1.5' : 'bg-purple-50 text-purple-700 hover:bg-purple-100 py-1.5'
+            href="/admin/orders?status=SHIPPING"
+          ) Đang giao
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === 'DELIVERED' ? 'bg-green-600 text-white py-1.5' : 'bg-green-50 text-green-700 hover:bg-green-100 py-1.5'
+            href="/admin/orders?status=DELIVERED"
+          ) Hoàn tất
+          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
+            class=selectedStatus === 'CANCELLED' ? 'bg-red-600 text-white py-1.5' : 'bg-red-50 text-red-700 hover:bg-red-100 py-1.5'
+            href="/admin/orders?status=CANCELLED"
+          ) Đã hủy
+
+        .flex.items-center.gap-2
+          input.form-input.text-xs.py-2(
+            type="text"
+            name="q"
+            value=searchQuery
+            placeholder="Tìm mã đơn, tên, sđt..."
+          )
+          button.btn-primary.text-xs.py-2.px-4(type="submit") Tìm
+
+    //- Orders Table
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      if orders && orders.length > 0
+        .overflow-x-auto
+          table.w-full.text-left.border-collapse.text-xs
+            thead.bg-gray-50.border-b.border-gray-200.text-gray-500.uppercase.font-bold
+              tr
+                th.p-4 Mã Đơn Hàng
+                th.p-4 Khách Hàng
+                th.p-4 Số Điện Thoại
+                th.p-4 Ngày Đặt
+                th.p-4 Tổng Tiền COD
+                th.p-4 Trạng Thái
+                th.p-4 Thanh Toán
+                th.p-4 Hành Động
+            tbody.divide-y.divide-gray-100
+              each o in orders
+                tr.transition-colors(class="hover:bg-gray-50")
+                  td.p-4.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                    = `#${o.order_code}`
+                  td.p-4.font-medium.text-gray-900= o.recipient_name_snapshot
+                  td.p-4.text-gray-500= o.recipient_phone_snapshot
+                  td.p-4.text-gray-500= new Date(o.created_at).toLocaleDateString('vi-VN')
+                  td.p-4.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
+                  td.p-4
+                    span.px-2.py-1.rounded-full.font-bold(
+                      class=o.order_status === 'PENDING' ? 'bg-orange-100 text-orange-700' : (o.order_status === 'CANCELLED' ? 'bg-red-100 text-red-700' : (o.order_status === 'DELIVERED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'))
+                    )= o.order_status
+                  td.p-4
+                    span.px-2.py-1.rounded(
+                      class=o.payment_status === 'PAID' ? 'bg-green-50 text-green-700 font-bold' : 'bg-gray-100 text-gray-600'
+                    )= o.payment_status === 'PAID' ? 'Đã thu tiền' : 'Chưa thu tiền'
+                  td.p-4
+                    a.btn-outline.text-xs.py-1.px-3(href=`/admin/orders/${o.id}`) Chi tiết
+      else
+        .p-12.text-center
+          .text-3xl.mb-2 📋
+          p.text-sm.text-gray-500 Không có đơn hàng nào phù hợp với bộ lọc.

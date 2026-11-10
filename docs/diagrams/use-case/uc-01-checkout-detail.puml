@@ -1,0 +1,58 @@
+@startuml uc-01-checkout-detail
+title SƠ ĐỒ CHI TIẾT: PHÂN HỆ ĐẶT HÀNG COD (UC-07) - VAMOS STORE
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+skinparam shadowing false
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+    ArrowColor #2B2D42
+}
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #2B2D42
+    FontColor #2B2D42
+    FontSize 13
+}
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #E94B35
+    FontColor #E94B35
+    FontSize 14
+}
+
+actor "Khách hàng" as Customer
+
+rectangle "VAMOS STORE - Phân hệ Đặt hàng COD" {
+    ' Cột chính (Base Use Cases)
+    usecase "UC-06: Quản lý giỏ hàng" as UC06
+    usecase "UC-07: Đặt hàng COD" as UC07
+    usecase "Áp dụng mã giảm giá" as UC_Voucher
+    
+    ' Cột phụ (Included Use Cases)
+    usecase "Chọn địa chỉ giao hàng" as UC_Address
+    usecase "Kiểm tra tồn kho biến thể" as UC_StockCheck
+    usecase "Xác nhận thanh toán COD" as UC_COD
+}
+
+' Liên kết Actor với các Use Case chính
+Customer -- UC06
+Customer -- UC07
+Customer -- UC_Voucher
+
+' Quan hệ <<include>> (Bắt buộc phải chạy qua khi Đặt hàng)
+UC07 ..> UC_Address : "<<include>>"
+UC07 ..> UC_StockCheck : "<<include>>"
+UC07 ..> UC_COD : "<<include>>"
+
+' Quan hệ <<extend>> (Tùy chọn mở rộng khi khách có mã giảm giá)
+UC_Voucher ..> UC07 : "<<extend>>"
+
+@enduml

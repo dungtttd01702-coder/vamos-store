@@ -1,0 +1,169 @@
+extends ../../layouts/main
+
+block content
+  //- ── BREADCRUMB ──
+  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
+    .vamos-container
+      nav.text-xs.text-gray-500.flex.items-center.gap-2
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        if currentCategory
+          a.transition-colors(class="hover:text-vamos-red" href="/products") Cửa hàng
+          span /
+          span.text-vamos-dark.font-bold= currentCategory.name
+        else
+          span.text-vamos-dark.font-bold Tất cả sản phẩm
+
+  //- ── MAIN CONTENT ──
+  .vamos-container.py-8
+    .flex.flex-col.gap-8(class="lg:flex-row")
+
+      //- SIDEBAR FILTER
+      aside.w-full.flex-shrink-0(class="lg:w-64")
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.sticky.top-20
+          .flex.items-center.justify-between.pb-3.border-b.border-gray-100.mb-5
+            h3.font-bold.text-vamos-dark.text-sm.uppercase(style="font-family:'Space Grotesk',sans-serif") ⚙️ BỘ LỌC TÌM KIẾM
+            a.text-xs.text-vamos-red.font-semibold(class="hover:underline" href="/products") Đặt lại
+
+          form(action="/products" method="GET")
+            if selectedFilters.cat
+              input(type="hidden" name="cat" value=selectedFilters.cat)
+
+            //- Categories Filter
+            .mb-5
+              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Danh Mục
+              ul.text-xs(class="space-y-1.5")
+                li
+                  a.flex.items-center.justify-between.rounded-lg.transition-colors(
+                    class=selectedFilters.cat === '' ? 'font-bold bg-red-50 text-vamos-red px-2.5 py-1.5' : 'text-gray-600 hover:bg-gray-50 px-2.5 py-1.5'
+                    href="/products"
+                  )
+                    span Tất cả sản phẩm
+                each c in categories
+                  li
+                    a.flex.items-center.justify-between.rounded-lg.transition-colors(
+                      class=selectedFilters.cat === c.slug ? 'font-bold bg-red-50 text-vamos-red px-2.5 py-1.5' : 'text-gray-600 hover:bg-gray-50 px-2.5 py-1.5'
+                      href=`/products?cat=${c.slug}`
+                    )
+                      span= c.name
+                      span.text-xs.text-gray-400= `(${c.product_count})`
+
+            //- Gender Filter
+            .mb-5.border-t.border-gray-100.pt-4
+              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Dành Cho
+              .space-y-2.text-xs
+                label.flex.items-center.gap-2.cursor-pointer
+                  input.text-vamos-red(type="radio" name="gender" value="" checked=selectedFilters.gender === '')
+                  span.text-gray-700 Tất cả
+                label.flex.items-center.gap-2.cursor-pointer
+                  input.text-vamos-red(type="radio" name="gender" value="MEN" checked=selectedFilters.gender === 'MEN')
+                  span.text-gray-700 Nam
+                label.flex.items-center.gap-2.cursor-pointer
+                  input.text-vamos-red(type="radio" name="gender" value="WOMEN" checked=selectedFilters.gender === 'WOMEN')
+                  span.text-gray-700 Nữ
+                label.flex.items-center.gap-2.cursor-pointer
+                  input.text-vamos-red(type="radio" name="gender" value="UNISEX" checked=selectedFilters.gender === 'UNISEX')
+                  span.text-gray-700 Unisex
+
+            //- Price Range Filter
+            .mb-5.border-t.border-gray-100.pt-4
+              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Khoảng Giá (VNĐ)
+              .space-y-2
+                input.form-input(
+                  type="number"
+                  name="minPrice"
+                  placeholder="Giá từ..."
+                  value=selectedFilters.minPrice
+                )
+                input.form-input(
+                  type="number"
+                  name="maxPrice"
+                  placeholder="Giá đến..."
+                  value=selectedFilters.maxPrice
+                )
+
+            //- Submit Filter Button
+            button.w-full.btn-primary.text-xs(class="py-2.5" type="submit") Áp Dụng Lọc
+
+      //- MAIN PRODUCTS DISPLAY AREA
+      main.flex-grow
+        //- Toolbar: Header title + Sort dropdown
+        .flex.flex-col.justify-between.pb-4.border-b.border-gray-100.mb-6.gap-4(class="sm:flex-row sm:items-center")
+          div
+            h1.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+              = currentCategory ? currentCategory.name : 'Danh Sách Giày Dép'
+            p.text-xs.text-gray-500(class="mt-0.5")= `Hiển thị ${products.length} trong tổng số ${total} sản phẩm`
+
+          //- Sort selector form
+          form.flex.items-center.gap-2(action="/products" method="GET")
+            if selectedFilters.cat
+              input(type="hidden" name="cat" value=selectedFilters.cat)
+            if selectedFilters.gender
+              input(type="hidden" name="gender" value=selectedFilters.gender)
+            if selectedFilters.minPrice
+              input(type="hidden" name="minPrice" value=selectedFilters.minPrice)
+            if selectedFilters.maxPrice
+              input(type="hidden" name="maxPrice" value=selectedFilters.maxPrice)
+
+            label.text-xs.font-semibold.text-gray-500(for="sort-select") Sắp xếp:
+            select#sort-select.text-xs.border.border-gray-200.rounded-lg.px-3.py-2.bg-white.text-vamos-dark.font-medium(
+              class="focus:outline-none focus:border-vamos-red"
+              name="sort"
+              onchange="this.form.submit()"
+            )
+              option(value="" selected=selectedFilters.sort === '') Mới nhất
+              option(value="price_asc" selected=selectedFilters.sort === 'price_asc') Giá: Thấp đến Cao
+              option(value="price_desc" selected=selectedFilters.sort === 'price_desc') Giá: Cao đến Thấp
+              option(value="name_asc" selected=selectedFilters.sort === 'name_asc') Tên: A đến Z
+
+        //- Products Grid
+        if products && products.length > 0
+          .grid.grid-cols-2.gap-4(class="sm:grid-cols-2 md:grid-cols-3")
+            each prod in products
+              .product-card.flex.flex-col.justify-between
+                //- Product Image
+                .relative.aspect-square.bg-gray-50.p-4.flex.items-center.justify-center.overflow-hidden
+                  a.w-full.h-full.flex.items-center.justify-center(href=`/products/${prod.slug}`)
+                    if prod.image_url
+                      img.product-card-img(src=prod.image_url alt=prod.name)
+                    else
+                      .text-gray-400.text-xs Chưa có ảnh
+                  if prod.sale_price && prod.sale_price < prod.base_price
+                    - const discount = Math.round((1 - (prod.sale_price / prod.base_price)) * 100)
+                    span.badge-sale.absolute.top-2.left-2= `-${discount}%`
+
+                //- Product Info
+                .p-4.flex-grow.flex.flex-col.justify-between
+                  div
+                    span.text-xs.text-gray-400.font-semibold.uppercase= prod.brand_name || 'VAMOS'
+                    h3.text-sm.font-bold.text-vamos-dark.line-clamp-2.mt-1
+                      a(class="hover:text-vamos-red" href=`/products/${prod.slug}`)= prod.name
+
+                  .mt-3
+                    .flex.items-baseline.gap-2
+                      if prod.sale_price
+                        span.price-current
+                          = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.sale_price)
+                        span.price-original
+                          = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
+                      else
+                        span.price-no-sale
+                          = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
+
+                    a.mt-3.w-full.btn-outline.text-xs.py-2.justify-center(href=`/products/${prod.slug}`)
+                      | Xem chi tiết
+
+          //- Pagination
+          if totalPages > 1
+            .mt-10.flex.justify-center.items-center.gap-2
+              each p in Array.from({ length: totalPages }, (_, i) => i + 1)
+                a.w-9.h-9.flex.items-center.justify-center.rounded-lg.text-sm.font-bold.transition-colors(
+                  class=p === page ? 'bg-vamos-red text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  href=`/products?page=${p}${selectedFilters.cat ? `&cat=${selectedFilters.cat}` : ''}`
+                )= p
+        else
+          .bg-white.p-12.rounded-vamos-xl.border.border-gray-200.text-center.mt-4
+            .text-4xl.mb-3 👟
+            h3.text-base.font-bold.text-vamos-dark.mb-1 Chưa tìm thấy sản phẩm phù hợp
+            p.text-xs.text-gray-500.mb-4 Hãy thử điều chỉnh lại bộ lọc hoặc xem danh mục khác.
+            a.btn-outline.text-xs(href="/products") Xem toàn bộ sản phẩm

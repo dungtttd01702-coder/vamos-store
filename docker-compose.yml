@@ -1,0 +1,50 @@
+services:
+  app:
+    build: .
+    container_name: vamos_store_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - APP_NAME=VAMOS STORE
+      - APP_URL=http://localhost:3000
+      - SESSION_SECRET=vamos_docker_session_secret_2026_xyz
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=vamos_user
+      - DB_PASSWORD=vamos_pass_2026
+      - DB_NAME=vamos_store_db
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./server.js:/app/server.js
+
+  mysql:
+    image: mysql:8.0
+    container_name: vamos_store_mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: vamos_store_db
+      MYSQL_USER: vamos_user
+      MYSQL_PASSWORD: vamos_pass_2026
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+    driver: local
+
