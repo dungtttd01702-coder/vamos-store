@@ -6,6 +6,7 @@
 ---
 
 ## 📌 Mục Lục
+
 - [Giới Thiệu](#-giới-thiệu)
 - [Công Nghệ Sử Dụng (Tech Stack)](#-công-nghệ-sử-dụng-tech-stack)
 - [Kiến Trúc Dự Án (Architecture)](#-kiến-trúc-dự-án-architecture)
@@ -19,7 +20,9 @@
 ---
 
 ## 📖 Giới Thiệu
+
 **VAMOS STORE** là giải pháp website bán lẻ giày trực tuyến tập trung vào trải nghiệm khách hàng trẻ trung, năng động và quy trình quản lý bán hàng chuẩn mực:
+
 - **Thanh toán linh hoạt & an toàn:** Áp dụng phương thức COD (Cash on Delivery - Thanh toán khi nhận hàng) phù hợp với tâm lý mua sắm trực tuyến tại Việt Nam.
 - **Quản lý kho thời gian thực:** Cơ chế khóa dòng `WITH (UPDLOCK, ROWLOCK)` trong SQL Server ngăn chặn tuyệt đối tình trạng overselling (bán quá số lượng tồn kho).
 - **Thiết kế thương hiệu nhất quán:** Tông màu chủ đạo Đỏ Vamos (`#E11B22`) & Đen Dark Slate (`#0B0F19`), font chữ Space Grotesk kết hợp Inter.
@@ -28,25 +31,25 @@
 
 ## 🛠 Công Nghệ Sử Dụng (Tech Stack)
 
-| Thành phần | Công nghệ / Thư viện | Vai trò |
-|---|---|---|
-| **Runtime** | Node.js (v18+) | Môi trường thực thi JavaScript phía máy chủ |
-| **Framework** | Express.js v4 | Xây dựng RESTful routing và xử lý Middleware |
-| **Template Engine** | Pug (Jade) | Render giao diện HTML từ server (SSR) |
-| **Styling** | Tailwind CSS v3 | Framework CSS utility-first biên dịch tối ưu |
-| **Database** | Microsoft SQL Server 2025 | Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) |
-| **DB Driver** | `mssql` (Node.js Tedious) | Kết nối và thực thi transaction với SQL Server |
-| **Authentication** | `bcryptjs` + `express-session` | Mã hóa mật khẩu 1-way hash và quản lý phiên đăng nhập |
-| **Validation** | Regex RFC 5322 + Vietnamese Phone Spec | Kiểm tra hợp lệ dữ liệu đa tầng (Client & Server) |
+| Thành phần          | Công nghệ / Thư viện                   | Vai trò                                               |
+| ------------------- | -------------------------------------- | ----------------------------------------------------- |
+| **Runtime**         | Node.js (v18+)                         | Môi trường thực thi JavaScript phía máy chủ           |
+| **Framework**       | Express.js v4                          | Xây dựng RESTful routing và xử lý Middleware          |
+| **Template Engine** | Pug (Jade)                             | Render giao diện HTML từ server (SSR)                 |
+| **Styling**         | Tailwind CSS v3                        | Framework CSS utility-first biên dịch tối ưu          |
+| **Database**        | Microsoft SQL Server 2025              | Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS)             |
+| **DB Driver**       | `mssql` (Node.js Tedious)              | Kết nối và thực thi transaction với SQL Server        |
+| **Authentication**  | `bcryptjs` + `express-session`         | Mã hóa mật khẩu 1-way hash và quản lý phiên đăng nhập |
+| **Validation**      | Regex RFC 5322 + Vietnamese Phone Spec | Kiểm tra hợp lệ dữ liệu đa tầng (Client & Server)     |
 
 ---
 
 ## 🏛 Kiến Trúc Dự Án (Architecture)
 
-Dự án áp dụng mô hình phân tầng **Layered MVC (Model-View-Controller)** đảm bảo tính tách biệt trách nhiệm (*Separation of Concerns*):
+Dự án áp dụng mô hình phân tầng **Layered MVC (Model-View-Controller)** đảm bảo tính tách biệt trách nhiệm (_Separation of Concerns_):
 
 ```
-Client (Browser) 
+Client (Browser)
       │  HTTP Requests / Responses
       ▼
 Express Router (src/routes/)
@@ -70,6 +73,7 @@ Views (src/views/pages/)
 ## ✨ Tính Năng Chính
 
 ### 1. Dành cho Khách Hàng (Customer & Guest)
+
 - **Trang chủ (Home):** Hero banner chuyển động, danh mục nổi bật, sản phẩm bán chạy, chiến dịch thương hiệu.
 - **Bộ lọc sản phẩm (Catalog):** Lọc theo Danh mục (Sneaker Nam, Nữ, Thể Thao, Sandal), Giới tính, Khoảng giá, Sắp xếp giá tăng/giảm.
 - **Chi tiết sản phẩm (Product Detail):** Chọn màu sắc, chọn size giày thời gian thực, hiển thị số lượng tồn kho còn lại, hướng dẫn chọn size.
@@ -79,6 +83,7 @@ Views (src/views/pages/)
 - **Bảo mật xác thực:** Đăng ký thành viên, đăng nhập an toàn, xác thực định dạng email, mật khẩu và số điện thoại nghiêm ngặt.
 
 ### 2. Dành cho Quản Trị Viên (Admin)
+
 - **Bảng điều khiển (Dashboard):** Thống kê tổng doanh thu thực tế, số lượng đơn hàng, số khách hàng và sản phẩm.
 - **Quản lý đơn hàng (Orders):** Xem danh sách tất cả đơn hàng, chuyển đổi trạng thái (Chờ xác nhận $\rightarrow$ Đã xác nhận $\rightarrow$ Đang giao $\rightarrow$ Hoàn tất / Đã hủy). Đơn COD chỉ chuyển thành `PAID` khi giao hàng thành công.
 
@@ -130,21 +135,28 @@ dự án JAV/
 ## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
 
 ### 1. Yêu Cầu Hệ Thống
+
 - [Node.js](https://nodejs.org/) phiên bản 18.x trở lên.
 - [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) (bản 2019, 2022 hoặc 2025) và SQL Server Management Studio (SSMS).
 
 ### 2. Cài Đặt Thư Viện
+
 Mở terminal trong thư mục dự án và chạy:
+
 ```bash
 npm install
 ```
 
 ### 3. Cấu Hình Biến Môi Trường (.env)
+
 Tạo file `.env` từ file mẫu `.env.example`:
+
 ```bash
 cp .env.example .env
 ```
+
 Chỉnh sửa thông số kết nối SQL Server trong `.env` cho phù hợp với máy của bạn:
+
 ```env
 PORT=3000
 NODE_ENV=development
@@ -163,41 +175,51 @@ DB_TRUST_SERVER_CERTIFICATE=true
 ```
 
 ### 4. Khởi Tạo Cơ Sở Dữ Liệu
+
 Chạy script tự động tạo cơ sở dữ liệu `vamos_store_db` và khởi tạo các bảng:
+
 ```bash
 node database/init_mssql.js
 ```
+
 Sau đó nạp dữ liệu mẫu (sản phẩm, tài khoản, voucher):
+
 ```bash
 node database/seed_products.js
 node database/seed_vouchers.js
 ```
 
 ### 5. Biên Dịch CSS (Tailwind) & Chạy Server
+
 Biên dịch CSS:
+
 ```bash
 npm run build:css
 ```
+
 Khởi chạy ứng dụng:
+
 ```bash
 npm run dev
 # Hoặc chạy trực tiếp:
 node server.js
 ```
+
 Truy cập trình duyệt tại: **`http://localhost:3000`**
 
 ---
 
 ## 👥 Tài Khoản Thử Nghiệm (Demo Accounts)
 
-| Vai trò | Email đăng nhập | Mật khẩu | Quyền truy cập |
-|---|---|---|---|
-| **Quản trị viên (Admin)** | `admin@vamos.vn` | `123456` | Toàn quyền trang Admin (`/admin`), quản lý đơn hàng |
-| **Khách hàng mẫu (Customer)** | `khachhang@vamos.vn` | `123456` | Đặt hàng, giỏ hàng, xem lịch sử đơn hàng cá nhân |
+| Vai trò                       | Email đăng nhập      | Mật khẩu | Quyền truy cập                                      |
+| ----------------------------- | -------------------- | -------- | --------------------------------------------------- |
+| **Quản trị viên (Admin)**     | `admin@vamos.vn`     | `123456` | Toàn quyền trang Admin (`/admin`), quản lý đơn hàng |
+| **Khách hàng mẫu (Customer)** | `khachhang@vamos.vn` | `123456` | Đặt hàng, giỏ hàng, xem lịch sử đơn hàng cá nhân    |
 
 ---
 
 ## 📑 Tài Liệu Đồ Án & Báo Cáo
+
 - Báo cáo đồ án chi tiết đầy đủ 6 chương nằm trong thư mục [`report/BAO_CAO_DATN_VAMOS_STORE.md`](report/BAO_CAO_DATN_VAMOS_STORE.md).
 - Bản in báo cáo định dạng chuẩn trình bày tại [`report/BAO_CAO_VAMOS_STORE_PRINT.html`](report/BAO_CAO_VAMOS_STORE_PRINT.html).
 - Toàn bộ hồ sơ 4 bài Lab môn học (Usecase, ERD, Activity, Wireframe) được lưu trữ đầy đủ trong thư mục [`labs/`](labs/).
@@ -205,5 +227,6 @@ Truy cập trình duyệt tại: **`http://localhost:3000`**
 ---
 
 ## 📄 Bản Quyền
+
 Dự án được xây dựng và phát triển bởi Nhóm sinh viên chuyên ngành Phát triển phần mềm — **FPT Polytechnic Đà Nẵng**.  
 Bản quyền thuộc về **VAMOS STORE Team © 2026**.
