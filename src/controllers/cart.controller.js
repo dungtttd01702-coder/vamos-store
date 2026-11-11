@@ -1,5 +1,29 @@
 const { query } = require('../config/database');
 
+const MAX_RETAIL_QUANTITY = 10;
+
+/**
+ * Helper to strictly validate cart quantity at the server layer
+ * Rejects non-integers, negatives, decimals, zero, and quantities > 10
+ */
+function validateCartQuantity(quantity) {
+  if (quantity === undefined || quantity === null || String(quantity).trim() === '') {
+    return { valid: false, message: 'Vui lòng cung cấp số lượng sản phẩm hợp lệ.' };
+  }
+  const str = String(quantity).trim();
+  if (!/^[1-9]\d*$/.test(str)) {
+    return { valid: false, message: 'Số lượng sản phẩm không hợp lệ (phải là số nguyên dương từ 1 đến 10).' };
+  }
+  const num = parseInt(str, 10);
+  if (num > MAX_RETAIL_QUANTITY) {
+    return {
+      valid: false,
+      message: `Đơn hàng bán lẻ trên website tối đa 10 đôi/sản phẩm. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (${num} đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!`,
+    };
+  }
+  return { valid: true, quantity: num };
+}
+
 class CartController {
   /**
    * Display Shopping Cart (Guest session cart or Customer database cart)
@@ -78,7 +102,19 @@ class CartController {
     try {
       const user = req.session?.user;
       const { productId, size, color, quantity = 1 } = req.body;
-      const qty = Math.max(1, parseInt(quantity, 10) || 1);
+
+      // 1. Strict Server-Side Quantity Validation
+      const qtyValidation = validateCartQuantity(quantity);
+      if (!qtyValidation.valid) {
+        if (req.xhr || req.headers?.accept?.includes('application/json')) {
+          return res.status(400).json({ success: false, message: qtyValidation.message });
+        }
+        if (req.flash) req.flash('warning', qtyValidation.message);
+        const err = new Error(qtyValidation.message);
+        err.status = 400;
+        return next(err);
+      }
+      const qty = qtyValidation.quantity;
 
       // Find matching variant (must be active and parent product must be active)
       const varRes = await query(`
@@ -125,11 +161,25 @@ class CartController {
 
         if (existingIdx > -1) {
           const currentItem = req.session.guestCart[existingIdx];
-          const newQty = Math.min(variant.stock_quantity, currentItem.quantity + qty);
+          const newQty = currentItem.quantity + qty;
+          if (newQty > MAX_RETAIL_QUANTITY) {
+            const msg = `Mỗi sản phẩm chỉ được mua tối đa 10 đôi trong đơn hàng bán lẻ (Hiện trong giỏ đã có ${currentItem.quantity} đôi). Vui lòng liên hệ Hotline 1900 2126 để mua sỉ!`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
+          if (newQty > variant.stock_quantity) {
+            const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho (Hiện trong giỏ đã có ${currentItem.quantity} đôi).`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
           currentItem.quantity = newQty;
           currentItem.line_total = Number(variant.unit_price) * newQty;
         } else {
-          const initialQty = Math.min(variant.stock_quantity, qty);
+          if (qty > variant.stock_quantity) {
+            const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho.`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
           req.session.guestCart.push({
             cart_item_id: `guest_${variant.id}`,
             variant_id: variant.id,
@@ -140,8 +190,8 @@ class CartController {
             size_name: variant.size_name,
             color_name: variant.color_name,
             unit_price: Number(variant.unit_price),
-            quantity: initialQty,
-            line_total: Number(variant.unit_price) * initialQty,
+            quantity: qty,
+            line_total: Number(variant.unit_price) * qty,
             stock_quantity: variant.stock_quantity,
             image_url: variant.image_url,
           });
@@ -172,27 +222,31 @@ class CartController {
 
       if (itemRes.recordset.length > 0) {
         const currentQty = itemRes.recordset[0].quantity;
-        const newQty = Math.min(variant.stock_quantity, currentQty + qty);
-        if (newQty <= 0) {
-          const err = new Error('Số lượng sản phẩm không hợp lệ.');
-          err.status = 400;
-          return next(err);
+        const newQty = currentQty + qty;
+        if (newQty > MAX_RETAIL_QUANTITY) {
+          const msg = `Mỗi sản phẩm chỉ được mua tối đa 10 đôi trong đơn hàng bán lẻ (Hiện trong giỏ đã có ${currentQty} đôi). Vui lòng liên hệ Hotline 1900 2126 để mua sỉ!`;
+          if (req.flash) req.flash('warning', msg);
+          return res.redirect('/cart');
+        }
+        if (newQty > variant.stock_quantity) {
+          const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho (Hiện trong giỏ đã có ${currentQty} đôi).`;
+          if (req.flash) req.flash('warning', msg);
+          return res.redirect('/cart');
         }
         await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
           qty: newQty,
           id: itemRes.recordset[0].id,
         });
       } else {
-        const initialQty = Math.min(variant.stock_quantity, qty);
-        if (initialQty <= 0) {
-          const err = new Error('Số lượng sản phẩm thêm vào giỏ không hợp lệ.');
-          err.status = 400;
-          return next(err);
+        if (qty > variant.stock_quantity) {
+          const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho.`;
+          if (req.flash) req.flash('warning', msg);
+          return res.redirect('/cart');
         }
         await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
           cartId,
           varId: variant.id,
-          qty: initialQty,
+          qty,
         });
       }
 
@@ -213,7 +267,20 @@ class CartController {
     try {
       const user = req.session?.user;
       const { itemId, quantity } = req.body;
-      const qty = parseInt(quantity, 10) || 0;
+      const rawQtyStr = String(quantity !== undefined && quantity !== null ? quantity : '').trim();
+
+      // Case: Removal if quantity is explicitly 0
+      const isRemoval = rawQtyStr === '0';
+
+      let targetQty = 0;
+      if (!isRemoval) {
+        const qtyCheck = validateCartQuantity(rawQtyStr);
+        if (!qtyCheck.valid) {
+          if (req.flash) req.flash('warning', qtyCheck.message);
+          return res.redirect('/cart');
+        }
+        targetQty = qtyCheck.quantity;
+      }
 
       // Guest Cart
       if (!user) {
@@ -221,12 +288,16 @@ class CartController {
         const targetIdx = guestCart.findIndex(i => String(i.cart_item_id) === String(itemId) || String(i.variant_id) === String(itemId));
 
         if (targetIdx > -1) {
-          if (qty <= 0) {
+          if (isRemoval || targetQty <= 0) {
             guestCart.splice(targetIdx, 1);
           } else {
             const item = guestCart[targetIdx];
-            item.quantity = Math.min(qty, item.stock_quantity);
-            item.line_total = item.unit_price * item.quantity;
+            if (targetQty > item.stock_quantity) {
+              if (req.flash) req.flash('warning', `Sản phẩm "${item.product_name}" chỉ còn ${item.stock_quantity} đôi trong kho.`);
+              return res.redirect('/cart');
+            }
+            item.quantity = targetQty;
+            item.line_total = item.unit_price * targetQty;
           }
           req.session.guestCart = guestCart;
           req.session.cartCount = guestCart.reduce((sum, item) => sum + item.quantity, 0);
@@ -240,24 +311,29 @@ class CartController {
       }
 
       const cartItemId = parseInt(itemId, 10);
-      if (qty <= 0) {
+      if (isRemoval || targetQty <= 0) {
         await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
           itemId: cartItemId,
           cartId: user.cartId,
         });
       } else {
         const checkRes = await query(`
-          SELECT pv.stock_quantity 
+          SELECT pv.stock_quantity, p.name AS product_name
           FROM cart_items ci 
           JOIN product_variants pv ON ci.variant_id = pv.id 
+          JOIN products p ON pv.product_id = p.id
           WHERE ci.id = @itemId AND ci.cart_id = @cartId
         `, { itemId: cartItemId, cartId: user.cartId });
 
         if (checkRes.recordset.length > 0) {
           const maxStock = checkRes.recordset[0].stock_quantity;
-          const finalQty = Math.min(qty, maxStock);
+          const prodName = checkRes.recordset[0].product_name;
+          if (targetQty > maxStock) {
+            if (req.flash) req.flash('warning', `Sản phẩm "${prodName}" chỉ còn ${maxStock} đôi trong kho.`);
+            return res.redirect('/cart');
+          }
           await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @itemId AND cart_id = @cartId', {
-            qty: finalQty,
+            qty: targetQty,
             itemId: cartItemId,
             cartId: user.cartId,
           });
@@ -381,4 +457,8 @@ class CartController {
   }
 }
 
-module.exports = new CartController();
+CartController.validateCartQuantity = validateCartQuantity;
+const cartControllerInstance = new CartController();
+cartControllerInstance.validateCartQuantity = validateCartQuantity;
+
+module.exports = cartControllerInstance;

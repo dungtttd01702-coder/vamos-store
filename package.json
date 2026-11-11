@@ -11,7 +11,8 @@
     "test:auth-flow": "node tests/test_auth_flow.js",
     "test:search": "node tests/test_live_search.js",
     "test:pug": "node tests/validate_pug.js",
-    "test:all": "node tests/validate_pug.js && node tests/validator.test.js && node tests/test_auth_flow.js && node tests/test_live_search.js && node tests/regression_suite.js",
+    "test:db-setup": "node tests/setup_test_db.js",
+    "test:all": "node tests/validate_pug.js && node tests/validator.test.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_live_search.js && node tests/regression_suite.js",
     "build:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify",
     "watch:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --watch"
   },
@@ -26,6 +27,9 @@
   ],
   "author": "VAMOS STORE Team",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

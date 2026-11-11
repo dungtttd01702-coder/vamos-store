@@ -3,9 +3,9 @@
 > **Dự án phần mềm thương mại điện tử chuyên ngành — VAMOS STORE v1.1**  
 > Nền tảng bán lẻ giày sneaker, thể thao và phụ kiện với kiến trúc phân tầng MVC chuẩn mực, giao diện hiện đại (Modern Kinetic UI - Dark Charcoal & Vibrant Coral), hệ thống lưu trữ Microsoft SQL Server 2025 với cơ chế khóa dòng cấp CSDL `WITH (UPDLOCK, ROWLOCK)` chống overselling tuyệt đối.
 
-[![Test Suite](https://img.shields.io/badge/tests-167%20passed-brightgreen.svg)]()
+[![Test Suite](https://img.shields.io/badge/tests-178%20passed-brightgreen.svg)]()
 [![Database](https://img.shields.io/badge/database-MSSQL%202025-blue.svg)]()
-[![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)]()
+[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg)]()
 [![License](https://img.shields.io/badge/version-v1.1.0-orange.svg)]()
 
 ---
@@ -19,7 +19,7 @@
 - [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
 - [Hướng Dẫn Cài Đặt & Khởi Chạy](#-hướng-dẫn-cài-đặt--khởi-chạy)
 - [Tài Khoản Thử Nghiệm (Demo Accounts)](#-tài-khoản-thử-nghiệm-demo-accounts)
-- [Hệ Thống Kiểm Thử Tự Động (162 Tests)](#-hệ-thống-kiểm-thử-tự-động-162-tests)
+- [Hệ Thống Kiểm Thử Tự Động (178 Tests)](#-hệ-thống-kiểm-thử-tự-động-178-tests)
 - [Tài Liệu Kỹ Thuật Đầy Đủ](#-tài-liệu-kỹ-thuật-đầy-đủ)
 - [Bản Quyền](#-bản-quyền)
 
@@ -220,12 +220,12 @@ Mở trình duyệt truy cập: **`http://localhost:3000`**
 
 ---
 
-## 🧪 Hệ Thống Kiểm Thử Tự Động (167 Tests)
+## 🧪 Hệ Thống Kiểm Thử Tự Động (178 Tests)
 
-Dự án sở hữu bộ kiểm thử tự động gồm **167 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
+Dự án sở hữu bộ kiểm thử tự động gồm **178 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
 
 ```bash
-# Chạy toàn bộ 167 bài kiểm thử (100% Pass):
+# Chạy toàn bộ 178 bài kiểm thử (100% Pass):
 npm run test:all
 ```
 
@@ -237,13 +237,16 @@ node tests/validate_pug.js
 # 2. Kiểm thử chuẩn hóa dữ liệu Input (Email, SĐT):
 node tests/validator.test.js
 
-# 3. Kiểm thử luồng Đăng nhập, Session, Redirect:
+# 3. Khởi tạo & Seed CSDL kiểm thử (Idempotent):
+node tests/setup_test_db.js
+
+# 4. Kiểm thử luồng Đăng nhập, Session, Flash, Redirect:
 node tests/test_auth_flow.js
 
-# 4. Kiểm thử tìm kiếm Real-time Live Search:
+# 5. Kiểm thử tìm kiếm Real-time Live Search & XSS Safety:
 node tests/test_live_search.js
 
-# 5. Kiểm thử 103 ca hồi quy nghiệp vụ, Concurrency, Snapshot, Voucher Q8:
+# 6. Kiểm thử 111 ca hồi quy nghiệp vụ, Concurrency, Giới hạn bán lẻ 10 đôi, IDOR:
 node tests/regression_suite.js
 ```
 
@@ -251,12 +254,16 @@ node tests/regression_suite.js
 
 ## 📑 Tài Liệu Kỹ Thuật Đầy Đủ
 
+- **Báo cáo kiểm toán kỹ thuật:** [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md)
+- **Báo cáo kiểm toán bảo mật:** [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md)
+- **Báo cáo kết quả kiểm thử toàn diện:** [`docs/TEST_REPORT.md`](docs/TEST_REPORT.md)
+- **Đặc tả kịch bản kiểm thử:** [`docs/TEST_CASES.md`](docs/TEST_CASES.md)
 - **Đánh giá tổng thể dự án:** [`PROJECT_REVIEW.md`](PROJECT_REVIEW.md)
 - **Nhật ký thay đổi v1.1:** [`CHANGELOG_v1.1.md`](CHANGELOG_v1.1.md)
+- **Báo cáo nâng cấp tổng kết:** [`docs/FINAL_UPGRADE_REPORT.md`](docs/FINAL_UPGRADE_REPORT.md)
 - **Đặc tả yêu cầu & Phân tích nghiệp vụ:** [`docs/analysis/`](docs/analysis/)
 - **Kiến trúc hệ thống & Thiết kế bảo mật:** [`docs/architecture/`](docs/architecture/)
 - **Thiết kế cơ sở dữ liệu & Data Dictionary:** [`docs/database/`](docs/database/)
-- **Kế hoạch & Báo cáo kiểm thử:** [`docs/testing/`](docs/testing/)
 - **Hệ thống thiết kế UI & Wireframes:** [`docs/ui/`](docs/ui/)
 
 ---

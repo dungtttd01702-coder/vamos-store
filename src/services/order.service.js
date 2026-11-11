@@ -157,8 +157,13 @@ class OrderService {
         orderCode = `VAM${Date.now()}`;
       }
 
-      // 4. Lock each variant with UPDLOCK/ROWLOCK, check stock, and deduct
+      // 4. Lock each variant with UPDLOCK/ROWLOCK, check retail limits & stock, and deduct
       for (const item of cartItems) {
+        const itemQty = Number(item.quantity);
+        if (!Number.isInteger(itemQty) || itemQty < 1 || itemQty > 10) {
+          throw new Error(`Số lượng đặt mua cho sản phẩm "${item.product_name}" không hợp lệ (${item.quantity} đôi). Giới hạn bán lẻ trên website là từ 1 đến 10 đôi/sản phẩm. Quý khách có nhu cầu mua sỉ vui lòng liên hệ Hotline 1900 2126.`);
+        }
+
         if (item.variant_status !== 'active' || item.product_status !== 'active') {
           throw new Error(`Sản phẩm "${item.product_name}" hiện đã ngừng kinh doanh.`);
         }

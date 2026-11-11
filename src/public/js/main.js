@@ -147,7 +147,7 @@ function initProductDetailQuantityAndStock() {
     const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
 
     if (!selectedColor || !selectedSize || variants.length === 0) {
-      return variants[0] || null;
+      return null;
     }
 
     return variants.find(v => v.color_name === selectedColor && v.size_name === selectedSize) || null;
@@ -159,11 +159,11 @@ function initProductDetailQuantityAndStock() {
     const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
     const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
 
-    if (selectedColorLabel && selectedColor) {
-      selectedColorLabel.textContent = `: ${selectedColor}`;
+    if (selectedColorLabel) {
+      selectedColorLabel.textContent = selectedColor ? `: ${selectedColor}` : ': Chưa chọn';
     }
-    if (selectedSizeLabel && selectedSize) {
-      selectedSizeLabel.textContent = `: ${selectedSize}`;
+    if (selectedSizeLabel) {
+      selectedSizeLabel.textContent = selectedSize ? `: ${selectedSize}` : ': Chưa chọn';
     }
 
     if (variant) {
@@ -181,6 +181,13 @@ function initProductDetailQuantityAndStock() {
           stockBadge.innerHTML = `<span class="text-xs font-semibold text-green-600">✓ Còn hàng (${stock} đôi trong kho)</span>`;
         }
       }
+    } else {
+      if (skuDisplay) {
+        skuDisplay.textContent = 'Mã SKU: Chưa chọn biến thể';
+      }
+      if (stockBadge) {
+        stockBadge.innerHTML = '<span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">⚠️ Vui lòng chọn Màu và Kích cỡ phù hợp</span>';
+      }
     }
 
     validateQuantity();
@@ -190,6 +197,15 @@ function initProductDetailQuantityAndStock() {
   function validateQuantity() {
     const variant = getActiveVariant();
     const rawVal = qtyInput.value;
+
+    // Case 0: No valid variant matched
+    if (!variant) {
+      setInvalidState('⚠️ Quý khách vui lòng chọn đầy đủ Màu sắc và Kích cỡ phù hợp trước khi tiếp tục.', 'warning');
+      if (minusBtn) minusBtn.disabled = true;
+      if (plusBtn) plusBtn.disabled = true;
+      qtyInput.disabled = true;
+      return false;
+    }
 
     // Case 1: Variant is out of stock in DB
     if (variant && variant.stock_quantity <= 0) {
@@ -375,84 +391,227 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
   let debounceTimer = null;
   let activeIndex = -1;
   let currentResults = [];
+  let abortController = null;
+  let activeRequestId = 0;
 
-  // Helper: Highlight matching text
-  function highlightMatch(text, query) {
-    if (!text || !query) return text || '';
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return text.replace(regex, '<span class="text-vamos-red font-black underline decoration-red-300">$1</span>');
+  // Helper: Safely append highlighted text nodes without dangerous innerHTML injection (XSS Immune)
+  function safeAppendHighlightedText(targetElement, fullText, query) {
+    const textStr = String(fullText || '');
+    const queryStr = String(query || '').trim();
+
+    if (!queryStr) {
+      targetElement.textContent = textStr;
+      return;
+    }
+
+    const lowerText = textStr.toLowerCase();
+    const lowerQuery = queryStr.toLowerCase();
+
+    let currentIndex = 0;
+    let matchIndex = lowerText.indexOf(lowerQuery, currentIndex);
+
+    if (matchIndex === -1) {
+      targetElement.textContent = textStr;
+      return;
+    }
+
+    while (matchIndex !== -1) {
+      if (matchIndex > currentIndex) {
+        targetElement.appendChild(document.createTextNode(textStr.substring(currentIndex, matchIndex)));
+      }
+
+      const highlightSpan = document.createElement('span');
+      highlightSpan.className = 'text-vamos-red font-black underline decoration-red-300';
+      highlightSpan.textContent = textStr.substring(matchIndex, matchIndex + queryStr.length);
+      targetElement.appendChild(highlightSpan);
+
+      currentIndex = matchIndex + queryStr.length;
+      matchIndex = lowerText.indexOf(lowerQuery, currentIndex);
+    }
+
+    if (currentIndex < textStr.length) {
+      targetElement.appendChild(document.createTextNode(textStr.substring(currentIndex)));
+    }
   }
 
-  // Perform Fetch to Live Search API
+  // Safe Image URL validator (restricts to safe paths: http, https, /images)
+  function getSafeImageUrl(url) {
+    if (!url || typeof url !== 'string') return '/images/placeholder-shoe.png';
+    const trimmed = url.trim();
+    if (trimmed.startsWith('https://') || trimmed.startsWith('http://') || trimmed.startsWith('/')) {
+      return trimmed;
+    }
+    return '/images/placeholder-shoe.png';
+  }
+
+  // Perform Fetch to Live Search API with AbortController to prevent race condition
   async function performSearch(query) {
+    if (abortController) {
+      abortController.abort();
+    }
+    abortController = new AbortController();
+    const requestId = ++activeRequestId;
+
     try {
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
+        signal: abortController.signal,
+      });
+
       if (!res.ok) throw new Error('Search request failed');
       const data = await res.json();
+
+      // Guard: Discard stale response if input or requestId changed
+      if (requestId !== activeRequestId || input.value.trim() !== query) {
+        return;
+      }
+
       renderResults(data.results || [], query);
     } catch (err) {
-      dropdown.innerHTML = `
-        <div class="p-4 text-center text-xs text-gray-500">
-          <p>⚠️ Không thể kết nối tìm kiếm. Vui lòng thử lại sau.</p>
-        </div>
-      `;
+      if (err.name === 'AbortError') {
+        // Stale fetch aborted cleanly
+        return;
+      }
+      if (requestId !== activeRequestId) return;
+
+      dropdown.replaceChildren();
+      const errBox = document.createElement('div');
+      errBox.className = 'p-4 text-center text-xs text-gray-500';
+      const errP = document.createElement('p');
+      errP.textContent = '⚠️ Không thể kết nối tìm kiếm. Vui lòng thử lại sau.';
+      errBox.appendChild(errP);
+      dropdown.appendChild(errBox);
       dropdown.classList.remove('hidden');
     }
   }
 
-  // Render Search Results Dropdown
+  // Render Search Results Dropdown Safely using 100% DOM APIs
   function renderResults(results, query) {
     currentResults = results;
     activeIndex = -1;
+    dropdown.replaceChildren();
 
     if (results.length === 0) {
-      dropdown.innerHTML = `
-        <div class="p-5 text-center text-xs">
-          <div class="text-2xl mb-1.5">👟</div>
-          <p class="font-bold text-vamos-dark mb-1">Không tìm thấy sản phẩm khớp với "${query}"</p>
-          <p class="text-gray-400 text-[11px] leading-relaxed">Gợi ý: Thử tìm theo danh mục như "Sneaker", "Sandal", "Active" hoặc mã "VM-"</p>
-        </div>
-      `;
+      const emptyContainer = document.createElement('div');
+      emptyContainer.className = 'p-5 text-center text-xs';
+
+      const iconDiv = document.createElement('div');
+      iconDiv.className = 'text-2xl mb-1.5';
+      iconDiv.textContent = '👟';
+
+      const titleP = document.createElement('p');
+      titleP.className = 'font-bold text-vamos-dark mb-1';
+      titleP.textContent = `Không tìm thấy sản phẩm khớp với "${query}"`;
+
+      const tipP = document.createElement('p');
+      tipP.className = 'text-gray-400 text-[11px] leading-relaxed';
+      tipP.textContent = 'Gợi ý: Thử tìm theo danh mục như "Sneaker", "Sandal", "Active" hoặc mã "VM-"';
+
+      emptyContainer.appendChild(iconDiv);
+      emptyContainer.appendChild(titleP);
+      emptyContainer.appendChild(tipP);
+      dropdown.appendChild(emptyContainer);
       dropdown.classList.remove('hidden');
       return;
     }
 
-    let itemsHtml = results.map((item, idx) => `
-      <a href="/products/${item.slug}" data-index="${idx}" class="live-search-item flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/60 transition-colors border-b border-gray-100 last:border-none group">
-        <div class="w-12 h-12 rounded-lg bg-gray-50 p-1 border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          <img class="w-full h-full object-contain group-hover:scale-105 transition-transform" src="${item.image_url}" alt="${item.name}">
-        </div>
-        <div class="flex-grow min-w-0">
-          <div class="text-xs font-bold text-vamos-dark truncate group-hover:text-vamos-red">${highlightMatch(item.name, query)}</div>
-          <div class="text-[11px] text-gray-400 flex items-center gap-1.5 mt-0.5">
-            <span class="font-medium text-gray-600">${item.category_name || 'VAMOS'}</span>
-            <span>•</span>
-            <span>${item.product_code}</span>
-          </div>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-xs font-black text-vamos-red font-mono">${formatVND(item.sale_price || item.base_price)}</span>
-            ${item.sale_price ? `<span class="text-[10px] text-gray-400 line-through">${formatVND(item.base_price)}</span>` : ''}
-          </div>
-        </div>
-        <div class="flex-shrink-0">
-          ${item.in_stock ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">Còn hàng</span>' : '<span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Hết hàng</span>'}
-        </div>
-      </a>
-    `).join('');
+    // Header bar
+    const headerBar = document.createElement('div');
+    headerBar.className = 'px-4 py-2 bg-gray-50 border-b border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-wider';
+    const headerTitle = document.createElement('span');
+    headerTitle.textContent = `Gợi ý sản phẩm (${results.length})`;
+    const headerBadge = document.createElement('span');
+    headerBadge.className = 'text-vamos-red';
+    headerBadge.textContent = '⚡ Live Search';
+    headerBar.appendChild(headerTitle);
+    headerBar.appendChild(headerBadge);
+    dropdown.appendChild(headerBar);
 
-    dropdown.innerHTML = `
-      <div class="px-4 py-2 bg-gray-50 border-b border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-        <span>Gợi ý sản phẩm (${results.length})</span>
-        <span class="text-vamos-red">⚡ Live Search</span>
-      </div>
-      <div class="max-h-80 overflow-y-auto divide-y divide-gray-50">
-        ${itemsHtml}
-      </div>
-      <a href="/products?q=${encodeURIComponent(query)}" class="block text-center py-2.5 px-4 text-xs font-bold text-vamos-red bg-red-50 hover:bg-red-100 transition-colors border-t border-red-100">
-        Xem tất cả kết quả cho "${query}" ➔
-      </a>
-    `;
+    // Items list container
+    const listContainer = document.createElement('div');
+    listContainer.className = 'max-h-80 overflow-y-auto divide-y divide-gray-50';
+
+    results.forEach((item, idx) => {
+      const a = document.createElement('a');
+      a.href = `/products/${encodeURIComponent(item.slug)}`;
+      a.dataset.index = String(idx);
+      a.className = 'live-search-item flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/60 transition-colors border-b border-gray-100 last:border-none group';
+
+      // Thumbnail
+      const thumbBox = document.createElement('div');
+      thumbBox.className = 'w-12 h-12 rounded-lg bg-gray-50 p-1 border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden';
+      const img = document.createElement('img');
+      img.className = 'w-full h-full object-contain group-hover:scale-105 transition-transform';
+      img.src = getSafeImageUrl(item.image_url);
+      img.alt = String(item.name || 'Sản phẩm');
+      img.loading = 'lazy';
+      thumbBox.appendChild(img);
+      a.appendChild(thumbBox);
+
+      // Info Box
+      const infoBox = document.createElement('div');
+      infoBox.className = 'flex-grow min-w-0';
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'text-xs font-bold text-vamos-dark truncate group-hover:text-vamos-red';
+      safeAppendHighlightedText(nameDiv, item.name, query);
+      infoBox.appendChild(nameDiv);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'text-[11px] text-gray-400 flex items-center gap-1.5 mt-0.5';
+      const catSpan = document.createElement('span');
+      catSpan.className = 'font-medium text-gray-600';
+      catSpan.textContent = item.category_name || 'VAMOS';
+      const dotSpan = document.createElement('span');
+      dotSpan.textContent = '•';
+      const skuSpan = document.createElement('span');
+      skuSpan.textContent = item.product_code || '';
+      metaDiv.appendChild(catSpan);
+      metaDiv.appendChild(dotSpan);
+      metaDiv.appendChild(skuSpan);
+      infoBox.appendChild(metaDiv);
+
+      const priceDiv = document.createElement('div');
+      priceDiv.className = 'flex items-center gap-2 mt-1';
+      const priceVal = Number(item.sale_price || item.base_price) || 0;
+      const priceSpan = document.createElement('span');
+      priceSpan.className = 'text-xs font-black text-vamos-red font-mono';
+      priceSpan.textContent = formatVND(priceVal);
+      priceDiv.appendChild(priceSpan);
+
+      if (item.sale_price) {
+        const oldPriceSpan = document.createElement('span');
+        oldPriceSpan.className = 'text-[10px] text-gray-400 line-through';
+        oldPriceSpan.textContent = formatVND(item.base_price);
+        priceDiv.appendChild(oldPriceSpan);
+      }
+      infoBox.appendChild(priceDiv);
+      a.appendChild(infoBox);
+
+      // Stock status badge
+      const badgeBox = document.createElement('div');
+      badgeBox.className = 'flex-shrink-0';
+      const stockBadge = document.createElement('span');
+      if (item.in_stock) {
+        stockBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded';
+        stockBadge.textContent = 'Còn hàng';
+      } else {
+        stockBadge.className = 'text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded';
+        stockBadge.textContent = 'Hết hàng';
+      }
+      badgeBox.appendChild(stockBadge);
+      a.appendChild(badgeBox);
+
+      listContainer.appendChild(a);
+    });
+
+    dropdown.appendChild(listContainer);
+
+    // "Xem tất cả kết quả" Footer
+    const footerLink = document.createElement('a');
+    footerLink.href = `/products?q=${encodeURIComponent(query)}`;
+    footerLink.className = 'block text-center py-2.5 px-4 text-xs font-bold text-vamos-red bg-red-50 hover:bg-red-100 transition-colors border-t border-red-100';
+    footerLink.textContent = `Xem tất cả kết quả cho "${query}" ➔`;
+    dropdown.appendChild(footerLink);
 
     dropdown.classList.remove('hidden');
   }
@@ -486,28 +645,32 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
 
     if (query.length === 0) {
       dropdown.classList.add('hidden');
-      dropdown.innerHTML = '';
+      dropdown.replaceChildren();
       currentResults = [];
       return;
     }
 
     if (query.length < 2) {
-      dropdown.innerHTML = `
-        <div class="p-3 text-center text-xs text-gray-400">
-          Nhập từ 2 ký tự trở lên để xem gợi ý...
-        </div>
-      `;
+      dropdown.replaceChildren();
+      const tipDiv = document.createElement('div');
+      tipDiv.className = 'p-3 text-center text-xs text-gray-400';
+      tipDiv.textContent = 'Nhập từ 2 ký tự trở lên để xem gợi ý...';
+      dropdown.appendChild(tipDiv);
       dropdown.classList.remove('hidden');
       return;
     }
 
-    // Show loading state immediately
-    dropdown.innerHTML = `
-      <div class="p-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-        <div class="w-4 h-4 border-2 border-vamos-red border-t-transparent rounded-full animate-spin"></div>
-        <span>Đang tìm kiếm "${query}"...</span>
-      </div>
-    `;
+    // Show loading state safely with DOM API
+    dropdown.replaceChildren();
+    const loadBox = document.createElement('div');
+    loadBox.className = 'p-4 flex items-center justify-center gap-2 text-xs text-gray-500';
+    const spinner = document.createElement('div');
+    spinner.className = 'w-4 h-4 border-2 border-vamos-red border-t-transparent rounded-full animate-spin';
+    const loadText = document.createElement('span');
+    loadText.textContent = `Đang tìm kiếm "${query}"...`;
+    loadBox.appendChild(spinner);
+    loadBox.appendChild(loadText);
+    dropdown.appendChild(loadBox);
     dropdown.classList.remove('hidden');
 
     // Debounce API call by 250ms
@@ -522,7 +685,7 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       input.value = '';
       clearBtn.classList.add('hidden');
       dropdown.classList.add('hidden');
-      dropdown.innerHTML = '';
+      dropdown.replaceChildren();
       currentResults = [];
       input.focus();
     });
@@ -606,9 +769,20 @@ function initGlobalRealtimeValidators() {
         const parts = val.split('@');
         const domain = parts[1] || '';
 
-        // Case: User entered 123@gmail without .com
-        if (!domain.includes('.') || domain.split('.')[1]?.length < 2) {
-          helper.textContent = '⚠️ Email chưa có đuôi tên miền hợp lệ (ví dụ: .com, .vn, .edu.vn)';
+        // Case: User is still typing domain after @
+        if (!domain.includes('.')) {
+          if (domain.length < 3) {
+            helper.textContent = 'Đang nhập tên miền (ví dụ: gmail.com, vamos.vn)...';
+            helper.className = 'email-live-helper text-[11px] font-medium mt-1 text-gray-500 block';
+            input.classList.remove('border-red-500');
+          } else {
+            helper.textContent = '⚠️ Email cần có phần mở rộng tên miền (ví dụ: .com, .vn, .net, .org)';
+            helper.className = 'email-live-helper text-[11px] font-bold mt-1 text-amber-600 block';
+            input.classList.add('border-amber-400');
+            input.classList.remove('border-red-500');
+          }
+        } else if (domain.split('.')[1]?.length < 2) {
+          helper.textContent = '⚠️ Phần mở rộng tên miền phải có ít nhất 2 ký tự (ví dụ: .vn, .com)';
           helper.className = 'email-live-helper text-[11px] font-bold mt-1 text-red-600 block';
           input.classList.add('border-red-500', 'ring-2', 'ring-red-100');
         } else if (fullEmailRegex.test(val)) {

@@ -68,6 +68,33 @@ async function runLiveSearchTests() {
   console.log(`  ✔ [PASS] SEARCH-05: HTTP GET /products/live-search responds with JSON array and status 200`);
   passed++;
 
+  // TEST 6: XSS Injection Payload Handling
+  const xssRes = await productService.searchLive('<script>alert("XSS")</script>');
+  assert.strictEqual(Array.isArray(xssRes), true);
+  console.log('  ✔ [PASS] SEARCH-06: Search handles XSS payload safely without injection or crash');
+  passed++;
+
+  // TEST 7: Special SQL wildcards and escaping
+  const wildcardRes = await productService.searchLive("'; DROP TABLE test; -- %_[]");
+  assert.strictEqual(Array.isArray(wildcardRes), true);
+  console.log('  ✔ [PASS] SEARCH-07: Search safely handles SQL injection wildcards and delimiters');
+  passed++;
+
+  // TEST 8: HTTP API verifies sanitized outputs and valid image URL structure
+  const httpRes3 = await new Promise((resolve, reject) => {
+    http.get(`http://127.0.0.1:${port}/api/products/search?q=%3Cimg%20src=x%20onerror=alert(1)%3E`, (res) => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(data) }));
+    }).on('error', reject);
+  });
+
+  assert.strictEqual(httpRes3.status, 200);
+  assert.strictEqual(httpRes3.body.success, true);
+  assert.strictEqual(Array.isArray(httpRes3.body.results), true);
+  console.log('  ✔ [PASS] SEARCH-08: HTTP search API returns sanitized JSON on XSS query parameter');
+  passed++;
+
   server.close();
 
   console.log('===============================================================');

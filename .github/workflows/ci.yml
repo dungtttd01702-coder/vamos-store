@@ -51,6 +51,45 @@ jobs:
       - name: Run Validator Unit Tests
         run: node tests/validator.test.js
 
+      - name: Bootstrap Test Database & Seed Fixtures
+        env:
+          NODE_ENV: test
+          DB_SERVER: 127.0.0.1
+          DB_PORT: 1433
+          DB_USER: sa
+          DB_PASSWORD: 'YourStrongPassword123!'
+          DB_TEST_NAME: vamos_store_test_db
+          SESSION_SECRET: 'ci_test_session_secret_vamos_store_2026_random_key'
+          DB_ENCRYPT: 'false'
+          DB_TRUST_SERVER_CERTIFICATE: 'true'
+        run: node tests/setup_test_db.js
+
+      - name: Run Auth Flow & Session Verification Tests
+        env:
+          NODE_ENV: test
+          DB_SERVER: 127.0.0.1
+          DB_PORT: 1433
+          DB_USER: sa
+          DB_PASSWORD: 'YourStrongPassword123!'
+          DB_TEST_NAME: vamos_store_test_db
+          SESSION_SECRET: 'ci_test_session_secret_vamos_store_2026_random_key'
+          DB_ENCRYPT: 'false'
+          DB_TRUST_SERVER_CERTIFICATE: 'true'
+        run: node tests/test_auth_flow.js
+
+      - name: Run Real-time Live Search & Security API Tests
+        env:
+          NODE_ENV: test
+          DB_SERVER: 127.0.0.1
+          DB_PORT: 1433
+          DB_USER: sa
+          DB_PASSWORD: 'YourStrongPassword123!'
+          DB_TEST_NAME: vamos_store_test_db
+          SESSION_SECRET: 'ci_test_session_secret_vamos_store_2026_random_key'
+          DB_ENCRYPT: 'false'
+          DB_TRUST_SERVER_CERTIFICATE: 'true'
+        run: node tests/test_live_search.js
+
       - name: Run Full Regression & Integration Test Suite
         env:
           NODE_ENV: test
