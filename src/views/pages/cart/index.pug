@@ -61,9 +61,10 @@ block content
                     input(type="hidden" name="itemId" value=item.cart_item_id)
                     input(type="hidden" name="quantity" value=item.quantity - 1)
                     button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
-                      class="hover:bg-white hover:text-vamos-red"
+                      class="hover:bg-white hover:text-vamos-red disabled:opacity-30 disabled:cursor-not-allowed"
                       type="submit"
                       title="Giảm số lượng"
+                      disabled=item.quantity <= 1
                     ) -
                   span.w-8.text-center.text-xs.font-bold.text-vamos-dark= item.quantity
                   form(action="/cart/update" method="POST")
@@ -71,10 +72,10 @@ block content
                     input(type="hidden" name="itemId" value=item.cart_item_id)
                     input(type="hidden" name="quantity" value=item.quantity + 1)
                     button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
-                      class="hover:bg-white hover:text-vamos-red"
+                      class="hover:bg-white hover:text-vamos-red disabled:opacity-30 disabled:cursor-not-allowed"
                       type="submit"
                       title="Tăng số lượng"
-                      disabled=item.quantity >= item.stock_quantity
+                      disabled=item.quantity >= item.stock_quantity || item.quantity >= 10
                     ) +
 
                 span.text-sm.font-black.text-vamos-dark.hidden(class="sm:inline" style="font-family:'Space Grotesk',sans-serif")

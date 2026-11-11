@@ -4,8 +4,8 @@
 > **Phiên bản:** v1.1 Production-Ready  
 > **Môi trường thực thi:** Microsoft SQL Server 2025 (`vamos_store_test_db`), Node.js v18/v20 LTS  
 > **Thời điểm kiểm thử gần nhất:** 12/11/2026  
-> **Tổng số kịch bản kiểm thử:** 178 bài kiểm thử tự động  
-> **Kết quả chung:** **178 / 178 PASSED (100% PASS RATE, 0 FAILED, 0 SKIPPED)**
+> **Tổng số kịch bản kiểm thử:** 182 bài kiểm thử tự động  
+> **Kết quả chung:** **182 / 182 PASSED (100% PASS RATE, 0 FAILED, 0 SKIPPED)**
 
 ---
 
@@ -17,8 +17,8 @@
 |    2     | **Kiểm tra chuẩn hóa Input**                   | `node tests/validator.test.js`   |       14       |   14    |   0    |    0    | **100%**  |
 |    3     | **Kiểm tra luồng Xác thực & Session**          | `node tests/test_auth_flow.js`   |       10       |   10    |   0    |    0    | **100%**  |
 |    4     | **Tìm kiếm Real-time Live & Security**         | `node tests/test_live_search.js` |       8        |    8    |   0    |    0    | **100%**  |
-|    5     | **Hồi quy nghiệp vụ CSDL, Giỏ hàng & Bảo mật** | `node tests/regression_suite.js` |      111       |   111   |   0    |    0    | **100%**  |
-| **TỔNG** | **TOÀN BỘ HỆ THỐNG**                           | `npm run test:all`               |    **178**     | **178** | **0**  |  **0**  | **100%**  |
+|    5     | **Hồi quy nghiệp vụ CSDL, Giỏ hàng & Bảo mật** | `node tests/regression_suite.js` |      115       |   115   |   0    |    0    | **100%**  |
+| **TỔNG** | **TOÀN BỘ HỆ THỐNG**                           | `npm run test:all`               |    **182**     | **182** | **0**  |  **0**  | **100%**  |
 
 ---
 
@@ -76,4 +76,4 @@
 
 ## 3. KẾT LUẬN
 
-Toàn bộ 178 kiểm thử tự động đều đã thực sự chạy trên cơ sở dữ liệu Microsoft SQL Server và đạt tỷ lệ thành công 100%. Hệ thống sẵn sàng cho môi trường production.
+Toàn bộ 182 kiểm thử tự động đều đã thực sự chạy trên cơ sở dữ liệu Microsoft SQL Server và đạt tỷ lệ thành công 100%. Hệ thống sẵn sàng cho môi trường production.

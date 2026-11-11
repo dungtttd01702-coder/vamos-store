@@ -34,7 +34,55 @@ class CartController {
 
       if (!user) {
         // Guest shopping cart stored in session (Decision Q2)
-        const guestItems = req.session?.guestCart || [];
+        let guestItems = req.session?.guestCart || [];
+
+        // Live DB Sync for Guest Items: current price, live stock, active status, and retail cap
+        if (guestItems.length > 0) {
+          const varIds = guestItems.map(i => parseInt(i.variant_id, 10)).filter(id => !isNaN(id) && id > 0);
+          if (varIds.length > 0) {
+            const varListSql = `
+              SELECT 
+                pv.id AS variant_id, pv.sku, pv.stock_quantity, pv.status AS variant_status,
+                p.id AS product_id, p.name AS product_name, p.slug AS product_slug, p.status AS product_status,
+                COALESCE(p.sale_price, p.base_price) AS unit_price,
+                s.size_name, c.color_name,
+                (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, display_order ASC) AS image_url
+              FROM product_variants pv
+              JOIN products p ON pv.product_id = p.id
+              JOIN sizes s ON pv.size_id = s.id
+              JOIN colors c ON pv.color_id = c.id
+              WHERE pv.id IN (${varIds.join(',')})
+            `;
+            const liveRes = await query(varListSql);
+            const liveMap = new Map(liveRes.recordset.map(r => [r.variant_id, r]));
+
+            const updatedGuestItems = [];
+            for (const item of guestItems) {
+              const live = liveMap.get(item.variant_id);
+              if (live && live.variant_status === 'active' && live.product_status === 'active' && live.stock_quantity > 0) {
+                const safeQty = Math.min(MAX_RETAIL_QUANTITY, live.stock_quantity, Math.max(1, parseInt(item.quantity, 10) || 1));
+                const unitPrice = Number(live.unit_price);
+                updatedGuestItems.push({
+                  ...item,
+                  product_name: live.product_name,
+                  product_slug: live.product_slug,
+                  sku: live.sku,
+                  size_name: live.size_name,
+                  color_name: live.color_name,
+                  unit_price: unitPrice,
+                  stock_quantity: live.stock_quantity,
+                  image_url: live.image_url || item.image_url,
+                  quantity: safeQty,
+                  line_total: unitPrice * safeQty,
+                });
+              }
+            }
+            guestItems = updatedGuestItems;
+            req.session.guestCart = guestItems;
+            req.session.cartCount = guestItems.reduce((sum, i) => sum + i.quantity, 0);
+          }
+        }
+
         const items = guestItems.map(item => ({
           ...item,
           cart_item_id: item.cart_item_id || `guest_${item.variant_id}`,
@@ -261,6 +309,138 @@ class CartController {
   }
 
   /**
+   * Buy Now Action: adds item to cart and immediately redirects to checkout (or login if guest)
+   */
+  async buyNow(req, res, next) {
+    try {
+      const user = req.session?.user;
+      const { productId, size, color, quantity = 1 } = req.body;
+
+      // 1. Strict Server-Side Quantity Validation
+      const qtyValidation = validateCartQuantity(quantity);
+      if (!qtyValidation.valid) {
+        if (req.xhr || req.headers?.accept?.includes('application/json')) {
+          return res.status(400).json({ success: false, message: qtyValidation.message });
+        }
+        if (req.flash) req.flash('warning', qtyValidation.message);
+        const err = new Error(qtyValidation.message);
+        err.status = 400;
+        return next(err);
+      }
+      const qty = qtyValidation.quantity;
+
+      // Find matching variant
+      const varRes = await query(`
+        SELECT 
+          pv.id, pv.stock_quantity, pv.sku,
+          p.id AS product_id, p.name AS product_name, p.slug AS product_slug,
+          COALESCE(p.sale_price, p.base_price) AS unit_price,
+          s.size_name, c.color_name,
+          (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, display_order ASC) AS image_url
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.id
+        JOIN sizes s ON pv.size_id = s.id
+        JOIN colors c ON pv.color_id = c.id
+        WHERE pv.product_id = @productId 
+          AND s.size_name = @size 
+          AND c.color_name = @color 
+          AND pv.status = 'active' 
+          AND p.status = 'active'
+      `, {
+        productId: parseInt(productId, 10),
+        size,
+        color,
+      });
+
+      if (varRes.recordset.length === 0) {
+        const err = new Error('Biến thể sản phẩm (Size x Màu) không tồn tại hoặc đã ngừng kinh doanh.');
+        err.status = 400;
+        return next(err);
+      }
+
+      const variant = varRes.recordset[0];
+      if (variant.stock_quantity <= 0) {
+        const err = new Error(`Sản phẩm "${variant.product_name}" hiện đã hết hàng.`);
+        err.status = 400;
+        return next(err);
+      }
+
+      // Guest flow: save in guestCart and redirect to login with returnUrl=/checkout
+      if (!user) {
+        req.session.guestCart = req.session.guestCart || [];
+        const existingIdx = req.session.guestCart.findIndex(i => i.variant_id === variant.id);
+
+        if (existingIdx > -1) {
+          const currentItem = req.session.guestCart[existingIdx];
+          const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, currentItem.quantity + qty));
+          currentItem.quantity = newQty;
+          currentItem.line_total = Number(variant.unit_price) * newQty;
+        } else {
+          const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, qty));
+          req.session.guestCart.push({
+            cart_item_id: `guest_${variant.id}`,
+            variant_id: variant.id,
+            product_id: variant.product_id,
+            product_name: variant.product_name,
+            product_slug: variant.product_slug,
+            sku: variant.sku,
+            size_name: variant.size_name,
+            color_name: variant.color_name,
+            unit_price: Number(variant.unit_price),
+            quantity: newQty,
+            line_total: Number(variant.unit_price) * newQty,
+            stock_quantity: variant.stock_quantity,
+            image_url: variant.image_url,
+          });
+        }
+        req.session.cartCount = req.session.guestCart.reduce((sum, item) => sum + item.quantity, 0);
+        return res.redirect('/auth/login?returnUrl=/checkout');
+      }
+
+      // Logged in Customer: add to DB cart and redirect directly to /checkout
+      let cartId = user.cartId;
+      if (!cartId) {
+        const cartRes = await query('SELECT id FROM carts WHERE user_id = @userId', { userId: user.id });
+        if (cartRes.recordset.length === 0) {
+          const newCart = await query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)', { userId: user.id });
+          cartId = newCart.recordset[0].id;
+        } else {
+          cartId = cartRes.recordset[0].id;
+        }
+        user.cartId = cartId;
+      }
+
+      const itemRes = await query('SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId', {
+        cartId,
+        varId: variant.id,
+      });
+
+      if (itemRes.recordset.length > 0) {
+        const currentQty = itemRes.recordset[0].quantity;
+        const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, currentQty + qty));
+        await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
+          qty: newQty,
+          id: itemRes.recordset[0].id,
+        });
+      } else {
+        const initialQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, qty));
+        await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
+          cartId,
+          varId: variant.id,
+          qty: initialQty,
+        });
+      }
+
+      const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
+      req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+
+      return res.redirect('/checkout');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Update Quantity of Item in Cart (Guest session or Customer DB)
    */
   async updateItem(req, res, next) {
@@ -439,12 +619,12 @@ class CartController {
 
       if (existRes.recordset.length > 0) {
         const currentQty = existRes.recordset[0].quantity;
-        const newQty = Math.min(variant.stock_quantity, currentQty + quantity);
+        const newQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, currentQty + quantity);
         await query(`
           UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id
         `, { qty: newQty, id: existRes.recordset[0].id });
       } else {
-        const initialQty = Math.min(variant.stock_quantity, quantity);
+        const initialQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, quantity);
         await query(`
           INSERT INTO cart_items (cart_id, variant_id, quantity)
           VALUES (@cartId, @varId, @qty)

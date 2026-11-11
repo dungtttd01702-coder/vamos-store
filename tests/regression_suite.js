@@ -937,6 +937,69 @@ async function runSuite() {
     }
     assert(sqliSafe, 'SEC-SQLI-01', 'Product sorting strictly whitelists inputs and resists SQL injection');
 
+    // 8. Buy Now Workflow: Customer redirects to /checkout, Guest redirects to /auth/login?returnUrl=/checkout
+    const varInfo = await query("SELECT s.size_name, c.color_name FROM product_variants pv JOIN sizes s ON pv.size_id = s.id JOIN colors c ON pv.color_id = c.id WHERE pv.id = @v", { v: tempVarId });
+    const testSize = varInfo.recordset[0].size_name;
+    const testColor = varInfo.recordset[0].color_name;
+
+    let customerBuyNowRedirect = '';
+    const mockBuyNowReqCust = {
+      session: { user: { id: uid1, cartId: cid1 } },
+      body: { productId: tempProdId, size: testSize, color: testColor, quantity: 1 },
+      flash: () => {},
+    };
+    const mockBuyNowResCust = {
+      redirect: (url) => { customerBuyNowRedirect = url; }
+    };
+    await cartController.buyNow(mockBuyNowReqCust, mockBuyNowResCust, (err) => { if (err) console.error(err); });
+    assert(customerBuyNowRedirect === '/checkout', 'FLOW-BUYNOW-01', 'Customer "Mua Ngay" redirects directly to /checkout');
+
+    let guestBuyNowRedirect = '';
+    const mockBuyNowReqGuest = {
+      session: { guestCart: [] },
+      body: { productId: tempProdId, size: testSize, color: testColor, quantity: 2 },
+      flash: () => {},
+    };
+    const mockBuyNowResGuest = {
+      redirect: (url) => { guestBuyNowRedirect = url; }
+    };
+    await cartController.buyNow(mockBuyNowReqGuest, mockBuyNowResGuest, (err) => { if (err) console.error(err); });
+    assert(
+      guestBuyNowRedirect === '/auth/login?returnUrl=/checkout' && mockBuyNowReqGuest.session.guestCart.length === 1 && mockBuyNowReqGuest.session.guestCart[0].quantity === 2,
+      'FLOW-BUYNOW-02',
+      'Guest "Mua Ngay" preserves item in session guestCart and redirects to /auth/login?returnUrl=/checkout'
+    );
+
+    // 9. Merge Cart Cap: Merging 5 guest items with 8 customer items (stock 50) caps at 10
+    await query("DELETE FROM cart_items WHERE cart_id = @c", { c: cid1 });
+    await query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@c, @v, 8)", { c: cid1, v: tempVarId });
+    await cartController.constructor.mergeGuestCart(cid1, [{ variant_id: tempVarId, quantity: 5 }]);
+    const mergeCapRes = await query("SELECT quantity FROM cart_items WHERE cart_id = @c AND variant_id = @v", { c: cid1, v: tempVarId });
+    assert(
+      mergeCapRes.recordset.length === 1 && mergeCapRes.recordset[0].quantity === 10,
+      'MERGE-CAP-01',
+      'Guest cart merge into customer cart strictly caps quantity to 10 (8 + 5 => 10)'
+    );
+
+    // 10. Guest Cart Live DB Sync: Index updates guest cart with live price and stock bounds
+    let guestRenderData = null;
+    const mockGuestReq = {
+      session: {
+        guestCart: [
+          { variant_id: tempVarId, quantity: 99, unit_price: 1000 }
+        ]
+      }
+    };
+    const mockGuestRes = {
+      render: (view, data) => { guestRenderData = data; }
+    };
+    await cartController.index(mockGuestReq, mockGuestRes, (err) => { if (err) console.error(err); });
+    assert(
+      guestRenderData && guestRenderData.items[0].quantity === 10 && guestRenderData.items[0].unit_price === 500000,
+      'GUEST-SYNC-01',
+      'Guest cart index synchronizes stale session items with live DB price (500,000) and retail stock cap (10)'
+    );
+
     // -------------------------------------------------------------------------
     // CLEANUP TEST FIXTURES
     // -------------------------------------------------------------------------

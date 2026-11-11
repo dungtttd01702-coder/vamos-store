@@ -7,7 +7,7 @@ router.get('/', (req, res, next) => cartController.index(req, res, next));
 
 // POST /cart/add
 router.post('/add', (req, res, next) => cartController.addItem(req, res, next));
-router.post('/buy-now', (req, res, next) => cartController.addItem(req, res, next));
+router.post('/buy-now', (req, res, next) => cartController.buyNow(req, res, next));
 
 // POST /cart/update
 router.post('/update', (req, res, next) => cartController.updateItem(req, res, next));
