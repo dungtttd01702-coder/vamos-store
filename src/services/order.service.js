@@ -7,8 +7,8 @@ const { sql, getPool, query } = require('../config/database');
 const VALID_TRANSITIONS = {
   PENDING: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['PROCESSING', 'CANCELLED'],
-  PROCESSING: ['SHIPPING', 'CANCELLED'],
-  SHIPPING: ['COMPLETED', 'CANCELLED'],
+  PROCESSING: ['SHIPPING'], // In v1.0, orders in processing packaging cannot be cancelled
+  SHIPPING: ['COMPLETED'],  // In v1.0, orders currently out for delivery cannot be cancelled
   COMPLETED: [], // Terminal state
   CANCELLED: [], // Terminal state
 };

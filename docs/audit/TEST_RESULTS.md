@@ -10,9 +10,13 @@
 
 ## 1. TỔNG KẾT KẾT QUẢ THỰC TẾ
 
-| Tổng số ca kiểm thử | Số ca VƯỢT QUA (PASS) | Số ca THẤT BẠI (FAIL) | Tỷ lệ thành công | Thời gian chạy |
-| :-----------------: | :-------------------: | :-------------------: | :--------------: | :------------: |
-|       **86**        |        **86**         |         **0**         |     **100%**     | **~4.2 giây**  |
+| Nhóm kiểm thử | Tổng số ca kiểm thử | Số ca PASS | Số ca FAIL | Tỷ lệ thành công | Thời gian chạy |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Suite 1: Regression Suite chính (`npm test`)** | **88** | **88** | **0** | **100%** | **~4.0s** |
+| **Suite 2: Dedicated Validator Unit Tests** | **14** | **14** | **0** | **100%** | **~0.1s** |
+| **Suite 3: Authentication & Session Flow Tests** | **10** | **10** | **0** | **100%** | **~2.2s** |
+| **Suite 4: Pug Template Syntax Validation** | **24** | **24** | **0** | **100%** | **~0.4s** |
+| **TỔNG CỘNG HỆ THỐNG** | **136** | **136** | **0** | **100%** | **~6.7s** |
 
 ---
 
@@ -114,7 +118,7 @@
 | `ORDER-06` | Chặn đứng hành vi hủy đơn lần 2 trên đơn đã `CANCELLED`   | ✔ PASS  | Bị từ chối ngay lập tức           |
 | `ORDER-07` | Đảm bảo tồn kho KHÔNG bị hoàn trả hai lần                 | ✔ PASS  | Chống gian lận tăng khống tồn kho |
 
-### PHẦN 7: QUẢN TRỊ VIÊN & MA TRẬN CHUYỂN TRẠNG THÁI (12 Ca Kiểm Thử)
+### PHẦN 7: QUẢN TRỊ VIÊN & MA TRẬN CHUYỂN TRẠNG THÁI (14 Ca Kiểm Thử)
 
 | Mã Test    | Mô tả ca kiểm thử                                                | Kết quả | Ghi chú kỹ thuật                        |
 | ---------- | ---------------------------------------------------------------- | :-----: | --------------------------------------- |
@@ -123,7 +127,9 @@
 | `ADMIN-02` | Trạng thái thanh toán giữ nguyên `UNPAID` khi `CONFIRMED`        | ✔ PASS  | Chưa giao hàng thành công               |
 | `ADMIN-03` | Khách hàng KHÔNG THỂ hủy đơn khi đơn đã `CONFIRMED`              | ✔ PASS  | Khóa quyền tự hủy của khách             |
 | `ADMIN-04` | Admin cập nhật trạng thái đơn hàng sang `PROCESSING`             | ✔ PASS  | Bước kho đóng gói                       |
+| `TRANS-04` | Ma trận từ chối hủy đơn khi đang đóng gói: `PROCESSING -> CANCELLED` | ✔ PASS | v1.0 khóa hủy khi hàng đã vào quy trình gói |
 | `ADMIN-05` | Admin cập nhật trạng thái đơn hàng sang `SHIPPING`               | ✔ PASS  | Bước bàn giao vận chuyển                |
+| `TRANS-05` | Ma trận từ chối hủy đơn khi đang giao: `SHIPPING -> CANCELLED`   | ✔ PASS  | v1.0 khóa hủy khi hàng đang chuyển phát |
 | `ADMIN-06` | Admin cập nhật trạng thái đơn hàng sang `COMPLETED`              | ✔ PASS  | Bước khách nhận hàng                    |
 | `ADMIN-07` | Đơn COD tự động chuyển `payment_status = 'PAID'` khi `COMPLETED` | ✔ PASS  | Quy tắc thu tiền COD tự động            |
 | `TRANS-02` | Ma trận từ chối hủy đơn đã hoàn thành: `COMPLETED -> CANCELLED`  | ✔ PASS  | Đơn đã giao không được hủy thường       |

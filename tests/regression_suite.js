@@ -398,6 +398,20 @@ async function runSuite() {
     chkStatus = await query("SELECT order_status FROM orders WHERE id = @id", { id: adminOrderId });
     assert(chkStatus.recordset[0].order_status === 'PROCESSING', 'ADMIN-04', 'Admin updated status to PROCESSING');
 
+    // In v1.0, illegal transition from PROCESSING -> CANCELLED must be rejected
+    let processingToCancelledRejected = false;
+    try {
+      await orderService.updateOrderStatusByAdmin({
+        orderId: adminOrderId,
+        newStatus: 'CANCELLED',
+        adminId: 1,
+        note: 'Attempt cancel processing order'
+      });
+    } catch (err) {
+      processingToCancelledRejected = true;
+    }
+    assert(processingToCancelledRejected, 'TRANS-04', 'State transition matrix rejected illegal transition: PROCESSING -> CANCELLED');
+
     // Move to SHIPPING
     await orderService.updateOrderStatusByAdmin({
       orderId: adminOrderId,
@@ -407,6 +421,20 @@ async function runSuite() {
     });
     chkStatus = await query("SELECT order_status FROM orders WHERE id = @id", { id: adminOrderId });
     assert(chkStatus.recordset[0].order_status === 'SHIPPING', 'ADMIN-05', 'Admin updated status to SHIPPING');
+
+    // In v1.0, illegal transition from SHIPPING -> CANCELLED must be rejected
+    let shippingToCancelledRejected = false;
+    try {
+      await orderService.updateOrderStatusByAdmin({
+        orderId: adminOrderId,
+        newStatus: 'CANCELLED',
+        adminId: 1,
+        note: 'Attempt cancel shipping order'
+      });
+    } catch (err) {
+      shippingToCancelledRejected = true;
+    }
+    assert(shippingToCancelledRejected, 'TRANS-05', 'State transition matrix rejected illegal transition: SHIPPING -> CANCELLED');
 
     // Move to COMPLETED (MUST AUTOMATICALLY SET payment_status = 'PAID')
     await orderService.updateOrderStatusByAdmin({

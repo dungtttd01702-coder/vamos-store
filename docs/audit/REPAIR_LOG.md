@@ -89,11 +89,11 @@
 - **Quy tắc thanh toán COD nghiêm ngặt:**
   - Đơn hàng mới luôn có `payment_method = 'COD'` và `payment_status = 'UNPAID'`.
   - `payment_status` CHỈ chuyển sang `'PAID'` khi `order_status = 'COMPLETED'` và được giao hàng thành công.
-- **Ma trận chuyển trạng thái hợp lệ (State Transition Matrix):**
-  - `PENDING -> CONFIRMED, CANCELLED`
-  - `CONFIRMED -> PROCESSING, CANCELLED`
-  - `PROCESSING -> SHIPPING, CANCELLED`
-  - `SHIPPING -> COMPLETED, CANCELLED`
+- **Ma trận chuyển trạng thái hợp lệ (State Transition Matrix v1.0):**
+  - `PENDING -> CONFIRMED, CANCELLED` (Khách hoặc Admin được hủy khi đang chờ duyệt)
+  - `CONFIRMED -> PROCESSING, CANCELLED` (Admin được hủy khi đã xác nhận đơn)
+  - `PROCESSING -> SHIPPING` (v1.0: Đơn hàng đang đóng gói trong kho không được hủy)
+  - `SHIPPING -> COMPLETED` (v1.0: Đơn hàng đang trên đường giao bưu cục không được hủy)
   - `COMPLETED -> (Trạng thái cuối, không thể hủy)`
   - `CANCELLED -> (Trạng thái cuối, không thể kích hoạt lại)`
   - Ngăn chặn triệt để hành động nhảy cóc trạng thái (như `PENDING -> COMPLETED`) hoặc hoàn tác đơn đã hủy.
@@ -167,7 +167,7 @@
 | 7   | `database/migrations/001_initial_schema.sql`       | Tạo mới    | Migration khởi tạo 18 bảng chuẩn MSSQL                              |
 | 8   | `database/migrations/002_add_filtered_indexes.sql` | Tạo mới    | Migration bổ sung chỉ mục lọc cho địa chỉ và ảnh chính              |
 | 9   | `database/init_mssql.js`                           | Đã sửa     | Tạo database tự động qua `master`, chạy migration theo phiên bản    |
-| 10  | `database/seed_customer.js`                        | Đã sửa     | Chuẩn hóa trạng thái `'active'`, hỗ trợ chạy dạng module            |
+| 10  | `database/seed_customer.js`                        | Đã sửa     | Chuẩn hóa trạng thái `'active'`, chặn chạy trên production, ẩn log mật khẩu |
 | 11  | `database/seed_vouchers.js`                        | Đã sửa     | Hỗ trợ nạp dạng module không thoát process                          |
 | 12  | `database/seed_products.js`                        | Đã sửa     | Hỗ trợ nạp dạng module không thoát process                          |
 | 13  | `src/middlewares/auth.middleware.js`               | Đã sửa     | Bổ sung middleware `requireGuest`                                   |
@@ -188,8 +188,12 @@
 | 28  | `src/views/pages/account/order-detail.pug`         | Đã sửa     | CSRF token ẩn                                                       |
 | 29  | `src/views/pages/admin/order-detail.pug`           | Đã sửa     | CSRF token ẩn                                                       |
 | 30  | `tests/setup_test_db.js`                           | Tạo mới    | Tự động khởi tạo và nạp dữ liệu cho `vamos_store_test_db`           |
-| 31  | `tests/regression_suite.js`                        | Đã sửa     | Mở rộng 86 ca kiểm thử bao phủ toàn diện hệ thống                   |
-| 32  | `src/public/css/style.css`                         | Đã sửa     | Biên dịch lại minified Tailwind CSS                                 |
-| 33  | `docs/audit/REPAIR_LOG.md`                         | Tạo mới    | Tài liệu nhật ký sửa chữa kỹ thuật                                  |
-| 34  | `docs/audit/TEST_RESULTS.md`                       | Tạo mới    | Báo cáo chi tiết kết quả 86 ca kiểm thử hồi quy                     |
-| 35  | `docs/audit/FINAL_AUDIT_REPORT.md`                 | Đã sửa     | Báo cáo tổng kết kiểm toán và hiện trạng hoàn tất                   |
+| 31  | `tests/regression_suite.js`                        | Đã sửa     | Mở rộng 88 ca kiểm thử bao phủ toàn diện hệ thống (thêm TRANS-04, TRANS-05) |
+| 32  | `tests/validator.test.js`                          | Tạo mới    | Kiểm thử đơn vị 14 trường hợp validation email, SĐT, MK, họ tên    |
+| 33  | `tests/test_auth_flow.js`                          | Tạo mới    | Kiểm thử tích hợp 10 kịch bản luồng đăng nhập, session và logout    |
+| 34  | `tests/validate_pug.js`                            | Tạo mới    | Kiểm tra cú pháp toàn bộ 24 template Pug                            |
+| 35  | `.github/workflows/ci.yml`                         | Tạo mới    | Tự động hóa CI chạy Node 18 & 20 với service container MSSQL 2022   |
+| 36  | `src/public/css/style.css`                         | Đã sửa     | Biên dịch lại minified Tailwind CSS                                 |
+| 37  | `docs/audit/REPAIR_LOG.md`                         | Tạo mới    | Tài liệu nhật ký sửa chữa kỹ thuật                                  |
+| 38  | `docs/audit/TEST_RESULTS.md`                       | Tạo mới    | Báo cáo chi tiết kết quả 88 ca kiểm thử hồi quy + bộ test phụ trợ   |
+| 39  | `docs/audit/FINAL_AUDIT_REPORT.md`                 | Đã sửa     | Báo cáo tổng kết kiểm toán và hiện trạng hoàn tất                   |
