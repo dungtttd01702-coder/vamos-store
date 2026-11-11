@@ -88,7 +88,7 @@ Website VAMOS STORE được phân chia cấu trúc trang thành 3 phân vùng �
 
 ### 2.3. Mô hình thực thể quan hệ - ERD (Entity-Relationship Diagram)
 
-Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa gồm **18 thực thể** liên kết chặt chẽ trên hệ quản trị CSDL MySQL 8.0:
+Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa gồm **18 thực thể** liên kết chặt chẽ trên hệ quản trị CSDL Microsoft SQL Server 2025:
 
 <div align="center">
   <img src="images/hinh_09_erd.png" alt="Hình 9: Mô hình thực thể quan hệ (ERD 18 bảng) - VAMOS STORE" style="max-width: 95%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />

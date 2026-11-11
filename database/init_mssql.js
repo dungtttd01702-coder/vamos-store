@@ -1,16 +1,7 @@
 const sql = require('mssql');
+const appConfig = require('../src/config/app.config');
 
-const config = {
-  user: 'sa',
-  password: '123',
-  server: '127.0.0.1',
-  port: 1433,
-  database: 'vamos_store_db',
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
+const config = appConfig.db;
 
 const tablesSql = `
 -- Drop tables in reverse dependency order if exist

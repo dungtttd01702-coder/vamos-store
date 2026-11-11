@@ -29,9 +29,15 @@ router.get('/about', (req, res) => {
   });
 });
 
+// GET /policy alias
+router.get('/policy', (req, res) => {
+  res.redirect('/policies/shipping');
+});
+
 // GET /policies/:type
 router.get('/policies/:type', (req, res) => {
   const { type } = req.params;
+  const normalizedType = type === 'return' ? 'returns' : type;
   const titles = {
     shipping: 'Chính Sách Vận Chuyển & Thanh Toán COD',
     returns: 'Chính Sách Đổi Trả 7 Ngày',
@@ -39,8 +45,8 @@ router.get('/policies/:type', (req, res) => {
     privacy: 'Chính Sách Bảo Mật Thông Tin Khách Hàng',
   };
   res.render('pages/info/policy', {
-    title: titles[type] || 'Chính Sách Khách Hàng',
-    policyType: type,
+    title: titles[normalizedType] || 'Chính Sách Khách Hàng',
+    policyType: normalizedType,
   });
 });
 

@@ -1,6 +1,6 @@
 @startuml vamos_store_erd
-title SƠ ĐỒ MỐI QUAN HỆ THỰC THỂ (ERD) - VAMOS STORE (MySQL 8)
-caption Phiên bản v1.1 Chuẩn hóa - 18 Thực thể & Ràng buộc toàn vẹn
+title SƠ ĐỒ MỐI QUAN HỆ THỰC THỂ (ERD) - VAMOS STORE (Microsoft SQL Server 2025)
+caption Phiên bản Chuẩn hóa - 18 Thực thể & Ràng buộc toàn vẹn T-SQL
 
 skinparam linetype ortho
 skinparam roundcorner 6
@@ -21,88 +21,88 @@ skinparam class {
 ' 1. NHÓM NGƯỜI DÙNG & BẢO MẬT (USERS & AUTH)
 ' ========================================================
 entity "users" as users {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * full_name : VARCHAR(100)
-    * email : VARCHAR(150) <<UNIQUE>>
-    * password_hash : VARCHAR(255)
-    phone : VARCHAR(20)
-    * role : ENUM('ADMIN','CUSTOMER') <<DEFAULT 'CUSTOMER'>>
-    * status : ENUM('active','locked') <<DEFAULT 'active'>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    * full_name : NVARCHAR(100)
+    * email : NVARCHAR(150) <<UNIQUE>>
+    * password_hash : NVARCHAR(255)
+    phone : NVARCHAR(20)
+    * role : NVARCHAR(20) <<CHECK: 'ADMIN','CUSTOMER', DEFAULT 'CUSTOMER'>>
+    * status : NVARCHAR(20) <<CHECK: 'active','locked', DEFAULT 'active'>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "addresses" as addresses {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * user_id : INT <<FK>>
-    * recipient_name : VARCHAR(100)
-    * phone : VARCHAR(20)
-    * province : VARCHAR(100)
-    * district : VARCHAR(100)
-    * ward : VARCHAR(100)
-    * detail_address : VARCHAR(255)
-    is_default : BOOLEAN <<DEFAULT FALSE>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    * recipient_name : NVARCHAR(100)
+    * phone : NVARCHAR(20)
+    * province : NVARCHAR(100)
+    * district : NVARCHAR(100)
+    * ward : NVARCHAR(100)
+    * detail_address : NVARCHAR(255)
+    is_default : BIT <<DEFAULT 0>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "password_reset_tokens" as password_reset_tokens {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * user_id : INT <<FK>>
-    * token : VARCHAR(255) <<UNIQUE>>
-    * expires_at : DATETIME
-    used_at : DATETIME
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    * token : NVARCHAR(255) <<UNIQUE>>
+    * expires_at : DATETIME2
+    used_at : DATETIME2
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 ' ========================================================
 ' 2. NHÓM DANH MỤC, THƯƠNG HIỆU & SẢN PHẨM (CATALOG)
 ' ========================================================
 entity "categories" as categories {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * name : VARCHAR(100)
-    * slug : VARCHAR(120) <<UNIQUE>>
-    description : TEXT
-    is_active : BOOLEAN <<DEFAULT TRUE>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    * name : NVARCHAR(100)
+    * slug : NVARCHAR(120) <<UNIQUE>>
+    description : NVARCHAR(MAX)
+    is_active : BIT <<DEFAULT 1>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "brands" as brands {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * name : VARCHAR(100)
-    * slug : VARCHAR(120) <<UNIQUE>>
-    description : TEXT
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    * name : NVARCHAR(100)
+    * slug : NVARCHAR(120) <<UNIQUE>>
+    description : NVARCHAR(MAX)
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "products" as products {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * category_id : INT <<FK>>
     brand_id : INT <<FK>>
-    * product_code : VARCHAR(50) <<UNIQUE>>
-    * name : VARCHAR(200)
-    * slug : VARCHAR(255) <<UNIQUE>>
-    description : TEXT
-    * gender_target : ENUM('MEN','WOMEN','KIDS','UNISEX') <<DEFAULT 'UNISEX'>>
+    * product_code : NVARCHAR(50) <<UNIQUE>>
+    * name : NVARCHAR(200)
+    * slug : NVARCHAR(255) <<UNIQUE>>
+    description : NVARCHAR(MAX)
+    * gender_target : NVARCHAR(20) <<CHECK: 'MEN','WOMEN','KIDS','UNISEX', DEFAULT 'UNISEX'>>
     * base_price : DECIMAL(12,0) <<CHECK >= 0>>
     sale_price : DECIMAL(12,0) <<CHECK NULL OR (>=0 AND <base_price)>>
-    * status : ENUM('active','inactive','draft') <<DEFAULT 'active'>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    * status : NVARCHAR(20) <<CHECK: 'active','inactive','draft', DEFAULT 'active'>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "product_images" as product_images {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * product_id : INT <<FK>>
-    * image_url : VARCHAR(255)
-    is_primary : BOOLEAN <<DEFAULT FALSE>>
+    * image_url : NVARCHAR(255)
+    is_primary : BIT <<DEFAULT 0>>
     display_order : INT <<DEFAULT 0>>
 }
 
@@ -110,65 +110,65 @@ entity "product_images" as product_images {
 ' 3. NHÓM BIẾN THỂ & THUỘC TÍNH (VARIANTS)
 ' ========================================================
 entity "sizes" as sizes {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * size_name : VARCHAR(20) <<UNIQUE>>
+    * size_name : NVARCHAR(20) <<UNIQUE>>
     display_order : INT <<DEFAULT 0>>
 }
 
 entity "colors" as colors {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * color_name : VARCHAR(50) <<UNIQUE>>
-    hex_code : VARCHAR(10)
+    * color_name : NVARCHAR(50) <<UNIQUE>>
+    hex_code : NVARCHAR(10)
 }
 
 entity "product_variants" as product_variants {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * product_id : INT <<FK>>
     * size_id : INT <<FK>>
     * color_id : INT <<FK>>
-    * sku : VARCHAR(100) <<UNIQUE>>
+    * sku : NVARCHAR(100) <<UNIQUE>>
     * stock_quantity : INT <<DEFAULT 0, CHECK >= 0>>
-    * status : ENUM('active','inactive') <<DEFAULT 'active'>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    * status : NVARCHAR(20) <<CHECK: 'active','inactive', DEFAULT 'active'>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
     .. Ràng buộc tổ hợp ..
     <<UNIQUE(product_id, size_id, color_id)>>
 }
 
 entity "inventory_transactions" as inventory_transactions {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * variant_id : INT <<FK>>
     * user_id : INT <<FK>>
     * old_quantity : INT <<CHECK >= 0>>
     * new_quantity : INT <<CHECK >= 0>>
     * change_quantity : INT
-    * reason : VARCHAR(255)
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    * reason : NVARCHAR(255)
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 ' ========================================================
 ' 4. NHÓM GIỎ HÀNG (SHOPPING CART)
 ' ========================================================
 entity "carts" as carts {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * user_id : INT <<FK, UNIQUE>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "cart_items" as cart_items {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * cart_id : INT <<FK>>
     * variant_id : INT <<FK>>
     * quantity : INT <<DEFAULT 1, CHECK > 0>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
     .. Ràng buộc tổ hợp ..
     <<UNIQUE(cart_id, variant_id)>>
 }
@@ -177,68 +177,68 @@ entity "cart_items" as cart_items {
 ' 5. NHÓM KHUYẾN MÃI & QUẢNG BÁ (PROMOTION & MARKETING)
 ' ========================================================
 entity "vouchers" as vouchers {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * code : VARCHAR(50) <<UNIQUE>>
-    * name : VARCHAR(100)
-    * discount_type : ENUM('percentage','fixed_amount')
+    * code : NVARCHAR(50) <<UNIQUE>>
+    * name : NVARCHAR(100)
+    * discount_type : NVARCHAR(20) <<CHECK: 'percentage','fixed_amount'>>
     * discount_value : DECIMAL(12,0) <<CHECK > 0>>
     * min_order_value : DECIMAL(12,0) <<DEFAULT 0, CHECK >= 0>>
     max_discount_amount : DECIMAL(12,0)
-    * start_date : DATETIME
-    * end_date : DATETIME <<CHECK end_date >= start_date>>
+    * start_date : DATETIME2
+    * end_date : DATETIME2 <<CHECK end_date >= start_date>>
     * usage_limit : INT <<DEFAULT 0, CHECK >= 0>>
-    * used_count : INT <<DEFAULT 0, CHECK used_count <= usage_limit>>
-    * is_active : BOOLEAN <<DEFAULT TRUE>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    * used_count : INT <<DEFAULT 0, CHECK >= 0>>
+    * is_active : BIT <<DEFAULT 1>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "banners" as banners {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * title : VARCHAR(150)
-    * image_url : VARCHAR(255)
-    link_url : VARCHAR(255)
+    * title : NVARCHAR(150)
+    * image_url : NVARCHAR(255)
+    link_url : NVARCHAR(255)
     display_order : INT <<DEFAULT 0>>
-    is_active : BOOLEAN <<DEFAULT TRUE>>
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    is_active : BIT <<DEFAULT 1>>
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 ' ========================================================
 ' 6. NHÓM ĐƠN HÀNG & LỊCH SỬ (ORDERS & FULFILLMENT)
 ' ========================================================
 entity "orders" as orders {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
-    * order_code : VARCHAR(50) <<UNIQUE>>
+    * order_code : NVARCHAR(50) <<UNIQUE>>
     * user_id : INT <<FK>>
-    * recipient_name_snapshot : VARCHAR(100)
-    * recipient_phone_snapshot : VARCHAR(20)
-    * delivery_address_snapshot : VARCHAR(500)
+    * recipient_name_snapshot : NVARCHAR(100)
+    * recipient_phone_snapshot : NVARCHAR(20)
+    * delivery_address_snapshot : NVARCHAR(500)
     * subtotal : DECIMAL(12,0) <<CHECK >= 0>>
     * discount_amount : DECIMAL(12,0) <<DEFAULT 0, CHECK >= 0>>
     * shipping_fee : DECIMAL(12,0) <<DEFAULT 0, CHECK >= 0>>
     * total_amount : DECIMAL(12,0) <<CHECK >= 0>>
     voucher_id : INT <<FK>>
-    voucher_code_snapshot : VARCHAR(50)
-    * payment_method : VARCHAR(20) <<DEFAULT 'COD'>>
-    * payment_status : ENUM('UNPAID','PAID') <<DEFAULT 'UNPAID'>>
-    * order_status : ENUM('PENDING','CONFIRMED','PROCESSING','SHIPPING','COMPLETED','CANCELLED') <<DEFAULT 'PENDING'>>
-    customer_note : VARCHAR(255)
-    admin_note : VARCHAR(255)
-    created_at : TIMESTAMP <<DEFAULT NOW>>
-    updated_at : TIMESTAMP <<DEFAULT NOW ON UPDATE NOW>>
+    voucher_code_snapshot : NVARCHAR(50)
+    * payment_method : NVARCHAR(20) <<DEFAULT 'COD'>>
+    * payment_status : NVARCHAR(20) <<CHECK: 'UNPAID','PAID', DEFAULT 'UNPAID'>>
+    * order_status : NVARCHAR(20) <<CHECK: 'PENDING','CONFIRMED','PROCESSING','SHIPPING','COMPLETED','CANCELLED', DEFAULT 'PENDING'>>
+    customer_note : NVARCHAR(255)
+    admin_note : NVARCHAR(255)
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
+    updated_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 entity "order_items" as order_items {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * order_id : INT <<FK>>
     * product_variant_id : INT <<FK>>
-    * product_name_snapshot : VARCHAR(200)
-    * sku_snapshot : VARCHAR(100)
-    * size_snapshot : VARCHAR(20)
-    * color_snapshot : VARCHAR(50)
+    * product_name_snapshot : NVARCHAR(200)
+    * sku_snapshot : NVARCHAR(100)
+    * size_snapshot : NVARCHAR(20)
+    * color_snapshot : NVARCHAR(50)
     * unit_price : DECIMAL(12,0) <<CHECK >= 0>>
     * quantity : INT <<CHECK > 0>>
     * line_total : DECIMAL(12,0) <<CHECK >= 0>>
@@ -247,14 +247,14 @@ entity "order_items" as order_items {
 }
 
 entity "order_status_histories" as order_status_histories {
-    * id : INT <<PK, AI>>
+    * id : INT <<PK, IDENTITY>>
     --
     * order_id : INT <<FK>>
     * changed_by : INT <<FK>>
-    previous_status : VARCHAR(50)
-    * new_status : VARCHAR(50)
-    note : VARCHAR(255)
-    created_at : TIMESTAMP <<DEFAULT NOW>>
+    previous_status : NVARCHAR(50)
+    * new_status : NVARCHAR(50)
+    note : NVARCHAR(255)
+    created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
 ' ========================================================
@@ -292,4 +292,3 @@ orders ||--|{ order_status_histories : "1..1..N (order_id)"
 vouchers |o--o{ orders : "0..1..N (voucher_id)"
 
 @enduml
-

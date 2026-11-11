@@ -20,7 +20,7 @@ Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xá
   * Hệ điều hành: Windows 10 Pro / Ubuntu Linux.
   * Trình duyệt kiểm thử: Google Chrome (v120+), Microsoft Edge (v120+), Mobile Simulator (iPhone 14, Samsung Galaxy S22).
   * Backend Runtime: Node.js v20.x LTS / Express.js.
-  * Cơ sở dữ liệu: MySQL 8.0 (InnoDB Storage Engine).
+  * Cơ sở dữ liệu: Microsoft SQL Server 2025 (Enterprise Developer Edition).
 
 ### 1.3. Phân công trách nhiệm kiểm thử trong nhóm
 Để đảm bảo chất lượng toàn diện và tính đồng đều trong sự đóng góp của các thành viên, công tác kiểm thử được phân công cụ thể như sau:
@@ -121,6 +121,6 @@ Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xá
 * **Số kịch bản đạt yêu cầu (Pass):** 25 / 25 kịch bản (Đạt tỷ lệ: **100%** trong môi trường thử nghiệm).
 * **Đánh giá tổng quan chất lượng:**
   * Hệ thống hoạt động ổn định, luồng dữ liệu giữa Controller, Service, Repository và Database ăn khớp nhịp nhàng.
-  * Tính toàn vẹn giao dịch và nguyên tắc chống bán vượt tồn kho vận hành chuẩn xác nhờ cơ chế khóa bi quan cấp dòng của MySQL 8.
+  * Tính toàn vẹn giao dịch và nguyên tắc chống bán vượt tồn kho vận hành chuẩn xác nhờ cơ chế khóa bi quan cấp dòng `WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server 2025.
   * Phân quyền máy chủ nghiêm ngặt, bảo vệ tuyệt đối khu vực quản trị Admin.
 

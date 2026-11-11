@@ -18,7 +18,7 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
 
 1. Báo cáo dự án với đề tài **"Xây dựng Website bán giày dép VAMOS STORE"** là công trình nghiên cứu, phân tích, thiết kế và phát triển độc lập của các thành viên trong nhóm, dưới sự hướng dẫn trực tiếp của Giảng viên **ThS. Hoàng Hà**.
 2. Toàn bộ các số liệu, sơ đồ thiết kế (Use Case, ERD, Activity Diagram, Wireframe), mã nguồn và kết quả kiểm thử được trình bày trong báo cáo này là trung thực, phản ánh đúng quá trình thực hiện dự án thực tế của nhóm, không sao chép trái phép từ bất kỳ công trình nào khác.
-3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, MySQL, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
+3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, Microsoft SQL Server 2025, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
 4. Nhóm xin chịu hoàn toàn trách nhiệm trước Nhà trường, Bộ môn Công nghệ Thông tin và Pháp luật nếu xảy ra bất kỳ sự vi phạm nào liên quan đến quyền sở hữu trí tuệ và tính liêm chính học thuật.
 
 *Đà Nẵng, ngày 10 tháng 12 năm 2026*  
@@ -52,7 +52,7 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
   * 4. Mô hình MVC và Kiến trúc phân lớp ........................................................................................ 15
   * 5. Template Engine Pug ............................................................................................................... 17
   * 6. CSS Framework Tailwind CSS .................................................................................................. 18
-  * 7. Cơ sở dữ liệu: MySQL 8.0 ......................................................................................................... 19
+  * 7. Cơ sở dữ liệu: Microsoft SQL Server 2025 ......................................................................................................... 19
   * 8. Cơ chế xác thực Session và Bảo mật Bcrypt ............................................................................. 20
   * 9. Công nghệ Container Docker & Docker Compose ................................................................... 21
 * **CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** ............................................................... 22
@@ -149,8 +149,6 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
 | **DTO** | Data Transfer Object | Đối tượng vận chuyển dữ liệu giữa các tầng kiến trúc trong ứng dụng. |
 
 
----
-
 # PHẦN MỞ ĐẦU (INTRODUCTION)
 
 ---
@@ -199,7 +197,7 @@ Từ những thách thức thực tiễn trên, việc nghiên cứu và xây d�
 ### 3.2. Mục tiêu phi chức năng (Non-Functional Objectives)
 
 - **Bảo mật và an toàn dữ liệu:** Băm mật khẩu người dùng bằng thuật toán `bcrypt` an toàn (salt rounds >= 10); xác thực và phân quyền máy chủ chặt chẽ thông qua Session; sử dụng truy vấn tham số hóa (Parameterized Queries) để ngăn chặn tấn công SQL Injection.
-- **Tính toàn vẹn giao dịch (ACID Integrity):** Ứng dụng MySQL Database Transaction kết hợp khóa bi quan (`SELECT ... FOR UPDATE`) để bảo vệ dữ liệu tồn kho trong điều kiện xử lý tranh chấp đồng thời.
+- **Tính toàn vẹn giao dịch (ACID Integrity):** Ứng dụng MSSQL Database Transaction (T-SQL) kết hợp khóa bi quan (`SELECT ... WITH (UPDLOCK, ROWLOCK)`) để bảo vệ dữ liệu tồn kho trong điều kiện xử lý tranh chấp đồng thời.
 - **Hiệu năng và trải nghiệm người dùng (UX):** Tối ưu hóa tốc độ tải trang bằng kỹ thuật Server-Side Rendering (SSR) với Pug Template Engine; giao diện responsive tương thích hoàn hảo trên Desktop, Máy tính bảng và Điện thoại di động nhờ Tailwind CSS.
 
 ---
@@ -257,11 +255,11 @@ Hệ thống VAMOS STORE trong phiên bản 1.0 chuẩn hóa chính xác **3 tá
 | **Kiến trúc ứng dụng**  | Layered MVC        |    Chuẩn kiến trúc    | Tách biệt Router $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repository $\rightarrow$ Database. |
 | **Template Engine**     | Pug (Jade)         |          3.x          | Kết xuất giao diện HTML phía máy chủ (Server-Side Rendering).                                                    |
 | **CSS Framework**       | Tailwind CSS       |          3.x          | Xây dựng giao diện responsive hiện đại, tối ưu hóa kích thước stylesheet.                                        |
-| **Hệ quản trị CSDL**    | MySQL              |          8.0          | Cơ sở dữ liệu quan hệ lưu trữ 18 bảng, xử lý Transaction và Khóa bi quan.                                        |
-| **Trình điều khiển DB** | `mysql2/promise`   |          3.x          | Quản lý kết nối Connection Pool và hỗ trợ Promise/async-await.                                                   |
+| **Hệ quản trị CSDL**    | Microsoft SQL Server|         2025          | Cơ sở dữ liệu quan hệ doanh nghiệp lưu trữ 18 bảng, xử lý Transaction và Khóa bi quan.                           |
+| **Trình điều khiển DB** | `mssql` (Tedious)  |         12.x          | Quản lý kết nối Connection Pool và hỗ trợ Parameterized Queries / Transactions.                                 |
 | **Quản lý phiên**       | `express-session`  |          1.x          | Quản lý phiên làm việc máy chủ an toàn, lưu thông tin User đăng nhập.                                            |
 | **Mã hóa bảo mật**      | `bcryptjs`         |          2.x          | Băm mật khẩu một chiều chống tấn công tra cứu bảng cầu vồng.                                                     |
-| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu MySQL thành các container độc lập.                                        |
+| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu Microsoft SQL Server 2025 thành các container độc lập.                                        |
 | **Công cụ thiết kế**    | PlantUML           |        Latest         | Vẽ sơ đồ Use Case, ERD quan hệ, Activity Diagram chuẩn UML.                                                      |
 
 ---
@@ -301,8 +299,6 @@ Dưới đây là kế hoạch phân bổ các giai đoạn thực hiện dự �
 _Bảng 1: Lập kế hoạch dự án VAMOS STORE_
 
 
----
-
 # CHƯƠNG I: CƠ SỞ LÝ THUYẾT (THEORETICAL FOUNDATION)
 
 ---
@@ -326,7 +322,7 @@ Mô hình Client - Server (Máy khách - Máy chủ) là một kiến trúc mạ
 Trong hệ thống VAMOS STORE, mô hình Client - Server được ứng dụng theo cơ chế **Server-Side Rendering (SSR)**:
 
 - Khi khách hàng truy cập xem danh sách giày dép hoặc bấm đặt hàng, trình duyệt gửi request về Node.js Server.
-- Server tiếp nhận request, gọi xuống MySQL 8.0 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
+- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2025 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
 - **Ưu điểm áp dụng:** Giúp trang web tải nhanh, tối ưu hóa công cụ tìm kiếm (SEO) vượt trội cho các sản phẩm giày, đồng thời bảo mật tuyệt đối mã nguồn xử lý giá và logic kho phía máy chủ.
 
 ---
@@ -398,7 +394,7 @@ Mô hình MVC là một mẫu kiến trúc phần mềm kinh điển trong công
 - **Lớp Trình diễn (Presentation Layer - Views):** Sử dụng các file template Pug và Tailwind CSS để xây dựng giao diện người dùng.
 - **Lớp Điều khiển (Controller Layer):** Tiếp nhận HTTP Request, kiểm tra tính hợp lệ sơ bộ của tham số đầu vào (Input Validation), sau đó chuyển tiếp cho tầng Service.
 - **Lớp Dịch vụ nghiệp vụ (Service Layer):** Nơi chứa 100% logic nghiệp vụ cốt lõi: tính toán giảm giá voucher, quản lý Database Transaction, điều phối khóa dòng kiểm tra tồn kho khi đặt hàng COD, kích hoạt hoàn kho khi hủy đơn.
-- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MySQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
+- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MSSQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
 
 <div align="center">
   <img src="images/hinh_04_mvc_layers.png" alt="Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -444,16 +440,16 @@ Khác với các CSS framework truyền thống cung cấp sẵn các component 
 
 ---
 
-## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MYSQL 8.0
+## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
 
-### 7.1. Tổng quan về MySQL 8.0
+### 7.1. Tổng quan về Microsoft SQL Server 2025
 
-MySQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hàng đầu thế giới, được sở hữu và phát triển bởi tập đoàn Oracle. Phiên bản MySQL 8.0 mang lại nhiều cải tiến đột phá:
+Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft. Phiên bản Microsoft SQL Server 2025 mang lại nhiều cải tiến và độ tin cậy vượt bậc:
 
-- **Storage Engine InnoDB mặc định:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity - Tính nguyên tử, Consistency - Tính nhất quán, Isolation - Tính cô lập, Durability - Tính bền vững).
-- **Khóa bi quan cấp dòng (Pessimistic Row-level Locking):** Hỗ trợ cú pháp `SELECT ... FOR UPDATE`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition.
-- **Hỗ trợ thực thi ràng buộc CHECK:** Bắt đầu từ phiên bản MySQL 8.0.16, hệ thống chính thức kiểm tra và thực thi các biểu thức ràng buộc logic `CHECK` (như kiểm tra giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu).
-- **Bảng mã `utf8mb4`:** Hỗ trợ đầy đủ bộ ký tự Unicode quốc tế và tiếng Việt có dấu, cũng như các ký tự biểu cảm (emoji) hiện đại.
+- **Chuẩn hóa giao dịch ACID toàn diện:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity, Consistency, Isolation, Durability) qua các giao dịch T-SQL an toàn.
+- **Khóa bi quan cấp dòng với gợi ý bảng (Table Hints):** Hỗ trợ cú pháp `SELECT ... WITH (UPDLOCK, ROWLOCK)`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition (bán vượt tồn kho).
+- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server 2025 kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
+- **Bảng mã Unicode `NVARCHAR`:** Hỗ trợ lưu trữ hoàn hảo văn bản tiếng Việt có dấu và bộ ký tự quốc tế.
 
 ---
 
@@ -463,7 +459,7 @@ MySQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDB
 
 Hệ thống VAMOS STORE sử dụng thư viện `express-session` để duy trì trạng thái đăng nhập của người dùng:
 
-- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MySQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
+- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MSSQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
 - Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite=Strict` (chống tấn công giả mạo yêu cầu CSRF).
 - Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
 
@@ -487,11 +483,9 @@ Docker là nền tảng ảo hóa mức hệ điều hành (Containerization) ch
 Docker Compose là công cụ giúp định nghĩa và vận hành ứng dụng đa container (Multi-container applications) thông qua file cấu hình `docker-compose.yml`:
 
 - **Web Service:** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
-- **Database Service:** Container chạy hệ quản trị CSDL MySQL 8.0, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
+- **Database Service:** Container chạy hệ quản trị CSDL Microsoft SQL Server 2025, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
 - **Lợi ích ứng dụng:** Đảm bảo tính nhất quán tuyệt đối của môi trường chạy ứng dụng giữa các máy tính của các thành viên trong nhóm phát triển và máy chủ triển khai ("Build once, run anywhere").
 
-
----
 
 # CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG (SYSTEM ANALYSIS & DESIGN)
 
@@ -583,7 +577,7 @@ Website VAMOS STORE được phân chia cấu trúc trang thành 3 phân vùng �
 
 ### 2.3. Mô hình thực thể quan hệ - ERD (Entity-Relationship Diagram)
 
-Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa gồm **18 thực thể** liên kết chặt chẽ trên hệ quản trị CSDL MySQL 8.0:
+Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa gồm **18 thực thể** liên kết chặt chẽ trên hệ quản trị CSDL Microsoft SQL Server 2025:
 
 <div align="center">
   <img src="images/hinh_09_erd.png" alt="Hình 9: Mô hình thực thể quan hệ (ERD 18 bảng) - VAMOS STORE" style="max-width: 95%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -1091,8 +1085,6 @@ Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa 
 | `Cancel & Restock` | Danger Action | Nút hủy đơn khẩn cấp (kèm nhập lý do); kích hoạt Transaction tự động hoàn tồn kho về biến thể ban đầu. |
 
 
----
-
 # CHƯƠNG III: TRIỂN KHAI MÃ NGUỒN (SYSTEM IMPLEMENTATION)
 
 ---
@@ -1106,7 +1098,7 @@ vamos-store/
 ├── src/
 │   ├── app.js                   # Khởi tạo Express server, cấu hình middlewares & template engine
 │   ├── config/
-│   │   ├── database.js          # Cấu hình MySQL Connection Pool (mysql2/promise)
+│   │   ├── database.js          # Cấu hình MSSQL Connection Pool (mssql)
 │   │   ├── session.js           # Cấu hình express-session & Cookie bảo mật
 │   │   └── constants.js         # Các hằng số hệ thống (Mã trạng thái đơn, quy tắc kho)
 │   ├── routes/
@@ -1146,55 +1138,53 @@ vamos-store/
 │   ├── js/                      # JavaScript tương tác phía client (Alpine.js / Vanilla JS)
 │   └── images/                  # Hình ảnh sản phẩm, logo, banner
 ├── database/
-│   ├── schema.sql               # Kịch bản DDL MySQL 8 khởi tạo 18 bảng
+│   ├── mssql_schema.sql         # Kịch bản DDL Microsoft SQL Server 2025 khởi tạo 18 bảng
 │   └── seeds.sql                # Dữ liệu mẫu kích cỡ, màu sắc, tài khoản admin mặc định
 ├── Dockerfile                   # Cấu hình container cho ứng dụng Node.js
-├── docker-compose.yml           # Điều phối đa container (App + MySQL 8)
+├── docker-compose.yml           # Điều phối đa container (App + SQL Server)
 ├── package.json                 # Khai báo dependencies và scripts
 └── .env.example                 # Mẫu cấu hình biến môi trường
 ```
 
 ---
 
-## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MYSQL
+## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
 
-### 2.1. Cấu hình MySQL Connection Pool
+### 2.1. Cấu hình MSSQL Connection Pool
 
-Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mysql2/promise` với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
+Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mssql` (Tedious) với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
 
 ```javascript
 // src/config/database.js
-const mysql = require("mysql2/promise");
-require("dotenv").config();
+const sql = require("mssql");
+const config = require("./app.config");
 
-// Khởi tạo Connection Pool kết nối MySQL 8.0
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || "vamos_user",
-  password: process.env.DB_PASSWORD || "SecretPassword123!",
-  database: process.env.DB_NAME || "vamos_store_db",
-  waitForConnections: true,
-  connectionLimit: 15, // Giới hạn tối đa 15 kết nối đồng thời
-  queueLimit: 0, // Không giới hạn hàng đợi
-  charset: "utf8mb4_unicode_ci",
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-});
+let pool = null;
 
-// Hàm kiểm tra kết nối khi khởi động máy chủ
-async function testConnection() {
-  try {
-    const connection = await pool.getConnection();
-    console.log("=> [MySQL] Kết nối Cơ sở dữ liệu vamos_store_db thành công!");
-    connection.release();
-  } catch (error) {
-    console.error("=> [MySQL] Lỗi kết nối Cơ sở dữ liệu:", error.message);
-    process.exit(1);
+// Khởi tạo MSSQL Connection Pool
+async function getPool() {
+  if (!pool) {
+    try {
+      pool = await sql.connect(config.db);
+    } catch (err) {
+      console.error("[MSSQL Pool Error]:", err.message);
+      throw err;
+    }
   }
+  return pool;
 }
 
-module.exports = { pool, testConnection };
+// Hàm thực thi truy vấn tham số hóa (Parameterized Query) an toàn
+async function query(queryStr, params = {}) {
+  const currentPool = await getPool();
+  const request = currentPool.request();
+  for (const [key, val] of Object.entries(params)) {
+    request.input(key, val);
+  }
+  return request.query(queryStr);
+}
+
+module.exports = { sql, getPool, query };
 ```
 
 ---
@@ -1286,10 +1276,10 @@ module.exports = requireAdmin;
 
 ### 3.3. Chức năng Đặt hàng COD với Database Transaction và Khóa bi quan
 
-- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MySQL Database Transaction**.
+- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MSSQL Database Transaction (T-SQL)**.
 
 ```javascript
-// src/services/OrderService.js (Trích đoạn Đặt hàng COD an toàn ACID)
+// src/services/order.service.js (Trích đoạn Đặt hàng COD an toàn ACID với UPDLOCK, ROWLOCK)
 const { pool } = require("../config/database");
 
 class OrderService {
@@ -1325,13 +1315,13 @@ class OrderService {
         throw new Error("Giỏ hàng của bạn đang trống.");
       }
 
-      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... FOR UPDATE)
+      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... WITH (UPDLOCK, ROWLOCK))
       let subtotal = 0;
       const orderItemsData = [];
 
       for (const item of cartRows) {
         const [lockedRows] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? FOR UPDATE`,
+          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
           [item.variant_id],
         );
 
@@ -1372,7 +1362,7 @@ class OrderService {
                      WHERE code = ? AND is_active = TRUE 
                        AND NOW() BETWEEN start_date AND end_date
                        AND (usage_limit = 0 OR used_count < usage_limit)
-                       AND min_order_value <= ? FOR UPDATE`,
+                       AND min_order_value <= ? WITH (UPDLOCK, ROWLOCK)`,
           [voucherCode.trim().toUpperCase(), subtotal],
         );
 
@@ -1520,7 +1510,7 @@ class InventoryService {
 
       // 1. Kiểm tra đơn hàng có đủ điều kiện hủy không (PENDING hoặc CONFIRMED)
       const [orders] = await connection.execute(
-        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? FOR UPDATE`,
+        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
         [orderId],
       );
 
@@ -1547,7 +1537,7 @@ class InventoryService {
 
       for (const item of items) {
         const [variants] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? FOR UPDATE`,
+          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
           [item.product_variant_id],
         );
 
@@ -1610,8 +1600,6 @@ module.exports = new InventoryService();
 ```
 
 
----
-
 # CHƯƠNG IV: KIỂM THỬ HỆ THỐNG (SYSTEM TESTING)
 
 ---
@@ -1634,7 +1622,7 @@ Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xá
   * Hệ điều hành: Windows 10 Pro / Ubuntu Linux.
   * Trình duyệt kiểm thử: Google Chrome (v120+), Microsoft Edge (v120+), Mobile Simulator (iPhone 14, Samsung Galaxy S22).
   * Backend Runtime: Node.js v20.x LTS / Express.js.
-  * Cơ sở dữ liệu: MySQL 8.0 (InnoDB Storage Engine).
+  * Cơ sở dữ liệu: Microsoft SQL Server 2025 (Enterprise Developer Edition).
 
 ### 1.3. Phân công trách nhiệm kiểm thử trong nhóm
 Để đảm bảo chất lượng toàn diện và tính đồng đều trong sự đóng góp của các thành viên, công tác kiểm thử được phân công cụ thể như sau:
@@ -1735,12 +1723,10 @@ Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xá
 * **Số kịch bản đạt yêu cầu (Pass):** 25 / 25 kịch bản (Đạt tỷ lệ: **100%** trong môi trường thử nghiệm).
 * **Đánh giá tổng quan chất lượng:**
   * Hệ thống hoạt động ổn định, luồng dữ liệu giữa Controller, Service, Repository và Database ăn khớp nhịp nhàng.
-  * Tính toàn vẹn giao dịch và nguyên tắc chống bán vượt tồn kho vận hành chuẩn xác nhờ cơ chế khóa bi quan cấp dòng của MySQL 8.
+  * Tính toàn vẹn giao dịch và nguyên tắc chống bán vượt tồn kho vận hành chuẩn xác nhờ cơ chế khóa bi quan cấp dòng `WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server 2025.
   * Phân quyền máy chủ nghiêm ngặt, bảo vệ tuyệt đối khu vực quản trị Admin.
 
 
-
----
 
 # CHƯƠNG V: TRIỂN KHAI HỆ THỐNG (SYSTEM DEPLOYMENT)
 
@@ -1750,7 +1736,7 @@ Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xá
 
 Để đưa hệ thống website thương mại điện tử **VAMOS STORE** từ môi trường phát triển (Development) lên môi trường vận hành thực tế (Production), hệ thống được thiết kế theo hai phương án triển khai linh hoạt:
 
-1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu MySQL 8.0 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
+1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu Microsoft SQL Server 2025 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
 2. **Phương án 2 (Mô hình máy chủ đám mây Cloud VPS & Tên miền theo chuẩn đồ án):** Thuê máy chủ ảo riêng (Virtual Private Server - VPS) chạy hệ điều hành Ubuntu Linux, kết hợp với tên miền quốc tế và máy chủ web Nginx làm Reverse Proxy.
 
 ---
@@ -1787,46 +1773,45 @@ CMD ["node", "src/app.js"]
 
 ### 2.2. Cấu hình điều phối với Docker Compose
 
-File `docker-compose.yml` liên kết hai dịch vụ chính: `web` (Node.js App) và `db` (MySQL 8.0):
+File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server):
 
 ```yaml
 version: "3.8"
 
 services:
-  # 1. Dịch vụ Cơ sở dữ liệu MySQL 8.0
-  db:
-    image: mysql:8.0
-    container_name: vamos_mysql_db
+  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2025
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vamos_store_mssql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: RootSecurePassword2026!
-      MYSQL_DATABASE: vamos_store_db
-      MYSQL_USER: vamos_user
-      MYSQL_PASSWORD: VamosPassword2026!
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "VamosPassSecure2025!"
+      MSSQL_PID: "Developer"
     ports:
-      - "3306:3306"
+      - "1433:1433"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
-    command: --default-authentication-plugin=mysql_native_password
+      - mssql_data:/var/opt/mssql
     networks:
       - vamos_network
 
   # 2. Dịch vụ Ứng dụng Web Node.js
-  web:
+  app:
     build: .
-    container_name: vamos_web_app
+    container_name: vamos_store_app
     restart: always
     depends_on:
-      - db
+      - mssql
     environment:
       NODE_ENV: production
       PORT: 3000
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: vamos_user
-      DB_PASSWORD: VamosPassword2026!
+      DB_TYPE: mssql
+      DB_SERVER: mssql
+      DB_PORT: 1433
+      DB_USER: sa
+      DB_PASSWORD: "VamosPassSecure2025!"
       DB_NAME: vamos_store_db
+      DB_TRUST_SERVER_CERTIFICATE: "true"
       SESSION_SECRET: VamosSuperSecretKey2026!
     ports:
       - "3000:3000"
@@ -1834,7 +1819,7 @@ services:
       - vamos_network
 
 volumes:
-  mysql_data:
+  mssql_data:
 
 networks:
   vamos_network:
@@ -1891,25 +1876,32 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
   sudo npm install -g pm2
   ```
 
-### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu MySQL 8.0
+### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu Microsoft SQL Server 2025
 
-- **Bước 1:** Cài đặt MySQL Server trên Ubuntu:
+- **Bước 1:** Cài đặt Microsoft SQL Server on Linux hoặc triển khai container:
   ```bash
-  sudo apt install -y mysql-server
-  sudo systemctl start mysql
-  sudo systemctl enable mysql
+  # Tùy chọn 1: Cài đặt mssql-server trên Ubuntu LTS
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+  curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
+  sudo apt-get update && sudo apt-get install -y mssql-server
+  sudo /opt/mssql/bin/mssql-conf setup
+  sudo systemctl start mssql-server
+  sudo systemctl enable mssql-server
+
+  # Tùy chọn 2: Chạy trực tiếp qua Docker container
+  docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=VamosPassword2026!" -p 1433:1433 --name vamos-sql -d mcr.microsoft.com/mssql/server:2022-latest
   ```
-- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và tạo user truy cập:
+- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và thiết lập tài khoản:
   ```sql
-  CREATE DATABASE vamos_store_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  CREATE USER 'vamos_user'@'localhost' IDENTIFIED BY 'VamosPassword2026!';
-  GRANT ALL PRIVILEGES ON vamos_store_db.* TO 'vamos_user'@'localhost';
-  FLUSH PRIVILEGES;
-  EXIT;
+  -- Kết nối bằng sqlcmd hoặc Azure Data Studio
+  CREATE DATABASE vamos_store_db COLLATE SQL_Latin1_General_CP1_CI_AS;
+  GO
+  USE vamos_store_db;
+  GO
   ```
-- **Bước 3:** Nạp kịch bản cơ sở dữ liệu `schema.sql`:
+- **Bước 3:** Nạp cấu trúc bảng và dữ liệu mẫu:
   ```bash
-  mysql -u vamos_user -p vamos_store_db < database/schema.sql
+  node database/init_mssql.js
   ```
 
 ### 3.4. Triển khai mã nguồn và Quản lý tiến trình bằng PM2
@@ -1983,8 +1975,6 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
 Hệ thống VAMOS STORE sau khi hoàn tất các bước trên sẽ hoạt động chính thức trên môi trường Internet tại giao thức bảo mật `https://vamosstore.shop`, kết nối ổn định, dữ liệu phân lớp an toàn và tự động phục hồi khi máy chủ khởi động lại.
 
 
----
-
 # CHƯƠNG VI: HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN (CONCLUSION)
 
 ---
@@ -2027,13 +2017,11 @@ Sau một thời gian nỗ lực nghiên cứu, phân tích nghiệp vụ, thi�
 
 - **Về mặt phân tích & thiết kế:** Xây dựng thành công bộ tài liệu kỹ thuật chuẩn mực bao gồm hồ sơ 3 Actor (`Guest`, `Customer`, `Admin`), 14 Use Case chi tiết, sơ đồ điều hướng Sitemap, mô hình CSDL quan hệ ERD 18 thực thể, Từ điển dữ liệu chi tiết, 5 sơ đồ hoạt động (Activity Diagrams) và bộ khung Wireframe đặc tả 10 màn hình cốt lõi.
 - **Về mặt kỹ thuật kiến trúc:** Ứng dụng thành công mô hình MVC phân lớp trên nền tảng Node.js và Express.js; kết hợp Template Engine Pug và Tailwind CSS mang lại giao diện responsive hiện đại, tốc độ tải trang nhanh và thân thiện với SEO.
-- **Về mặt cơ sở dữ liệu:** Thiết kế schema MySQL 8.0 chuẩn hóa, giải quyết triệt để bài toán quản lý biến thể giày phức tạp (`Size x Color x SKU`), bảo vệ tính toàn vẹn kho hàng bằng Transaction và Khóa bi quan (`SELECT ... FOR UPDATE`), đồng thời áp dụng mẫu Snapshot bất biến bảo vệ dữ liệu lịch sử đơn hàng.
+- **Về mặt cơ sở dữ liệu:** Thiết kế schema Microsoft SQL Server 2025 chuẩn hóa, giải quyết triệt để bài toán quản lý biến thể giày phức tạp (`Size x Color x SKU`), bảo vệ tính toàn vẹn kho hàng bằng Transaction và Khóa bi quan (`SELECT ... WITH (UPDLOCK, ROWLOCK)`), đồng thời áp dụng mẫu Snapshot bất biến bảo vệ dữ liệu lịch sử đơn hàng.
 - **Về mặt kỹ năng thực tiễn:** Quá trình thực hiện đồ án đã giúp các thành viên trong nhóm củng cố sâu sắc tư duy kiến trúc phần mềm, kỹ năng làm việc nhóm, kỹ năng phân tích bài toán thực tế, quản lý phiên bản với Git và đóng gói môi trường với Docker.
 
 Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết tinh tri thức của toàn bộ chương trình đào tạo chuyên ngành Phát triển phần mềm tại Trường Cao đẳng Thực hành FPT Polytechnic Đà Nẵng, mà còn là một nền tảng thực tế vững chắc, có khả năng phát triển và ứng dụng thương mại hóa trong tương lai.
 
-
----
 
 # TÀI LIỆU THAM KHẢO (REFERENCES)
 
@@ -2049,8 +2037,8 @@ Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết ti
    URL: https://pugjs.org/api/getting-started.html
 4. **Tailwind Labs.** (2024). _Tailwind CSS Documentation: Utility-first CSS framework_.  
    URL: https://tailwindcss.com/docs/installation
-5. **Oracle Corporation.** (2024). _MySQL 8.0 Reference Manual: InnoDB Storage Engine & Locking_.  
-   URL: https://dev.mysql.com/doc/refman/8.0/en/
+5. **Microsoft Corporation.** (2025). _SQL Server 2025 Technical Documentation & T-SQL Reference: Table Hints & Transactions_.  
+   URL: https://learn.microsoft.com/en-us/sql/sql-server/
 6. **Docker Inc.** (2024). _Docker Documentation: Containerize applications and Compose multi-container apps_.  
    URL: https://docs.docker.com/
 7. **Bcrypt.js Project.** (2024). _Optimized bcrypt in JavaScript with zero dependencies_.  
@@ -2068,6 +2056,4 @@ Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết ti
 12. **Martin Fowler.** (2002). _Patterns of Enterprise Application Architecture_. Addison-Wesley Professional.
 13. **Robert C. Martin.** (2008). _Clean Code: A Handbook of Agile Software Craftsmanship_. Prentice Hall.
 
-
----
 

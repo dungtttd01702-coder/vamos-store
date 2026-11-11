@@ -21,7 +21,7 @@ Mô hình Client - Server (Máy khách - Máy chủ) là một kiến trúc mạ
 Trong hệ thống VAMOS STORE, mô hình Client - Server được ứng dụng theo cơ chế **Server-Side Rendering (SSR)**:
 
 - Khi khách hàng truy cập xem danh sách giày dép hoặc bấm đặt hàng, trình duyệt gửi request về Node.js Server.
-- Server tiếp nhận request, gọi xuống MySQL 8.0 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
+- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2025 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
 - **Ưu điểm áp dụng:** Giúp trang web tải nhanh, tối ưu hóa công cụ tìm kiếm (SEO) vượt trội cho các sản phẩm giày, đồng thời bảo mật tuyệt đối mã nguồn xử lý giá và logic kho phía máy chủ.
 
 ---
@@ -93,7 +93,7 @@ Mô hình MVC là một mẫu kiến trúc phần mềm kinh điển trong công
 - **Lớp Trình diễn (Presentation Layer - Views):** Sử dụng các file template Pug và Tailwind CSS để xây dựng giao diện người dùng.
 - **Lớp Điều khiển (Controller Layer):** Tiếp nhận HTTP Request, kiểm tra tính hợp lệ sơ bộ của tham số đầu vào (Input Validation), sau đó chuyển tiếp cho tầng Service.
 - **Lớp Dịch vụ nghiệp vụ (Service Layer):** Nơi chứa 100% logic nghiệp vụ cốt lõi: tính toán giảm giá voucher, quản lý Database Transaction, điều phối khóa dòng kiểm tra tồn kho khi đặt hàng COD, kích hoạt hoàn kho khi hủy đơn.
-- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MySQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
+- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MSSQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
 
 <div align="center">
   <img src="images/hinh_04_mvc_layers.png" alt="Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -139,16 +139,16 @@ Khác với các CSS framework truyền thống cung cấp sẵn các component 
 
 ---
 
-## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MYSQL 8.0
+## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
 
-### 7.1. Tổng quan về MySQL 8.0
+### 7.1. Tổng quan về Microsoft SQL Server 2025
 
-MySQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hàng đầu thế giới, được sở hữu và phát triển bởi tập đoàn Oracle. Phiên bản MySQL 8.0 mang lại nhiều cải tiến đột phá:
+Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft. Phiên bản Microsoft SQL Server 2025 mang lại nhiều cải tiến và độ tin cậy vượt bậc:
 
-- **Storage Engine InnoDB mặc định:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity - Tính nguyên tử, Consistency - Tính nhất quán, Isolation - Tính cô lập, Durability - Tính bền vững).
-- **Khóa bi quan cấp dòng (Pessimistic Row-level Locking):** Hỗ trợ cú pháp `SELECT ... FOR UPDATE`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition.
-- **Hỗ trợ thực thi ràng buộc CHECK:** Bắt đầu từ phiên bản MySQL 8.0.16, hệ thống chính thức kiểm tra và thực thi các biểu thức ràng buộc logic `CHECK` (như kiểm tra giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu).
-- **Bảng mã `utf8mb4`:** Hỗ trợ đầy đủ bộ ký tự Unicode quốc tế và tiếng Việt có dấu, cũng như các ký tự biểu cảm (emoji) hiện đại.
+- **Chuẩn hóa giao dịch ACID toàn diện:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity, Consistency, Isolation, Durability) qua các giao dịch T-SQL an toàn.
+- **Khóa bi quan cấp dòng với gợi ý bảng (Table Hints):** Hỗ trợ cú pháp `SELECT ... WITH (UPDLOCK, ROWLOCK)`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition (bán vượt tồn kho).
+- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server 2025 kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
+- **Bảng mã Unicode `NVARCHAR`:** Hỗ trợ lưu trữ hoàn hảo văn bản tiếng Việt có dấu và bộ ký tự quốc tế.
 
 ---
 
@@ -158,7 +158,7 @@ MySQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDB
 
 Hệ thống VAMOS STORE sử dụng thư viện `express-session` để duy trì trạng thái đăng nhập của người dùng:
 
-- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MySQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
+- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MSSQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
 - Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite=Strict` (chống tấn công giả mạo yêu cầu CSRF).
 - Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
 
@@ -182,5 +182,5 @@ Docker là nền tảng ảo hóa mức hệ điều hành (Containerization) ch
 Docker Compose là công cụ giúp định nghĩa và vận hành ứng dụng đa container (Multi-container applications) thông qua file cấu hình `docker-compose.yml`:
 
 - **Web Service:** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
-- **Database Service:** Container chạy hệ quản trị CSDL MySQL 8.0, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
+- **Database Service:** Container chạy hệ quản trị CSDL Microsoft SQL Server 2025, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
 - **Lợi ích ứng dụng:** Đảm bảo tính nhất quán tuyệt đối của môi trường chạy ứng dụng giữa các máy tính của các thành viên trong nhóm phát triển và máy chủ triển khai ("Build once, run anywhere").

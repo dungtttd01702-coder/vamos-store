@@ -46,7 +46,7 @@ Từ những thách thức thực tiễn trên, việc nghiên cứu và xây d�
 ### 3.2. Mục tiêu phi chức năng (Non-Functional Objectives)
 
 - **Bảo mật và an toàn dữ liệu:** Băm mật khẩu người dùng bằng thuật toán `bcrypt` an toàn (salt rounds >= 10); xác thực và phân quyền máy chủ chặt chẽ thông qua Session; sử dụng truy vấn tham số hóa (Parameterized Queries) để ngăn chặn tấn công SQL Injection.
-- **Tính toàn vẹn giao dịch (ACID Integrity):** Ứng dụng MySQL Database Transaction kết hợp khóa bi quan (`SELECT ... FOR UPDATE`) để bảo vệ dữ liệu tồn kho trong điều kiện xử lý tranh chấp đồng thời.
+- **Tính toàn vẹn giao dịch (ACID Integrity):** Ứng dụng MSSQL Database Transaction (T-SQL) kết hợp khóa bi quan (`SELECT ... WITH (UPDLOCK, ROWLOCK)`) để bảo vệ dữ liệu tồn kho trong điều kiện xử lý tranh chấp đồng thời.
 - **Hiệu năng và trải nghiệm người dùng (UX):** Tối ưu hóa tốc độ tải trang bằng kỹ thuật Server-Side Rendering (SSR) với Pug Template Engine; giao diện responsive tương thích hoàn hảo trên Desktop, Máy tính bảng và Điện thoại di động nhờ Tailwind CSS.
 
 ---
@@ -104,11 +104,11 @@ Hệ thống VAMOS STORE trong phiên bản 1.0 chuẩn hóa chính xác **3 tá
 | **Kiến trúc ứng dụng**  | Layered MVC        |    Chuẩn kiến trúc    | Tách biệt Router $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repository $\rightarrow$ Database. |
 | **Template Engine**     | Pug (Jade)         |          3.x          | Kết xuất giao diện HTML phía máy chủ (Server-Side Rendering).                                                    |
 | **CSS Framework**       | Tailwind CSS       |          3.x          | Xây dựng giao diện responsive hiện đại, tối ưu hóa kích thước stylesheet.                                        |
-| **Hệ quản trị CSDL**    | MySQL              |          8.0          | Cơ sở dữ liệu quan hệ lưu trữ 18 bảng, xử lý Transaction và Khóa bi quan.                                        |
-| **Trình điều khiển DB** | `mysql2/promise`   |          3.x          | Quản lý kết nối Connection Pool và hỗ trợ Promise/async-await.                                                   |
+| **Hệ quản trị CSDL**    | Microsoft SQL Server|         2025          | Cơ sở dữ liệu quan hệ doanh nghiệp lưu trữ 18 bảng, xử lý Transaction và Khóa bi quan.                           |
+| **Trình điều khiển DB** | `mssql` (Tedious)  |         12.x          | Quản lý kết nối Connection Pool và hỗ trợ Parameterized Queries / Transactions.                                 |
 | **Quản lý phiên**       | `express-session`  |          1.x          | Quản lý phiên làm việc máy chủ an toàn, lưu thông tin User đăng nhập.                                            |
 | **Mã hóa bảo mật**      | `bcryptjs`         |          2.x          | Băm mật khẩu một chiều chống tấn công tra cứu bảng cầu vồng.                                                     |
-| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu MySQL thành các container độc lập.                                        |
+| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu Microsoft SQL Server 2025 thành các container độc lập.                                        |
 | **Công cụ thiết kế**    | PlantUML           |        Latest         | Vẽ sơ đồ Use Case, ERD quan hệ, Activity Diagram chuẩn UML.                                                      |
 
 ---

@@ -28,6 +28,19 @@ async function seedVouchers() {
       used_count: 0,
       is_active: 1,
     },
+    {
+      code: 'FREESHIP',
+      name: 'Miễn phí vận chuyển cho đơn từ 300k',
+      discount_type: 'fixed_amount',
+      discount_value: 30000,
+      min_order_value: 300000,
+      max_discount_amount: 30000,
+      start_date: '2025-01-01',
+      end_date: '2027-12-31',
+      usage_limit: 1000,
+      used_count: 0,
+      is_active: 1,
+    },
   ];
 
   for (const v of vouchers) {

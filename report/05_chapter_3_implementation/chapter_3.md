@@ -11,7 +11,7 @@ vamos-store/
 ├── src/
 │   ├── app.js                   # Khởi tạo Express server, cấu hình middlewares & template engine
 │   ├── config/
-│   │   ├── database.js          # Cấu hình MySQL Connection Pool (mysql2/promise)
+│   │   ├── database.js          # Cấu hình MSSQL Connection Pool (mssql)
 │   │   ├── session.js           # Cấu hình express-session & Cookie bảo mật
 │   │   └── constants.js         # Các hằng số hệ thống (Mã trạng thái đơn, quy tắc kho)
 │   ├── routes/
@@ -51,55 +51,53 @@ vamos-store/
 │   ├── js/                      # JavaScript tương tác phía client (Alpine.js / Vanilla JS)
 │   └── images/                  # Hình ảnh sản phẩm, logo, banner
 ├── database/
-│   ├── schema.sql               # Kịch bản DDL MySQL 8 khởi tạo 18 bảng
+│   ├── mssql_schema.sql         # Kịch bản DDL Microsoft SQL Server 2025 khởi tạo 18 bảng
 │   └── seeds.sql                # Dữ liệu mẫu kích cỡ, màu sắc, tài khoản admin mặc định
 ├── Dockerfile                   # Cấu hình container cho ứng dụng Node.js
-├── docker-compose.yml           # Điều phối đa container (App + MySQL 8)
+├── docker-compose.yml           # Điều phối đa container (App + SQL Server)
 ├── package.json                 # Khai báo dependencies và scripts
 └── .env.example                 # Mẫu cấu hình biến môi trường
 ```
 
 ---
 
-## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MYSQL
+## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
 
-### 2.1. Cấu hình MySQL Connection Pool
+### 2.1. Cấu hình MSSQL Connection Pool
 
-Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mysql2/promise` với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
+Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mssql` (Tedious) với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
 
 ```javascript
 // src/config/database.js
-const mysql = require("mysql2/promise");
-require("dotenv").config();
+const sql = require("mssql");
+const config = require("./app.config");
 
-// Khởi tạo Connection Pool kết nối MySQL 8.0
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || "vamos_user",
-  password: process.env.DB_PASSWORD || "SecretPassword123!",
-  database: process.env.DB_NAME || "vamos_store_db",
-  waitForConnections: true,
-  connectionLimit: 15, // Giới hạn tối đa 15 kết nối đồng thời
-  queueLimit: 0, // Không giới hạn hàng đợi
-  charset: "utf8mb4_unicode_ci",
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-});
+let pool = null;
 
-// Hàm kiểm tra kết nối khi khởi động máy chủ
-async function testConnection() {
-  try {
-    const connection = await pool.getConnection();
-    console.log("=> [MySQL] Kết nối Cơ sở dữ liệu vamos_store_db thành công!");
-    connection.release();
-  } catch (error) {
-    console.error("=> [MySQL] Lỗi kết nối Cơ sở dữ liệu:", error.message);
-    process.exit(1);
+// Khởi tạo MSSQL Connection Pool
+async function getPool() {
+  if (!pool) {
+    try {
+      pool = await sql.connect(config.db);
+    } catch (err) {
+      console.error("[MSSQL Pool Error]:", err.message);
+      throw err;
+    }
   }
+  return pool;
 }
 
-module.exports = { pool, testConnection };
+// Hàm thực thi truy vấn tham số hóa (Parameterized Query) an toàn
+async function query(queryStr, params = {}) {
+  const currentPool = await getPool();
+  const request = currentPool.request();
+  for (const [key, val] of Object.entries(params)) {
+    request.input(key, val);
+  }
+  return request.query(queryStr);
+}
+
+module.exports = { sql, getPool, query };
 ```
 
 ---
@@ -191,10 +189,10 @@ module.exports = requireAdmin;
 
 ### 3.3. Chức năng Đặt hàng COD với Database Transaction và Khóa bi quan
 
-- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MySQL Database Transaction**.
+- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MSSQL Database Transaction (T-SQL)**.
 
 ```javascript
-// src/services/OrderService.js (Trích đoạn Đặt hàng COD an toàn ACID)
+// src/services/order.service.js (Trích đoạn Đặt hàng COD an toàn ACID với UPDLOCK, ROWLOCK)
 const { pool } = require("../config/database");
 
 class OrderService {
@@ -230,13 +228,13 @@ class OrderService {
         throw new Error("Giỏ hàng của bạn đang trống.");
       }
 
-      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... FOR UPDATE)
+      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... WITH (UPDLOCK, ROWLOCK))
       let subtotal = 0;
       const orderItemsData = [];
 
       for (const item of cartRows) {
         const [lockedRows] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? FOR UPDATE`,
+          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
           [item.variant_id],
         );
 
@@ -277,7 +275,7 @@ class OrderService {
                      WHERE code = ? AND is_active = TRUE 
                        AND NOW() BETWEEN start_date AND end_date
                        AND (usage_limit = 0 OR used_count < usage_limit)
-                       AND min_order_value <= ? FOR UPDATE`,
+                       AND min_order_value <= ? WITH (UPDLOCK, ROWLOCK)`,
           [voucherCode.trim().toUpperCase(), subtotal],
         );
 
@@ -425,7 +423,7 @@ class InventoryService {
 
       // 1. Kiểm tra đơn hàng có đủ điều kiện hủy không (PENDING hoặc CONFIRMED)
       const [orders] = await connection.execute(
-        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? FOR UPDATE`,
+        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
         [orderId],
       );
 
@@ -452,7 +450,7 @@ class InventoryService {
 
       for (const item of items) {
         const [variants] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? FOR UPDATE`,
+          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
           [item.product_variant_id],
         );
 

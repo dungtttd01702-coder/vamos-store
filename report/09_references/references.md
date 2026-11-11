@@ -12,8 +12,8 @@
    URL: https://pugjs.org/api/getting-started.html
 4. **Tailwind Labs.** (2024). _Tailwind CSS Documentation: Utility-first CSS framework_.  
    URL: https://tailwindcss.com/docs/installation
-5. **Oracle Corporation.** (2024). _MySQL 8.0 Reference Manual: InnoDB Storage Engine & Locking_.  
-   URL: https://dev.mysql.com/doc/refman/8.0/en/
+5. **Microsoft Corporation.** (2025). _SQL Server 2025 Technical Documentation & T-SQL Reference: Table Hints & Transactions_.  
+   URL: https://learn.microsoft.com/en-us/sql/sql-server/
 6. **Docker Inc.** (2024). _Docker Documentation: Containerize applications and Compose multi-container apps_.  
    URL: https://docs.docker.com/
 7. **Bcrypt.js Project.** (2024). _Optimized bcrypt in JavaScript with zero dependencies_.  

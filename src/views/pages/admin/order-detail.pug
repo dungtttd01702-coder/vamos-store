@@ -106,8 +106,9 @@ block content
               select#new_status.form-input.text-xs(name="new_status" required)
                 option(value="PENDING" selected=order.order_status === 'PENDING') Chờ xác nhận (PENDING)
                 option(value="CONFIRMED" selected=order.order_status === 'CONFIRMED') Xác nhận đơn (CONFIRMED)
+                option(value="PROCESSING" selected=order.order_status === 'PROCESSING') Đang xử lý đóng gói (PROCESSING)
                 option(value="SHIPPING" selected=order.order_status === 'SHIPPING') Đang giao hàng (SHIPPING)
-                option(value="DELIVERED" selected=order.order_status === 'DELIVERED') Giao thành công & Đã thu COD (DELIVERED)
+                option(value="COMPLETED" selected=order.order_status === 'COMPLETED') Giao thành công & Đã thu COD (COMPLETED)
                 option(value="CANCELLED" selected=order.order_status === 'CANCELLED') Hủy đơn & Hoàn tồn kho (CANCELLED)
 
             div

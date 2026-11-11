@@ -27,7 +27,7 @@ class AccountController {
       const user = req.session.user;
       const { id } = req.params;
 
-      const order = await orderService.getOrderDetails(parseInt(id, 10), user.id);
+      const order = await orderService.getOrderDetails(id, user.id);
       if (!order) {
         const err = new Error('Không tìm thấy đơn hàng này');
         err.status = 404;
@@ -51,7 +51,21 @@ class AccountController {
       const user = req.session.user;
       const { id } = req.params;
 
-      await orderService.cancelOrder(parseInt(id, 10), user.id);
+      const isNumeric = /^\d+$/.test(String(id).trim());
+      let orderId = isNumeric ? parseInt(id, 10) : null;
+      if (!orderId) {
+        const oRes = await query('SELECT id FROM orders WHERE order_code = @code AND user_id = @userId', {
+          code: String(id).trim(),
+          userId: user.id,
+        });
+        if (oRes.recordset.length > 0) orderId = oRes.recordset[0].id;
+      }
+
+      if (!orderId) {
+        throw new Error('Không tìm thấy đơn hàng cần hủy');
+      }
+
+      await orderService.cancelOrder(orderId, user.id);
       res.redirect(`/account/orders/${id}?cancelled=true`);
     } catch (error) {
       next(error);
@@ -128,7 +142,17 @@ class AccountController {
   async postAddAddress(req, res, next) {
     try {
       const user = req.session.user;
-      const { recipient_name, phone_number, province, district, ward, address_line, is_default } = req.body;
+      const { recipient_name, phone_number, phone, province, district, ward, address_line, detail_address, is_default } = req.body;
+
+      const recipientPhone = (phone || phone_number || '').trim();
+      const recipientDetail = (detail_address || address_line || '').trim();
+      const recipientName = (recipient_name || '').trim();
+
+      if (!recipientName || !recipientPhone || !recipientDetail) {
+        const err = new Error('Vui lòng điền đầy đủ họ tên, số điện thoại và địa chỉ chi tiết.');
+        err.status = 400;
+        return next(err);
+      }
 
       const defBit = is_default ? 1 : 0;
       if (defBit === 1) {
@@ -136,16 +160,16 @@ class AccountController {
       }
 
       await query(`
-        INSERT INTO addresses (user_id, recipient_name, phone_number, province, district, ward, address_line, is_default)
-        VALUES (@userId, @name, @phone, @prov, @dist, @ward, @line, @isDef)
+        INSERT INTO addresses (user_id, recipient_name, phone, province, district, ward, detail_address, is_default)
+        VALUES (@userId, @name, @phone, @prov, @dist, @ward, @detail, @isDef)
       `, {
         userId: user.id,
-        name: recipient_name.trim(),
-        phone: phone_number.trim(),
-        prov: province.trim(),
-        dist: district.trim(),
-        ward: ward.trim(),
-        line: address_line.trim(),
+        name: recipientName,
+        phone: recipientPhone,
+        prov: (province || '').trim(),
+        dist: (district || '').trim(),
+        ward: (ward || '').trim(),
+        detail: recipientDetail,
         isDef: defBit,
       });
 

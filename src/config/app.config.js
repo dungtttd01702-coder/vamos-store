@@ -22,14 +22,14 @@ const config = {
   },
   db: {
     type: process.env.DB_TYPE || 'mssql',
-    server: process.env.DB_SERVER || '127.0.0.1',
+    server: process.env.DB_SERVER || process.env.DB_HOST || '127.0.0.1',
     port: parseInt(process.env.DB_PORT, 10) || 1433,
     user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASSWORD || '123',
+    password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'vamos_store_db',
     options: {
-      encrypt: false, // for local SQL Server
-      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true',
+      encrypt: process.env.DB_ENCRYPT === 'true',
+      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE !== 'false',
     },
     pool: {
       max: 10,

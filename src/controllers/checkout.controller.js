@@ -58,8 +58,8 @@ class CheckoutController {
         defaultAddr,
         formData: {
           recipientName: defaultAddr ? defaultAddr.recipient_name : (user.full_name || ''),
-          recipientPhone: defaultAddr ? defaultAddr.phone_number : (user.phone || ''),
-          deliveryAddress: defaultAddr ? `${defaultAddr.address_line}, ${defaultAddr.ward}, ${defaultAddr.district}, ${defaultAddr.province}` : '',
+          recipientPhone: defaultAddr ? (defaultAddr.phone || defaultAddr.phone_number) : (user.phone || ''),
+          deliveryAddress: defaultAddr ? `${defaultAddr.detail_address || defaultAddr.address_line}, ${defaultAddr.ward}, ${defaultAddr.district}, ${defaultAddr.province}` : '',
         },
       });
     } catch (error) {
@@ -84,6 +84,7 @@ class CheckoutController {
         district,
         ward,
         address_line,
+        detail_address,
         full_address,
         customer_note,
         voucher_code,
@@ -91,8 +92,9 @@ class CheckoutController {
 
       // Construct address
       let deliveryAddress = full_address ? full_address.trim() : '';
-      if (!deliveryAddress && address_line) {
-        deliveryAddress = [address_line, ward, district, province].filter(Boolean).join(', ');
+      const specificLine = detail_address || address_line;
+      if (!deliveryAddress && specificLine) {
+        deliveryAddress = [specificLine, ward, district, province].filter(Boolean).join(', ');
       }
 
       if (!recipient_name || !recipient_phone || !deliveryAddress) {

@@ -8,7 +8,7 @@ class AdminController {
   async getDashboard(req, res, next) {
     try {
       const [revRes, orderRes, pendRes, prodRes, lowStockRes, recentOrdersRes] = await Promise.all([
-        query("SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders WHERE order_status != 'CANCELLED'"),
+        query("SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'"),
         query("SELECT COUNT(*) AS total_orders FROM orders"),
         query("SELECT COUNT(*) AS pending_orders FROM orders WHERE order_status = 'PENDING'"),
         query("SELECT COUNT(*) AS total_products FROM products WHERE status = 'active'"),
@@ -53,9 +53,10 @@ class AdminController {
       let sqlWhere = 'WHERE 1=1';
       const params = {};
 
-      if (status) {
+      const statusFilter = status === 'DELIVERED' ? 'COMPLETED' : status;
+      if (statusFilter) {
         sqlWhere += ' AND o.order_status = @status';
-        params.status = status;
+        params.status = statusFilter;
       }
 
       if (q) {
@@ -112,72 +113,23 @@ class AdminController {
   async postUpdateOrderStatus(req, res, next) {
     try {
       const { id } = req.params;
-      const { new_status, note } = req.body;
+      let { new_status, note } = req.body;
       const adminUser = req.session.user;
 
-      const orderId = parseInt(id, 10);
-      const pool = await getPool();
-      const transaction = new sql.Transaction(pool);
-      await transaction.begin();
-
-      try {
-        const orderReq = new sql.Request(transaction);
-        orderReq.input('orderId', orderId);
-        const orderRes = await orderReq.query('SELECT * FROM orders WITH (UPDLOCK, ROWLOCK) WHERE id = @orderId');
-        if (orderRes.recordset.length === 0) {
-          throw new Error('Đơn hàng không tồn tại');
-        }
-
-        const currentOrder = orderRes.recordset[0];
-        const oldStatus = currentOrder.order_status;
-
-        // If status changed to CANCELLED and was not already cancelled, restore inventory!
-        if (new_status === 'CANCELLED' && oldStatus !== 'CANCELLED') {
-          const itemsReq = new sql.Request(transaction);
-          itemsReq.input('orderId', orderId);
-          const itemsRes = await itemsReq.query('SELECT product_variant_id, quantity FROM order_items WHERE order_id = @orderId');
-          for (const item of itemsRes.recordset) {
-            const stockReq = new sql.Request(transaction);
-            stockReq.input('varId', item.product_variant_id);
-            stockReq.input('qty', item.quantity);
-            await stockReq.query('UPDATE product_variants SET stock_quantity = stock_quantity + @qty, updated_at = GETDATE() WHERE id = @varId');
-          }
-        }
-
-        // If delivered, mark payment_status = 'PAID' (COD cash received)
-        let newPaymentStatus = currentOrder.payment_status;
-        if (new_status === 'DELIVERED') {
-          newPaymentStatus = 'PAID';
-        }
-
-        const updateReq = new sql.Request(transaction);
-        updateReq.input('orderId', orderId);
-        updateReq.input('newStatus', new_status);
-        updateReq.input('payStatus', newPaymentStatus);
-        await updateReq.query(`
-          UPDATE orders 
-          SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() 
-          WHERE id = @orderId
-        `);
-
-        // Record history
-        const histReq = new sql.Request(transaction);
-        histReq.input('orderId', orderId);
-        histReq.input('adminId', adminUser.id);
-        histReq.input('oldStatus', oldStatus);
-        histReq.input('newStatus', new_status);
-        histReq.input('histNote', note || `Admin cập nhật trạng thái đơn hàng từ ${oldStatus} sang ${new_status}`);
-        await histReq.query(`
-          INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-          VALUES (@orderId, @adminId, @oldStatus, @newStatus, @histNote)
-        `);
-
-        await transaction.commit();
-        res.redirect(`/admin/orders/${orderId}?success=true`);
-      } catch (err) {
-        await transaction.rollback();
-        throw err;
+      // Map DELIVERED to COMPLETED if submitted
+      if (new_status === 'DELIVERED') {
+        new_status = 'COMPLETED';
       }
+
+      const orderId = parseInt(id, 10);
+      await orderService.updateOrderStatusByAdmin({
+        orderId,
+        newStatus: new_status,
+        adminUserId: adminUser.id,
+        note: note ? note.trim() : '',
+      });
+
+      res.redirect(`/admin/orders/${orderId}?success=true`);
     } catch (error) {
       next(error);
     }

@@ -18,7 +18,7 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
 
 1. Báo cáo dự án với đề tài **"Xây dựng Website bán giày dép VAMOS STORE"** là công trình nghiên cứu, phân tích, thiết kế và phát triển độc lập của các thành viên trong nhóm, dưới sự hướng dẫn trực tiếp của Giảng viên **ThS. Hoàng Hà**.
 2. Toàn bộ các số liệu, sơ đồ thiết kế (Use Case, ERD, Activity Diagram, Wireframe), mã nguồn và kết quả kiểm thử được trình bày trong báo cáo này là trung thực, phản ánh đúng quá trình thực hiện dự án thực tế của nhóm, không sao chép trái phép từ bất kỳ công trình nào khác.
-3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, MySQL, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
+3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, Microsoft SQL Server 2025, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
 4. Nhóm xin chịu hoàn toàn trách nhiệm trước Nhà trường, Bộ môn Công nghệ Thông tin và Pháp luật nếu xảy ra bất kỳ sự vi phạm nào liên quan đến quyền sở hữu trí tuệ và tính liêm chính học thuật.
 
 *Đà Nẵng, ngày 10 tháng 12 năm 2026*  
@@ -52,7 +52,7 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
   * 4. Mô hình MVC và Kiến trúc phân lớp ........................................................................................ 15
   * 5. Template Engine Pug ............................................................................................................... 17
   * 6. CSS Framework Tailwind CSS .................................................................................................. 18
-  * 7. Cơ sở dữ liệu: MySQL 8.0 ......................................................................................................... 19
+  * 7. Cơ sở dữ liệu: Microsoft SQL Server 2025 ......................................................................................................... 19
   * 8. Cơ chế xác thực Session và Bảo mật Bcrypt ............................................................................. 20
   * 9. Công nghệ Container Docker & Docker Compose ................................................................... 21
 * **CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** ............................................................... 22

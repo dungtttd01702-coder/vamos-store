@@ -116,16 +116,18 @@ class CartController {
       });
 
       if (itemRes.recordset.length > 0) {
-        const newQty = itemRes.recordset[0].quantity + qty;
+        const currentQty = itemRes.recordset[0].quantity;
+        const newQty = Math.min(variant.stock_quantity, currentQty + qty);
         await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
           qty: newQty,
           id: itemRes.recordset[0].id,
         });
       } else {
+        const initialQty = Math.min(variant.stock_quantity, qty);
         await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
           cartId,
           varId: variant.id,
-          qty,
+          qty: initialQty,
         });
       }
 
@@ -140,14 +142,83 @@ class CartController {
   }
 
   /**
+   * Update Quantity of Item in Cart
+   */
+  async updateItem(req, res, next) {
+    try {
+      const user = req.session?.user;
+      const { itemId, quantity } = req.body;
+
+      if (!user || !user.cartId) {
+        return res.redirect('/cart');
+      }
+
+      const qty = parseInt(quantity, 10) || 0;
+      const cartItemId = parseInt(itemId, 10);
+
+      if (qty <= 0) {
+        await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
+          itemId: cartItemId,
+          cartId: user.cartId,
+        });
+      } else {
+        // Check stock bound
+        const checkRes = await query(`
+          SELECT pv.stock_quantity 
+          FROM cart_items ci 
+          JOIN product_variants pv ON ci.variant_id = pv.id 
+          WHERE ci.id = @itemId AND ci.cart_id = @cartId
+        `, { itemId: cartItemId, cartId: user.cartId });
+
+        if (checkRes.recordset.length > 0) {
+          const maxStock = checkRes.recordset[0].stock_quantity;
+          const finalQty = Math.min(qty, maxStock);
+          await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @itemId AND cart_id = @cartId', {
+            qty: finalQty,
+            itemId: cartItemId,
+            cartId: user.cartId,
+          });
+        }
+      }
+
+      // Update cart count
+      const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
+      req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+
+      res.redirect('/cart');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Clear All Items in Cart
+   */
+  async clearCart(req, res, next) {
+    try {
+      const user = req.session?.user;
+      if (!user || !user.cartId) {
+        return res.redirect('/cart');
+      }
+
+      await query('DELETE FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
+      req.session.cartCount = 0;
+
+      res.redirect('/cart');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Remove Item from Cart
    */
   async removeItem(req, res, next) {
     try {
       const user = req.session?.user;
-      const { itemId } = req.body;
+      const itemId = req.params.itemId || req.body.itemId;
 
-      if (!user || !user.cartId) {
+      if (!user || !user.cartId || !itemId) {
         return res.redirect('/cart');
       }
 

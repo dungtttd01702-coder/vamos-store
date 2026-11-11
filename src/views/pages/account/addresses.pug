@@ -43,8 +43,8 @@ block content
                 if a.is_default
                   span.badge-sale.absolute.top-4.right-4 Mặc Định
                 h3.font-bold.text-sm.text-vamos-dark= a.recipient_name
-                p.text-xs.text-gray-500.mt-1= `Điện thoại: ${a.phone_number}`
-                p.text-xs.text-gray-600.mt-2= `${a.address_line}, ${a.ward}, ${a.district}, ${a.province}`
+                p.text-xs.text-gray-500.mt-1= `Điện thoại: ${a.phone || a.phone_number}`
+                p.text-xs.text-gray-600.mt-2= `${a.detail_address || a.address_line}, ${a.ward}, ${a.district}, ${a.province}`
 
         //- Add New Address Card
         .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.max-w-xl
@@ -56,8 +56,8 @@ block content
                 label.form-label(for="recipient_name") Họ tên người nhận *
                 input#recipient_name.form-input(type="text" name="recipient_name" placeholder="Ví dụ: Nguyễn Văn A" required)
               div
-                label.form-label(for="phone_number") Số điện thoại *
-                input#phone_number.form-input(type="tel" name="phone_number" placeholder="Ví dụ: 0901234567" required)
+                label.form-label(for="phone") Số điện thoại *
+                input#phone.form-input(type="tel" name="phone" placeholder="Ví dụ: 0901234567" pattern="(0|\\+84)[3|5|7|8|9][0-9]{8}" required)
 
             .grid.grid-cols-1.gap-4(class="sm:grid-cols-3")
               div
@@ -71,8 +71,8 @@ block content
                 input#ward.form-input(type="text" name="ward" placeholder="Hòa Khánh Bắc" required)
 
             div
-              label.form-label(for="address_line") Số nhà, tên đường cụ thể *
-              input#address_line.form-input(type="text" name="address_line" placeholder="Ví dụ: 137 Nguyễn Thị Thập" required)
+              label.form-label(for="detail_address") Số nhà, tên đường cụ thể *
+              input#detail_address.form-input(type="text" name="detail_address" placeholder="Ví dụ: 137 Nguyễn Thị Thập" required)
 
             .flex.items-center.gap-2
               input#is_default.text-vamos-red(type="checkbox" name="is_default" value="1")

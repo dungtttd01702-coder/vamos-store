@@ -30,6 +30,11 @@ block content
         .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
           //- Cart Items List (8 cols)
           .space-y-4(class="lg:col-span-8")
+            .flex.items-center.justify-between.pb-2
+              span.text-xs.text-gray-500= `Có ${items.length} mặt hàng trong giỏ hàng`
+              form(action="/cart/clear" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn làm rỗng toàn bộ giỏ hàng?')")
+                button.text-xs.text-red-500.font-semibold(class="hover:underline" type="submit") Xóa toàn bộ giỏ
+
             each item in items
               .bg-white.rounded-vamos-lg.border.border-vamos-border.p-4.flex.items-center.justify-between.gap-4.shadow-sm.transition-all(class="hover:border-gray-300")
                 .flex.items-center.gap-4
@@ -48,8 +53,28 @@ block content
                     .mt-2.text-sm.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
                       = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.unit_price)
 
-                .flex.items-center.gap-6
-                  span.text-xs.font-bold.text-gray-700= `x ${item.quantity}`
+                .flex.items-center.gap-4
+                  //- Quantity Adjuster
+                  .flex.items-center.border.border-gray-200.rounded-lg.bg-gray-50(class="p-0.5")
+                    form(action="/cart/update" method="POST")
+                      input(type="hidden" name="itemId" value=item.cart_item_id)
+                      input(type="hidden" name="quantity" value=item.quantity - 1)
+                      button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
+                        class="hover:bg-white hover:text-vamos-red"
+                        type="submit"
+                        title="Giảm số lượng"
+                      ) -
+                    span.w-8.text-center.text-xs.font-bold.text-vamos-dark= item.quantity
+                    form(action="/cart/update" method="POST")
+                      input(type="hidden" name="itemId" value=item.cart_item_id)
+                      input(type="hidden" name="quantity" value=item.quantity + 1)
+                      button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
+                        class="hover:bg-white hover:text-vamos-red"
+                        type="submit"
+                        title="Tăng số lượng"
+                        disabled=item.quantity >= item.stock_quantity
+                      ) +
+
                   span.text-sm.font-black.text-vamos-dark.hidden(class="sm:inline" style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
 

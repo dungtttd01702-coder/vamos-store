@@ -207,6 +207,16 @@ node server.js
 
 Truy cập trình duyệt tại: **`http://localhost:3000`**
 
+### 6. Chạy Bộ Kiểm Thử Hồi Quy Tự Động (Regression Tests)
+
+Kiểm tra toàn bộ nghiệp vụ từ Auth, Catalog, Cart, Voucher, Transaction COD, Quản lý trạng thái và Hoàn kho:
+
+```bash
+npm test
+# Hoặc chạy trực tiếp:
+node tests/regression_suite.js
+```
+
 ---
 
 ## 👥 Tài Khoản Thử Nghiệm (Demo Accounts)

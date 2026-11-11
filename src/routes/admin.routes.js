@@ -6,6 +6,7 @@ const { requireAdmin } = require('../middlewares/auth.middleware');
 // All admin routes require ADMIN role
 router.use(requireAdmin);
 
+router.get('/', (req, res) => res.redirect('/admin/dashboard'));
 router.get('/dashboard', adminController.getDashboard);
 router.get('/orders', adminController.getOrders);
 router.get('/orders/:id', adminController.getOrderDetail);

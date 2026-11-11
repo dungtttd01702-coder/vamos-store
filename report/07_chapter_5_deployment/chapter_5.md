@@ -6,7 +6,7 @@
 
 Để đưa hệ thống website thương mại điện tử **VAMOS STORE** từ môi trường phát triển (Development) lên môi trường vận hành thực tế (Production), hệ thống được thiết kế theo hai phương án triển khai linh hoạt:
 
-1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu MySQL 8.0 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
+1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu Microsoft SQL Server 2025 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
 2. **Phương án 2 (Mô hình máy chủ đám mây Cloud VPS & Tên miền theo chuẩn đồ án):** Thuê máy chủ ảo riêng (Virtual Private Server - VPS) chạy hệ điều hành Ubuntu Linux, kết hợp với tên miền quốc tế và máy chủ web Nginx làm Reverse Proxy.
 
 ---
@@ -43,46 +43,45 @@ CMD ["node", "src/app.js"]
 
 ### 2.2. Cấu hình điều phối với Docker Compose
 
-File `docker-compose.yml` liên kết hai dịch vụ chính: `web` (Node.js App) và `db` (MySQL 8.0):
+File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server):
 
 ```yaml
 version: "3.8"
 
 services:
-  # 1. Dịch vụ Cơ sở dữ liệu MySQL 8.0
-  db:
-    image: mysql:8.0
-    container_name: vamos_mysql_db
+  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2025
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vamos_store_mssql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: RootSecurePassword2026!
-      MYSQL_DATABASE: vamos_store_db
-      MYSQL_USER: vamos_user
-      MYSQL_PASSWORD: VamosPassword2026!
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "VamosPassSecure2025!"
+      MSSQL_PID: "Developer"
     ports:
-      - "3306:3306"
+      - "1433:1433"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
-    command: --default-authentication-plugin=mysql_native_password
+      - mssql_data:/var/opt/mssql
     networks:
       - vamos_network
 
   # 2. Dịch vụ Ứng dụng Web Node.js
-  web:
+  app:
     build: .
-    container_name: vamos_web_app
+    container_name: vamos_store_app
     restart: always
     depends_on:
-      - db
+      - mssql
     environment:
       NODE_ENV: production
       PORT: 3000
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: vamos_user
-      DB_PASSWORD: VamosPassword2026!
+      DB_TYPE: mssql
+      DB_SERVER: mssql
+      DB_PORT: 1433
+      DB_USER: sa
+      DB_PASSWORD: "VamosPassSecure2025!"
       DB_NAME: vamos_store_db
+      DB_TRUST_SERVER_CERTIFICATE: "true"
       SESSION_SECRET: VamosSuperSecretKey2026!
     ports:
       - "3000:3000"
@@ -90,7 +89,7 @@ services:
       - vamos_network
 
 volumes:
-  mysql_data:
+  mssql_data:
 
 networks:
   vamos_network:
@@ -147,25 +146,32 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
   sudo npm install -g pm2
   ```
 
-### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu MySQL 8.0
+### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu Microsoft SQL Server 2025
 
-- **Bước 1:** Cài đặt MySQL Server trên Ubuntu:
+- **Bước 1:** Cài đặt Microsoft SQL Server on Linux hoặc triển khai container:
   ```bash
-  sudo apt install -y mysql-server
-  sudo systemctl start mysql
-  sudo systemctl enable mysql
+  # Tùy chọn 1: Cài đặt mssql-server trên Ubuntu LTS
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+  curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
+  sudo apt-get update && sudo apt-get install -y mssql-server
+  sudo /opt/mssql/bin/mssql-conf setup
+  sudo systemctl start mssql-server
+  sudo systemctl enable mssql-server
+
+  # Tùy chọn 2: Chạy trực tiếp qua Docker container
+  docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=VamosPassword2026!" -p 1433:1433 --name vamos-sql -d mcr.microsoft.com/mssql/server:2022-latest
   ```
-- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và tạo user truy cập:
+- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và thiết lập tài khoản:
   ```sql
-  CREATE DATABASE vamos_store_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  CREATE USER 'vamos_user'@'localhost' IDENTIFIED BY 'VamosPassword2026!';
-  GRANT ALL PRIVILEGES ON vamos_store_db.* TO 'vamos_user'@'localhost';
-  FLUSH PRIVILEGES;
-  EXIT;
+  -- Kết nối bằng sqlcmd hoặc Azure Data Studio
+  CREATE DATABASE vamos_store_db COLLATE SQL_Latin1_General_CP1_CI_AS;
+  GO
+  USE vamos_store_db;
+  GO
   ```
-- **Bước 3:** Nạp kịch bản cơ sở dữ liệu `schema.sql`:
+- **Bước 3:** Nạp cấu trúc bảng và dữ liệu mẫu:
   ```bash
-  mysql -u vamos_user -p vamos_store_db < database/schema.sql
+  node database/init_mssql.js
   ```
 
 ### 3.4. Triển khai mã nguồn và Quản lý tiến trình bằng PM2

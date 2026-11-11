@@ -33,4 +33,5 @@ logs/
 dist/
 build/
 tmp/
+scratch/
 

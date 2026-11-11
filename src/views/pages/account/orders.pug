@@ -52,8 +52,8 @@ block content
                       span.py-1.rounded-full.text-xs.font-bold.bg-blue-100.text-blue-700(class="px-2.5") Đã xác nhận
                     else if o.order_status === 'SHIPPING'
                       span.py-1.rounded-full.text-xs.font-bold.bg-purple-100.text-purple-700(class="px-2.5") Đang giao hàng
-                    else if o.order_status === 'DELIVERED'
-                      span.py-1.rounded-full.text-xs.font-bold.bg-green-100.text-green-700(class="px-2.5") Đã nhận hàng
+                    else if o.order_status === 'COMPLETED' || o.order_status === 'DELIVERED'
+                      span.py-1.rounded-full.text-xs.font-bold.bg-green-100.text-green-700(class="px-2.5") Đã hoàn tất & Giao thành công
                     else if o.order_status === 'CANCELLED'
                       span.py-1.rounded-full.text-xs.font-bold.bg-red-100.text-red-700(class="px-2.5") Đã hủy đơn
 
