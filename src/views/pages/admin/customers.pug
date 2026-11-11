@@ -1,0 +1,68 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+      div
+        h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG (CUSTOMERS)
+        p.text-xs.text-gray-500 Danh sách thành viên đăng ký, lịch sử mua sắm và kiểm soát trạng thái tài khoản
+      div
+        span.px-3.py-1.bg-gray-100.text-gray-700.rounded-lg.text-xs.font-bold= `Tổng: ${customers.length} khách hàng`
+
+    //- Search
+    .bg-white.p-4.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+      form.flex.gap-3(action="/admin/customers" method="GET")
+        input.form-input.text-xs.py-2.flex-grow(
+          type="text"
+          name="q"
+          value=searchQuery
+          placeholder="Tìm theo họ tên, email hoặc số điện thoại..."
+        )
+        button.btn-primary.text-xs.py-2.px-6(type="submit") Tìm Kiếm
+
+    //- Customers Table
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .overflow-x-auto
+        table.w-full.text-left.text-xs
+          thead.bg-gray-50.text-gray-500.uppercase.border-b.border-gray-100
+            tr
+              th.py-3.px-4 ID
+              th.py-3.px-4 Họ và Tên
+              th.py-3.px-4 Email
+              th.py-3.px-4 Số Điện Thoại
+              th.py-3.px-4 Ngày Đăng Ký
+              th.py-3.px-4 Số Đơn Hàng
+              th.py-3.px-4 Tổng Chi Tiêu (Hoàn thành)
+              th.py-3.px-4 Trạng Thái
+              th.py-3.px-4.text-right Thao Tác
+          tbody.divide-y.divide-gray-100
+            if customers && customers.length > 0
+              each u in customers
+                tr.hover(class="bg-gray-50/50")
+                  td.py-3.px-4.font-bold.text-gray-400= `#${u.id}`
+                  td.py-3.px-4
+                    a.font-bold.text-vamos-dark(class="hover:text-vamos-red hover:underline" href=`/admin/customers/${u.id}`)= u.full_name
+                  td.py-3.px-4.text-gray-600= u.email
+                  td.py-3.px-4.text-gray-600= u.phone || 'Chưa cập nhật'
+                  td.py-3.px-4.text-gray-400= new Date(u.created_at).toLocaleDateString('vi-VN')
+                  td.py-3.px-4.font-bold= `${u.order_count} đơn`
+                  td.py-3.px-4.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.total_spent)
+                  td.py-3.px-4
+                    if u.status === 'active'
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs") Hoạt động
+                    else
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-red-100 text-red-700 text-2xs") Đang bị khóa
+                  td.py-3.px-4.text-right.space-x-1
+                    a.btn-outline.text-2xs.py-1.px-2(href=`/admin/customers/${u.id}`) Xem Chi Tiết
+                    form.inline(action=`/admin/customers/${u.id}/toggle-status` method="POST" onsubmit="return confirm('Bạn có chắc muốn đổi trạng thái tài khoản này?')")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      button.btn-outline.text-2xs.py-1.px-2(
+                        type="submit"
+                        class=u.status === 'active' ? 'border-red-300 text-red-600 hover:bg-red-50' : 'border-green-300 text-green-700 hover:bg-green-50'
+                      )= u.status === 'active' ? 'Khóa' : 'Mở Khóa'
+            else
+              tr
+                td.py-8.text-center.text-gray-400(colspan="9") Không tìm thấy khách hàng nào

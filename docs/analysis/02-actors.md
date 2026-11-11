@@ -58,11 +58,12 @@ Trong mô hình UML Use Case chuẩn của VAMOS STORE:
 | | Xem danh sách SP, Tìm kiếm | **X** | **X** | **X** | Chỉ hiển thị sản phẩm `active` |
 | | Lọc sản phẩm (size, màu, giá) | **X** | **X** | **X** | Query server-side |
 | | Xem chi tiết sản phẩm & biến thể| **X** | **X** | **X** | Hiển thị tồn kho từng biến thể |
-| **Giỏ hàng** | Xem giỏ hàng cá nhân | - | **X** | - | Quản lý theo `user_id` session |
-| | Thêm sản phẩm theo biến thể | - | **X** | - | Chặn vượt quá tồn kho khả dụng |
-| | Cập nhật số lượng / Xóa khỏi giỏ | - | **X** | - | Cập nhật thành tiền tức thời |
-| **Đặt hàng** | Áp dụng mã giảm giá (Voucher) | - | **X** | - | Tối đa 1 voucher thỏa mãn điều kiện |
-| | Đặt hàng thanh toán COD | - | **X** | - | Database Transaction trừ tồn kho |
+| **Giỏ hàng** | Xem giỏ hàng | **X** | **X** | - | Guest lưu trong Session, Customer lưu CSDL |
+| | Thêm sản phẩm theo biến thể | **X** | **X** | - | Chặn vượt quá tồn kho khả dụng |
+| | Cập nhật số lượng / Xóa khỏi giỏ | **X** | **X** | - | Cập nhật thành tiền tức thời |
+| | Gộp giỏ hàng khách khi đăng nhập | **X** | **X** | - | Tự động merge từ Session vào CSDL |
+| **Đặt hàng** | Áp dụng mã giảm giá (Voucher) | - | **X** | - | Tối đa 1 voucher, giới hạn 1 lần/tài khoản |
+| | Đặt hàng thanh toán COD | - | **X** | - | Bắt buộc đăng nhập Customer; Database Transaction |
 | **Đơn hàng** | Tra cứu lịch sử đơn hàng | - | **X** | - | Lọc theo `user_id` session |
 | | Xem chi tiết đơn hàng (Snapshot)| - | **X** | - | Hiển thị bản chụp dữ liệu mua |
 | | Theo dõi tiến trình đơn hàng | - | **X** | - | Timeline lịch sử chuyển trạng thái |

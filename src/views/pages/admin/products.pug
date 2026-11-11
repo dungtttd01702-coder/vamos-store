@@ -1,0 +1,88 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+      div
+        h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") DANH SÁCH SẢN PHẨM GIÀY DÉP
+        p.text-xs.text-gray-500 Quản lý danh mục, biến thể và giá bán niêm yết
+      a.btn-primary.text-xs.py-2.px-4(href="/admin/products/create") + Thêm Sản Phẩm Mới
+
+    //- Filters
+    .bg-white.p-4.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+      form.grid.grid-cols-1.gap-3(class="sm:grid-cols-4" action="/admin/products" method="GET")
+        div
+          input.form-input.text-xs.py-2(
+            type="text"
+            name="q"
+            value=searchQuery
+            placeholder="Tìm tên hoặc mã sản phẩm..."
+          )
+        div
+          select.form-input.text-xs.py-2(name="category_id")
+            option(value="") -- Tất cả danh mục --
+            each c in categories
+              option(value=c.id selected=(String(selectedCategory) === String(c.id)))= c.name
+        div
+          select.form-input.text-xs.py-2(name="status")
+            option(value="") -- Tất cả trạng thái --
+            option(value="active" selected=(selectedStatus === 'active')) Đang bán (Active)
+            option(value="inactive" selected=(selectedStatus === 'inactive')) Tạm ẩn (Inactive)
+        div
+          button.w-full.btn-primary.text-xs.py-2(type="submit") Lọc Sản Phẩm
+
+    //- Products Table
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .overflow-x-auto
+        table.w-full.text-left.text-xs
+          thead.bg-gray-50.text-gray-500.uppercase.border-b.border-gray-100
+            tr
+              th.py-3.px-4 Ảnh
+              th.py-3.px-4 Mã SP
+              th.py-3.px-4 Tên Sản Phẩm
+              th.py-3.px-4 Danh Mục
+              th.py-3.px-4 Giá Bán
+              th.py-3.px-4 Tồn Kho
+              th.py-3.px-4 Trạng Thái
+              th.py-3.px-4.text-right Thao Tác
+          tbody.divide-y.divide-gray-100
+            if products && products.length > 0
+              each p in products
+                tr.hover(class="bg-gray-50/50")
+                  td.py-3.px-4
+                    .w-12.h-12.rounded-lg.bg-gray-50.p-1.border.border-gray-100.flex.items-center.justify-center
+                      if p.image_url
+                        img.w-full.h-full.object-contain(src=p.image_url alt=p.name)
+                      else
+                        span.text-2xs.text-gray-400 Không ảnh
+                  td.py-3.px-4.font-bold.text-vamos-dark= p.product_code
+                  td.py-3.px-4
+                    h4.font-bold.text-vamos-dark= p.name
+                    span.text-2xs.text-gray-400= `${p.variant_count} biến thể Size/Màu`
+                  td.py-3.px-4.text-gray-600= p.category_name || 'N/A'
+                  td.py-3.px-4
+                    if p.sale_price
+                      span.font-bold.text-vamos-red= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.sale_price)
+                      span.text-2xs.text-gray-400.line-through.ml-1= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.base_price)
+                    else
+                      span.font-bold.text-vamos-dark= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.base_price)
+                  td.py-3.px-4
+                    if p.total_stock <= 5
+                      span.font-black.text-red-600= `${p.total_stock} đôi (Thấp)`
+                    else
+                      span.font-bold.text-vamos-dark= `${p.total_stock} đôi`
+                  td.py-3.px-4
+                    if p.status === 'active'
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs") Đang bán
+                    else
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-gray-100 text-gray-600 text-2xs") Tạm ẩn
+                  td.py-3.px-4.text-right.space-x-1
+                    a.btn-outline.text-2xs.py-1.px-2(href=`/admin/products/${p.id}/edit`) Sửa
+                    form.inline(action=`/admin/products/${p.id}/toggle` method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      button.btn-outline.text-2xs.py-1.px-2(type="submit")= p.status === 'active' ? 'Ẩn' : 'Bật'
+            else
+              tr
+                td.py-8.text-center.text-gray-400(colspan="8") Không tìm thấy sản phẩm nào

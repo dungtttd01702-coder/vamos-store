@@ -97,6 +97,18 @@ class OrderService {
           throw new Error(`Mã giảm giá "${codeTrim}" đã hết lượt sử dụng.`);
         }
 
+        // Rule Q8: Enforce max 1 usage per Customer
+        const vuCheckReq = new sql.Request(transaction);
+        vuCheckReq.input('vouchId', v.id);
+        vuCheckReq.input('userId', userId);
+        const vuRes = await vuCheckReq.query(`
+          SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK)
+          WHERE voucher_id = @vouchId AND user_id = @userId
+        `);
+        if (vuRes.recordset.length > 0) {
+          throw new Error(`Bạn đã từng sử dụng mã giảm giá "${codeTrim}" trước đây. Theo quy định (Q8), mỗi tài khoản chỉ được áp dụng mã này 1 lần.`);
+        }
+
         // Calculate discount
         voucherId = v.id;
         appliedVoucherCode = v.code;
@@ -228,6 +240,18 @@ class OrderService {
 
       orderId = orderInsertRes.recordset[0].id;
 
+      // 5b. Record voucher usage to enforce one-use-per-customer rule (Q8)
+      if (voucherId) {
+        const vuInsReq = new sql.Request(transaction);
+        vuInsReq.input('vouchId', voucherId);
+        vuInsReq.input('userId', userId);
+        vuInsReq.input('orderId', orderId);
+        await vuInsReq.query(`
+          INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)
+          VALUES (@vouchId, @userId, @orderId, GETDATE())
+        `);
+      }
+
       // 6. Insert Order Items (Preserve product name, SKU, size, color, price snapshots)
       for (const item of cartItems) {
         const itemReq = new sql.Request(transaction);
@@ -346,6 +370,25 @@ class OrderService {
       SET order_status = 'CANCELLED', updated_at = GETDATE() 
       WHERE id = @orderId
     `);
+
+    // 3b. Release voucher quota and remove voucher_usages record so customer can reuse the voucher
+    const vouchReq = new sql.Request(transaction);
+    vouchReq.input('orderId', orderId);
+    const vouchRes = await vouchReq.query('SELECT voucher_id FROM orders WHERE id = @orderId');
+    const appliedVoucherId = vouchRes.recordset[0]?.voucher_id;
+    if (appliedVoucherId) {
+      const delVuReq = new sql.Request(transaction);
+      delVuReq.input('orderId', orderId);
+      await delVuReq.query('DELETE FROM voucher_usages WHERE order_id = @orderId');
+
+      const decVReq = new sql.Request(transaction);
+      decVReq.input('vouchId', appliedVoucherId);
+      await decVReq.query(`
+        UPDATE vouchers
+        SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END
+        WHERE id = @vouchId
+      `);
+    }
 
     // 4. Log status history
     const histReq = new sql.Request(transaction);

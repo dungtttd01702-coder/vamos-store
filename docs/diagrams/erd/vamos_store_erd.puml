@@ -1,6 +1,6 @@
 @startuml vamos_store_erd
 title SƠ ĐỒ MỐI QUAN HỆ THỰC THỂ (ERD) - VAMOS STORE (Microsoft SQL Server 2025)
-caption Phiên bản Chuẩn hóa - 18 Thực thể & Ràng buộc toàn vẹn T-SQL
+caption Phiên bản Chuẩn hóa - 19 Thực thể & Ràng buộc toàn vẹn T-SQL
 
 skinparam linetype ortho
 skinparam roundcorner 6
@@ -193,6 +193,17 @@ entity "vouchers" as vouchers {
     created_at : DATETIME2 <<DEFAULT GETDATE()>>
 }
 
+entity "voucher_usages" as voucher_usages {
+    * id : INT <<PK, IDENTITY>>
+    --
+    * voucher_id : INT <<FK>>
+    * user_id : INT <<FK>>
+    * order_id : INT <<FK, ON DELETE CASCADE>>
+    used_at : DATETIME2 <<DEFAULT GETDATE()>>
+    .. Ràng buộc tổ hợp ..
+    <<UNIQUE(voucher_id, user_id)>>
+}
+
 entity "banners" as banners {
     * id : INT <<PK, IDENTITY>>
     --
@@ -290,5 +301,8 @@ carts ||--o{ cart_items : "1..N (cart_id)"
 orders ||--|{ order_items : "1..1..N (order_id)"
 orders ||--|{ order_status_histories : "1..1..N (order_id)"
 vouchers |o--o{ orders : "0..1..N (voucher_id)"
+vouchers ||--o{ voucher_usages : "1..N (voucher_id)"
+users ||--o{ voucher_usages : "1..N (user_id)"
+orders ||--o{ voucher_usages : "1..N (order_id, ON DELETE CASCADE)"
 
 @enduml

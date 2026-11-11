@@ -97,12 +97,32 @@ Một mã giảm giá chỉ được chấp nhận khi thỏa mãn toàn bộ c�
 
 ### BR-PRC-04: Phí vận chuyển (Shipping Fee)
 
-- Phiên bản 1.0 sử dụng cấu hình mức phí vận chuyển cố định (Flat-rate shipping fee), ví dụ: 30,000 VNĐ cho mỗi đơn hàng (hoặc miễn phí theo cấu hình hệ thống).
+- Phiên bản 1.0/1.1 sử dụng cấu hình mức phí vận chuyển cố định (Flat-rate shipping fee), ví dụ: 30,000 VNĐ cho mỗi đơn hàng (hoặc miễn phí theo cấu hình hệ thống).
 - Không gọi API tính phí động từ các đối tác vận chuyển bên ngoài.
+
+### BR-PRC-05: Giới hạn 01 lần dùng Voucher cho mỗi khách hàng (Single-use per Customer - Q8)
+
+- Mỗi tài khoản khách hàng (`user_id`) chỉ được phép sử dụng một mã voucher tối đa 01 lần trong toàn bộ lịch sử mua sắm.
+- Khi tạo đơn hàng thành công, hệ thống ghi nhận một bản ghi vào bảng `voucher_usages` với ràng buộc duy nhất `UNIQUE(voucher_id, user_id)`.
+- Khi đơn hàng bị hủy (`CANCELLED`), hệ thống tự động xóa bản ghi trong `voucher_usages` và giảm `used_count` của voucher đi 1, giúp khách hàng được phục hồi quyền sử dụng voucher cho các đơn hàng tiếp theo.
 
 ---
 
-## 4. QUY TẮC TÀI KHOẢN VÀ BẢO MẬT (SECURITY & AUTH RULES)
+## 4. QUY TẮC GIỎ HÀNG (SHOPPING CART RULES)
+
+### BR-CRT-01: Giỏ hàng khách vãng lai và cơ chế gộp giỏ (Guest Cart & Auto-Merge - Q2)
+
+- Khách vãng lai (`Guest`) chưa đăng nhập được phép thêm sản phẩm vào giỏ hàng, thông tin được lưu trữ tạm thời trong Session (`req.session.guestCart`).
+- Kiểm tra tồn kho thời gian thực được áp dụng ngay trên giỏ hàng khách vãng lai.
+- Khi Guest thực hiện Đăng nhập hoặc Đăng ký tài khoản thành công:
+  - Hệ thống tự động gộp (`mergeGuestCart`) toàn bộ các mặt hàng từ `req.session.guestCart` vào giỏ hàng trong cơ sở dữ liệu (`carts` & `cart_items`) của tài khoản đó.
+  - Nếu sản phẩm đã tồn tại trong giỏ hàng CSDL, hệ thống cộng dồn số lượng nhưng không vượt quá tồn kho khả dụng hiện tại.
+  - Sau khi gộp thành công, hệ thống xóa sạch dữ liệu `req.session.guestCart`.
+- Tiến hành thanh toán COD bắt buộc người dùng phải đăng nhập tài khoản Customer.
+
+---
+
+## 5. QUY TẮC TÀI KHOẢN VÀ BẢO MẬT (SECURITY & AUTH RULES)
 
 ### BR-SEC-01: Tính duy nhất của danh tính (Identity Uniqueness)
 
@@ -110,14 +130,15 @@ Một mã giảm giá chỉ được chấp nhận khi thỏa mãn toàn bộ c�
 
 ### BR-SEC-02: Mã hóa mật khẩu (Password Hashing)
 
-- Tuyệt đối không lưu trữ mật khẩu dưới dạng văn bản rõ (Plaintext). Mật khẩu phải được băm an toàn bằng thuật toán mã hóa mạnh (bcrypt salt rounds >= 10 hoặc Argon2).
+- Tuyệt đối không lưu trữ mật khẩu dưới dạng văn bản rõ (Plaintext). Mật khẩu phải được băm an toàn bằng thuật toán mã hóa mạnh (bcrypt salt rounds >= 10).
 
-### BR-SEC-03: Trạng thái tài khoản (Account Locking)
+### BR-SEC-03: Trạng thái tài khoản và vô hiệu hóa Session thời gian thực (Account Locking & Real-time Invalidation)
 
-- Tài khoản có cờ `status = 'locked'` ngay lập tức bị từ chối đăng nhập. Nếu session đang tồn tại, middleware phải chặn truy cập và hủy session ngay tại request tiếp theo.
+- Tài khoản có trạng thái `status = 'locked'` bị chặn đăng nhập ngay từ đầu.
+- **Vô hiệu hóa phiên tức thì:** Khi tài khoản bị Admin chuyển sang `locked`, ngay tại request tiếp theo của tài khoản đó (bất kể đang duyệt trang hay gửi form), middleware `requireAuth` và `requireAdmin` truy vấn trạng thái thực tế từ CSDL, tiến hành hủy session trên máy chủ (`req.session.destroy`), xóa cookie `vamos_sid` và chuyển hướng về trang đăng nhập kèm thông báo tài khoản bị tạm khóa.
 
-### BR-SEC-04: Phân quyền máy chủ (Server-side Enforcement)
+### BR-SEC-04: Phân quyền máy chủ nghiêm ngặt (Server-side Enforcement & RBAC)
 
-- Không bao giờ tin tưởng quyền hạn (Role) hay User ID được gửi lên từ phía Client (Form/Query param/Local storage).
-- Quyền hạn của người dùng được xác thực nghiêm ngặt dựa trên Session phía máy chủ (`req.session.user`) và đối soát trong cơ sở dữ liệu.
-- Nhân viên vận hành (`Staff`) bị chặn truy cập tuyệt đối vào các màn hình quản trị người dùng, cấu hình quyền, quản trị voucher và báo cáo tài chính.
+- Tuyệt đối không tin tưởng bất kỳ thông tin quyền hạn (`role`) hay `user_id` nào gửi lên từ phía Client.
+- Quyền hạn được xác thực nghiêm ngặt dựa trên Session phía máy chủ (`req.session.user`) và đối soát trong CSDL qua các middleware `requireAuth` và `requireAdmin`.
+- Chuẩn hóa nghiêm ngặt 3 Human Actors: `Guest`, `Customer`, `Admin`. Khách hàng (`Customer`) bị chặn truy cập tuyệt đối vào tất cả các route tiền tố `/admin/*`. Admin không thể tự khóa tài khoản của chính mình.

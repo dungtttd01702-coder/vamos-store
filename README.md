@@ -1,7 +1,12 @@
 # 👟 VAMOS STORE — Website Thương Mại Điện Tử Giày Dép Hiện Đại
 
-> **Đồ án môn học / Dự án phần mềm (JAV102) — FPT Polytechnic Đà Nẵng**  
-> Dự án xây dựng nền tảng thương mại điện tử chuyên kinh doanh giày sneaker, thể thao và phụ kiện với kiến trúc phân tầng MVC chuẩn mực, giao diện hiện đại (Modern Kinetic UI) và hệ thống lưu trữ Microsoft SQL Server.
+> **Dự án phần mềm thương mại điện tử chuyên ngành — VAMOS STORE v1.1**  
+> Nền tảng bán lẻ giày sneaker, thể thao và phụ kiện với kiến trúc phân tầng MVC chuẩn mực, giao diện hiện đại (Modern Kinetic UI - Dark Charcoal & Vibrant Coral), hệ thống lưu trữ Microsoft SQL Server 2025 với cơ chế khóa dòng cấp CSDL `WITH (UPDLOCK, ROWLOCK)` chống overselling tuyệt đối.
+
+[![Test Suite](https://img.shields.io/badge/tests-162%20passed-brightgreen.svg)]()
+[![Database](https://img.shields.io/badge/database-MSSQL%202025-blue.svg)]()
+[![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)]()
+[![License](https://img.shields.io/badge/version-v1.1.0-orange.svg)]()
 
 ---
 
@@ -10,245 +15,250 @@
 - [Giới Thiệu](#-giới-thiệu)
 - [Công Nghệ Sử Dụng (Tech Stack)](#-công-nghệ-sử-dụng-tech-stack)
 - [Kiến Trúc Dự Án (Architecture)](#-kiến-trúc-dự-án-architecture)
-- [Tính Năng Chính](#-tính-năng-chính)
+- [Tính Năng Chính Theo Phân Hệ](#-tính-năng-chính-theo-phân-hệ)
 - [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
 - [Hướng Dẫn Cài Đặt & Khởi Chạy](#-hướng-dẫn-cài-đặt--khởi-chạy)
 - [Tài Khoản Thử Nghiệm (Demo Accounts)](#-tài-khoản-thử-nghiệm-demo-accounts)
-- [Tài Liệu Đồ Án & Báo Cáo](#-tài-liệu-đồ-án--báo-cáo)
+- [Hệ Thống Kiểm Thử Tự Động (162 Tests)](#-hệ-thống-kiểm-thử-tự-động-162-tests)
+- [Tài Liệu Kỹ Thuật Đầy Đủ](#-tài-liệu-kỹ-thuật-đầy-đủ)
 - [Bản Quyền](#-bản-quyền)
 
 ---
 
 ## 📖 Giới Thiệu
 
-**VAMOS STORE** là giải pháp website bán lẻ giày trực tuyến tập trung vào trải nghiệm khách hàng trẻ trung, năng động và quy trình quản lý bán hàng chuẩn mực:
+**VAMOS STORE** là giải pháp website thương mại điện tử toàn diện dành cho thương hiệu giày dép VAMOS ("MOVE YOUR WAY."), tập trung vào phong cách tối giản, tốc độ vượt trội và quy trình quản lý bán hàng chuẩn mực:
 
-- **Thanh toán linh hoạt & an toàn:** Áp dụng phương thức COD (Cash on Delivery - Thanh toán khi nhận hàng) phù hợp với tâm lý mua sắm trực tuyến tại Việt Nam.
-- **Quản lý kho thời gian thực:** Cơ chế khóa dòng `WITH (UPDLOCK, ROWLOCK)` trong SQL Server ngăn chặn tuyệt đối tình trạng overselling (bán quá số lượng tồn kho).
-- **Thiết kế thương hiệu nhất quán:** Tông màu chủ đạo Đỏ Vamos (`#E11B22`) & Đen Dark Slate (`#0B0F19`), font chữ Space Grotesk kết hợp Inter.
+- **Thanh toán COD & Giao dịch ACID:** Áp dụng phương thức COD (Cash on Delivery). Giao dịch đặt hàng, kiểm tra số lượng và trừ tồn kho chạy hoàn toàn trong Transaction bảo mật.
+- **Quản lý kho Concurrency-Safe:** Sử dụng gợi ý khóa dòng T-SQL `WITH (UPDLOCK, ROWLOCK)` trong SQL Server, loại bỏ hoàn toàn tình trạng bán vượt quá tồn kho (Overselling) khi nhiều khách cùng thanh toán biến thể cuối cùng.
+- **Snapshot dữ liệu bất biến:** Lưu trữ bản chụp giá bán, tên sản phẩm, SKU, kích cỡ và màu sắc trong `order_items` tại thời điểm mua, bảo vệ vĩnh viễn doanh thu và lịch sử đơn hàng cũ khi Admin thay đổi giá bán (Q10).
+- **Giỏ hàng khách vãng lai & Tự động gộp (Q2):** Cho phép khách chưa đăng nhập thêm hàng vào Session (`guestCart`). Tự động gộp vào CSDL khi đăng nhập/đăng ký.
+- **Voucher độc quyền khách hàng (Q8):** Quản lý qua bảng `voucher_usages`, mỗi khách chỉ được dùng 1 voucher đúng 1 lần; tự động hoàn trả quota khi đơn bị hủy.
+- **Vô hiệu hóa phiên tức thì khi khóa tài khoản:** Khóa tài khoản khách hàng lập tức hủy Session trên máy chủ và xóa cookie ở request tiếp theo.
+- **Thiết kế thương hiệu nhất quán:** Bảng màu 60-30-10: Dark Charcoal (`#151515`), Pure White (`#FFFFFF`), Light Gray (`#F8F9FA`) và Vibrant Coral (`#E94B35`).
 
 ---
 
 ## 🛠 Công Nghệ Sử Dụng (Tech Stack)
 
-| Thành phần          | Công nghệ / Thư viện                   | Vai trò                                               |
-| ------------------- | -------------------------------------- | ----------------------------------------------------- |
-| **Runtime**         | Node.js (v18+)                         | Môi trường thực thi JavaScript phía máy chủ           |
-| **Framework**       | Express.js v4                          | Xây dựng RESTful routing và xử lý Middleware          |
-| **Template Engine** | Pug (Jade)                             | Render giao diện HTML từ server (SSR)                 |
-| **Styling**         | Tailwind CSS v3                        | Framework CSS utility-first biên dịch tối ưu          |
-| **Database**        | Microsoft SQL Server 2025              | Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS)             |
-| **DB Driver**       | `mssql` (Node.js Tedious)              | Kết nối và thực thi transaction với SQL Server        |
-| **Authentication**  | `bcryptjs` + `express-session`         | Mã hóa mật khẩu 1-way hash và quản lý phiên đăng nhập |
-| **Validation**      | Regex RFC 5322 + Vietnamese Phone Spec | Kiểm tra hợp lệ dữ liệu đa tầng (Client & Server)     |
+| Thành phần | Công nghệ / Thư viện | Phiên bản | Vai trò kỹ thuật |
+| :--- | :--- | :---: | :--- |
+| **Runtime** | Node.js (LTS) | v20.x | Môi trường thực thi JavaScript phía máy chủ |
+| **Framework** | Express.js | v4.19.x | Định tuyến HTTP, Middleware pipeline, RESTful API |
+| **Template Engine** | Pug (Jade) | v3.0.x | Server-Side Rendering (SSR) hiệu năng cao, zero layout shift |
+| **Styling** | Tailwind CSS (JIT) | v3.4.x | Utility-first CSS biên dịch tối ưu theo Brand Design System |
+| **Database** | Microsoft SQL Server | 2022 / 2025 | Hệ quản trị cơ sở dữ liệu quan hệ (T-SQL, 19 Bảng thực thể) |
+| **DB Driver** | `mssql` (Tedious) | v10.x | Connection pooling, Prepared statements, T-SQL Transaction |
+| **Authentication** | `bcryptjs` + `express-session` | v2.4.x / v1.18.x | Băm mật khẩu một chiều (salt=10), quản lý phiên làm việc bảo mật |
+| **An ninh mạng** | OWASP Top 10 Standards | 2021 | Chống SQLi, Session Fixation, CSRF, IDOR, brute-force |
 
 ---
 
 ## 🏛 Kiến Trúc Dự Án (Architecture)
 
-Dự án áp dụng mô hình phân tầng **Layered MVC (Model-View-Controller)** đảm bảo tính tách biệt trách nhiệm (_Separation of Concerns_):
+Dự án áp dụng mô hình phân tầng **Layered MVC + Repository Pattern** chuyên sâu:
 
-```
-Client (Browser)
+```text
+Browser (Desktop / Mobile Client)
       │  HTTP Requests / Responses
       ▼
 Express Router (src/routes/)
-      │  Middleware: Auth, Session, Flash, Roles
+      │  Middleware Pipeline: auth.middleware (requireAuth, requireAdmin, requireGuest, real-time lock check)
       ▼
 Controllers (src/controllers/)
-      │  Nhận request, validate dữ liệu, điều phối luồng
+      │  Trích xuất dữ liệu, kiểm tra hợp lệ, điều phối luồng
       ▼
 Services (src/services/)
-      │  Xử lý logic nghiệp vụ, tính toán đơn hàng, kho
+      │  Logic nghiệp vụ: Transaction, Concurrency Locking (UPDLOCK/ROWLOCK), Restocking
       ▼
-Repositories / Database (src/config/database.js)
-      │  Truy vấn SQL Parameterized, Transaction, Lock dòng
+Repositories (src/repositories/)
+      │  Truy xuất dữ liệu: 100% Prepared Statements qua Connection Pool
+      ▼
+Database (Microsoft SQL Server 2022/2025)
+      │  19 Bảng thực thể quan hệ, Constraints, Triggers, Migrations
       ▼
 Views (src/views/pages/)
-      │  Render giao diện Pug SSR trả về cho người dùng
+      │  Pug SSR Templates kết hợp Tailwind CSS trả về HTML tĩnh
 ```
 
 ---
 
-## ✨ Tính Năng Chính
+## ✨ Tính Năng Chính Theo Phân Hệ
 
-### 1. Dành cho Khách Hàng (Customer & Guest)
+### 1. Dành cho Khách Vãng Lai & Khách Hàng (Guest & Customer)
+- **Trang chủ (`/`):** Slider banner chuyển động, danh mục nổi bật, sản phẩm mới nhất, sản phẩm bán chạy.
+- **Khám phá sản phẩm (`/products`):** Bộ lọc đa tiêu chí (danh mục, giới tính, khoảng giá, size, màu sắc), thanh tìm kiếm nhanh, sắp xếp giá tăng/giảm, phân trang.
+- **Chi tiết sản phẩm (`/products/:slug`):** Bộ sưu tập ảnh phóng to, chọn size & màu sắc thời gian thực, hiển thị tồn kho từng biến thể, mô tả chi tiết.
+- **Giỏ hàng linh hoạt (`/cart`):** Lưu trữ trong Session đối với Guest, lưu trong CSDL đối với Customer; tự động gộp giỏ hàng khi đăng nhập (Q2); banner nhắc nhở đăng nhập để đặt hàng.
+- **Thanh toán COD an toàn (`/checkout`):** Sổ địa chỉ nhận hàng, áp dụng mã voucher (giới hạn 1 lần/user), tóm tắt đơn hàng, chống bấm double submit.
+- **Quản lý đơn hàng (`/orders`, `/orders/:id`):** Tra cứu lịch sử mua sắm, xem snapshot thông tin mặt hàng và giá cứng, theo dõi timeline trạng thái, tự hủy đơn khi trạng thái còn `PENDING` (hệ thống tự động hoàn tồn kho và hoàn quota voucher).
+- **Tài khoản cá nhân:** Đăng ký thành viên, đăng nhập an toàn (chống Session Fixation), đổi mật khẩu, khôi phục mật khẩu qua token email.
 
-- **Trang chủ (Home):** Hero banner chuyển động, danh mục nổi bật, sản phẩm bán chạy, chiến dịch thương hiệu.
-- **Bộ lọc sản phẩm (Catalog):** Lọc theo Danh mục (Sneaker Nam, Nữ, Thể Thao, Sandal), Giới tính, Khoảng giá, Sắp xếp giá tăng/giảm.
-- **Chi tiết sản phẩm (Product Detail):** Chọn màu sắc, chọn size giày thời gian thực, hiển thị số lượng tồn kho còn lại, hướng dẫn chọn size.
-- **Giỏ hàng (Shopping Cart):** Giỏ hàng lưu trữ liên tục (persistent cart) theo tài khoản trong SQL Server, tính tổng tiền tự động.
-- **Thanh toán (Checkout):** Áp dụng mã Voucher giảm giá (`VAMOS50K`, `VAMOS100`, `FREESHIP`), điền địa chỉ nhận hàng, phương thức COD.
-- **Quản lý đơn hàng:** Xem lịch sử đơn hàng, chi tiết đơn mua, trạng thái vận chuyển, hủy đơn hàng khi trạng thái còn `PENDING` (hệ thống tự động hoàn lại tồn kho).
-- **Bảo mật xác thực:** Đăng ký thành viên, đăng nhập an toàn, xác thực định dạng email, mật khẩu và số điện thoại nghiêm ngặt.
-
-### 2. Dành cho Quản Trị Viên (Admin)
-
-- **Bảng điều khiển (Dashboard):** Thống kê tổng doanh thu thực tế, số lượng đơn hàng, số khách hàng và sản phẩm.
-- **Quản lý đơn hàng (Orders):** Xem danh sách tất cả đơn hàng, chuyển đổi trạng thái (Chờ xác nhận $\rightarrow$ Đã xác nhận $\rightarrow$ Đang giao $\rightarrow$ Hoàn tất / Đã hủy). Đơn COD chỉ chuyển thành `PAID` khi giao hàng thành công.
+### 2. Dành cho Quản Trị Viên (Admin Portal)
+- **Bảng điều khiển trung tâm (`/admin/dashboard`):** Thống kê số lượng đơn theo 6 trạng thái, tổng doanh thu thực tế từ đơn `COMPLETED`, top 5 sản phẩm bán chạy nhất, danh sách đơn cần xử lý gấp.
+- **Quản lý đơn hàng (`/admin/orders`, `/admin/orders/:id`):** Lọc theo trạng thái, chuyển tiếp trạng thái theo State Machine tuần tự (`PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `SHIPPING` $\rightarrow$ `COMPLETED`), hủy đơn nội bộ kèm lý do bắt buộc (tự động hoàn kho).
+- **Quản lý sản phẩm (`/admin/products`, `/admin/products/create`, `/admin/products/:id/edit`):** Danh sách sản phẩm, tạo mới sản phẩm cha kèm bộ biến thể động (Size x Màu x SKU x Tồn kho ban đầu), bật/tắt hiển thị.
+- **Quản lý tồn kho (`/admin/inventory`):** Quản lý tồn kho theo biến thể chi tiết, badge cảnh báo sắp hết hàng (`<= 5 đôi`), form điều chỉnh tăng/giảm tồn kho trực tiếp.
+- **Nhật ký kiểm toán kho (`/admin/inventory/history`):** Xem lịch sử toàn bộ biến động kho: thời gian, mã SKU, số lượng cũ, mới, chênh lệch, lý do và người thực hiện.
+- **Quản lý danh mục & Thương hiệu (`/admin/categories`):** Thêm mới danh mục, cấu hình slug chuẩn SEO, bật/tắt hiển thị, thêm thương hiệu / bộ sưu tập.
+- **Quản lý Voucher (`/admin/vouchers`, `/admin/vouchers/create`):** Tạo mới mã giảm giá (% hoặc số tiền), giá trị đơn tối thiểu, thời hạn, bật/tắt hiệu lực, giới hạn 1 lần/khách hàng.
+- **Quản lý khách hàng (`/admin/customers`, `/admin/customers/:id`):** Xem danh sách khách hàng, lịch sử mua sắm chi tiết, nút khóa/mở khóa tài khoản với hiệu lực vô hiệu hóa session tức thì (chặn Admin tự khóa chính mình).
+- **Quản lý Banners (`/admin/banners`):** Danh sách banner slider trang chủ, thêm mới banner, bật/tắt hiển thị.
 
 ---
 
 ## 📂 Cấu Trúc Thư Mục
 
-```
+```text
 vamos-store/
-├── database/                   # Kịch bản cơ sở dữ liệu
-│   ├── migrations/             # Thư mục Migration phiên bản phi hủy diệt
-│   │   ├── 001_initial_schema.sql
-│   │   └── 002_add_filtered_indexes.sql
-│   ├── mssql_schema.sql        # Cấu trúc bảng SQL Server 2025 (chuẩn T-SQL)
-│   ├── init_mssql.js           # Script tự động kiểm tra CSDL và chạy migration
-│   ├── seed_products.js        # Script nạp dữ liệu sản phẩm và biến thể mẫu
-│   ├── seed_vouchers.js        # Script nạp mã voucher mẫu (VAMOS50K, FREESHIP,...)
-│   └── seed_customer.js        # Script tạo tài khoản khách hàng mẫu
-├── docs/                       # Tài liệu phân tích và thiết kế
-│   ├── analysis/               # Đặc tả yêu cầu phần mềm (SRS & Use Cases)
-│   ├── audit/                  # Hồ sơ kiểm toán toàn diện & kết quả kiểm thử
-│   │   ├── INITIAL_AUDIT.md
-│   │   ├── REPAIR_PLAN.md
-│   │   ├── REPAIR_LOG.md
-│   │   ├── TEST_RESULTS.md
-│   │   └── FINAL_AUDIT_REPORT.md
-│   ├── database/               # Thiết kế CSDL và Data Dictionary
-│   ├── diagrams/               # Sơ đồ Use-case, ERD, Activity, Sequence
-│   └── ui/                     # Thiết kế Wireframe giao diện
-├── labs/                       # 4 bài Lab môn học (FPT Polytechnic)
-├── report/                     # Báo cáo đồ án chính thức (6 chương)
-├── src/                        # Mã nguồn chính ứng dụng
-│   ├── config/                 # Cấu hình hệ thống và kết nối MSSQL Pool
-│   ├── controllers/            # Tầng Controller (Auth, Product, Cart, Order, Admin)
-│   ├── middlewares/            # Middleware (auth, role, anti-CSRF token)
-│   ├── public/                 # Static assets (CSS Tailwind, JS, Images, Icons)
-│   ├── routes/                 # Định tuyến URL theo từng module
-│   ├── services/               # Tầng Service xử lý logic đơn hàng & kho
-│   ├── utils/                  # Tiện ích kiểm tra (Validator)
-│   └── views/                  # Giao diện Pug templates (SSR)
-├── tests/                      # Bộ kiểm thử hồi quy & tích hợp tự động
-│   ├── setup_test_db.js        # Khởi tạo và nạp dữ liệu test DB riêng biệt
-│   └── regression_suite.js     # 86 ca kiểm thử hồi quy tự động
-├── .env.example                # Mẫu biến môi trường phát triển
-├── .env.test.example           # Mẫu biến môi trường kiểm thử độc lập
-├── .gitignore                  # Cấu hình loại trừ file rác / nhạy cảm
-├── docker-compose.yml          # Triển khai container MSSQL Server 2022
-├── Dockerfile                  # Container hóa ứng dụng Node.js
-├── package.json                # Danh sách thư viện phụ thuộc & scripts
-├── PROJECT_CONTEXT_FOR_AI.md   # Tài liệu tổng hợp toàn diện bối cảnh cho AI
-├── server.js                   # Điểm khởi động ứng dụng (Entry point)
-└── tailwind.config.js          # Cấu hình Tailwind CSS v3
+├── database/                   # Quản lý CSDL Microsoft SQL Server
+│   ├── migrations/             # 3 bản migration phiên bản phi hủy diệt
+│   │   ├── 001_core_indexes.sql
+│   │   ├── 002_fix_order_cascade.sql
+│   │   └── 003_voucher_customer_usage.sql
+│   ├── seeds/                  # Kịch bản nạp dữ liệu mẫu
+│   ├── mssql_schema.sql        # Cấu trúc 19 bảng thực thể chuẩn hóa T-SQL
+│   └── run_migrations.js       # Script tự động thực thi migrations
+├── docs/                       # Tài liệu kỹ thuật chi tiết
+│   ├── analysis/               # Phạm vi, Actors, 14 UCs, Business Rules, Q1-Q10
+│   ├── architecture/           # Kiến trúc hệ thống, cấu trúc thư mục, bảo mật OWASP
+│   ├── database/               # Thiết kế database, từ điển dữ liệu, ràng buộc & index
+│   ├── diagrams/               # Sơ đồ PlantUML (Use Case, Activity, ERD 19 bảng)
+│   ├── testing/                # Kế hoạch, kịch bản (162 test cases) và báo cáo test
+│   └── ui/                     # Design system (60-30-10) và đặc tả 35 màn hình
+├── src/                        # Mã nguồn ứng dụng chính
+│   ├── config/                 # Cấu hình CSDL và session
+│   ├── controllers/            # Điều phối HTTP (Admin, Auth, Cart, Checkout, Order, Product)
+│   ├── middlewares/            # Middleware kiểm soát quyền và an ninh
+│   ├── repositories/           # Tầng truy xuất CSDL (Prepared Statements)
+│   ├── routes/                 # Định tuyến URL
+│   ├── services/               # Nghiệp vụ Transaction & Concurrency Locking
+│   ├── views/                  # 35 Pug templates (SSR)
+│   └── public/                 # Static assets (Tailwind CSS, Vanilla JS, Images)
+├── tests/                      # Bộ kiểm thử tự động toàn diện
+│   ├── validate_pug.js         # Kiểm thử biên dịch 35 file Pug
+│   ├── validator.test.js       # 14 kiểm thử chuẩn hóa input
+│   ├── test_auth_flow.js       # 10 kiểm thử luồng đăng nhập & session
+│   └── regression_suite.js     # 103 kiểm thử hồi quy CSDL & nghiệp vụ
+├── CHANGELOG_v1.1.md           # Nhật ký thay đổi phiên bản v1.1
+├── PROJECT_REVIEW.md           # Báo cáo đánh giá tổng thể toàn bộ dự án
+├── README.md                   # Hướng dẫn cài đặt và vận hành
+└── server.js                   # Điểm khởi động ứng dụng
 ```
 
 ---
 
 ## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
 
-### 1. Yêu Cầu Hệ Thống
-
-- [Node.js](https://nodejs.org/) phiên bản 18.x trở lên.
+### 1. Yêu Cầu Môi Trường
+- [Node.js](https://nodejs.org/) phiên bản LTS (v20.x trở lên).
 - [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) (bản 2019, 2022 hoặc 2025) và SQL Server Management Studio (SSMS).
+- [Git](https://git-scm.com/).
 
 ### 2. Cài Đặt Thư Viện
-
-Mở terminal trong thư mục dự án và chạy:
-
+Mở terminal trong thư mục dự án:
 ```bash
 npm install
 ```
 
 ### 3. Cấu Hình Biến Môi Trường (.env)
-
 Tạo file `.env` từ file mẫu `.env.example`:
-
 ```bash
 cp .env.example .env
 ```
-
-Chỉnh sửa thông số kết nối SQL Server trong `.env` cho phù hợp với máy của bạn:
-
+Chỉnh sửa thông số kết nối SQL Server trong `.env`:
 ```env
 PORT=3000
 NODE_ENV=development
 APP_NAME="VAMOS STORE"
 APP_URL=http://localhost:3000
 
-SESSION_SECRET=replace_with_a_secure_random_session_secret_at_least_32_characters
+SESSION_SECRET=vamos_store_super_secure_session_secret_key_2026
 
 DB_TYPE=mssql
 DB_SERVER=127.0.0.1
 DB_PORT=1433
 DB_USER=sa
-DB_PASSWORD=replace_with_your_strong_sql_server_password
+DB_PASSWORD=your_strong_password
 DB_NAME=vamos_store_db
 DB_ENCRYPT=false
 DB_TRUST_SERVER_CERTIFICATE=true
 ```
 
-### 4. Khởi Tạo Cơ Sở Dữ Liệu
-
-Hệ thống sử dụng cơ chế **Migration theo phiên bản phi hủy diệt** (`database/migrations/`) và tự động kiểm tra database qua `master`:
-
+### 4. Khởi Tạo Cơ Sở Dữ Liệu & Migrations
+Chạy script migration tự động để tạo 19 bảng thực thể và áp dụng các bản vá bảo toàn dữ liệu:
 ```bash
-# Khởi tạo hoặc cập nhật database vamos_store_db:
 node database/init_mssql.js
-
-# Nạp dữ liệu mẫu (sản phẩm, tài khoản, voucher):
+```
+Nạp dữ liệu mẫu (sản phẩm, biến thể, tài khoản, voucher, banner):
+```bash
 node database/seed_products.js
 node database/seed_vouchers.js
 ```
 
-> **Gợi ý chạy qua Docker:** Bạn cũng có thể khởi chạy nhanh bằng Docker Compose:
-> ```bash
-> docker compose up -d
-> ```
-
-### 5. Biên Dịch CSS (Tailwind) & Chạy Server
-
-Biên dịch CSS:
-
+### 5. Biên Dịch CSS & Khởi Chạy Ứng Dụng
+Biên dịch Tailwind CSS:
 ```bash
 npm run build:css
 ```
-
-Khởi chạy ứng dụng:
-
+Khởi chạy ứng dụng ở chế độ phát triển:
 ```bash
 npm run dev
 # Hoặc chạy trực tiếp:
 node server.js
 ```
-
-Truy cập trình duyệt tại: **`http://localhost:3000`**
-
-### 6. Chạy Bộ Kiểm Thử Hồi Quy Tự Động (Regression Tests)
-
-Hệ thống tích hợp **86 kịch bản kiểm thử tự động** chạy trên cơ sở dữ liệu kiểm thử độc lập `vamos_store_test_db` (không làm ô nhiễm `vamos_store_db`):
-
-```bash
-npm test
-# Hoặc chạy trực tiếp:
-node tests/regression_suite.js
-```
+Mở trình duyệt truy cập: **`http://localhost:3000`**
 
 ---
 
 ## 👥 Tài Khoản Thử Nghiệm (Demo Accounts)
 
-| Vai trò                       | Email đăng nhập      | Mật khẩu | Quyền truy cập                                      |
-| ----------------------------- | -------------------- | -------- | --------------------------------------------------- |
-| **Quản trị viên (Admin)**     | `admin@vamos.vn`     | `123456` | Toàn quyền trang Admin (`/admin`), quản lý đơn hàng |
-| **Khách hàng mẫu (Customer)** | `khachhang@vamos.vn` | `123456` | Đặt hàng, giỏ hàng, xem lịch sử đơn hàng cá nhân    |
+| Vai trò | Email đăng nhập | Mật khẩu | Quyền hạn và phạm vi truy cập |
+| :--- | :--- | :---: | :--- |
+| **Quản trị viên (Admin)** | `admin@vamos.vn` | `123456` | Toàn quyền Quản trị: Dashboard, Đơn hàng, Sản phẩm, Tồn kho, Voucher, Khách hàng, Banners |
+| **Khách hàng mẫu (Customer)** | `khachhang@vamos.vn` | `123456` | Đặt hàng COD, giỏ hàng, áp dụng voucher, theo dõi và hủy đơn cá nhân |
 
 ---
 
-## 📑 Tài Liệu Đồ Án & Báo Cáo
+## 🧪 Hệ Thống Kiểm Thử Tự Động (162 Tests)
 
-- Báo cáo đồ án chi tiết đầy đủ 6 chương nằm trong thư mục [`report/BAO_CAO_DATN_VAMOS_STORE.md`](report/BAO_CAO_DATN_VAMOS_STORE.md).
-- Bản in báo cáo định dạng chuẩn trình bày tại [`report/BAO_CAO_VAMOS_STORE_PRINT.html`](report/BAO_CAO_VAMOS_STORE_PRINT.html).
-- Toàn bộ hồ sơ 4 bài Lab môn học (Usecase, ERD, Activity, Wireframe) được lưu trữ đầy đủ trong thư mục [`labs/`](labs/).
+Dự án sở hữu bộ kiểm thử tự động gồm **162 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
+
+```bash
+# Chạy toàn bộ 162 bài kiểm thử (100% Pass):
+npm run test:all
+```
+
+Hoặc chạy từng bộ kiểm thử độc lập:
+```bash
+# 1. Kiểm thử biên dịch cú pháp 35 file Pug:
+node tests/validate_pug.js
+
+# 2. Kiểm thử chuẩn hóa dữ liệu Input (Email, SĐT):
+node tests/validator.test.js
+
+# 3. Kiểm thử luồng Đăng nhập, Session, Redirect:
+node tests/test_auth_flow.js
+
+# 4. Kiểm thử 103 ca hồi quy nghiệp vụ, Concurrency, Snapshot, Voucher Q8:
+node tests/regression_suite.js
+```
 
 ---
 
-## 📄 Bản Quyền
+## 📑 Tài Liệu Kỹ Thuật Đầy Đủ
 
-Dự án được xây dựng và phát triển bởi Nhóm sinh viên chuyên ngành Phát triển phần mềm — **FPT Polytechnic Đà Nẵng**.  
+- **Đánh giá tổng thể dự án:** [`PROJECT_REVIEW.md`](PROJECT_REVIEW.md)
+- **Nhật ký thay đổi v1.1:** [`CHANGELOG_v1.1.md`](CHANGELOG_v1.1.md)
+- **Đặc tả yêu cầu & Phân tích nghiệp vụ:** [`docs/analysis/`](docs/analysis/)
+- **Kiến trúc hệ thống & Thiết kế bảo mật:** [`docs/architecture/`](docs/architecture/)
+- **Thiết kế cơ sở dữ liệu & Data Dictionary:** [`docs/database/`](docs/database/)
+- **Kế hoạch & Báo cáo kiểm thử:** [`docs/testing/`](docs/testing/)
+- **Hệ thống thiết kế UI & Wireframes:** [`docs/ui/`](docs/ui/)
+
+---
+
+## 📄 Bản Quyền & Giấy Phép
+
+Dự án được xây dựng và phát triển độc lập theo định hướng phong cách thương hiệu VAMOS.  
 Bản quyền thuộc về **VAMOS STORE Team © 2026**.

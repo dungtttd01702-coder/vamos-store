@@ -36,6 +36,10 @@ else (Có - Đơn còn PENDING)
         :Duyệt từng dòng order_items của đơn;
         :Cộng hoàn trả số lượng vào product_variants.stock_quantity;
         :Ghi log hoàn kho vào inventory_transactions;
+        if (Đơn có áp dụng Voucher?) then (Có)
+            :Giảm vouchers.used_count đi 1;
+            :Xóa bản ghi trong voucher_usages để mở khóa quyền dùng lại;
+        endif
         :Ghi log lịch sử trạng thái vào order_status_histories;
         :Commit Transaction (Đảm bảo hoàn kho đúng 1 lần);
         |Khách hàng (Customer)|

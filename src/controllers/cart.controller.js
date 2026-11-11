@@ -2,21 +2,32 @@ const { query } = require('../config/database');
 
 class CartController {
   /**
-   * Display Shopping Cart
+   * Display Shopping Cart (Guest session cart or Customer database cart)
    */
   async index(req, res, next) {
     try {
       const user = req.session?.user;
 
-      // Rule: Guest must log in to view and manage cart
       if (!user) {
+        // Guest shopping cart stored in session (Decision Q2)
+        const guestItems = req.session?.guestCart || [];
+        const items = guestItems.map(item => ({
+          ...item,
+          cart_item_id: item.cart_item_id || `guest_${item.variant_id}`,
+          line_total: (item.unit_price || 0) * (item.quantity || 1),
+        }));
+
+        const subtotal = items.reduce((sum, item) => sum + Number(item.line_total), 0);
+        const shippingFee = subtotal >= 500000 || subtotal === 0 ? 0 : 30000;
+        const totalAmount = subtotal + shippingFee;
+
         return res.render('pages/cart/index', {
-          title: 'Giỏ Hàng Của Bạn',
+          title: 'Giỏ Hàng Của Bạn (Khách Vãng Lai) | VAMOS STORE',
           isGuest: true,
-          items: [],
-          subtotal: 0,
-          shippingFee: 0,
-          totalAmount: 0,
+          items,
+          subtotal,
+          shippingFee,
+          totalAmount,
         });
       }
 
@@ -48,7 +59,7 @@ class CartController {
       const totalAmount = subtotal + shippingFee;
 
       res.render('pages/cart/index', {
-        title: 'Giỏ Hàng Của Bạn',
+        title: 'Giỏ Hàng Của Bạn | VAMOS STORE',
         isGuest: false,
         items,
         subtotal,
@@ -61,23 +72,22 @@ class CartController {
   }
 
   /**
-   * Add Item to Cart
+   * Add Item to Cart (Guest session or Customer DB)
    */
   async addItem(req, res, next) {
     try {
       const user = req.session?.user;
       const { productId, size, color, quantity = 1 } = req.body;
-
-      // Guest redirect to login
-      if (!user) {
-        return res.redirect(`/auth/login?returnUrl=/products`);
-      }
-
       const qty = Math.max(1, parseInt(quantity, 10) || 1);
 
       // Find matching variant (must be active and parent product must be active)
       const varRes = await query(`
-        SELECT pv.id, pv.stock_quantity, p.name AS product_name
+        SELECT 
+          pv.id, pv.stock_quantity, pv.sku,
+          p.id AS product_id, p.name AS product_name, p.slug AS product_slug,
+          COALESCE(p.sale_price, p.base_price) AS unit_price,
+          s.size_name, c.color_name,
+          (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, display_order ASC) AS image_url
         FROM product_variants pv
         JOIN products p ON pv.product_id = p.id
         JOIN sizes s ON pv.size_id = s.id
@@ -108,7 +118,40 @@ class CartController {
         return next(err);
       }
 
-      // Get or create user cart
+      // ── CASE A: GUEST SHOPPING CART (STORE IN SESSION - DECISION Q2) ──
+      if (!user) {
+        req.session.guestCart = req.session.guestCart || [];
+        const existingIdx = req.session.guestCart.findIndex(i => i.variant_id === variant.id);
+
+        if (existingIdx > -1) {
+          const currentItem = req.session.guestCart[existingIdx];
+          const newQty = Math.min(variant.stock_quantity, currentItem.quantity + qty);
+          currentItem.quantity = newQty;
+          currentItem.line_total = Number(variant.unit_price) * newQty;
+        } else {
+          const initialQty = Math.min(variant.stock_quantity, qty);
+          req.session.guestCart.push({
+            cart_item_id: `guest_${variant.id}`,
+            variant_id: variant.id,
+            product_id: variant.product_id,
+            product_name: variant.product_name,
+            product_slug: variant.product_slug,
+            sku: variant.sku,
+            size_name: variant.size_name,
+            color_name: variant.color_name,
+            unit_price: Number(variant.unit_price),
+            quantity: initialQty,
+            line_total: Number(variant.unit_price) * initialQty,
+            stock_quantity: variant.stock_quantity,
+            image_url: variant.image_url,
+          });
+        }
+
+        req.session.cartCount = req.session.guestCart.reduce((sum, item) => sum + item.quantity, 0);
+        return res.redirect('/cart');
+      }
+
+      // ── CASE B: LOGGED IN CUSTOMER (DATABASE CART) ──
       let cartId = user.cartId;
       if (!cartId) {
         const cartRes = await query('SELECT id FROM carts WHERE user_id = @userId', { userId: user.id });
@@ -164,27 +207,45 @@ class CartController {
   }
 
   /**
-   * Update Quantity of Item in Cart
+   * Update Quantity of Item in Cart (Guest session or Customer DB)
    */
   async updateItem(req, res, next) {
     try {
       const user = req.session?.user;
       const { itemId, quantity } = req.body;
+      const qty = parseInt(quantity, 10) || 0;
 
-      if (!user || !user.cartId) {
+      // Guest Cart
+      if (!user) {
+        const guestCart = req.session?.guestCart || [];
+        const targetIdx = guestCart.findIndex(i => String(i.cart_item_id) === String(itemId) || String(i.variant_id) === String(itemId));
+
+        if (targetIdx > -1) {
+          if (qty <= 0) {
+            guestCart.splice(targetIdx, 1);
+          } else {
+            const item = guestCart[targetIdx];
+            item.quantity = Math.min(qty, item.stock_quantity);
+            item.line_total = item.unit_price * item.quantity;
+          }
+          req.session.guestCart = guestCart;
+          req.session.cartCount = guestCart.reduce((sum, item) => sum + item.quantity, 0);
+        }
         return res.redirect('/cart');
       }
 
-      const qty = parseInt(quantity, 10) || 0;
-      const cartItemId = parseInt(itemId, 10);
+      // Customer DB Cart
+      if (!user.cartId) {
+        return res.redirect('/cart');
+      }
 
+      const cartItemId = parseInt(itemId, 10);
       if (qty <= 0) {
         await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
           itemId: cartItemId,
           cartId: user.cartId,
         });
       } else {
-        // Check stock bound
         const checkRes = await query(`
           SELECT pv.stock_quantity 
           FROM cart_items ci 
@@ -203,7 +264,6 @@ class CartController {
         }
       }
 
-      // Update cart count
       const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
       req.session.cartCount = countRes.recordset[0]?.total_items || 0;
 
@@ -214,17 +274,22 @@ class CartController {
   }
 
   /**
-   * Clear All Items in Cart
+   * Clear All Items in Cart (Guest session or Customer DB)
    */
   async clearCart(req, res, next) {
     try {
       const user = req.session?.user;
-      if (!user || !user.cartId) {
+
+      if (!user) {
+        req.session.guestCart = [];
+        req.session.cartCount = 0;
         return res.redirect('/cart');
       }
 
-      await query('DELETE FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
-      req.session.cartCount = 0;
+      if (user.cartId) {
+        await query('DELETE FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
+        req.session.cartCount = 0;
+      }
 
       res.redirect('/cart');
     } catch (error) {
@@ -233,32 +298,87 @@ class CartController {
   }
 
   /**
-   * Remove Item from Cart
+   * Remove Item from Cart (Guest session or Customer DB)
    */
   async removeItem(req, res, next) {
     try {
       const user = req.session?.user;
       const itemId = req.params.itemId || req.body.itemId;
 
-      if (!user || !user.cartId || !itemId) {
+      if (!itemId) {
         return res.redirect('/cart');
       }
 
-      await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
-        itemId: parseInt(itemId, 10),
-        cartId: user.cartId,
-      });
+      if (!user) {
+        const guestCart = req.session?.guestCart || [];
+        req.session.guestCart = guestCart.filter(i => String(i.cart_item_id) !== String(itemId) && String(i.variant_id) !== String(itemId));
+        req.session.cartCount = req.session.guestCart.reduce((sum, item) => sum + item.quantity, 0);
+        return res.redirect('/cart');
+      }
 
-      // Update cart count
-      const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
-      req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+      if (user.cartId) {
+        await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
+          itemId: parseInt(itemId, 10),
+          cartId: user.cartId,
+        });
+        const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
+        req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+      }
 
       res.redirect('/cart');
     } catch (error) {
       next(error);
     }
   }
+
+  /**
+   * Merge Guest Session Cart into Customer Database Cart upon login/registration (Decision Q2)
+   */
+  static async mergeGuestCart(cartId, guestCart) {
+    if (!cartId || !Array.isArray(guestCart) || guestCart.length === 0) {
+      return 0;
+    }
+
+    for (const item of guestCart) {
+      const variantId = parseInt(item.variant_id, 10);
+      const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+      if (!variantId) continue;
+
+      // Verify active status and current available stock
+      const varRes = await query(`
+        SELECT pv.id, pv.stock_quantity 
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.id
+        WHERE pv.id = @varId AND pv.status = 'active' AND p.status = 'active'
+      `, { varId: variantId });
+
+      if (varRes.recordset.length === 0) continue;
+      const variant = varRes.recordset[0];
+      if (variant.stock_quantity <= 0) continue;
+
+      // Check if item already exists in customer's cart
+      const existRes = await query(`
+        SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId
+      `, { cartId, varId: variantId });
+
+      if (existRes.recordset.length > 0) {
+        const currentQty = existRes.recordset[0].quantity;
+        const newQty = Math.min(variant.stock_quantity, currentQty + quantity);
+        await query(`
+          UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id
+        `, { qty: newQty, id: existRes.recordset[0].id });
+      } else {
+        const initialQty = Math.min(variant.stock_quantity, quantity);
+        await query(`
+          INSERT INTO cart_items (cart_id, variant_id, quantity)
+          VALUES (@cartId, @varId, @qty)
+        `, { cartId, varId: variantId, qty: initialQty });
+      }
+    }
+
+    const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
+    return countRes.recordset[0]?.total_items || 0;
+  }
 }
 
 module.exports = new CartController();
-

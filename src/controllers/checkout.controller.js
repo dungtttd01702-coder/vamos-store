@@ -118,7 +118,55 @@ class CheckoutController {
 
       res.redirect(`/checkout/success/${order.id}`);
     } catch (error) {
-      next(error);
+      try {
+        const user = req.session?.user;
+        const cartRes = await query(`
+          SELECT 
+            ci.id AS cart_item_id, ci.quantity,
+            p.name AS product_name, p.slug AS product_slug,
+            COALESCE(p.sale_price, p.base_price) AS unit_price,
+            (COALESCE(p.sale_price, p.base_price) * ci.quantity) AS line_total,
+            s.size_name,
+            c.color_name,
+            (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, display_order ASC) AS image_url
+          FROM cart_items ci
+          JOIN carts ct ON ci.cart_id = ct.id
+          JOIN product_variants pv ON ci.variant_id = pv.id
+          JOIN products p ON pv.product_id = p.id
+          JOIN sizes s ON pv.size_id = s.id
+          JOIN colors c ON pv.color_id = c.id
+          WHERE ct.user_id = @userId
+        `, { userId: user ? user.id : 0 });
+
+        const items = cartRes.recordset || [];
+        const subtotal = items.reduce((sum, item) => sum + Number(item.line_total), 0);
+        const shippingFee = subtotal >= 500000 ? 0 : 30000;
+        const totalAmount = subtotal + shippingFee;
+
+        const addrRes = await query(`
+          SELECT * FROM addresses WHERE user_id = @userId ORDER BY is_default DESC, id DESC
+        `, { userId: user ? user.id : 0 });
+        const addresses = addrRes.recordset || [];
+
+        return res.render('pages/checkout/index', {
+          title: 'Thanh Toán Đơn Hàng COD | VAMOS STORE',
+          items,
+          subtotal,
+          shippingFee,
+          totalAmount,
+          addresses,
+          error_msg: error.message || 'Đã có lỗi xảy ra trong quá trình xử lý đơn hàng.',
+          formData: {
+            recipientName: req.body?.recipient_name || '',
+            recipientPhone: req.body?.recipient_phone || '',
+            deliveryAddress: req.body?.full_address || req.body?.detail_address || '',
+            voucherCode: req.body?.voucher_code || '',
+            customerNote: req.body?.customer_note || '',
+          },
+        });
+      } catch (innerErr) {
+        next(error);
+      }
     }
   }
 

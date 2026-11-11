@@ -16,7 +16,12 @@ block content
     h1.text-2xl.font-black.text-vamos-dark.mb-6(style="font-family:'Space Grotesk',sans-serif")
       | THANH TOÁN ĐƠN HÀNG (COD)
 
-    form(action="/checkout" method="POST")
+    if error_msg
+      .bg-red-50.border.border-red-200.rounded-vamos-lg.p-4.mb-6.flex.items-center.gap-3
+        span.text-xl ⚠️
+        p.text-xs.font-bold.text-red-700= error_msg
+
+    form#checkout-form(action="/checkout" method="POST")
       input(type="hidden" name="_csrf" value=csrfToken)
       .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
 
@@ -63,6 +68,7 @@ block content
                 input#customer_note.form-input(
                   type="text"
                   name="customer_note"
+                  value=(formData.customerNote || '')
                   placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."
                 )
 
@@ -109,6 +115,7 @@ block content
                 input#voucher_code.form-input.text-xs(
                   type="text"
                   name="voucher_code"
+                  value=(formData.voucherCode || '')
                   placeholder="Nhập mã: VAMOS50K"
                 )
 

@@ -1,0 +1,60 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .max-w-2xl.mx-auto
+      .flex.items-center.justify-between.mb-6
+        div
+          h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") TẠO MÃ GIẢM GIÁ MỚI
+          p.text-xs.text-gray-500 Thiết lập các điều kiện hạn mức khuyến mại
+        a.btn-outline.text-xs.py-2.px-3(href="/admin/vouchers") &larr; Quay lại danh sách
+
+      form(action="/admin/vouchers/create" method="POST")
+        input(type="hidden" name="_csrf" value=csrfToken)
+
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.space-y-4.mb-6
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+            div
+              label.form-label Mã Voucher (Code) *
+              input.form-input.text-xs(type="text" name="code" placeholder="Ví dụ: VAMOSNEW2026" required)
+            div
+              label.form-label Tên hiển thị ưu đãi
+              input.form-input.text-xs(type="text" name="name" placeholder="Ví dụ: Giảm giá thành viên mới")
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+            div
+              label.form-label Loại chiết khấu *
+              select.form-input.text-xs(name="discount_type" required)
+                option(value="fixed_amount") Số tiền cố định (VNĐ)
+                option(value="percentage") Phần trăm (%)
+            div
+              label.form-label Giá trị giảm *
+              input.form-input.text-xs(type="number" name="discount_value" placeholder="Ví dụ: 50000 hoặc 10" required min="1")
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+            div
+              label.form-label Giá trị đơn tối thiểu (VNĐ)
+              input.form-input.text-xs(type="number" name="min_order_value" value="0" min="0" step="1000")
+            div
+              label.form-label Giảm tối đa (VNĐ - nếu là %)
+              input.form-input.text-xs(type="number" name="max_discount_amount" placeholder="Để trống nếu không giới hạn")
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-3")
+            div
+              label.form-label Giới hạn tổng lượt dùng (0 = Không giới hạn)
+              input.form-input.text-xs(type="number" name="usage_limit" value="100" min="0")
+            div
+              label.form-label Ngày bắt đầu
+              input.form-input.text-xs(type="date" name="start_date")
+            div
+              label.form-label Ngày kết thúc
+              input.form-input.text-xs(type="date" name="end_date")
+
+          .p-3.bg-amber-50.rounded-vamos-lg.border.border-amber-200.text-2xs.text-amber-800
+            | 📌 <strong>Quy định Q8:</strong> Mỗi tài khoản khách hàng chỉ được áp dụng mã voucher này tối đa 01 lần duy nhất trong toàn bộ hệ thống.
+
+        .flex.justify-end.gap-3
+          a.btn-outline.text-xs.py-2.px-4(href="/admin/vouchers") Hủy Bỏ
+          button.btn-primary.text-xs.py-2.px-6(type="submit") Lưu Mã Voucher

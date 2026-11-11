@@ -1,0 +1,152 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .max-w-4xl.mx-auto
+      .flex.items-center.justify-between.mb-6
+        div
+          h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+            = isEdit ? `CHỈNH SỬA SẢN PHẨM: ${product.name}` : 'THÊM MỚI SẢN PHẨM GIÀY DÉP'
+          p.text-xs.text-gray-500= isEdit ? `Mã sản phẩm: ${product.product_code}` : 'Nhập thông tin cơ bản và biến thể tồn kho'
+        a.btn-outline.text-xs.py-2.px-3(href="/admin/products") &larr; Quay lại danh sách
+
+      form(action=(isEdit ? `/admin/products/${product.id}/edit` : "/admin/products/create") method="POST")
+        input(type="hidden" name="_csrf" value=csrfToken)
+        
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.space-y-6.mb-6
+          h3.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-2.border-b.border-gray-100
+            | 1. THÔNG TIN CHUNG
+          
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+            div
+              label.form-label Tên sản phẩm *
+              input.form-input.text-xs(
+                type="text"
+                name="name"
+                value=product.name
+                required
+                placeholder="Ví dụ: Giày Sneaker Nam Vamos Street V1"
+              )
+            div
+              label.form-label Mã sản phẩm (Code) *
+              input.form-input.text-xs(
+                type="text"
+                name="product_code"
+                value=product.product_code
+                required
+                disabled=isEdit
+                placeholder="Ví dụ: VM-SNK-01"
+              )
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-3")
+            div
+              label.form-label Danh mục *
+              select.form-input.text-xs(name="category_id" required)
+                each c in categories
+                  option(value=c.id selected=(product.category_id === c.id))= c.name
+            div
+              label.form-label Bộ sưu tập / Brand
+              select.form-input.text-xs(name="brand_id")
+                option(value="") -- Không chọn --
+                each b in brands
+                  option(value=b.id selected=(product.brand_id === b.id))= b.name
+            div
+              label.form-label Đối tượng
+              select.form-input.text-xs(name="gender_target")
+                option(value="MEN" selected=(product.gender_target === 'MEN')) Nam (MEN)
+                option(value="WOMEN" selected=(product.gender_target === 'WOMEN')) Nữ (WOMEN)
+                option(value="UNISEX" selected=(product.gender_target === 'UNISEX')) Unisex
+                option(value="KIDS" selected=(product.gender_target === 'KIDS')) Trẻ em (KIDS)
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-3")
+            div
+              label.form-label Giá gốc niêm yết (VNĐ) *
+              input.form-input.text-xs(
+                type="number"
+                name="base_price"
+                value=product.base_price
+                required
+                min="0"
+                step="1000"
+                placeholder="850000"
+              )
+            div
+              label.form-label Giá khuyến mãi (VNĐ)
+              input.form-input.text-xs(
+                type="number"
+                name="sale_price"
+                value=product.sale_price
+                min="0"
+                step="1000"
+                placeholder="699000 (để trống nếu không giảm)"
+              )
+            div
+              label.form-label Trạng thái kinh doanh
+              select.form-input.text-xs(name="status")
+                option(value="active" selected=(product.status === 'active')) Đang bán (Active)
+                option(value="inactive" selected=(product.status === 'inactive')) Tạm ẩn (Inactive)
+
+          div
+            label.form-label URL Hình ảnh đại diện
+            input.form-input.text-xs(
+              type="url"
+              name="image_url"
+              value=product.image_url
+              placeholder="https://images.unsplash.com/..."
+            )
+
+          div
+            label.form-label Mô tả chi tiết sản phẩm
+            textarea.form-input.text-xs(name="description" rows="4" placeholder="Chất liệu vải dệt mesh thoáng khí, đế đệm cao su êm ái...")= product.description
+
+        if !isEdit
+          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.space-y-4.mb-6
+            h3.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-2.border-b.border-gray-100
+              | 2. KHỞI TẠO BIẾN THỂ ĐẦU TIÊN (SIZE x MÀU x TỒN KHO)
+            .grid.grid-cols-1.gap-4(class="sm:grid-cols-3")
+              div
+                label.form-label Kích cỡ (Size)
+                select.form-input.text-xs(name="size_id")
+                  each s in sizes
+                    option(value=s.id)= `Size ${s.size_name}`
+              div
+                label.form-label Màu sắc (Color)
+                select.form-input.text-xs(name="color_id")
+                  each c in colors
+                    option(value=c.id)= c.color_name
+              div
+                label.form-label Tồn kho ban đầu (đôi)
+                input.form-input.text-xs(type="number" name="stock_quantity" value="15" min="0")
+
+        else
+          if variants && variants.length > 0
+            .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+              h3.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
+                | 2. DANH SÁCH BIẾN THỂ TỒN KHO HIỆN TẠI
+              .overflow-x-auto
+                table.w-full.text-left.text-xs
+                  thead.bg-gray-50.text-gray-500
+                    tr
+                      th.py-2.px-3 SKU
+                      th.py-2.px-3 Size
+                      th.py-2.px-3 Màu
+                      th.py-2.px-3 Tồn Kho
+                      th.py-2.px-3 Trạng Thái
+                  tbody.divide-y.divide-gray-100
+                    each v in variants
+                      tr
+                        td.py-2.px-3.font-bold= v.sku
+                        td.py-2.px-3= `Size ${v.size_name}`
+                        td.py-2.px-3= v.color_name
+                        td.py-2.px-3
+                          span.font-bold(class=v.stock_quantity <= 5 ? 'text-red-600' : 'text-vamos-dark')
+                            = `${v.stock_quantity} đôi`
+                        td.py-2.px-3
+                          span.rounded(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs")= v.status
+
+        .flex.justify-end.gap-3
+          a.btn-outline.text-xs.py-2.px-4(href="/admin/products") Hủy Bỏ
+          button.btn-primary.text-xs.py-2.px-6(type="submit")
+            = isEdit ? 'Cập Nhật Sản Phẩm' : 'Tạo Sản Phẩm & Biến Thể'

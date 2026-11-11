@@ -28,10 +28,11 @@ skinparam rectangle {
     FontSize 14
 }
 
-' Danh sách 3 Actors chính (Bên trái: Người mua, Bên phải: Quản trị)
+' Danh sách Actors: 3 Human Actors chính + 1 Secondary Actor
 actor "Khách vãng lai\n(Guest)" as Guest
 actor "Khách hàng\n(Customer)" as Customer
 actor "Quản trị viên\n(Admin)" as Admin
+actor "Dịch vụ Email\n(Email Service)" as EmailSvc <<Secondary>>
 
 ' Quan hệ kế thừa
 Customer -up-|> Guest : "kế thừa"
@@ -70,6 +71,10 @@ Guest -- UC01
 Guest -- UC02
 Guest -- UC03
 Guest -- UC05
+Guest ..> UC06 : "<<session cart>>"
+
+' Liên kết Secondary Actor
+EmailSvc -- UC03
 
 ' Liên kết Khách hàng (Customer)
 Customer -- UC04

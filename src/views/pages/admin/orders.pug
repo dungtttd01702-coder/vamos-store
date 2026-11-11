@@ -1,15 +1,7 @@
 extends ../../layouts/main
 
 block content
-  .bg-vamos-dark.text-white.py-6.border-b.border-gray-800
-    .vamos-container
-      .flex.items-center.justify-between
-        div
-          span.text-xs.font-bold.text-vamos-red.uppercase.tracking-widest QUẢN TRỊ VIÊN
-          h1.text-2xl.font-black.mt-1(style="font-family:'Space Grotesk',sans-serif") QUẢN LÝ ĐƠN HÀNG (COD)
-        .flex.items-center.gap-3
-          a.btn-outline.text-xs.py-2.px-4.border-gray-600.text-white(class="hover:bg-gray-800" href="/admin/dashboard") Dashboard
-          a.btn-outline.text-xs.py-2.px-4.border-gray-600.text-white(class="hover:bg-gray-800" href="/") Về Cửa Hàng
+  include ../../partials/admin-nav
 
   .vamos-container.py-8
     //- Filter & Search Bar

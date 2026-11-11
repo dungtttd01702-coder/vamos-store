@@ -1,0 +1,77 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .max-w-4xl.mx-auto
+      .flex.items-center.justify-between.mb-6
+        div
+          h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+            = `CHI TIẾT KHÁCH HÀNG: ${customer.full_name}`
+          p.text-xs.text-gray-500= `Email: ${customer.email} | ID #${customer.id}`
+        a.btn-outline.text-xs.py-2.px-3(href="/admin/customers") &larr; Quay lại danh sách
+
+      .grid.grid-cols-1.gap-6.mb-6(class="md:grid-cols-3")
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .text-xs.text-gray-400.font-semibold.uppercase Số Điện Thoại
+          .text-sm.font-bold.text-vamos-dark.mt-1= customer.phone || 'Chưa cập nhật'
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .text-xs.text-gray-400.font-semibold.uppercase Ngày Đăng Ký
+          .text-sm.font-bold.text-vamos-dark.mt-1= new Date(customer.created_at).toLocaleString('vi-VN')
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .text-xs.text-gray-400.font-semibold.uppercase Trạng Thái Tài Khoản
+          .mt-1
+            if customer.status === 'active'
+              span.rounded.font-bold.text-xs(class="px-2 py-0.5 bg-green-100 text-green-800") Đang Hoạt Động
+            else
+              span.rounded.font-bold.text-xs(class="px-2 py-0.5 bg-red-100 text-red-700") Đang Bị Tạm Khóa
+
+      //- Address Book
+      .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+        h3.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
+          | 📍 SỔ ĐỊA CHỈ NHẬN HÀNG
+        if addresses && addresses.length > 0
+          .divide-y.divide-gray-100
+            each a in addresses
+              .py-3.flex.items-center.justify-between.text-xs
+                div
+                  span.font-bold.text-vamos-dark= a.recipient_name
+                  span.text-gray-400.ml-2= `(${a.phone})`
+                  p.text-gray-600.mt-1= `${a.detail_address}, ${a.ward}, ${a.district}, ${a.province}`
+                if a.is_default
+                  span.rounded.font-bold(class="px-2 py-0.5 bg-red-100 text-vamos-red text-2xs") Mặc định
+        else
+          p.text-xs.text-gray-400.py-2 Khách hàng chưa lưu địa chỉ nào
+
+      //- Orders History
+      .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+        h3.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
+          | 📦 LỊCH SỬ ĐẶT HÀNG COD
+        if orders && orders.length > 0
+          .overflow-x-auto
+            table.w-full.text-left.text-xs
+              thead.bg-gray-50.text-gray-500
+                tr
+                  th.py-2.px-3 Mã Đơn
+                  th.py-2.px-3 Ngày Đặt
+                  th.py-2.px-3 Tổng Tiền (COD)
+                  th.py-2.px-3 Trạng Thái Đơn
+                  th.py-2.px-3 Thanh Toán
+                  th.py-2.px-3.text-right Thao Tác
+              tbody.divide-y.divide-gray-100
+                each o in orders
+                  tr
+                    td.py-2.px-3.font-bold.text-vamos-dark= `#${o.order_code}`
+                    td.py-2.px-3.text-gray-400= new Date(o.created_at).toLocaleDateString('vi-VN')
+                    td.py-2.px-3.font-bold.text-vamos-red= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
+                    td.py-2.px-3
+                      span.rounded.font-bold(
+                        class=(o.order_status === 'COMPLETED' ? 'px-2 py-0.5 bg-green-100 text-green-800 text-2xs' : (o.order_status === 'CANCELLED' ? 'px-2 py-0.5 bg-red-100 text-red-700 text-2xs' : 'px-2 py-0.5 bg-blue-100 text-blue-800 text-2xs'))
+                      )= o.order_status
+                    td.py-2.px-3
+                      span.text-2xs.font-bold(class=o.payment_status === 'PAID' ? 'text-green-600' : 'text-gray-500')= o.payment_status
+                    td.py-2.px-3.text-right
+                      a.btn-outline.text-2xs.py-1.px-2(href=`/admin/orders/${o.id}`) Xem Đơn
+        else
+          p.text-xs.text-gray-400.py-4.text-center Khách hàng chưa phát sinh đơn hàng nào

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { sql, getPool, query, withTransaction } = require('../config/database');
+const CartController = require('./cart.controller');
 const {
   isValidEmail,
   isValidPhone,
@@ -30,9 +31,15 @@ class AuthController {
     if (req.session?.user) {
       return res.redirect('/');
     }
+    const returnUrl = getSafeReturnUrl(req.query.returnUrl);
+    let error_msg = null;
+    if (req.query.error === 'account_locked') {
+      error_msg = 'Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên. Phiên làm việc đã bị hủy.';
+    }
     res.render('pages/auth/login', {
       title: 'Đăng Nhập Tài Khoản',
-      returnUrl: getSafeReturnUrl(req.query.returnUrl),
+      returnUrl,
+      error_msg,
     });
   }
 
@@ -107,7 +114,13 @@ class AuthController {
 
       // Count items in cart
       const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
-      const cartCount = countRes.recordset[0]?.total_items || 0;
+      let cartCount = countRes.recordset[0]?.total_items || 0;
+
+      // Preserve and merge guest session cart if present (Decision Q2)
+      const guestCart = req.session?.guestCart || [];
+      if (guestCart.length > 0) {
+        cartCount = await CartController.constructor.mergeGuestCart(cartId, guestCart);
+      }
 
       // Regenerate session to protect against Session Fixation attacks
       req.session.regenerate((regenErr) => {
@@ -121,6 +134,7 @@ class AuthController {
           cartId,
         };
         req.session.cartCount = cartCount;
+        req.session.guestCart = [];
 
         req.session.save((saveErr) => {
           if (saveErr) return next(saveErr);
@@ -256,7 +270,14 @@ class AuthController {
         throw txErr;
       }
 
-      // 10. Automatically authenticate in session with regeneration
+      // 10. Preserve and merge guest session cart if present (Decision Q2)
+      const guestCart = req.session?.guestCart || [];
+      let registeredCartCount = 0;
+      if (guestCart.length > 0) {
+        registeredCartCount = await CartController.constructor.mergeGuestCart(cartId, guestCart);
+      }
+
+      // 11. Automatically authenticate in session with regeneration
       req.session.regenerate((regenErr) => {
         if (regenErr) return next(regenErr);
 
@@ -267,7 +288,8 @@ class AuthController {
           role: newUser.role,
           cartId,
         };
-        req.session.cartCount = 0;
+        req.session.cartCount = registeredCartCount;
+        req.session.guestCart = [];
 
         req.session.save((saveErr) => {
           if (saveErr) return next(saveErr);

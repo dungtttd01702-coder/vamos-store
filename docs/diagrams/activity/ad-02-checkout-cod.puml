@@ -45,7 +45,9 @@ else (Đủ tồn kho)
     :Trừ số lượng tồn kho trong product_variants;
     :Ghi nhật ký biến động kho vào inventory_transactions;
     if (Có dùng Voucher?) then (Có)
+        :Kiểm tra chưa từng dùng voucher trong voucher_usages;
         :Tăng used_count của Voucher lên 1;
+        :Ghi nhận lịch sử dùng vào voucher_usages (voucher_id, user_id, order_id);
     endif
     :Ghi vết lịch sử vào order_status_histories (PENDING);
     :Xóa các sản phẩm đã đặt khỏi cart_items;

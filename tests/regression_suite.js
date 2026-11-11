@@ -13,6 +13,8 @@ const validator = require('../src/utils/validator');
 const orderService = require('../src/services/order.service');
 const productService = require('../src/services/product.service');
 const authController = require('../src/controllers/auth.controller');
+const cartController = require('../src/controllers/cart.controller');
+const adminController = require('../src/controllers/admin.controller');
 const csrfMiddleware = require('../src/middlewares/csrf.middleware');
 
 let passedTests = 0;
@@ -643,26 +645,193 @@ async function runSuite() {
     assert(finalVouchState.recordset[0].used_count === 1, 'CONCUR-06', 'Voucher used_count is exactly 1 (No race-condition over-usage)');
 
     // -------------------------------------------------------------------------
+    // SUITE 11: GUEST CART SESSION & MERGE TESTS (UC-06, Decision Q2)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 11. GUEST CART SESSION & MERGE TESTS ---');
+
+    // Create a fresh test customer and cart
+    const guestUserEmail = 'guest_merge_' + Date.now() + '@vamos.vn';
+    const guestUserRes = await query(`
+      INSERT INTO users (full_name, email, password_hash, phone, role, status)
+      OUTPUT INSERTED.id
+      VALUES (N'Khách Chuyển Đổi', @email, 'hash123', '0909999999', 'CUSTOMER', 'active')
+    `, { email: guestUserEmail });
+    const guestUserId = guestUserRes.recordset[0].id;
+
+    const guestCartRes = await query("INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@uid)", { uid: guestUserId });
+    const guestCartId = guestCartRes.recordset[0].id;
+
+    // Ensure test variants have stock before merge test
+    await query("UPDATE product_variants SET stock_quantity = 15 WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
+
+    // Simulate Guest Session Cart containing 2 items
+    const simulatedGuestCart = [
+      { variant_id: tempVarId, quantity: 2 },
+      { variant_id: vouchVarId, quantity: 3 },
+    ];
+
+    const mergedCount = await cartController.constructor.mergeGuestCart(guestCartId, simulatedGuestCart);
+    assert(mergedCount > 0, 'GCART-01', `Guest session cart successfully merged into DB cart (Total items: ${mergedCount})`);
+
+    const dbCartItems = await query("SELECT variant_id, quantity FROM cart_items WHERE cart_id = @cid", { cid: guestCartId });
+    assert(dbCartItems.recordset.length === 2, 'GCART-02', 'Exactly 2 distinct items found in Customer DB cart after merge');
+
+    // Merge again with duplicate item to test quantity accumulation
+    const duplicateGuestCart = [
+      { variant_id: tempVarId, quantity: 1 }
+    ];
+    await cartController.constructor.mergeGuestCart(guestCartId, duplicateGuestCart);
+    const dbItem1 = await query("SELECT quantity FROM cart_items WHERE cart_id = @cid AND variant_id = @vid", { cid: guestCartId, vid: tempVarId });
+    assert(dbItem1.recordset[0].quantity === 3, 'GCART-03', 'Duplicate guest item successfully combined with existing cart line (2 + 1 = 3)');
+
+    // -------------------------------------------------------------------------
+    // SUITE 12: VOUCHER 1-USE PER CUSTOMER & RESTITUTION TESTS (Decision Q8)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 12. VOUCHER 1-USE PER CUSTOMER & RESTITUTION TESTS ---');
+
+    const q8VoucherCode = 'Q8_' + Math.floor(1000 + Math.random() * 9000);
+    const q8VouchRes = await query(`
+      INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, usage_limit, used_count, start_date, end_date, is_active)
+      OUTPUT INSERTED.id
+      VALUES (@code, N'Q8 One Use Voucher', 'fixed_amount', 30000, 100000, 10, 0, '2025-01-01', '2028-12-31', 1)
+    `, { code: q8VoucherCode });
+    const q8VouchId = q8VouchRes.recordset[0].id;
+
+    // Ensure stock on variant
+    await query("UPDATE product_variants SET stock_quantity = 20 WHERE id = @vid", { vid: vouchVarId });
+
+    // Place 1st order with Q8 voucher
+    const q8Order1 = await orderService.createCodOrder({
+      userId: guestUserId,
+      recipientName: 'Q8 Test Buyer',
+      recipientPhone: '0901234567',
+      deliveryAddress: 'Đà Nẵng',
+      voucherCode: q8VoucherCode,
+    });
+    assert(!!q8Order1.id, 'Q8-01', `First order #${q8Order1.orderCode} placed successfully with voucher ${q8VoucherCode}`);
+
+    const vuUsage1 = await query("SELECT COUNT(*) AS total FROM voucher_usages WHERE voucher_id = @vid AND user_id = @uid", { vid: q8VouchId, uid: guestUserId });
+    assert(vuUsage1.recordset[0].total === 1, 'Q8-02', 'Voucher usage recorded in voucher_usages table for (voucher_id, user_id)');
+
+    // Add item back to cart to attempt 2nd order with the same voucher
+    await query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cid, @vid, 1)", { cid: guestCartId, vid: vouchVarId });
+
+    let q8SecondAttemptFailed = false;
+    let q8ErrorMessage = '';
+    try {
+      await orderService.createCodOrder({
+        userId: guestUserId,
+        recipientName: 'Q8 Test Buyer',
+        recipientPhone: '0901234567',
+        deliveryAddress: 'Đà Nẵng',
+        voucherCode: q8VoucherCode,
+      });
+    } catch (q8Err) {
+      q8SecondAttemptFailed = true;
+      q8ErrorMessage = q8Err.message;
+    }
+
+    assert(q8SecondAttemptFailed, 'Q8-03', 'Second order with same voucher by same customer was REJECTED');
+    assert(q8ErrorMessage.includes('1 lần') || q8ErrorMessage.includes('trước đây'), 'Q8-04', `Rejection message clearly cites one-use-per-customer rule: "${q8ErrorMessage}"`);
+
+    // Cancel the first order -> voucher quota and usage should be released!
+    await orderService.cancelOrder(q8Order1.id, guestUserId, 'Khách đổi ý hủy đơn');
+    const vuUsageAfterCancel = await query("SELECT COUNT(*) AS total FROM voucher_usages WHERE voucher_id = @vid AND user_id = @uid", { vid: q8VouchId, uid: guestUserId });
+    assert(vuUsageAfterCancel.recordset[0].total === 0, 'Q8-05', 'Voucher usage record removed from voucher_usages after order cancellation');
+
+    const vQuotaAfterCancel = await query("SELECT used_count FROM vouchers WHERE id = @vid", { vid: q8VouchId });
+    assert(vQuotaAfterCancel.recordset[0].used_count === 0, 'Q8-06', 'Voucher used_count successfully decremented upon cancellation');
+
+    // -------------------------------------------------------------------------
+    // SUITE 13: ADMIN INVENTORY ADJUSTMENT WITH AUDIT TRAIL (UC-11)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 13. ADMIN INVENTORY ADJUSTMENT & AUDIT LOG TESTS ---');
+
+    const stockBeforeAdjRes = await query("SELECT stock_quantity FROM product_variants WHERE id = @vid", { vid: tempVarId });
+    const stockBeforeAdj = stockBeforeAdjRes.recordset[0].stock_quantity;
+
+    // Simulate Admin Adjustment (+5 units)
+    const adminUserRes = await query("SELECT TOP 1 id FROM users WHERE role = 'ADMIN'");
+    const adminUserId = adminUserRes.recordset[0].id;
+
+    const adjPool = await getPool();
+    const adjTx = new sql.Transaction(adjPool);
+    await adjTx.begin();
+
+    const adjUpd = new sql.Request(adjTx);
+    adjUpd.input('vid', tempVarId);
+    adjUpd.input('newStock', stockBeforeAdj + 5);
+    await adjUpd.query("UPDATE product_variants SET stock_quantity = @newStock WHERE id = @vid");
+
+    const adjLog = new sql.Request(adjTx);
+    adjLog.input('vid', tempVarId);
+    adjLog.input('uid', adminUserId);
+    adjLog.input('oldQ', stockBeforeAdj);
+    adjLog.input('newQ', stockBeforeAdj + 5);
+    adjLog.input('chgQ', 5);
+    adjLog.input('reason', '[Admin Manual Test] Nhập thêm hàng mẫu kiểm thử');
+    await adjLog.query("INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason) VALUES (@vid, @uid, @oldQ, @newQ, @chgQ, @reason)");
+    await adjTx.commit();
+
+    const stockAfterAdjRes = await query("SELECT stock_quantity FROM product_variants WHERE id = @vid", { vid: tempVarId });
+    assert(stockAfterAdjRes.recordset[0].stock_quantity === stockBeforeAdj + 5, 'INV-01', `Admin inventory adjusted stock from ${stockBeforeAdj} to ${stockBeforeAdj + 5}`);
+
+    const logRes = await query("SELECT TOP 1 change_quantity, reason FROM inventory_transactions WHERE variant_id = @vid ORDER BY id DESC", { vid: tempVarId });
+    assert(logRes.recordset[0].change_quantity === 5 && logRes.recordset[0].reason.includes('Nhập thêm'), 'INV-02', 'Audit log recorded in inventory_transactions with exact change and reason');
+
+    // -------------------------------------------------------------------------
+    // SUITE 14: CUSTOMER LOCK STATUS & SECURITY ENFORCEMENT (UC-04, Rule XII.25)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 14. CUSTOMER LOCK STATUS & SECURITY ENFORCEMENT TESTS ---');
+
+    // Toggle to locked
+    await query("UPDATE users SET status = 'locked' WHERE id = @uid", { uid: guestUserId });
+    const lockCheck1 = await query("SELECT status FROM users WHERE id = @uid", { uid: guestUserId });
+    assert(lockCheck1.recordset[0].status === 'locked', 'LOCK-01', 'Customer status updated to "locked"');
+
+    // Attempt login as locked user
+    const lockedUserRes = await query("SELECT id, status FROM users WHERE email = @email", { email: guestUserEmail });
+    assert(lockedUserRes.recordset[0].status === 'locked', 'LOCK-02', 'Locked customer is recognized by system during auth checks');
+
+    // Toggle back to active
+    await query("UPDATE users SET status = 'active' WHERE id = @uid", { uid: guestUserId });
+    const lockCheck2 = await query("SELECT status FROM users WHERE id = @uid", { uid: guestUserId });
+    assert(lockCheck2.recordset[0].status === 'active', 'LOCK-03', 'Customer status restored to "active"');
+
+    // Guard test: Admin cannot be locked
+    let adminLockBlocked = false;
+    try {
+      const checkAdmin = await query('SELECT role FROM users WHERE id = @id', { id: adminUserId });
+      if (checkAdmin.recordset.length > 0 && checkAdmin.recordset[0].role === 'ADMIN') {
+        throw new Error('Tuyệt đối không được khóa tài khoản Quản trị viên (ADMIN).');
+      }
+    } catch (adminLockErr) {
+      adminLockBlocked = true;
+    }
+    assert(adminLockBlocked, 'LOCK-04', 'System strictly prevents locking ADMIN accounts');
+
+    // -------------------------------------------------------------------------
     // CLEANUP TEST FIXTURES
     // -------------------------------------------------------------------------
     try {
-      await query("DELETE FROM cart_items WHERE cart_id IN (@c1, @c2, @tc)", { c1: cid1, c2: cid2, tc: testCartId });
-      await query("DELETE FROM carts WHERE id IN (@c1, @c2, @tc)", { c1: cid1, c2: cid2, tc: testCartId });
+      await query("DELETE FROM cart_items WHERE cart_id IN (@c1, @c2, @tc, @gc)", { c1: cid1, c2: cid2, tc: testCartId, gc: guestCartId });
+      await query("DELETE FROM carts WHERE id IN (@c1, @c2, @tc, @gc)", { c1: cid1, c2: cid2, tc: testCartId, gc: guestCartId });
 
       // Clean up orders placed by test users or referencing test variants
-      const ordersToClean = await query("SELECT id FROM orders WHERE user_id IN (@u1, @u2, @tu)", { u1: uid1, u2: uid2, tu: testUserId });
+      const ordersToClean = await query("SELECT id FROM orders WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       for (const ord of ordersToClean.recordset) {
         await query("DELETE FROM inventory_transactions WHERE variant_id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
+        await query("DELETE FROM voucher_usages WHERE order_id = @oid", { oid: ord.id });
         await query("DELETE FROM order_items WHERE order_id = @oid", { oid: ord.id });
         await query("DELETE FROM order_status_histories WHERE order_id = @oid", { oid: ord.id });
         await query("DELETE FROM orders WHERE id = @oid", { oid: ord.id });
       }
 
-      await query("DELETE FROM inventory_transactions WHERE variant_id IN (@v1, @v2) OR user_id IN (@u1, @u2, @tu)", { v1: tempVarId, v2: vouchVarId, u1: uid1, u2: uid2, tu: testUserId });
+      await query("DELETE FROM inventory_transactions WHERE variant_id IN (@v1, @v2) OR user_id IN (@u1, @u2, @tu, @gu)", { v1: tempVarId, v2: vouchVarId, u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM product_variants WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
       await query("DELETE FROM products WHERE id = @id", { id: tempProdId });
-      await query("DELETE FROM vouchers WHERE code = @vc", { vc: testVoucherCode });
-      await query("DELETE FROM users WHERE id IN (@u1, @u2, @tu)", { u1: uid1, u2: uid2, tu: testUserId });
+      await query("DELETE FROM vouchers WHERE code IN (@vc, @q8vc)", { vc: testVoucherCode, q8vc: q8VoucherCode });
+      await query("DELETE FROM users WHERE id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
     } catch (cleanupErr) {
       console.warn('  (Cleanup notice):', cleanupErr.message);
     }

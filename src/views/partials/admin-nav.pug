@@ -1,0 +1,51 @@
+//- Admin Top Sub-Navigation Header
+.bg-vamos-dark.text-white.py-5.border-b.border-gray-800
+  .vamos-container
+    .flex.flex-col.gap-4(class="md:flex-row md:items-center md:justify-between")
+      div
+        .flex.items-center.gap-2
+          span(class="px-2 py-0.5 bg-vamos-red text-white text-2xs font-black rounded tracking-widest") QUẢN TRỊ VIÊN
+          span.text-xs.text-gray-400 VAMOS STORE Admin Portal
+        h1.text-xl.font-black.mt-1(style="font-family:'Space Grotesk',sans-serif")= title || 'Quản Trị Hệ Thống'
+      .flex.items-center.gap-2
+        a.btn-outline.text-xs.py-2.px-3.border-gray-700.text-gray-300(class="hover:bg-gray-800 hover:text-white" href="/" target="_blank")
+          | 🌐 Xem Cửa Hàng
+        form(action="/auth/logout" method="POST" class="inline")
+          input(type="hidden" name="_csrf" value=csrfToken)
+          button.btn-outline.text-xs.py-2.px-3.border-red-900.text-red-400(class="hover:bg-red-900/40" type="submit")
+            | Đăng xuất
+
+    //- Navigation Tabs
+    .mt-4.pt-3.border-t.border-gray-800.flex.items-center.gap-1.overflow-x-auto.no-scrollbar.text-xs
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/dashboard"
+        class=(activeNav === 'dashboard' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 📊 Dashboard
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/orders"
+        class=(activeNav === 'orders' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 📦 Đơn Hàng
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/products"
+        class=(activeNav === 'products' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 👟 Sản Phẩm
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/inventory"
+        class=(activeNav === 'inventory' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 🏬 Kho Hàng
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/customers"
+        class=(activeNav === 'customers' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 👥 Khách Hàng
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/vouchers"
+        class=(activeNav === 'vouchers' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 🎟️ Voucher
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/categories"
+        class=(activeNav === 'categories' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 🏷️ Danh Mục & Brand
+      a.px-3.py-2.rounded-lg.font-bold.transition-colors(
+        href="/admin/banners"
+        class=(activeNav === 'banners' ? 'bg-vamos-red text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800')
+      ) 🖼️ Banners

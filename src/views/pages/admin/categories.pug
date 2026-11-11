@@ -1,0 +1,84 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .grid.grid-cols-1.gap-8(class="lg:grid-cols-2")
+      
+      //- ── SECTION 1: CATEGORIES ──
+      .space-y-6
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            | 🏷️ QUẢN LÝ DANH MỤC SẢN PHẨM
+          
+          //- Create form
+          form.space-y-3.mb-6.p-4.bg-gray-50.rounded-vamos-lg.border.border-gray-100(action="/admin/categories/create" method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
+            h4.text-2xs.font-bold.text-gray-500.uppercase + Thêm Danh Mục Mới
+            .grid.grid-cols-1.gap-2(class="sm:grid-cols-2")
+              input.form-input.text-xs.py-2(type="text" name="name" placeholder="Tên danh mục *" required)
+              input.form-input.text-xs.py-2(type="text" name="slug" placeholder="Slug (tùy chọn)")
+            input.form-input.text-xs.py-2(type="text" name="description" placeholder="Mô tả ngắn...")
+            button.w-full.btn-primary.text-xs.py-2(type="submit") Lưu Danh Mục
+
+          //- List
+          .overflow-x-auto
+            table.w-full.text-left.text-xs
+              thead.bg-gray-50.text-gray-500
+                tr
+                  th.py-2.px-3 Tên Danh Mục
+                  th.py-2.px-3 Số Lượng SP
+                  th.py-2.px-3 Trạng Thái
+                  th.py-2.px-3.text-right Thao Tác
+              tbody.divide-y.divide-gray-100
+                if categories && categories.length > 0
+                  each c in categories
+                    tr
+                      td.py-2.px-3.font-bold.text-vamos-dark= c.name
+                      td.py-2.px-3= `${c.product_count} sản phẩm`
+                      td.py-2.px-3
+                        span.rounded.font-bold(class=c.is_active ? 'px-2 py-0.5 bg-green-100 text-green-800 text-2xs' : 'px-2 py-0.5 bg-gray-100 text-gray-500 text-2xs')
+                          = c.is_active ? 'Active' : 'Ẩn'
+                      td.py-2.px-3.text-right
+                        form.inline(action=`/admin/categories/${c.id}/toggle` method="POST")
+                          input(type="hidden" name="_csrf" value=csrfToken)
+                          button.btn-outline.text-2xs.py-1.px-2(type="submit")= c.is_active ? 'Ẩn' : 'Bật'
+                else
+                  tr
+                    td.py-4.text-center.text-gray-400(colspan="4") Chưa có danh mục nào
+
+      //- ── SECTION 2: BRANDS / COLLECTIONS ──
+      .space-y-6
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            | 👟 QUẢN LÝ BỘ SƯU TẬP / BRANDS
+          
+          //- Create form
+          form.space-y-3.mb-6.p-4.bg-gray-50.rounded-vamos-lg.border.border-gray-100(action="/admin/brands/create" method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
+            h4.text-2xs.font-bold.text-gray-500.uppercase + Thêm Bộ Sưu Tập Mới
+            .grid.grid-cols-1.gap-2(class="sm:grid-cols-2")
+              input.form-input.text-xs.py-2(type="text" name="name" placeholder="Tên bộ sưu tập *" required)
+              input.form-input.text-xs.py-2(type="text" name="slug" placeholder="Slug (tùy chọn)")
+            input.form-input.text-xs.py-2(type="text" name="description" placeholder="Mô tả bộ sưu tập...")
+            button.w-full.btn-primary.text-xs.py-2(type="submit") Lưu Bộ Sưu Tập
+
+          //- List
+          .overflow-x-auto
+            table.w-full.text-left.text-xs
+              thead.bg-gray-50.text-gray-500
+                tr
+                  th.py-2.px-3 Tên Bộ Sưu Tập
+                  th.py-2.px-3 Số Lượng SP
+                  th.py-2.px-3 Mô Tả
+              tbody.divide-y.divide-gray-100
+                if brands && brands.length > 0
+                  each b in brands
+                    tr
+                      td.py-2.px-3.font-bold.text-vamos-dark= b.name
+                      td.py-2.px-3= `${b.product_count} sản phẩm`
+                      td.py-2.px-3.text-gray-500= b.description || 'N/A'
+                else
+                  tr
+                    td.py-4.text-center.text-gray-400(colspan="3") Chưa có bộ sưu tập nào

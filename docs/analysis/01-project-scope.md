@@ -5,7 +5,7 @@
 > **Slogan:** MOVE YOUR WAY.  
 > **Loại hệ thống:** Website Thương mại điện tử kinh doanh giày dép và phụ kiện  
 > **Giai đoạn:** Phân tích và Thiết kế Use Case (Analysis & Use Case Design)  
-> **Phiên bản tài liệu:** 1.0
+> **Phiên bản tài liệu:** 1.1 (Chuẩn hóa 3 Actors, 14 Use Cases, 19 Bảng Dữ liệu)
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## 2. PHÂN TÍCH PHẠM VI HỆ THỐNG (SYSTEM SCOPE)
 
-### 2.1. Phạm vi trong phiên bản đầu tiên (In Scope - Version 1.0)
+### 2.1. Phạm vi trong phiên bản v1.1 (In Scope - Version 1.1)
 
 | Nhóm chức năng                       | Các hạng mục trong phạm vi                                                                                                                                                                                                |
 | :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -39,14 +39,14 @@
 | **Khám phá sản phẩm**                | Danh sách sản phẩm phân trang, tìm kiếm theo tên/mã sản phẩm, bộ lọc kết hợp (danh mục, giới tính, khoảng giá, size, màu, sale), sắp xếp (giá, mới nhất, tên A-Z, phổ biến).                                              |
 | **Chi tiết sản phẩm**                | Tên, mã SP, mô tả, bộ ảnh sản phẩm, chọn màu sắc & kích cỡ, trạng thái tồn kho theo từng biến thể, số lượng, sản phẩm liên quan.                                                                                          |
 | **Quản lý biến thể & kho**           | Biến thể kích cỡ (Size), màu sắc (Color), mã SKU duy nhất, quản lý số lượng tồn kho theo biến thể, lịch sử điều chỉnh kho có lý do, cảnh báo tồn kho thấp.                                                                |
-| **Tài khoản & Xác thực**             | Đăng ký, đăng nhập, đăng xuất, quên/đặt lại mật khẩu (dùng token an toàn), xem/cập nhật thông tin cá nhân, đổi mật khẩu, quản lý nhiều địa chỉ nhận hàng.                                                                 |
-| **Giỏ hàng**                         | Thêm biến thể sản phẩm, cập nhật số lượng (chặn vượt tồn kho), xóa dòng sản phẩm, kiểm tra tồn kho theo thời gian thực trước khi thanh toán.                                                                              |
-| **Đặt hàng & Thanh toán**            | Chọn địa chỉ giao hàng, nhập ghi chú đơn hàng, áp dụng mã giảm giá (voucher hợp lệ), tính toán tạm tính/giảm giá/phí giao hàng/tổng thanh toán, phương thức thanh toán COD (Cash On Delivery) trong database transaction. |
-| **Xử lý đơn hàng (Customer)**        | Xem lịch sử đơn hàng, xem chi tiết đơn hàng (lưu snapshot thông tin SP tại thời điểm mua), theo dõi dòng thời gian trạng thái, hủy đơn hàng (khi đơn ở trạng thái PENDING).                                               |
-| **Vận hành đơn hàng (Staff/Admin)**  | Tìm kiếm & lọc đơn hàng, xem chi tiết đơn, xác nhận đơn (PENDING → CONFIRMED), cập nhật trạng thái đơn hàng (CONFIRMED → PROCESSING → SHIPPING → COMPLETED), hủy đơn nội bộ có hoàn kho tự động một lần duy nhất.         |
-| **Quản trị sản phẩm & danh mục**     | CRUD sản phẩm, quản lý danh mục, quản lý bộ sưu tập/nhãn nội bộ VAMOS, quản lý ảnh sản phẩm, ẩn/hiện sản phẩm kinh doanh.                                                                                                 |
-| **Quản lý Voucher & Khuyến mãi**     | Tạo và cấu hình mã giảm giá (giảm % hoặc giảm tiền mặt, đơn tối thiểu, hạn sử dụng, giới hạn lượt dùng), kích hoạt/vô hiệu hóa voucher. Tối đa 1 voucher/đơn.                                                             |
-| **Quản trị người dùng & Phân quyền** | Quản lý khách hàng (xem lịch sử mua, khóa/mở khóa), quản lý tài khoản nhân viên (Staff), phân quyền chức năng cho Staff. Staff bị giới hạn quyền tại máy chủ.                                                             |
+| **Tài khoản & Xác thực**             | Đăng ký, đăng nhập, đăng xuất, quên/đặt lại mật khẩu (dùng token an toàn), xem/cập nhật thông tin cá nhân, đổi mật khẩu, quản lý nhiều địa chỉ nhận hàng. Khóa tài khoản real-time invalidation.                         |
+| **Giỏ hàng**                         | Thêm biến thể sản phẩm, cập nhật số lượng (chặn vượt tồn kho), xóa dòng sản phẩm, kiểm tra tồn kho theo thời gian thực trước khi thanh toán. Hỗ trợ giỏ hàng khách vãng lai (Session Cart) và tự động gộp (Merge Cart) khi đăng nhập/đăng ký. |
+| **Đặt hàng & Thanh toán**            | Chọn địa chỉ giao hàng, nhập ghi chú đơn hàng, áp dụng mã giảm giá (voucher hợp lệ, giới hạn 1 lần/khách hàng), tính toán tạm tính/giảm giá/phí giao hàng/tổng thanh toán, phương thức thanh toán COD (Cash On Delivery) trong database transaction. |
+| **Xử lý đơn hàng (Customer)**        | Xem lịch sử đơn hàng, xem chi tiết đơn hàng (lưu snapshot thông tin SP tại thời điểm mua), theo dõi dòng thời gian trạng thái, hủy đơn hàng (khi đơn ở trạng thái PENDING), tự động hoàn tồn kho và hoàn lượt dùng voucher. |
+| **Vận hành đơn hàng (Admin)**        | Tìm kiếm & lọc đơn hàng, xem chi tiết đơn, xác nhận đơn (PENDING → CONFIRMED), cập nhật trạng thái đơn hàng (CONFIRMED → PROCESSING → SHIPPING → COMPLETED), hủy đơn nội bộ có hoàn kho tự động một lần duy nhất.         |
+| **Quản trị sản phẩm & danh mục**     | CRUD sản phẩm, quản lý danh mục, quản lý thương hiệu/bộ sưu tập nội bộ VAMOS, quản lý ảnh sản phẩm, ẩn/hiện sản phẩm kinh doanh.                                                                                          |
+| **Quản lý Voucher & Khuyến mãi**     | Tạo và cấu hình mã giảm giá (giảm % hoặc giảm tiền mặt, đơn tối thiểu, hạn sử dụng, giới hạn tổng lượt dùng và 1 lần/khách hàng), kích hoạt/vô hiệu hóa voucher. Tối đa 1 voucher/đơn.                                    |
+| **Quản trị người dùng & Phân quyền** | Quản lý khách hàng (xem lịch sử mua, khóa/mở khóa tài khoản với hiệu lực vô hiệu hóa session tức thì). Chuẩn hóa 3 Human Actors: `Guest`, `Customer`, `Admin` (không có vai trò Staff riêng biệt).                       |
 | **Dashboard & Báo cáo**              | Thống kê số lượng đơn theo trạng thái, doanh thu theo thời gian (chỉ ghi nhận từ đơn COMPLETED), top sản phẩm bán chạy, sản phẩm tồn kho thấp.                                                                            |
 
 ### 2.2. Phạm vi ngoài phiên bản đầu tiên (Out of Scope - Version 1.0)

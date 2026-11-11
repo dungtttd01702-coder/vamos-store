@@ -36,13 +36,29 @@ function sessionContextMiddleware(req, res, next) {
 /**
  * Ensure user is logged in
  */
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   if (!req.session?.user) {
     if (req.xhr || req.headers.accept?.includes('application/json')) {
       return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để tiếp tục' });
     }
     return res.redirect(`/auth/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
   }
+
+  // Account lock check: immediately revoke session if account was locked by admin (OWASP & Rule XII.25)
+  try {
+    const { query } = require('../config/database');
+    const uRes = await query('SELECT status FROM users WHERE id = @id', { id: req.session.user.id });
+    if (uRes.recordset.length === 0 || uRes.recordset[0].status === 'locked') {
+      req.session.destroy(() => {
+        res.clearCookie('vamos_sid');
+        return res.redirect('/auth/login?error=account_locked');
+      });
+      return;
+    }
+  } catch (err) {
+    // Proceed if DB transient check
+  }
+
   next();
 }
 
@@ -67,7 +83,7 @@ function requireGuest(req, res, next) {
 /**
  * Ensure user is an Admin
  */
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
   if (!req.session?.user) {
     return res.redirect(`/auth/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
   }
@@ -76,6 +92,22 @@ function requireAdmin(req, res, next) {
     error.status = 403;
     return next(error);
   }
+
+  // Verify Admin account is still active in DB
+  try {
+    const { query } = require('../config/database');
+    const uRes = await query('SELECT status, role FROM users WHERE id = @id', { id: req.session.user.id });
+    if (uRes.recordset.length === 0 || uRes.recordset[0].status !== 'active' || uRes.recordset[0].role !== 'ADMIN') {
+      req.session.destroy(() => {
+        res.clearCookie('vamos_sid');
+        return res.redirect('/auth/login');
+      });
+      return;
+    }
+  } catch (err) {
+    // Proceed if DB transient check
+  }
+
   next();
 }
 

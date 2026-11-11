@@ -1,0 +1,60 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
+      
+      //- Banner List (7 cols)
+      .space-y-6(class="lg:col-span-7")
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            | 🖼️ DANH SÁCH BANNER QUẢNG CÁO TRANG CHỦ
+          
+          if banners && banners.length > 0
+            .space-y-4
+              each b in banners
+                .p-4.rounded-vamos-lg.border.border-gray-100.bg-gray-50.flex.flex-col.gap-3(class="sm:flex-row sm:items-center sm:justify-between")
+                  .flex.items-center.gap-3
+                    .w-24.h-14.rounded-lg.bg-gray-200.overflow-hidden.flex-shrink-0.border.border-gray-200
+                      img.w-full.h-full.object-cover(src=b.image_url alt=b.title)
+                    div
+                      h4.text-xs.font-bold.text-vamos-dark= b.title
+                      p.text-2xs.text-gray-400= `Link: ${b.link_url} | Thứ tự: ${b.display_order}`
+                  .flex.items-center.gap-2.flex-shrink-0
+                    span.rounded.font-bold(class=b.is_active ? 'px-2 py-0.5 bg-green-100 text-green-800 text-2xs' : 'px-2 py-0.5 bg-gray-200 text-gray-600 text-2xs')
+                      = b.is_active ? 'Hiển thị' : 'Ẩn'
+                    form(action=`/admin/banners/${b.id}/toggle` method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      button.btn-outline.text-2xs.py-1.px-2(type="submit")
+                        = b.is_active ? 'Tắt' : 'Bật'
+          else
+            p.text-xs.text-gray-400.py-6.text-center Chưa có banner nào
+
+      //- Create Banner Form (5 cols)
+      .space-y-6(class="lg:col-span-5")
+        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            | + THÊM BANNER TRANG CHỦ MỚI
+          
+          form.space-y-4(action="/admin/banners/create" method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
+
+            div
+              label.form-label Tiêu đề banner *
+              input.form-input.text-xs(type="text" name="title" placeholder="Ví dụ: MOVE YOUR WAY - BỘ SƯU TẬP 2026" required)
+
+            div
+              label.form-label URL hình ảnh banner *
+              input.form-input.text-xs(type="url" name="image_url" placeholder="https://images.unsplash.com/..." required)
+
+            div
+              label.form-label Đường dẫn điều hướng khi click
+              input.form-input.text-xs(type="text" name="link_url" value="/products" placeholder="/products")
+
+            div
+              label.form-label Thứ tự hiển thị
+              input.form-input.text-xs(type="number" name="display_order" value="1" min="1")
+
+            button.w-full.btn-primary.text-xs.py-2(type="submit") Lưu Banner Mới

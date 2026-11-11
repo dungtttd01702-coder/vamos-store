@@ -1,0 +1,46 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .flex.items-center.justify-between.mb-6
+      div
+        h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") NHẬT KÝ BIẾN ĐỘNG KHO (AUDIT TRAIL)
+        p.text-xs.text-gray-500 Truy vết toàn bộ lịch sử xuất kho, hoàn kho và điều chỉnh thủ công
+      a.btn-outline.text-xs.py-2.px-3(href="/admin/inventory") &larr; Quay lại Kho Hàng
+
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .overflow-x-auto
+        table.w-full.text-left.text-xs
+          thead.bg-gray-50.text-gray-500.uppercase.border-b.border-gray-100
+            tr
+              th.py-3.px-4 Thời Gian
+              th.py-3.px-4 Biến Thể / SKU
+              th.py-3.px-4 Sản Phẩm
+              th.py-3.px-4 Trước
+              th.py-3.px-4 Biến Động
+              th.py-3.px-4 Sau
+              th.py-3.px-4 Lý Do Ghi Nhận
+              th.py-3.px-4 Người Thực Hiện
+          tbody.divide-y.divide-gray-100
+            if history && history.length > 0
+              each h in history
+                tr.hover(class="bg-gray-50/50")
+                  td.py-3.px-4.text-gray-400= new Date(h.created_at).toLocaleString('vi-VN')
+                  td.py-3.px-4.font-bold.text-vamos-dark= h.sku
+                  td.py-3.px-4
+                    span.font-medium= h.product_name
+                    span.text-2xs.text-gray-400.ml-1= `(${h.color_name} - Size ${h.size_name})`
+                  td.py-3.px-4.text-gray-600= `${h.old_quantity} đôi`
+                  td.py-3.px-4
+                    if h.change_quantity > 0
+                      span.font-bold.text-green-600= `+${h.change_quantity}`
+                    else
+                      span.font-bold.text-red-600= `${h.change_quantity}`
+                  td.py-3.px-4.font-bold.text-vamos-dark= `${h.new_quantity} đôi`
+                  td.py-3.px-4.text-gray-700= h.reason
+                  td.py-3.px-4.text-gray-500= h.user_name || 'Hệ thống'
+            else
+              tr
+                td.py-8.text-center.text-gray-400(colspan="8") Chưa có giao dịch kho nào được ghi nhận

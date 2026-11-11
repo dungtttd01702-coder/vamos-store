@@ -29,11 +29,15 @@ if (Đã có tài khoản?) then (Có)
                 :Báo lỗi "Email hoặc mật khẩu không chính xác";
                 stop
             else (Có)
-                :Tạo Session bảo mật (req.session.user);
+                :Tái tạo Session bảo mật (req.session.regenerate);
+                :Lưu thông tin đăng nhập vào session;
+                if (Có giỏ hàng khách trong Session?) then (Có)
+                    :Gộp giỏ hàng khách vào DB (CartController.mergeGuestCart);
+                endif
                 if (Vai trò là Admin?) then (Admin)
                     :Điều hướng đến /admin/dashboard;
                 else (Customer)
-                    :Điều hướng về Trang chủ / Giỏ hàng;
+                    :Điều hướng về Trang chủ / Giỏ hàng / Checkout;
                 endif
                 stop
             endif

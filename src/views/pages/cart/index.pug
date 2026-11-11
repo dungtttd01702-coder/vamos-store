@@ -13,113 +13,116 @@ block content
   .vamos-container.py-8
     h1.text-2xl.font-black.text-vamos-dark.mb-6(style="font-family:'Space Grotesk',sans-serif") GIỎ HÀNG CỦA BẠN
 
-    if isGuest
-      //- Guest notification box (Stitch design)
-      .bg-white.rounded-vamos-xl.border.border-vamos-border.p-8.text-center.max-w-md.mx-auto.shadow-vamos-card(class="md:p-12")
-        .w-16.h-16.bg-red-50.text-vamos-red.rounded-full.flex.items-center.justify-center.mx-auto.mb-4.text-2xl
-          | 👟
-        h2.text-xl.font-bold.text-vamos-dark.mb-2(style="font-family:'Space Grotesk',sans-serif") BẠN CHƯA ĐĂNG NHẬP
-        p.text-xs.text-gray-500.mb-6.leading-relaxed
-          | Theo chính sách của hệ thống VAMOS STORE, quý khách vui lòng đăng nhập tài khoản Khách hàng để thêm và lưu trữ giỏ hàng an toàn.
-        .flex.flex-col.gap-3(class="sm:flex-row sm:justify-center")
-          a.btn-primary.text-xs(href="/auth/login?returnUrl=/cart") Đăng Nhập Ngay
-          a.btn-outline.text-xs(href="/auth/register") Đăng Ký Mới
+    if isGuest && items && items.length > 0
+      //- Guest cart notice banner (Decision Q2)
+      .bg-amber-50.border.border-amber-200.rounded-vamos-lg.p-4.mb-6.flex.flex-col.gap-3(class="sm:flex-row sm:items-center sm:justify-between")
+        .flex.items-center.gap-3
+          span.text-xl 💡
+          p.text-xs.text-amber-800
+            strong Giỏ hàng tạm thời: 
+            | Các sản phẩm đã chọn đang được lưu trong phiên duyệt của bạn. Hãy đăng nhập để lưu trữ giỏ và tiến hành đặt hàng COD.
+        .flex.gap-2.flex-shrink-0
+          a.btn-primary.text-xs.py-2.px-3(href="/auth/login?returnUrl=/checkout") Đăng Nhập
+          a.btn-outline.text-xs.py-2.px-3(href="/auth/register") Đăng Ký
 
-    else
-      if items && items.length > 0
-        .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
-          //- Cart Items List (8 cols)
-          .space-y-4(class="lg:col-span-8")
-            .flex.items-center.justify-between.pb-2
-              span.text-xs.text-gray-500= `Có ${items.length} mặt hàng trong giỏ hàng`
-              form(action="/cart/clear" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn làm rỗng toàn bộ giỏ hàng?')")
-                input(type="hidden" name="_csrf" value=csrfToken)
-                button.text-xs.text-red-500.font-semibold(class="hover:underline" type="submit") Xóa toàn bộ giỏ
+    if items && items.length > 0
+      .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
+        //- Cart Items List (8 cols)
+        .space-y-4(class="lg:col-span-8")
+          .flex.items-center.justify-between.pb-2
+            span.text-xs.text-gray-500= `Có ${items.length} mặt hàng trong giỏ hàng`
+            form(action="/cart/clear" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn làm rỗng toàn bộ giỏ hàng?')")
+              input(type="hidden" name="_csrf" value=csrfToken)
+              button.text-xs.text-red-500.font-semibold(class="hover:underline" type="submit") Xóa toàn bộ giỏ
 
-            each item in items
-              .bg-white.rounded-vamos-lg.border.border-vamos-border.p-4.flex.items-center.justify-between.gap-4.shadow-sm.transition-all(class="hover:border-gray-300")
-                .flex.items-center.gap-4
-                  .w-20.h-20.bg-gray-50.rounded-lg.overflow-hidden.flex-shrink-0.p-2.flex.items-center.justify-center.border.border-gray-100
-                    if item.image_url
-                      img.w-full.h-full.object-contain(src=item.image_url alt=item.product_name)
-                    else
-                      .text-gray-400.text-xs SP
-                  div
-                    h3.text-sm.font-bold.text-vamos-dark.line-clamp-1
-                      a.transition-colors(class="hover:text-vamos-red" href=`/products/${item.product_slug}`)= item.product_name
-                    p.text-xs.text-gray-500.mt-1
-                      span.font-medium= `Size: ${item.size_name}`
-                      span.mx-2 |
-                      span.font-medium= `Màu: ${item.color_name}`
-                    .mt-2.text-sm.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
-                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.unit_price)
+          each item in items
+            .bg-white.rounded-vamos-lg.border.border-vamos-border.p-4.flex.items-center.justify-between.gap-4.shadow-sm.transition-all(class="hover:border-gray-300")
+              .flex.items-center.gap-4
+                .w-20.h-20.bg-gray-50.rounded-lg.overflow-hidden.flex-shrink-0.p-2.flex.items-center.justify-center.border.border-gray-100
+                  if item.image_url
+                    img.w-full.h-full.object-contain(src=item.image_url alt=item.product_name)
+                  else
+                    .text-gray-400.text-xs SP
+                div
+                  h3.text-sm.font-bold.text-vamos-dark.line-clamp-1
+                    a.transition-colors(class="hover:text-vamos-red" href=`/products/${item.product_slug}`)= item.product_name
+                  p.text-xs.text-gray-500.mt-1
+                    span.font-medium= `Size: ${item.size_name}`
+                    span.mx-2 |
+                    span.font-medium= `Màu: ${item.color_name}`
+                  .mt-2.text-sm.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.unit_price)
 
-                .flex.items-center.gap-4
-                  //- Quantity Adjuster
-                  .flex.items-center.border.border-gray-200.rounded-lg.bg-gray-50(class="p-0.5")
-                    form(action="/cart/update" method="POST")
-                      input(type="hidden" name="_csrf" value=csrfToken)
-                      input(type="hidden" name="itemId" value=item.cart_item_id)
-                      input(type="hidden" name="quantity" value=item.quantity - 1)
-                      button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
-                        class="hover:bg-white hover:text-vamos-red"
-                        type="submit"
-                        title="Giảm số lượng"
-                      ) -
-                    span.w-8.text-center.text-xs.font-bold.text-vamos-dark= item.quantity
-                    form(action="/cart/update" method="POST")
-                      input(type="hidden" name="_csrf" value=csrfToken)
-                      input(type="hidden" name="itemId" value=item.cart_item_id)
-                      input(type="hidden" name="quantity" value=item.quantity + 1)
-                      button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
-                        class="hover:bg-white hover:text-vamos-red"
-                        type="submit"
-                        title="Tăng số lượng"
-                        disabled=item.quantity >= item.stock_quantity
-                      ) +
-
-                  span.text-sm.font-black.text-vamos-dark.hidden(class="sm:inline" style="font-family:'Space Grotesk',sans-serif")
-                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
-
-                  form(action="/cart/remove" method="POST")
+              .flex.items-center.gap-4
+                //- Quantity Adjuster
+                .flex.items-center.border.border-gray-200.rounded-lg.bg-gray-50(class="p-0.5")
+                  form(action="/cart/update" method="POST")
                     input(type="hidden" name="_csrf" value=csrfToken)
                     input(type="hidden" name="itemId" value=item.cart_item_id)
-                    button.text-gray-400.p-1.rounded.transition-colors(class="hover:text-vamos-red hover:bg-red-50" type="submit" title="Xóa khỏi giỏ")
-                      svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-                        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+                    input(type="hidden" name="quantity" value=item.quantity - 1)
+                    button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
+                      class="hover:bg-white hover:text-vamos-red"
+                      type="submit"
+                      title="Giảm số lượng"
+                    ) -
+                  span.w-8.text-center.text-xs.font-bold.text-vamos-dark= item.quantity
+                  form(action="/cart/update" method="POST")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    input(type="hidden" name="itemId" value=item.cart_item_id)
+                    input(type="hidden" name="quantity" value=item.quantity + 1)
+                    button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
+                      class="hover:bg-white hover:text-vamos-red"
+                      type="submit"
+                      title="Tăng số lượng"
+                      disabled=item.quantity >= item.stock_quantity
+                    ) +
 
-          //- Order Summary Box (4 cols)
-          .space-y-4(class="lg:col-span-4")
-            .bg-white.rounded-vamos-xl.border.border-vamos-border.p-6.shadow-vamos-card.sticky.top-20
-              h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif") TÓM TẮT ĐƠN HÀNG
-              
-              .space-y-3.text-xs
-                .flex.justify-between
-                  span.text-gray-500 Tạm tính:
+                span.text-sm.font-black.text-vamos-dark.hidden(class="sm:inline" style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
+
+                form(action="/cart/remove" method="POST")
+                  input(type="hidden" name="_csrf" value=csrfToken)
+                  input(type="hidden" name="itemId" value=item.cart_item_id)
+                  button.text-gray-400.p-1.rounded.transition-colors(class="hover:text-vamos-red hover:bg-red-50" type="submit" title="Xóa khỏi giỏ")
+                    svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+
+        //- Order Summary Box (4 cols)
+        .space-y-4(class="lg:col-span-4")
+          .bg-white.rounded-vamos-xl.border.border-vamos-border.p-6.shadow-vamos-card.sticky.top-20
+            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif") TÓM TẮT ĐƠN HÀNG
+            
+            .space-y-3.text-xs
+              .flex.justify-between
+                span.text-gray-500 Tạm tính:
+                span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
+              .flex.justify-between
+                span.text-gray-500 Phí vận chuyển COD:
+                if shippingFee === 0
+                  span.font-bold.text-green-600 Miễn phí (đơn từ 500k)
+                else
                   span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
-                .flex.justify-between
-                  span.text-gray-500 Phí vận chuyển COD:
-                  if shippingFee === 0
-                    span.font-bold.text-green-600 Miễn phí
-                  else
-                    span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)
-                
-                .border-t.border-gray-100.pt-3.flex.justify-between.items-baseline
-                  span.text-sm.font-bold.text-vamos-dark Tổng thanh toán:
-                  span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
-                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)
+              
+              .border-t.border-gray-100.pt-3.flex.justify-between.items-baseline
+                span.text-sm.font-bold.text-vamos-dark Tổng thanh toán:
+                span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)
 
-              a.mt-5.w-full.btn-primary.text-xs(class="py-3.5" href="/checkout")
+            if isGuest
+              a.mt-5.w-full.btn-primary.text-xs.block.text-center(class="py-3.5" href="/auth/login?returnUrl=/checkout")
+                | ĐĂNG NHẬP ĐỂ ĐẶT HÀNG (COD)
+            else
+              a.mt-5.w-full.btn-primary.text-xs.block.text-center(class="py-3.5" href="/checkout")
                 | TIẾN HÀNH ĐẶT HÀNG (COD)
 
-              .mt-4.pt-3.border-t.border-gray-100.text-center
-                p.text-xs.text-gray-400
-                  | 💵 Thanh toán tiền mặt khi nhận hàng (COD).
-      else
-        .bg-white.rounded-vamos-xl.border.border-vamos-border.p-12.text-center.max-w-md.mx-auto.shadow-vamos-card
-          .text-5xl.mb-3 🛒
-          h2.text-base.font-bold.text-vamos-dark.mb-1 Giỏ hàng của bạn đang trống
-          p.text-xs.text-gray-400.mb-5 Hãy dạo một vòng cửa hàng và chọn những đôi giày ưng ý nhé!
-          a.btn-primary.text-xs(href="/products") Khám Phá Sản Phẩm Ngay
+            .mt-4.pt-3.border-t.border-gray-100.text-center
+              p.text-xs.text-gray-400
+                | 💵 Thanh toán tiền mặt khi nhận hàng (COD).
+    else
+      .bg-white.rounded-vamos-xl.border.border-vamos-border.p-12.text-center.max-w-md.mx-auto.shadow-vamos-card
+        .text-5xl.mb-3 🛒
+        h2.text-base.font-bold.text-vamos-dark.mb-1 Giỏ hàng của bạn đang trống
+        p.text-xs.text-gray-400.mb-5 Hãy dạo một vòng cửa hàng và chọn những đôi giày ưng ý nhé!
+        a.btn-primary.text-xs(href="/products") Khám Phá Sản Phẩm Ngay

@@ -116,4 +116,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // 8. Prevent duplicate order submissions on checkout form (rapid double-click defense)
+  const checkoutForm = document.getElementById('checkout-form');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', (e) => {
+      const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        if (submitBtn.dataset.submitted === 'true') {
+          e.preventDefault();
+          return false;
+        }
+        submitBtn.dataset.submitted = 'true';
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Đang xử lý đặt hàng COD...';
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        // Let form submit normally
+        checkoutForm.submit();
+      }
+    });
+  }
 });

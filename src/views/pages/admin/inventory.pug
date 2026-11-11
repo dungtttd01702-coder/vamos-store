@@ -1,0 +1,80 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+      div
+        h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") QUẢN LÝ KHO HÀNG & TỒN KHO BIẾN THỂ
+        p.text-xs.text-gray-500 Kiểm soát tồn kho chi tiết theo từng mã SKU, điều chỉnh kho có lưu vết kiểm toán (Audit Trail)
+      .flex.items-center.gap-2
+        a.btn-outline.text-xs.py-2.px-3(href="/admin/inventory/history") 📜 Xem Nhật Ký Kiểm Toán Kho
+        if isLowStockFilter
+          a.btn-primary.text-xs.py-2.px-3(href="/admin/inventory") Xem Tất Cả Biến Thể
+        else
+          a.btn-outline.text-xs.py-2.px-3.border-red-300.text-red-600(class="hover:bg-red-50" href="/admin/inventory?low_stock=true") ⚠️ Chỉ Lọc Tồn Kho Thấp (&le; 5)
+
+    //- Search & Filter
+    .bg-white.p-4.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
+      form.flex.gap-3(action="/admin/inventory" method="GET")
+        input.form-input.text-xs.py-2.flex-grow(
+          type="text"
+          name="q"
+          value=searchQuery
+          placeholder="Tìm theo mã SKU hoặc tên sản phẩm..."
+        )
+        if isLowStockFilter
+          input(type="hidden" name="low_stock" value="true")
+        button.btn-primary.text-xs.py-2.px-6(type="submit") Tìm Kiếm
+
+    //- Inventory Table
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .overflow-x-auto
+        table.w-full.text-left.text-xs
+          thead.bg-gray-50.text-gray-500.uppercase.border-b.border-gray-100
+            tr
+              th.py-3.px-4 Mã SKU
+              th.py-3.px-4 Tên Sản Phẩm
+              th.py-3.px-4 Size
+              th.py-3.px-4 Màu Sắc
+              th.py-3.px-4 Tồn Kho Hiện Tại
+              th.py-3.px-4 Trạng Thái
+              th.py-3.px-4.text-right Điều Chỉnh Tồn Kho
+          tbody.divide-y.divide-gray-100
+            if variants && variants.length > 0
+              each v in variants
+                tr.hover(class="bg-gray-50/50")
+                  td.py-3.px-4.font-bold.text-vamos-dark= v.sku
+                  td.py-3.px-4
+                    span.font-bold.text-vamos-dark= v.product_name
+                    span.text-2xs.text-gray-400.ml-2= `#${v.product_code}`
+                  td.py-3.px-4= `Size ${v.size_name}`
+                  td.py-3.px-4= v.color_name
+                  td.py-3.px-4
+                    if v.stock_quantity <= 5
+                      span.rounded-full.font-black(class="px-2 py-0.5 bg-red-100 text-red-700")= `${v.stock_quantity} đôi (Cảnh báo)`
+                    else
+                      span.font-bold.text-vamos-dark= `${v.stock_quantity} đôi`
+                  td.py-3.px-4
+                    span.rounded(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs")= v.variant_status
+                  td.py-3.px-4.text-right
+                    form.inline-flex.items-center.gap-1(action="/admin/inventory/adjust" method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      input(type="hidden" name="variant_id" value=v.id)
+                      input.form-input.text-xs.py-1.px-2.w-20(
+                        type="number"
+                        name="change_quantity"
+                        placeholder="+/- SL"
+                        required
+                      )
+                      input.form-input.text-xs.py-1.px-2.w-36(
+                        type="text"
+                        name="reason"
+                        placeholder="Lý do điều chỉnh..."
+                        required
+                      )
+                      button.btn-primary.text-2xs.py-1.px-2(type="submit" title="Ghi sổ điều chỉnh kho") Lưu
+            else
+              tr
+                td.py-8.text-center.text-gray-400(colspan="7") Không tìm thấy biến thể kho hàng nào

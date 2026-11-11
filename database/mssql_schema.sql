@@ -395,3 +395,20 @@ BEGIN
     );
 END
 GO
+
+-- =============================================================================
+-- 19. BẢNG voucher_usages: Quản lý giới hạn sử dụng voucher theo Customer (Q8)
+-- =============================================================================
+IF OBJECT_ID('voucher_usages', 'U') IS NULL
+BEGIN
+    CREATE TABLE voucher_usages (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        voucher_id INT NOT NULL CONSTRAINT FK_voucher_usages_voucher REFERENCES vouchers(id),
+        user_id INT NOT NULL CONSTRAINT FK_voucher_usages_user REFERENCES users(id),
+        order_id INT NOT NULL CONSTRAINT FK_voucher_usages_order REFERENCES orders(id) ON DELETE CASCADE,
+        used_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        CONSTRAINT UQ_voucher_user_usage UNIQUE (voucher_id, user_id)
+    );
+END
+GO
+

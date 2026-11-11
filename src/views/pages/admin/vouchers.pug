@@ -1,0 +1,60 @@
+extends ../../layouts/main
+
+block content
+  include ../../partials/admin-nav
+
+  .vamos-container.py-8
+    .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+      div
+        h2.text-lg.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") QUẢN LÝ MÃ GIẢM GIÁ (VOUCHERS)
+        p.text-xs.text-gray-500 Cấu hình khuyến mãi, giá trị giảm, hạn mức và ràng buộc 1 lần/khách hàng (Decision Q8)
+      a.btn-primary.text-xs.py-2.px-4(href="/admin/vouchers/create") + Tạo Voucher Mới
+
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .overflow-x-auto
+        table.w-full.text-left.text-xs
+          thead.bg-gray-50.text-gray-500.uppercase.border-b.border-gray-100
+            tr
+              th.py-3.px-4 Mã Code
+              th.py-3.px-4 Tên Ưu Đãi
+              th.py-3.px-4 Loại Chiết Khấu
+              th.py-3.px-4 Giá Trị Giảm
+              th.py-3.px-4 Đơn Tối Thiểu
+              th.py-3.px-4 Lượt Dùng (Đã / Giới hạn)
+              th.py-3.px-4 Thời Hạn
+              th.py-3.px-4 Trạng Thái
+              th.py-3.px-4.text-right Thao Tác
+          tbody.divide-y.divide-gray-100
+            if vouchers && vouchers.length > 0
+              each v in vouchers
+                tr.hover(class="bg-gray-50/50")
+                  td.py-3.px-4
+                    span.font-black.text-vamos-red.tracking-wider= v.code
+                  td.py-3.px-4.font-medium.text-vamos-dark= v.name
+                  td.py-3.px-4.text-gray-600
+                    = v.discount_type === 'percentage' ? 'Phần trăm (%)' : 'Số tiền cố định'
+                  td.py-3.px-4.font-bold.text-vamos-dark
+                    if v.discount_type === 'percentage'
+                      = `${v.discount_value}%`
+                    else
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v.discount_value)
+                  td.py-3.px-4.text-gray-600
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v.min_order_value || 0)
+                  td.py-3.px-4
+                    span.font-bold= `${v.used_count || 0}`
+                    span.text-gray-400= ` / ${v.usage_limit > 0 ? v.usage_limit : 'Không giới hạn'}`
+                  td.py-3.px-4.text-gray-400
+                    = `${new Date(v.start_date).toLocaleDateString('vi-VN')} - ${new Date(v.end_date).toLocaleDateString('vi-VN')}`
+                  td.py-3.px-4
+                    if v.is_active
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs") Kích hoạt
+                    else
+                      span.rounded.font-bold(class="px-2 py-0.5 bg-gray-100 text-gray-600 text-2xs") Tạm khóa
+                  td.py-3.px-4.text-right
+                    form.inline(action=`/admin/vouchers/${v.id}/toggle` method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      button.btn-outline.text-2xs.py-1.px-3(type="submit")
+                        = v.is_active ? 'Khóa' : 'Kích hoạt'
+            else
+              tr
+                td.py-8.text-center.text-gray-400(colspan="9") Chưa có mã voucher nào
