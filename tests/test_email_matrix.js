@@ -1,6 +1,6 @@
 const validator = require('../src/utils/validator');
 
-const htmlPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const htmlPattern = /^\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\s*$/;
 
 const testInputs = [
   '123@gmail',
@@ -33,3 +33,4 @@ testInputs.forEach((input) => {
     `| \`${input}\` | ${rawValid ? 'PASS (Valid)' : 'REJECT (Invalid)'} | \`${normalized}\` | ${normalizedValid ? 'PASS (Valid)' : 'REJECT (Invalid)'} | ${htmlMatch ? 'MATCH' : 'BLOCKED'} | **${canProceed ? 'CHO PHÉP' : 'CHẶN ĐỨNG'}** |`
   );
 });
+

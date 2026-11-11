@@ -63,3 +63,4 @@ jobs:
           DB_ENCRYPT: 'false'
           DB_TRUST_SERVER_CERTIFICATE: 'true'
         run: npm test
+

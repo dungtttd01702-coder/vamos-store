@@ -93,7 +93,7 @@ async function run() {
     console.log('Rendered Avatar "T":', hasAvatarT);
     console.log('Contains user full name or email:', getHomeRes.body.includes('Thông tin tài khoản'));
 
-    // 6. While logged in: GET /auth/login -> Expect 302 Redirect to /
+    // 6. While logged in: GET /auth/login -> Expect 302 Redirect to / with Flash Warning
     console.log('\n=== TEST 6: GET /auth/login while already logged in ===');
     const getLoginWhileAuth = await request('/auth/login', {
       headers: { Cookie: authCookie },
@@ -101,7 +101,7 @@ async function run() {
     console.log('Status:', getLoginWhileAuth.status); // Expect 302
     console.log('Redirect Location:', getLoginWhileAuth.location); // Expect '/'
 
-    // 7. While logged in: POST /auth/login with 123@gmail -> WHAT HAPPENS?
+    // 7. While logged in: POST /auth/login with 123@gmail -> Blocked with Flash Warning
     console.log('\n=== TEST 7: POST /auth/login with 123@gmail while already logged in ===');
     const getHomeForCsrf = await request('/', { headers: { Cookie: authCookie } });
     const authCsrf = getHomeForCsrf.body.match(/name="_csrf" value="([^"]+)"/)[1];
@@ -113,6 +113,18 @@ async function run() {
     });
     console.log('Status:', postLoginWhileAuth.status); // Expect 302 due to requireGuest
     console.log('Redirect Location:', postLoginWhileAuth.location); // Expect '/'
+
+    // 7b. Follow redirect to / and verify Flash Warning is displayed
+    const getHomeAfterRedirect = await request('/', { headers: { Cookie: authCookie } });
+    const hasFlashWarning = getHomeAfterRedirect.body.includes('Bạn đang đăng nhập bằng tài khoản hiện tại. Vui lòng đăng xuất trước khi sử dụng tài khoản khác.');
+    const hasAvatarTAfterRedirect = getHomeAfterRedirect.body.includes('>T<');
+    console.log('Flash warning shown on homepage:', hasFlashWarning);
+    console.log('Existing user session (Avatar "T") preserved:', hasAvatarTAfterRedirect);
+
+    // 7c. Re-request / to verify Flash Warning is single-use (consumed and disappeared)
+    const getHomeSecondTime = await request('/', { headers: { Cookie: authCookie } });
+    const hasFlashOnSecondLoad = getHomeSecondTime.body.includes('Bạn đang đăng nhập bằng tài khoản hiện tại. Vui lòng đăng xuất trước khi sử dụng tài khoản khác.');
+    console.log('Flash warning consumed (not shown on second load):', !hasFlashOnSecondLoad);
 
     // 8. While logged in: POST /auth/register with 123@gmail -> WHAT HAPPENS?
     console.log('\n=== TEST 8: POST /auth/register with 123@gmail while already logged in ===');

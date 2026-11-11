@@ -152,6 +152,25 @@
   - Chuyển đổi toàn bộ tài liệu `plan.md`, `docs/database/data-dictionary.md`, `docs/database/database-design-review.md` sang chuẩn 100% Microsoft SQL Server 2025.
   - Bổ sung bảng ma trận đối chiếu 20 chức năng thực tế giữa Source code và Tài liệu đặc tả trong `FINAL_AUDIT_REPORT.md`.
 
+### GIAI ĐOẠN 12: CẢI THIỆN TRẢI NGHIỆM AUTH UX VÀ ĐỒNG BỘ VALIDATION CLIENT-SERVER
+
+- **Cơ chế Flash Message một lần (Single-use Flash Message) (`src/middlewares/auth.middleware.js`):**
+  - Xây dựng helper `req.flash(type, message)` tích hợp trực tiếp vào Express Session mà không cần cài thêm thư viện phụ thuộc.
+  - Tự động tiêu thụ một lần duy nhất qua `sessionContextMiddleware`: gán vào `res.locals.warning_msg`, `res.locals.error_msg`, `res.locals.success_msg` và xóa ngay khỏi session (`delete req.session.flash`).
+  - Đảm bảo thông báo chỉ hiển thị đúng 1 lần khi redirect, tự động biến mất khi tải lại trang hoặc chuyển sang trang khác.
+- **Xử lý thân thiện khi session cũ tồn tại (`requireGuest`):**
+  - Khi người dùng đã có phiên đăng nhập nhưng truy cập hoặc gửi request POST tới `/auth/login` hoặc `/auth/register`:
+    - Chặn đứng thao tác đăng nhập chồng session.
+    - Giữ nguyên toàn bộ dữ liệu tài khoản và giỏ hàng của session hiện tại.
+    - Bật thông báo Flash cảnh báo: *"Bạn đang đăng nhập bằng tài khoản hiện tại. Vui lòng đăng xuất trước khi sử dụng tài khoản khác."*
+    - Chuyển hướng an toàn về trang chủ `/`.
+- **Đồng bộ kiểm tra Email Client và Server:**
+  - Đồng bộ pattern HTML5 trên `src/views/pages/auth/login.pug` và `src/views/pages/auth/register.pug`: `\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\s*`.
+  - Tích hợp tính năng tự động cắt tỉa khoảng trắng (`auto-trim on blur`) trên `src/public/js/main.js` đối với tất cả các input email, giúp người dùng trên mobile không bị chặn nhầm khi autocomplete có dấu cách ở cuối.
+  - Phía server tiếp tục chuẩn hóa triệt để `normalizedEmail = email.trim().toLowerCase()` và xác thực bằng `isValidEmail()`.
+- **Hiển thị cảnh báo trực quan (`src/views/layouts/main.pug`):**
+  - Bổ sung khối giao diện cảnh báo `warning_msg` màu vàng hổ phách (amber) với biểu tượng ⚠️ và cơ chế tự động ẩn mượt mà sau 4.5 giây.
+
 ---
 
 ## 2. DANH SÁCH TỆP TIN THAY ĐỔI VÀ TẠO MỚI

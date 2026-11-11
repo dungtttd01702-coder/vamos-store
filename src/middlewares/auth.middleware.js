@@ -1,5 +1,6 @@
 /**
  * Attach authentication state from session to res.locals for view templates
+ * and provide lightweight, single-use Flash message support
  */
 function sessionContextMiddleware(req, res, next) {
   res.locals.user = req.session?.user || null;
@@ -7,6 +8,28 @@ function sessionContextMiddleware(req, res, next) {
   res.locals.isAdmin = req.session?.user?.role === 'ADMIN';
   res.locals.cartCount = req.session?.cartCount || 0;
   res.locals.currentPath = req.path;
+
+  // Flash message support: consume once from session and expose to res.locals
+  if (req.session?.flash) {
+    res.locals.success_msg = req.session.flash.success_msg || null;
+    res.locals.error_msg = req.session.flash.error_msg || null;
+    res.locals.warning_msg = req.session.flash.warning_msg || null;
+    delete req.session.flash; // Single-use consumption ensures message is shown only once
+  } else {
+    res.locals.success_msg = null;
+    res.locals.error_msg = null;
+    res.locals.warning_msg = null;
+  }
+
+  // Helper method on req to set single-use flash messages
+  req.flash = function(type, message) {
+    if (!req.session) return;
+    if (!req.session.flash) {
+      req.session.flash = {};
+    }
+    req.session.flash[`${type}_msg`] = message;
+  };
+
   next();
 }
 
@@ -25,9 +48,17 @@ function requireAuth(req, res, next) {
 
 /**
  * Ensure user is a Guest (not logged in)
+ * If an active session already exists, prevent re-authentication, preserve current session,
+ * flash a clear user-friendly warning message, and safely redirect to home page.
  */
 function requireGuest(req, res, next) {
   if (req.session?.user) {
+    if (typeof req.flash === 'function') {
+      req.flash(
+        'warning',
+        'Bạn đang đăng nhập bằng tài khoản hiện tại. Vui lòng đăng xuất trước khi sử dụng tài khoản khác.'
+      );
+    }
     return res.redirect('/');
   }
   next();

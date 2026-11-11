@@ -30,6 +30,12 @@ html(lang="vi")
           span.text-lg ❌
           span= error_msg
 
+    if warning_msg && warning_msg.length > 0
+      .vamos-container.mt-4
+        .alert-dismissible.flex.items-center.gap-3.bg-amber-50.border.border-amber-200.text-amber-800.p-4.rounded-vamos-lg.shadow-sm
+          span.text-lg ⚠️
+          span= warning_msg
+
     //- Main Content Block
     main.flex-grow
       block content

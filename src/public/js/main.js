@@ -106,4 +106,14 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => toast.remove(), 300);
     }, 3500);
   };
+
+  // 7. Auto-trim email inputs on blur & form submission for consistent client/server validation
+  const emailInputs = document.querySelectorAll('input[type="email"]');
+  emailInputs.forEach(input => {
+    input.addEventListener('blur', () => {
+      if (typeof input.value === 'string') {
+        input.value = input.value.trim();
+      }
+    });
+  });
 });

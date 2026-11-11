@@ -37,3 +37,4 @@ if (errors > 0) {
   console.log(`[PUG VALIDATION PASSED]: All ${pugFiles.length} templates compiled successfully with zero syntax errors.`);
   process.exit(0);
 }
+
