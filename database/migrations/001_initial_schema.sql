@@ -286,3 +286,4 @@ BEGIN
         CONSTRAINT fk_inv_trans_user FOREIGN KEY (user_id) REFERENCES users(id)
     );
 END;
+

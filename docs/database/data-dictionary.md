@@ -1,7 +1,7 @@
 # TỪ ĐIỂN DỮ LIỆU CHI TIẾT (DATA DICTIONARY) - VAMOS STORE
 
 > **Dự án:** VAMOS STORE - Website thương mại điện tử chuyên kinh doanh giày dép  
-> **Cơ sở dữ liệu:** MySQL 8.0 (InnoDB, `utf8mb4_unicode_ci`)  
+> **Cơ sở dữ liệu:** Microsoft SQL Server 2025 / 2022 (Collate: `SQL_Latin1_General_CP1_CI_AS`)  
 > **Phiên bản tài liệu:** v1.1 Chuẩn hóa  
 > **Quy mô:** 18 Thực thể, Chuẩn hóa 3 Actors (`Guest`, `Customer`, `Admin`)
 

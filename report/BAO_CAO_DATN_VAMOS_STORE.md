@@ -623,16 +623,16 @@ Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa 
 | `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật địa chỉ |
 
 #### Bảng 4: Thực thể `password_reset_tokens`
-*Mục đích: Token xác thực khôi phục mật khẩu.*
+*Mục đích: Token xác thực khôi phục mật khẩu (chỉ lưu dạng hash bảo mật).*
 
 | Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh token |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Mã định danh token |
 | `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` | Tài khoản yêu cầu khôi phục |
-| `token` | `VARCHAR(255)` | Có | UNIQUE | Chuỗi token ngẫu nhiên bảo mật |
-| `expires_at` | `DATETIME` | Có | | Thời điểm hết hạn của token |
-| `used_at` | `DATETIME` | Không | NULL | Thời điểm token đã được sử dụng |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo yêu cầu reset |
+| `token_hash` | `NVARCHAR(255)` | Có | UNIQUE | Chuỗi băm token bảo mật (không lưu plaintext) |
+| `expires_at` | `DATETIME2` | Có | | Thời điểm hết hạn của token |
+| `used_at` | `DATETIME2` | Không | NULL | Thời điểm token đã được sử dụng |
+| `created_at` | `DATETIME2` | Có | Mặc định: GETDATE() | Thời điểm tạo yêu cầu reset |
 
 #### Bảng 5: Thực thể `categories`
 *Mục đích: Danh mục phân loại sản phẩm.*
@@ -1913,22 +1913,25 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
   cd vamos-store
   npm install --production
   ```
-- **Bước 2:** Tạo file biến môi trường bảo mật `.env`:
+- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (sinh khóa ngẫu nhiên mạnh qua `openssl rand -hex 32`):
   ```bash
   cat <<EOT >> .env
   NODE_ENV=production
   PORT=3000
-  DB_HOST=localhost
-  DB_PORT=3306
-  DB_USER=vamos_user
-  DB_PASSWORD=VamosPassword2026!
+  APP_URL=https://vamos.store
+  DB_SERVER=127.0.0.1
+  DB_PORT=1433
+  DB_USER=sa
+  DB_PASSWORD=YOUR_STRONG_SQL_SERVER_PASSWORD_HERE
   DB_NAME=vamos_store_db
-  SESSION_SECRET=A_Very_Long_Random_Secret_String_2026
+  DB_ENCRYPT=false
+  DB_TRUST_SERVER_CERTIFICATE=true
+  SESSION_SECRET=YOUR_SECURE_RANDOM_SESSION_SECRET_32_CHARS_MIN
   EOT
   ```
 - **Bước 3:** Khởi động ứng dụng bằng PM2 và cấu hình tự động bật khi máy chủ reboot:
   ```bash
-  pm2 start src/app.js --name "vamos-store"
+  pm2 start server.js --name "vamos-store"
   pm2 save
   pm2 startup systemd
   ```

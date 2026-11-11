@@ -14,3 +14,4 @@ BEGIN
     ON product_images (product_id)
     WHERE is_primary = 1;
 END;
+

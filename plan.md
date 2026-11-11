@@ -602,11 +602,11 @@ Toàn bộ hệ thống VAMOS STORE được chuẩn hóa thành đúng **14 Use
 - **Web Framework:** Express.js (kiến trúc MVC phân lớp).
 - **Template Engine:** Pug Template Engine (Server-Side Rendering).
 - **CSS Framework:** Tailwind CSS (build qua Tailwind CLI độc lập).
-- **Database Engine:** MySQL 8.0+ (InnoDB engine hỗ trợ transaction ACID).
-- **Database Access:** MySQL2 driver / Knex.js query builder hỗ trợ Connection Pooling và Parameterized Queries.
-- **Session Management:** `express-session` kết hợp session store an toàn phía server.
-- **Bảo mật:** `bcrypt` (mã hóa mật khẩu), `helmet` (HTTP headers), `csurf` / custom CSRF protection, Server-side validation.
-- **Containerization:** Docker & Docker Compose (đóng gói ứng dụng web và cơ sở dữ liệu MySQL).
+- **Database Engine:** Microsoft SQL Server 2025 / 2022 Docker baseline (hệ quản trị CSDL quan hệ chính thức).
+- **Database Access:** `mssql` driver (Tedious) hỗ trợ Connection Pooling, T-SQL Parameterized Queries và ACID Transactions.
+- **Session Management:** `express-session` kết hợp cookie bảo mật (httpOnly, sameSite, session.regenerate).
+- **Bảo mật:** `bcryptjs` (mã hóa mật khẩu băm 1 chiều), Anti-CSRF Token Middleware, getSafeReturnUrl chống Open Redirect, Server-side validation (RFC 5322).
+- **Containerization:** Docker & Docker Compose (đóng gói ứng dụng web và cơ sở dữ liệu Microsoft SQL Server 2022).
 - **Version Control:** Git.
 
 ## 9.2. Kiến trúc ứng dụng phân lớp (Layered MVC Architecture)
@@ -629,10 +629,10 @@ Controllers (Tiếp nhận Request, gọi Service, điều hướng Response)
 Services (Chứa toàn bộ Business Logic: Transaction đặt hàng, trừ tồn kho, tính voucher)
      │
      ▼
-Repositories / Models (Thực thi truy vấn cơ sở dữ liệu MySQL có tham số)
+Repositories / Database Pool (Thực thi truy vấn T-SQL Parameterized có tham số)
      │
      ▼
-MySQL Database (Lưu trữ và đảm bảo toàn vẹn dữ liệu)
+Microsoft SQL Server Database (Lưu trữ và đảm bảo toàn vẹn dữ liệu)
 ```
 
 - **Không viết logic nghiệp vụ trong Controller:** Controller chỉ nhận request, chuyển dữ liệu cho Service và trả Pug View hoặc JSON.
@@ -751,7 +751,7 @@ vamos-store/
 # 11. KẾ HOẠCH TRIỂN KHAI (ROADMAP)
 
 - **Phase 1 -- Phân tích và Thiết kế:** Chốt phạm vi dự án; Chuẩn hóa 3 Actors; Vẽ Use Case Diagram tổng quan và chi tiết; Viết đặc tả Use Case; Vẽ Activity Diagram cho các luồng cốt lõi; Thiết kế ERD Database.
-- **Phase 2 -- Khởi tạo dự án:** Cấu hình Node.js/Express, Docker Compose, MySQL, Pug, Tailwind CSS, tạo cấu trúc thư mục MVC, viết database migrations và seeds mẫu.
+- **Phase 2 -- Khởi tạo dự án:** Cấu hình Node.js/Express, Docker Compose, Microsoft SQL Server 2022/2025, Pug, Tailwind CSS, tạo cấu trúc thư mục MVC, viết database migrations và seeds mẫu.
 - **Phase 3 -- Tài khoản & Xác thực:** Đăng ký, đăng nhập, đăng xuất, khôi phục mật khẩu, quản lý hồ sơ và sổ địa chỉ giao hàng, middleware xác thực và phân quyền Admin.
 - **Phase 4 -- Cửa hàng & Sản phẩm:** Trang chủ, danh sách sản phẩm phân trang, tìm kiếm, bộ lọc đa tiêu chí, chi tiết sản phẩm và biến thể size/màu.
 - **Phase 5 -- Giỏ hàng & Đặt hàng COD:** Thêm/sửa/xóa giỏ hàng, kiểm tra tồn kho, áp dụng voucher, chọn địa chỉ, tạo đơn COD và trừ kho bằng Database Transaction.

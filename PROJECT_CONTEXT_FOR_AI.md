@@ -228,8 +228,8 @@ erDiagram
     - `id INT IDENTITY PRIMARY KEY`, `user_id INT FK`, `recipient_name`, `phone`, `province`, `district`, `ward`, `detail_address`, `is_default BIT`.
 17. **`banners`:** Banner quảng cáo trang chủ.
     - `id INT IDENTITY PRIMARY KEY`, `title`, `image_url`, `link_url`, `display_order`, `is_active`.
-18. **`password_reset_tokens`:** Quản lý token đặt lại mật khẩu an toàn.
-    - `id INT IDENTITY PRIMARY KEY`, `user_id INT FK`, `token NVARCHAR(255) UNIQUE`, `expires_at`, `used_at`.
+18. **`password_reset_tokens`:** Quản lý token đặt lại mật khẩu an toàn (chỉ lưu dạng hash).
+    - `id INT IDENTITY PRIMARY KEY`, `user_id INT FK`, `token_hash NVARCHAR(255) UNIQUE`, `expires_at DATETIME2`, `used_at DATETIME2`, `created_at DATETIME2`.
 
 ---
 

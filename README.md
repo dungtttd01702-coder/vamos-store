@@ -92,42 +92,50 @@ Views (src/views/pages/)
 ## 📂 Cấu Trúc Thư Mục
 
 ```
-dự án JAV/
+vamos-store/
 ├── database/                   # Kịch bản cơ sở dữ liệu
-│   ├── mssql_schema.sql        # Cấu trúc bảng SQL Server 2025
-│   ├── init_mssql.js           # Script khởi tạo tự động bảng và quan hệ
-│   ├── seed_products.js        # Script nạp dữ liệu sản phẩm mẫu
-│   ├── seed_vouchers.js        # Script nạp mã voucher mẫu
-│   └── seed_customer.js        # Script tạo tài khoản mẫu
+│   ├── migrations/             # Thư mục Migration phiên bản phi hủy diệt
+│   │   ├── 001_initial_schema.sql
+│   │   └── 002_add_filtered_indexes.sql
+│   ├── mssql_schema.sql        # Cấu trúc bảng SQL Server 2025 (chuẩn T-SQL)
+│   ├── init_mssql.js           # Script tự động kiểm tra CSDL và chạy migration
+│   ├── seed_products.js        # Script nạp dữ liệu sản phẩm và biến thể mẫu
+│   ├── seed_vouchers.js        # Script nạp mã voucher mẫu (VAMOS50K, FREESHIP,...)
+│   └── seed_customer.js        # Script tạo tài khoản khách hàng mẫu
 ├── docs/                       # Tài liệu phân tích và thiết kế
-│   ├── analysis/               # Đặc tả yêu cầu phần mềm (SRS)
-│   ├── database/               # Thiết kế ERD và mô hình dữ liệu
-│   ├── diagrams/               # Sơ đồ Use-case, Activity, Sequence
+│   ├── analysis/               # Đặc tả yêu cầu phần mềm (SRS & Use Cases)
+│   ├── audit/                  # Hồ sơ kiểm toán toàn diện & kết quả kiểm thử
+│   │   ├── INITIAL_AUDIT.md
+│   │   ├── REPAIR_PLAN.md
+│   │   ├── REPAIR_LOG.md
+│   │   ├── TEST_RESULTS.md
+│   │   └── FINAL_AUDIT_REPORT.md
+│   ├── database/               # Thiết kế CSDL và Data Dictionary
+│   ├── diagrams/               # Sơ đồ Use-case, ERD, Activity, Sequence
 │   └── ui/                     # Thiết kế Wireframe giao diện
 ├── labs/                       # 4 bài Lab môn học (FPT Polytechnic)
-│   ├── Lab 1 - Usecase/
-│   ├── Lab 2 - ERD/
-│   ├── Lab 3 - Activity Diagram/
-│   └── Lab 4 - Thiet ke giao dien (Wireframe)/
-├── report/                     # Báo cáo đồ án chính thức
-│   ├── BAO_CAO_DATN_VAMOS_STORE.md
-│   └── BAO_CAO_VAMOS_STORE_PRINT.html
+├── report/                     # Báo cáo đồ án chính thức (6 chương)
 ├── src/                        # Mã nguồn chính ứng dụng
-│   ├── config/                 # Cấu hình Database kết nối SQL Server
-│   ├── controllers/            # Bộ điều khiển (Auth, Product, Cart, Order, Admin)
-│   ├── middlewares/            # Middleware xác thực và phân quyền
+│   ├── config/                 # Cấu hình hệ thống và kết nối MSSQL Pool
+│   ├── controllers/            # Tầng Controller (Auth, Product, Cart, Order, Admin)
+│   ├── middlewares/            # Middleware (auth, role, anti-CSRF token)
 │   ├── public/                 # Static assets (CSS Tailwind, JS, Images, Icons)
-│   ├── routes/                 # Định tuyến URL
-│   ├── services/               # Xử lý logic nghiệp vụ
+│   ├── routes/                 # Định tuyến URL theo từng module
+│   ├── services/               # Tầng Service xử lý logic đơn hàng & kho
 │   ├── utils/                  # Tiện ích kiểm tra (Validator)
-│   └── views/                  # Giao diện Pug templates
-├── .env.example                # Mẫu biến môi trường
-├── .gitignore                  # Cấu hình bỏ qua thư mục rác / nhạy cảm
-├── docker-compose.yml          # Triển khai Docker container
-├── Dockerfile                  # Dockerfile ứng dụng Node.js
-├── package.json                # Danh sách thư viện phụ thuộc
+│   └── views/                  # Giao diện Pug templates (SSR)
+├── tests/                      # Bộ kiểm thử hồi quy & tích hợp tự động
+│   ├── setup_test_db.js        # Khởi tạo và nạp dữ liệu test DB riêng biệt
+│   └── regression_suite.js     # 86 ca kiểm thử hồi quy tự động
+├── .env.example                # Mẫu biến môi trường phát triển
+├── .env.test.example           # Mẫu biến môi trường kiểm thử độc lập
+├── .gitignore                  # Cấu hình loại trừ file rác / nhạy cảm
+├── docker-compose.yml          # Triển khai container MSSQL Server 2022
+├── Dockerfile                  # Container hóa ứng dụng Node.js
+├── package.json                # Danh sách thư viện phụ thuộc & scripts
+├── PROJECT_CONTEXT_FOR_AI.md   # Tài liệu tổng hợp toàn diện bối cảnh cho AI
 ├── server.js                   # Điểm khởi động ứng dụng (Entry point)
-└── tailwind.config.js          # Cấu hình Tailwind CSS
+└── tailwind.config.js          # Cấu hình Tailwind CSS v3
 ```
 
 ---
@@ -163,14 +171,15 @@ NODE_ENV=development
 APP_NAME="VAMOS STORE"
 APP_URL=http://localhost:3000
 
-SESSION_SECRET=vamos_secret_key_session_2026_xyz
+SESSION_SECRET=replace_with_a_secure_random_session_secret_at_least_32_characters
 
 DB_TYPE=mssql
 DB_SERVER=127.0.0.1
 DB_PORT=1433
 DB_USER=sa
-DB_PASSWORD=your_password_here
+DB_PASSWORD=replace_with_your_strong_sql_server_password
 DB_NAME=vamos_store_db
+DB_ENCRYPT=false
 DB_TRUST_SERVER_CERTIFICATE=true
 ```
 

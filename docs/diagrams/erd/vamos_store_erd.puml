@@ -52,7 +52,7 @@ entity "password_reset_tokens" as password_reset_tokens {
     * id : INT <<PK, IDENTITY>>
     --
     * user_id : INT <<FK>>
-    * token : NVARCHAR(255) <<UNIQUE>>
+    * token_hash : NVARCHAR(255) <<UNIQUE>>
     * expires_at : DATETIME2
     used_at : DATETIME2
     created_at : DATETIME2 <<DEFAULT GETDATE()>>

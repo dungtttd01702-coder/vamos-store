@@ -5,14 +5,14 @@ This example demonstrates how VAMOS STORE handles checkout transactions safely t
 ## 1. Flow Diagram (UML Sequence Concept)
 
 ```
-Customer              OrderController          OrderService             MySQL (Pool Connection)
+Customer              OrderController          OrderService             SQL Server (Tedious Pool)
    |                         |                      |                               |
    |-- POST /checkout ------>|                      |                               |
    |   (address_id, note)    |-- processCheckout()->|                               |
-   |                         |                      |-- START TRANSACTION --------->|
+   |                         |                      |-- BEGIN TRANSACTION --------->|
    |                         |                      |                               |
    |                         |                      |-- SELECT cart_items --------->|
-   |                         |                      |   FOR UPDATE (lock variants)  |
+   |                         |                      |   WITH (UPDLOCK, ROWLOCK)     |
    |                         |                      |                               |
    |                         |                      |-- Verify stock >= quantity -->|
    |                         |                      |                               |
@@ -36,7 +36,7 @@ Customer              OrderController          OrderService             MySQL (P
    |<-- 201 /order-success --|                      |                               |
 ```
 
-## 2. Code Pattern (Node.js / Express / MySQL2 Pool)
+## 2. Code Pattern (Node.js / Express / MSSQL Tedious Pool)
 
 ```javascript
 // Example service method using an explicit transaction

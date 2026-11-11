@@ -134,16 +134,16 @@ Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa 
 | `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật địa chỉ |
 
 #### Bảng 4: Thực thể `password_reset_tokens`
-*Mục đích: Token xác thực khôi phục mật khẩu.*
+*Mục đích: Token xác thực khôi phục mật khẩu (chỉ lưu dạng hash bảo mật).*
 
 | Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
 | :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh token |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Mã định danh token |
 | `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` | Tài khoản yêu cầu khôi phục |
-| `token` | `VARCHAR(255)` | Có | UNIQUE | Chuỗi token ngẫu nhiên bảo mật |
-| `expires_at` | `DATETIME` | Có | | Thời điểm hết hạn của token |
-| `used_at` | `DATETIME` | Không | NULL | Thời điểm token đã được sử dụng |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo yêu cầu reset |
+| `token_hash` | `NVARCHAR(255)` | Có | UNIQUE | Chuỗi băm token bảo mật (không lưu plaintext) |
+| `expires_at` | `DATETIME2` | Có | | Thời điểm hết hạn của token |
+| `used_at` | `DATETIME2` | Không | NULL | Thời điểm token đã được sử dụng |
+| `created_at` | `DATETIME2` | Có | Mặc định: GETDATE() | Thời điểm tạo yêu cầu reset |
 
 #### Bảng 5: Thực thể `categories`
 *Mục đích: Danh mục phân loại sản phẩm.*

@@ -59,10 +59,6 @@ BEGIN
     INSERT INTO users (full_name, email, password_hash, phone, role, status) VALUES
     (N'Quản Trị Viên VAMOS', 'admin@vamos.vn', '$2a$10$5/YUt6bsJwra3RelCJELq.vaUnh1lLX8X2qADt0eob.U25xoORoIW', '0905123456', 'ADMIN', 'active');
 END
-ELSE
-BEGIN
-    UPDATE users SET password_hash = '$2a$10$5/YUt6bsJwra3RelCJELq.vaUnh1lLX8X2qADt0eob.U25xoORoIW' WHERE email = 'admin@vamos.vn';
-END
 `;
 
 async function init(dbNameOverride) {

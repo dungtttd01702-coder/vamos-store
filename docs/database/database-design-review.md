@@ -1,8 +1,8 @@
 # BÁO CÁO THẨM ĐỊNH THIẾT KẾ CƠ SỞ DỮ LIỆU (DATABASE DESIGN REVIEW)
 
 > **Dự án:** VAMOS STORE -- Website thương mại điện tử chuyên kinh doanh giày dép  
-> **Cơ sở dữ liệu:** MySQL 8.0  
-> **Kiến trúc:** Layered MVC (Node.js + Express + Pug + MySQL)  
+> **Cơ sở dữ liệu:** Microsoft SQL Server 2025 / 2022  
+> **Kiến trúc:** Layered MVC (Node.js + Express + Pug + Microsoft SQL Server)  
 > **Tài liệu tham chiếu:** `plan.md` (v1.1), `docs/analysis/05-business-rules.md`, `docs/analysis/06-open-questions.md`
 
 ---
@@ -63,19 +63,19 @@ Mô hình 18 bảng được phân bổ thành 6 phân hệ nghiệp vụ rõ r�
 - **Thời điểm trừ tồn kho:** Hệ thống trừ tồn kho ngay khi Customer nhấn "Xác nhận đặt hàng" thành công (đơn ở trạng thái `PENDING`). Điều này đảm bảo số lượng tồn kho khả dụng phản ánh đúng cam kết giữ hàng cho khách.
 - **Xử lý tranh chấp đồng thời (Concurrency Control):**
   - Khi 2 khách hàng cùng đặt 1 đôi giày cuối cùng (`stock_quantity = 1`), nếu dùng lệnh `UPDATE` đơn giản hoặc đọc trước kiểm tra sau ở tầng ứng dụng sẽ dẫn đến Race Condition.
-  - **Giải pháp chuẩn hóa:** Bắt buộc sử dụng MySQL Database Transaction kết hợp khóa dòng bi quan (**Pessimistic Row Lock**):
+  - **Giải pháp chuẩn hóa:** Bắt buộc sử dụng SQL Server Database Transaction kết hợp khóa dòng bi quan (**Pessimistic Row Lock**):
 
     ```sql
-    START TRANSACTION;
-    -- Khóa bản ghi biến thể để ngăn các giao dịch khác đọc sai số lượng
-    SELECT stock_quantity FROM product_variants
-    WHERE id = :variant_id FOR UPDATE;
+    -- Trong transaction mssql:
+    -- Khóa bản ghi biến thể bằng UPDLOCK, ROWLOCK để ngăn các giao dịch khác đọc sai số lượng
+    SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK)
+    WHERE id = @variant_id;
 
-    -- Kiểm tra: nếu stock_quantity < order_quantity -> ROLLBACK và báo lỗi hết hàng
+    -- Kiểm tra: nếu stock_quantity < order_quantity -> ROLLBACK và ném lỗi hết hàng
     -- Nếu thỏa mãn:
     UPDATE product_variants
-    SET stock_quantity = stock_quantity - :order_quantity
-    WHERE id = :variant_id;
+    SET stock_quantity = stock_quantity - @order_quantity, updated_at = GETDATE()
+    WHERE id = @variant_id;
 
     -- Ghi nhật ký kiểm toán
     INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
@@ -149,33 +149,45 @@ Mô hình 18 bảng được phân bổ thành 6 phân hệ nghiệp vụ rõ r�
 
 ---
 
-## 4. BẢNG ĐỐI CHIẾU 14 RÀNG BUỘC CỐT LÕI & GIẢI PHÁP MYSQL 8
+## 4. BẢNG ĐỐI CHIẾU 14 RÀNG BUỘC CỐT LÕI & GIẢI PHÁP MICROSOFT SQL SERVER 2025
 
-| STT | Ràng buộc nghiệp vụ yêu cầu             | Giải pháp triển khai trong MySQL 8                                                                                |   Trạng thái   |
-| :-: | :-------------------------------------- | :---------------------------------------------------------------------------------------------------------------- | :------------: |
-|  1  | `UNIQUE(product_id, size_id, color_id)` | Khai báo `UNIQUE KEY uq_variants_combination (product_id, size_id, color_id)` trong bảng `product_variants`.      | **Đã cài đặt** |
-|  2  | `UNIQUE(cart_id, variant_id)`           | Khai báo `UNIQUE KEY uq_cart_variant (cart_id, variant_id)` trong bảng `cart_items`.                              | **Đã cài đặt** |
-|  3  | Mã SKU duy nhất                         | Khai báo `UNIQUE KEY uq_variants_sku (sku)` trong `product_variants`.                                             | **Đã cài đặt** |
-|  4  | Email tài khoản duy nhất                | Khai báo `UNIQUE KEY uq_users_email (email)` trong bảng `users`.                                                  | **Đã cài đặt** |
-|  5  | Slug sản phẩm & danh mục duy nhất       | Khai báo `UNIQUE KEY` cho các cột `slug` trong `products`, `categories`, `brands`.                                | **Đã cài đặt** |
-|  6  | Số lượng tồn kho không âm               | `CONSTRAINT chk_variants_stock CHECK (stock_quantity >= 0)`.                                                      | **Đã cài đặt** |
-|  7  | Số lượng đặt hàng lớn hơn 0             | `CONSTRAINT chk_cart_items_quantity CHECK (quantity > 0)` và `chk_order_items_quantity CHECK (quantity > 0)`.     | **Đã cài đặt** |
-|  8  | Giá tiền không âm                       | `CONSTRAINT chk_products_base_price CHECK (base_price >= 0)` và các check giá trong `orders`.                     | **Đã cài đặt** |
+| STT | Ràng buộc nghiệp vụ yêu cầu             | Giải pháp triển khai trong Microsoft SQL Server                                                   |   Trạng thái   |
+| :-: | :-------------------------------------- | :------------------------------------------------------------------------------------------------ | :------------: |
+|  1  | `UNIQUE(product_id, size_id, color_id)` | Khai báo `CONSTRAINT uq_variants_combination UNIQUE (product_id, size_id, color_id)` trong bảng `product_variants`. | **Đã cài đặt** |
+|  2  | `UNIQUE(cart_id, variant_id)`           | Khai báo `CONSTRAINT uq_cart_variant UNIQUE (cart_id, variant_id)` trong bảng `cart_items`.        | **Đã cài đặt** |
+|  3  | Mã SKU duy nhất                         | Cột `sku NVARCHAR(100) NOT NULL UNIQUE` trong `product_variants`.                                  | **Đã cài đặt** |
+|  4  | Email tài khoản duy nhất                | Cột `email NVARCHAR(150) NOT NULL UNIQUE` trong bảng `users`.                                      | **Đã cài đặt** |
+|  5  | Slug sản phẩm & danh mục duy nhất       | Ràng buộc `UNIQUE` cho các cột `slug` trong `products`, `categories`, `brands`.                   | **Đã cài đặt** |
+|  6  | Số lượng tồn kho không âm               | `CONSTRAINT chk_variants_stock CHECK (stock_quantity >= 0)`.                                      | **Đã cài đặt** |
+|  7  | Số lượng đặt hàng lớn hơn 0             | `CHECK (quantity > 0)` trong `cart_items` và `order_items`.                                       | **Đã cài đặt** |
+|  8  | Giá tiền không âm                       | `CHECK (base_price >= 0)` và các check giá trong `orders`.                                        | **Đã cài đặt** |
 |  9  | `sale_price` hợp lệ so với `base_price` | `CONSTRAINT chk_products_sale_price CHECK (sale_price IS NULL OR (sale_price >= 0 AND sale_price < base_price))`. | **Đã cài đặt** |
-| 10  | 1 khách hàng chỉ có 1 giỏ hàng          | `UNIQUE KEY uq_carts_user (user_id)` trong bảng `carts`.                                                          | **Đã cài đặt** |
-| 11  | Mã đơn hàng công khai duy nhất          | `UNIQUE KEY uq_orders_code (order_code)` trong bảng `orders`.                                                     | **Đã cài đặt** |
-| 12  | Mã voucher duy nhất                     | `UNIQUE KEY uq_vouchers_code (code)` trong bảng `vouchers`.                                                       | **Đã cài đặt** |
-| 13  | Thời gian voucher hợp lệ                | `CONSTRAINT chk_vouchers_dates CHECK (end_date >= start_date)`.                                                   | **Đã cài đặt** |
-| 14  | Snapshot đơn hàng bất biến              | Lưu cứng tên, SKU, size, color, đơn giá trong `order_items` và snapshot địa chỉ trong `orders`.                   | **Đã cài đặt** |
+| 10  | 1 khách hàng chỉ có 1 giỏ hàng          | Cột `user_id INT NOT NULL UNIQUE` trong bảng `carts`.                                             | **Đã cài đặt** |
+| 11  | Mã đơn hàng công khai duy nhất          | Cột `order_code NVARCHAR(50) NOT NULL UNIQUE` trong bảng `orders`.                                | **Đã cài đặt** |
+| 12  | Mã voucher duy nhất                     | Cột `code NVARCHAR(50) NOT NULL UNIQUE` trong bảng `vouchers`.                                    | **Đã cài đặt** |
+| 13  | Thời gian voucher hợp lệ                | `CONSTRAINT chk_vouchers_dates CHECK (end_date >= start_date)`.                                   | **Đã cài đặt** |
+| 14  | Snapshot đơn hàng bất biến              | Lưu snapshot tên, SKU, size, color, đơn giá trong `order_items` và snapshot địa chỉ trong `orders`. | **Đã cài đặt** |
 
 ---
 
-## 5. CÂU HỎI MỞ (OPEN QUESTIONS) VÀ KHUYẾN NGHỊ
+## 5. TỐI ƯU HÓA ĐẶC THÙ VỚI MICROSOFT SQL SERVER
 
-1. **Ràng buộc duy nhất 1 địa chỉ mặc định (`is_default = TRUE`):**
-   - Trong MySQL chuẩn, không thể tạo `UNIQUE KEY (user_id, is_default)` trực tiếp vì khách hàng có nhiều bản ghi phụ mang giá trị `is_default = FALSE` (sẽ bị trùng lặp).
-   - _Khuyến nghị:_ Xử lý quy tắc này tại tầng Repository/Service (chạy câu lệnh `UPDATE addresses SET is_default = FALSE WHERE user_id = :id` trước khi gán địa chỉ mới làm mặc định).
-2. **Ràng buộc duy nhất 1 ảnh đại diện chính (`is_primary = TRUE`):**
-   - Tương tự như địa chỉ mặc định, xử lý bằng transaction khi Admin cập nhật ảnh đại diện: reset các ảnh khác của sản phẩm về `is_primary = FALSE`.
-3. **Mở rộng bảng `voucher_usages`:**
-   - Trong tương lai, nếu hệ thống có các chương trình khuyến mãi phức tạp (khách hàng được dùng mã N lần, hoặc mã dùng chung cho nhóm đối tượng VIP), việc bổ sung bảng `voucher_usages (id, voucher_id, user_id, order_id, used_at)` sẽ là bước đi tối ưu để tách biệt hoàn toàn bảng `orders`. Hiện tại v1.0, giải pháp dựa trên `orders(user_id, voucher_id)` là gọn gàng và đáp ứng tốt.
+1. **Ràng buộc duy nhất 1 địa chỉ mặc định (`is_default = 1`):**
+   - Áp dụng thành công **Filtered Unique Index** trong SQL Server:
+     ```sql
+     CREATE UNIQUE NONCLUSTERED INDEX uq_user_default_address
+     ON addresses (user_id)
+     WHERE is_default = 1;
+     ```
+   - Đảm bảo mỗi khách hàng chỉ có duy nhất 1 địa chỉ mặc định ở tầng cơ sở dữ liệu.
+2. **Ràng buộc duy nhất 1 ảnh đại diện chính (`is_primary = 1`):**
+   - Áp dụng **Filtered Unique Index**:
+     ```sql
+     CREATE UNIQUE NONCLUSTERED INDEX uq_product_primary_image
+     ON product_images (product_id)
+     WHERE is_primary = 1;
+     ```
+3. **Mã khôi phục mật khẩu (`password_reset_tokens`):**
+   - Cột `token_hash NVARCHAR(255) NOT NULL UNIQUE` chỉ lưu chuỗi băm an toàn (SHA-256 hoặc bcrypt), không lưu token dạng bản rõ (plaintext).
+4. **Mở rộng bảng `voucher_usages`:**
+   - Trong tương lai, nếu hệ thống có các chương trình khuyến mãi nâng cao (mã dùng N lần/khách, mã VIP), bảng `voucher_usages (id, voucher_id, user_id, order_id, used_at)` có thể được bổ sung qua migration. Hiện tại v1.0, cơ chế conditional update `UPDATE vouchers SET used_count = used_count + 1 WHERE id = @id AND (usage_limit = 0 OR used_count < usage_limit)` đã giải quyết triệt để race condition.

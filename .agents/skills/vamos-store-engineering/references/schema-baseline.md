@@ -1,6 +1,6 @@
 # VAMOS STORE - Database Schema Baseline (18 Entities)
 
-This reference documents the 18 relational tables designed for MySQL 8.0 (`database/schema.sql`) and Microsoft SQL Server (`database/mssql_schema.sql`). Active deployment uses Microsoft SQL Server (`vamos_store_db`).
+This reference documents the 18 relational tables designed for Microsoft SQL Server (`database/mssql_schema.sql`). Active deployment uses Microsoft SQL Server (`vamos_store_db`).
 
 ## 1. Entities Overview
 
@@ -32,7 +32,7 @@ This reference documents the 18 relational tables designed for MySQL 8.0 (`datab
   - `total_amount = subtotal - discount_amount + shipping_fee`
   - All financial calculations MUST be performed on the backend server.
 - **Stock Integrity**:
-  - `stock_quantity >= 0` enforced via MySQL 8 `CHECK` constraint.
+  - `stock_quantity >= 0` enforced via SQL Server `CHECK` constraint.
   - Every stock modification MUST generate an `inventory_transactions` entry with:
     - `change_quantity = new_quantity - old_quantity`
     - `reference_type` (`ORDER`, `IMPORT`, `RETURN`, `ADJUSTMENT`)

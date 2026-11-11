@@ -183,22 +183,25 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
   cd vamos-store
   npm install --production
   ```
-- **Bước 2:** Tạo file biến môi trường bảo mật `.env`:
+- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (sinh khóa ngẫu nhiên mạnh qua `openssl rand -hex 32`):
   ```bash
   cat <<EOT >> .env
   NODE_ENV=production
   PORT=3000
-  DB_HOST=localhost
-  DB_PORT=3306
-  DB_USER=vamos_user
-  DB_PASSWORD=VamosPassword2026!
+  APP_URL=https://vamos.store
+  DB_SERVER=127.0.0.1
+  DB_PORT=1433
+  DB_USER=sa
+  DB_PASSWORD=YOUR_STRONG_SQL_SERVER_PASSWORD_HERE
   DB_NAME=vamos_store_db
-  SESSION_SECRET=A_Very_Long_Random_Secret_String_2026
+  DB_ENCRYPT=false
+  DB_TRUST_SERVER_CERTIFICATE=true
+  SESSION_SECRET=YOUR_SECURE_RANDOM_SESSION_SECRET_32_CHARS_MIN
   EOT
   ```
 - **Bước 3:** Khởi động ứng dụng bằng PM2 và cấu hình tự động bật khi máy chủ reboot:
   ```bash
-  pm2 start src/app.js --name "vamos-store"
+  pm2 start server.js --name "vamos-store"
   pm2 save
   pm2 startup systemd
   ```
