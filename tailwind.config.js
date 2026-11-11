@@ -8,15 +8,19 @@ module.exports = {
     extend: {
       colors: {
         vamos: {
+          primary: '#E11B22',      // 10% Kinetic Red - Điểm nhấn chuyển đổi cao
+          hover: '#C01319',        // Đỏ đậm khi hover
+          dark: '#111111',         // 30% Dark Carbon - Cấu trúc, Header, Footer
+          slate: '#1E293B',        // Text chính
+          muted: '#64748B',        // Text phụ
+          surface: '#F8FAFC',      // 60% Nền website off-white
+          border: '#E2E8F0',       // Đường kẻ chia cắt thanh lịch
+          // Tương thích ngược với các class hiện có trong template
           red:     '#E11B22',
           'red-dark': '#C8141A',
           orange:  '#FF5722',
           lime:    '#AEEA00',
-          dark:    '#111111',
           charcoal:'#1A1A1A',
-          slate:   '#2D3748',
-          muted:   '#6B7280',
-          border:  '#E5E7EB',
           'bg-light': '#F8F9FA',
           'bg-subtle': '#EFF2F6',
         }
@@ -28,14 +32,14 @@ module.exports = {
       },
       borderRadius: {
         'vamos-sm': '6px',
-        'vamos-md': '8px',
-        'vamos-lg': '12px',
-        'vamos-xl': '16px',
+        'vamos-md': '8px',   // Nút bấm, badge, ô input
+        'vamos-lg': '12px',  // Card sản phẩm, dialog, dropdown
+        'vamos-xl': '16px',  // Banner, Drawer giỏ hàng
       },
       boxShadow: {
-        'vamos-card':  '0 4px 20px -2px rgba(17,17,17,0.05)',
-        'vamos-hover': '0 10px 25px -5px rgba(225,27,34,0.12)',
-        'vamos-cta':   '0 6px 18px 0 rgba(225,27,34,0.35)',
+        'vamos-card': '0 2px 10px -2px rgba(0, 0, 0, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03)',
+        'vamos-hover': '0 12px 25px -4px rgba(225, 27, 34, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04)',
+        'vamos-cta': '0 6px 18px -2px rgba(225, 27, 34, 0.35)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

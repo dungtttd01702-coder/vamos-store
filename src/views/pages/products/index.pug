@@ -1,101 +1,114 @@
 extends ../../layouts/main
 
 block content
-  //- ── BREADCRUMB ──
-  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
-    .vamos-container
-      nav.text-xs.text-gray-500.flex.items-center.gap-2
-        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+  //- 1. BREADCRUMBS & TIÊU ĐỀ
+  .bg-slate-50.border-b.border-slate-200.py-4
+    .max-w-7xl.mx-auto.px-4(class="sm:px-6 lg:px-8")
+      nav.flex.items-center.gap-2.text-xs.font-medium.text-slate-500
+        a.transition-colors(class="hover:text-slate-900" href="/") Trang chủ
+        span /
+        a.transition-colors(class="hover:text-slate-900" href="/products") Cửa hàng
         span /
         if currentCategory
-          a.transition-colors(class="hover:text-vamos-red" href="/products") Cửa hàng
-          span /
-          span.text-vamos-dark.font-bold= currentCategory.name
+          span.text-slate-900.font-semibold= currentCategory.name
         else
-          span.text-vamos-dark.font-bold Tất cả sản phẩm
+          span.text-slate-900.font-semibold Tất cả sản phẩm
 
-  //- ── MAIN CONTENT ──
-  .vamos-container.py-8
+  //- 2. KHU VỰC CHÍNH (SIDEBAR + GRID SẢN PHẨM)
+  .max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-8")
     .flex.flex-col.gap-8(class="lg:flex-row")
 
-      //- SIDEBAR FILTER
-      aside.w-full.flex-shrink-0(class="lg:w-64")
-        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.sticky.top-20
-          .flex.items-center.justify-between.pb-3.border-b.border-gray-100.mb-5
-            h3.font-bold.text-vamos-dark.text-sm.uppercase(style="font-family:'Space Grotesk',sans-serif") ⚙️ BỘ LỌC TÌM KIẾM
-            a.text-xs.text-vamos-red.font-semibold(class="hover:underline" href="/products") Đặt lại
+      //- SIDEBAR BỘ LỌC TÌM KIẾM (Cột Trái - 280px)
+      aside.w-full.flex-shrink-0(class="lg:w-72")
+        .bg-white.p-5.rounded-xl.border.border-slate-200.shadow-sm.sticky.top-24
+          .flex.items-center.justify-between.pb-4.border-b.border-slate-100
+            .flex.items-center.gap-2
+              svg.w-5.h-5.text-slate-700(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4")
+              h3.text-sm.font-bold.text-slate-900.uppercase.tracking-wide(style="font-family:'Space Grotesk',sans-serif") Bộ Lọc Tìm Kiếm
+            a.text-xs.font-semibold.text-red-600.transition-colors(class="hover:text-red-700" href="/products") Đặt lại
 
-          form(action="/products" method="GET")
+          form#filterForm(method="GET" action="/products")
+            if selectedFilters.sort
+              input(type="hidden" name="sort" value=selectedFilters.sort)
+
+            //- Lọc Danh mục
+            .py-4.border-b.border-slate-100
+              h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Danh mục
+              div(class="space-y-1.5")
+                a.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
+                  class=selectedFilters.cat === '' ? 'font-bold bg-red-50 text-red-600 px-2 py-1.5' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2 py-1.5'
+                  href="/products"
+                )
+                  span Tất cả sản phẩm
+                  span(class=selectedFilters.cat === '' ? 'text-red-600 text-xxs font-bold' : 'text-slate-400 text-xxs')= `(${total})`
+
+                each c in categories
+                  a.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
+                    class=selectedFilters.cat === c.slug ? 'font-bold bg-red-50 text-red-600 px-2 py-1.5' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2 py-1.5'
+                    href=`/products?cat=${c.slug}${selectedFilters.gender ? `&gender=${selectedFilters.gender}` : ''}${selectedFilters.minPrice ? `&minPrice=${selectedFilters.minPrice}` : ''}${selectedFilters.maxPrice ? `&maxPrice=${selectedFilters.maxPrice}` : ''}`
+                  )
+                    span= c.name
+                    span(class=selectedFilters.cat === c.slug ? 'text-red-600 text-xxs font-bold' : 'text-slate-400 text-xxs')= `(${c.product_count})`
+
             if selectedFilters.cat
               input(type="hidden" name="cat" value=selectedFilters.cat)
 
-            //- Categories Filter
-            .mb-5
-              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Danh Mục
-              ul.text-xs(class="space-y-1.5")
-                li
-                  a.flex.items-center.justify-between.rounded-lg.transition-colors(
-                    class=selectedFilters.cat === '' ? 'font-bold bg-red-50 text-vamos-red px-2.5 py-1.5' : 'text-gray-600 hover:bg-gray-50 px-2.5 py-1.5'
-                    href="/products"
-                  )
-                    span Tất cả sản phẩm
-                each c in categories
-                  li
-                    a.flex.items-center.justify-between.rounded-lg.transition-colors(
-                      class=selectedFilters.cat === c.slug ? 'font-bold bg-red-50 text-vamos-red px-2.5 py-1.5' : 'text-gray-600 hover:bg-gray-50 px-2.5 py-1.5'
-                      href=`/products?cat=${c.slug}`
-                    )
-                      span= c.name
-                      span.text-xs.text-gray-400= `(${c.product_count})`
-
-            //- Gender Filter
-            .mb-5.border-t.border-gray-100.pt-4
-              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Dành Cho
-              .space-y-2.text-xs
-                label.flex.items-center.gap-2.cursor-pointer
-                  input.text-vamos-red(type="radio" name="gender" value="" checked=selectedFilters.gender === '')
-                  span.text-gray-700 Tất cả
-                label.flex.items-center.gap-2.cursor-pointer
-                  input.text-vamos-red(type="radio" name="gender" value="MEN" checked=selectedFilters.gender === 'MEN')
-                  span.text-gray-700 Nam
-                label.flex.items-center.gap-2.cursor-pointer
-                  input.text-vamos-red(type="radio" name="gender" value="WOMEN" checked=selectedFilters.gender === 'WOMEN')
-                  span.text-gray-700 Nữ
-                label.flex.items-center.gap-2.cursor-pointer
-                  input.text-vamos-red(type="radio" name="gender" value="UNISEX" checked=selectedFilters.gender === 'UNISEX')
-                  span.text-gray-700 Unisex
-
-            //- Price Range Filter
-            .mb-5.border-t.border-gray-100.pt-4
-              h4.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider(class="mb-2.5") Khoảng Giá (VNĐ)
+            //- Lọc Đối tượng (Gender)
+            .py-4.border-b.border-slate-100
+              h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Dành Cho
               .space-y-2
-                input.form-input(
+                label.flex.items-center.gap-2.text-xs.text-slate-600.cursor-pointer
+                  input.accent-red-600(type="radio" name="gender" value="" checked=selectedFilters.gender === '')
+                  span Tất cả
+                label.flex.items-center.gap-2.text-xs.text-slate-600.cursor-pointer
+                  input.accent-red-600(type="radio" name="gender" value="MEN" checked=selectedFilters.gender === 'MEN')
+                  span Nam
+                label.flex.items-center.gap-2.text-xs.text-slate-600.cursor-pointer
+                  input.accent-red-600(type="radio" name="gender" value="WOMEN" checked=selectedFilters.gender === 'WOMEN')
+                  span Nữ
+                label.flex.items-center.gap-2.text-xs.text-slate-600.cursor-pointer
+                  input.accent-red-600(type="radio" name="gender" value="UNISEX" checked=selectedFilters.gender === 'UNISEX')
+                  span Unisex
+
+            //- Lọc Khoảng giá
+            .py-4.border-b.border-slate-100
+              h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Khoảng giá (VNĐ)
+              .grid.grid-cols-2.gap-2.mb-3
+                input.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
+                  class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="minPrice"
-                  placeholder="Giá từ..."
+                  placeholder="Từ..."
                   value=selectedFilters.minPrice
                 )
-                input.form-input(
+                input.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
+                  class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="maxPrice"
-                  placeholder="Giá đến..."
+                  placeholder="Đến..."
                   value=selectedFilters.maxPrice
                 )
 
-            //- Submit Filter Button
-            button.w-full.btn-primary.text-xs(class="py-2.5" type="submit") Áp Dụng Lọc
+            //- Nút Áp Dụng Lọc
+            .pt-4
+              button.w-full.px-4.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-md.transition-all(
+                class="py-2.5 hover:bg-red-700 shadow-red-500/20"
+                type="submit"
+              )
+                | ÁP DỤNG BỘ LỌC
 
-      //- MAIN PRODUCTS DISPLAY AREA
-      main.flex-grow
-        //- Toolbar: Header title + Sort dropdown
-        .flex.flex-col.justify-between.pb-4.border-b.border-gray-100.mb-6.gap-4(class="sm:flex-row sm:items-center")
+      //- CỘT PHẢI: HEADER DANH MỤC + ACTIVE FILTER TAGS + GRID SẢN PHẨM
+      main.flex-1
+        //- Toolbar Tiêu Đề & Sắp Xếp
+        .flex.flex-col.gap-4.pb-6.border-b.border-slate-200(class="sm:flex-row sm:items-center sm:justify-between")
           div
-            h1.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-              = currentCategory ? currentCategory.name : 'Danh Sách Giày Dép'
-            p.text-xs.text-gray-500(class="mt-0.5")= `Hiển thị ${products.length} trong tổng số ${total} sản phẩm`
+            h1.text-2xl.font-black.text-slate-900.uppercase.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
+              = currentCategory ? currentCategory.name : 'Tất Cả Giày Thể Thao'
+            p.text-xs.text-slate-500.mt-1= `Hiển thị ${products.length} trong tổng số ${total} mẫu giày chất lượng cao`
 
-          //- Sort selector form
-          form.flex.items-center.gap-2(action="/products" method="GET")
+          //- Sắp xếp dropdown
+          form.flex.items-center.gap-3(action="/products" method="GET")
             if selectedFilters.cat
               input(type="hidden" name="cat" value=selectedFilters.cat)
             if selectedFilters.gender
@@ -105,9 +118,9 @@ block content
             if selectedFilters.maxPrice
               input(type="hidden" name="maxPrice" value=selectedFilters.maxPrice)
 
-            label.text-xs.font-semibold.text-gray-500(for="sort-select") Sắp xếp:
-            select#sort-select.text-xs.border.border-gray-200.rounded-lg.px-3.py-2.bg-white.text-vamos-dark.font-medium(
-              class="focus:outline-none focus:border-vamos-red"
+            span.text-xs.font-medium.text-slate-500 Sắp xếp:
+            select#sort-select.px-3.py-2.text-xs.font-bold.rounded-lg.border.border-slate-200.bg-white.text-slate-700.transition-colors(
+              class="focus:outline-none focus:border-red-600"
               name="sort"
               onchange="this.form.submit()"
             )
@@ -116,55 +129,111 @@ block content
               option(value="price_desc" selected=selectedFilters.sort === 'price_desc') Giá: Cao đến Thấp
               option(value="name_asc" selected=selectedFilters.sort === 'name_asc') Tên: A đến Z
 
-        //- Products Grid
+        //- Active Filter Tags Bar (Nếu đang có bộ lọc)
+        - const hasActiveFilters = selectedFilters.cat || selectedFilters.gender || selectedFilters.minPrice || selectedFilters.maxPrice
+        if hasActiveFilters
+          .flex.flex-wrap.items-center.gap-2.py-4
+            span.text-xs.font-medium.text-slate-400 Đang lọc:
+            if currentCategory
+              span.inline-flex.items-center.px-3.py-1.rounded-full.text-xs.font-bold.bg-slate-100.text-slate-700(class="gap-1.5")
+                = `Danh mục: ${currentCategory.name}`
+                a.text-slate-400(class="hover:text-red-600" href=`/products?gender=${selectedFilters.gender || ''}&minPrice=${selectedFilters.minPrice || ''}&maxPrice=${selectedFilters.maxPrice || ''}`) ×
+            if selectedFilters.gender
+              span.inline-flex.items-center.px-3.py-1.rounded-full.text-xs.font-bold.bg-slate-100.text-slate-700(class="gap-1.5")
+                = `Giới tính: ${selectedFilters.gender}`
+                a.text-slate-400(class="hover:text-red-600" href=`/products?cat=${selectedFilters.cat || ''}&minPrice=${selectedFilters.minPrice || ''}&maxPrice=${selectedFilters.maxPrice || ''}`) ×
+            if selectedFilters.minPrice || selectedFilters.maxPrice
+              span.inline-flex.items-center.px-3.py-1.rounded-full.text-xs.font-bold.bg-slate-100.text-slate-700(class="gap-1.5")
+                = `Giá: ${selectedFilters.minPrice ? Number(selectedFilters.minPrice).toLocaleString('vi-VN') : '0'}₫ - ${selectedFilters.maxPrice ? Number(selectedFilters.maxPrice).toLocaleString('vi-VN') : '∞'}₫`
+                a.text-slate-400(class="hover:text-red-600" href=`/products?cat=${selectedFilters.cat || ''}&gender=${selectedFilters.gender || ''}`) ×
+            a.text-xs.font-semibold.text-red-600.ml-2(class="hover:underline" href="/products") Xóa tất cả
+
+        //- PRODUCT GRID (Grid 3 Cột Hiện Đại - Tôn Vinh Sản Phẩm)
         if products && products.length > 0
-          .grid.grid-cols-2.gap-4(class="sm:grid-cols-2 md:grid-cols-3")
+          .grid.grid-cols-1.gap-6.mt-2(class="sm:grid-cols-2 xl:grid-cols-3")
             each prod in products
-              .product-card.flex.flex-col.justify-between
-                //- Product Image
-                .relative.aspect-square.bg-gray-50.p-4.flex.items-center.justify-center.overflow-hidden
-                  a.w-full.h-full.flex.items-center.justify-center(href=`/products/${prod.slug}`)
-                    if prod.image_url
-                      img.product-card-img(src=prod.image_url alt=prod.name)
+              - const hasSale = prod.sale_price && Number(prod.sale_price) > 0 && Number(prod.sale_price) < Number(prod.base_price)
+              - const discountPct = hasSale ? Math.round((1 - (Number(prod.sale_price) / Number(prod.base_price))) * 100) : 0
+
+              .group.bg-white.rounded-xl.border.border-slate-200.p-4.transition-all.duration-300.relative.flex.flex-col.justify-between(
+                class="hover:border-red-200 hover:shadow-xl hover:-translate-y-1"
+              )
+                div
+                  //- Header Card (Badge Sale + Icon Wishlist)
+                  .flex.items-center.justify-between.mb-2
+                    if hasSale && discountPct > 0
+                      span.rounded-md.bg-red-600.text-white.text-xs.font-black.tracking-wider(class="px-2.5 py-1")
+                        = `-${discountPct}%`
                     else
-                      .text-gray-400.text-xs Chưa có ảnh
-                  - const hasSale = prod.sale_price && Number(prod.sale_price) > 0 && Number(prod.sale_price) < Number(prod.base_price)
-                  - const discountPct = hasSale ? Math.round((1 - (Number(prod.sale_price) / Number(prod.base_price))) * 100) : 0
-                  if hasSale && discountPct > 0
-                    span.badge-sale.absolute.top-2.left-2= `-${discountPct}%`
+                      span
+                    button.w-8.h-8.rounded-full.flex.items-center.justify-center.text-slate-400.transition-colors(
+                      class="hover:text-red-600 hover:bg-red-50"
+                      type="button"
+                      title="Thêm vào yêu thích"
+                    )
+                      svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
 
-                //- Product Info
-                .p-4.flex-grow.flex.flex-col.justify-between
-                  div
-                    span.text-xs.text-gray-400.font-semibold.uppercase= prod.brand_name || 'VAMOS'
-                    h3.text-sm.font-bold.text-vamos-dark.line-clamp-2.mt-1
-                      a(class="hover:text-vamos-red" href=`/products/${prod.slug}`)= prod.name
+                  //- KHUNG ẢNH NỀN TRẮNG TINH KHIẾT (KHỬ TOÀN BỘ BACKGROUND XẤU)
+                  a.block.w-full.aspect-square.bg-slate-50.rounded-lg.p-4.overflow-hidden.flex.items-center.justify-center(href=`/products/${prod.slug}`)
+                    if prod.image_url
+                      img.w-full.h-full.object-contain.mix-blend-multiply.transition-transform.duration-500(
+                        class="group-hover:scale-105"
+                        src=prod.image_url 
+                        alt=prod.name
+                        loading="lazy"
+                      )
+                    else
+                      .text-slate-400.text-xs Chưa có ảnh
 
-                  .mt-3
-                    .flex.items-baseline.gap-2
+                  //- THÔNG TIN SẢN PHẨM
+                  .mt-4
+                    .text-xxs.font-bold.text-slate-400.uppercase.tracking-wider= prod.brand_name || 'VAMOS ORIGINALS'
+                    a.block.text-sm.font-bold.text-slate-900.transition-colors.mt-1.line-clamp-1(
+                      class="hover:text-red-600"
+                      href=`/products/${prod.slug}`
+                    )
+                      = prod.name
+
+                    //- Giá Tiền & Giá Gốc
+                    .flex.items-baseline.gap-2.mt-2
                       if hasSale && discountPct > 0
-                        span.price-current
+                        span.text-base.font-extrabold.text-red-600(style="font-family:'Space Grotesk',sans-serif")
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.sale_price)
-                        span.price-original
+                        span.text-xs.text-slate-400.line-through
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
                       else
-                        span.price-no-sale
+                        span.text-base.font-extrabold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
 
-                    a.mt-3.w-full.btn-outline.text-xs.py-2.justify-center(href=`/products/${prod.slug}`)
-                      | Xem chi tiết
+                    if prod.total_stock !== undefined && prod.total_stock <= 5 && prod.total_stock > 0
+                      .text-xxs.font-bold.text-amber-600.mt-1= `🔥 Chỉ còn ${prod.total_stock} đôi trong kho!`
+
+                //- NÚT HÀNH ĐỘNG
+                .mt-4.pt-3.border-t.border-slate-100
+                  a.w-full.py-2.px-4.rounded-lg.border.border-slate-300.text-xs.font-bold.text-slate-700.flex.items-center.justify-center.transition-colors(
+                    class="gap-1.5 hover:border-red-600 hover:bg-red-50 hover:text-red-600"
+                    href=`/products/${prod.slug}`
+                  )
+                    | XEM CHI TIẾT
+                    svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7")
 
           //- Pagination
           if totalPages > 1
             .mt-10.flex.justify-center.items-center.gap-2
               each p in Array.from({ length: totalPages }, (_, i) => i + 1)
                 a.w-9.h-9.flex.items-center.justify-center.rounded-lg.text-sm.font-bold.transition-colors(
-                  class=p === page ? 'bg-vamos-red text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                  href=`/products?page=${p}${selectedFilters.cat ? `&cat=${selectedFilters.cat}` : ''}`
+                  class=p === page ? 'bg-red-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                  href=`/products?page=${p}${selectedFilters.cat ? `&cat=${selectedFilters.cat}` : ''}${selectedFilters.gender ? `&gender=${selectedFilters.gender}` : ''}${selectedFilters.minPrice ? `&minPrice=${selectedFilters.minPrice}` : ''}${selectedFilters.maxPrice ? `&maxPrice=${selectedFilters.maxPrice}` : ''}${selectedFilters.sort ? `&sort=${selectedFilters.sort}` : ''}`
                 )= p
+
         else
-          .bg-white.p-12.rounded-vamos-xl.border.border-gray-200.text-center.mt-4
+          .bg-white.p-12.rounded-xl.border.border-slate-200.text-center.mt-4.shadow-sm
             .text-4xl.mb-3 👟
-            h3.text-base.font-bold.text-vamos-dark.mb-1 Chưa tìm thấy sản phẩm phù hợp
-            p.text-xs.text-gray-500.mb-4 Hãy thử điều chỉnh lại bộ lọc hoặc xem danh mục khác.
-            a.btn-outline.text-xs(href="/products") Xem toàn bộ sản phẩm
+            h3.text-base.font-bold.text-slate-900.mb-1 Chưa tìm thấy sản phẩm phù hợp
+            p.text-xs.text-slate-500.mb-4 Hãy thử điều chỉnh lại bộ lọc hoặc xem danh mục khác.
+            a.inline-flex.items-center.justify-center.px-5.rounded-lg.border.border-slate-300.text-xs.font-bold.text-slate-700(
+              class="py-2.5 hover:border-red-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+              href="/products"
+            ) Xem toàn bộ sản phẩm

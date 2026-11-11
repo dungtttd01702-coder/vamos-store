@@ -109,8 +109,8 @@ block content
           .grid.grid-cols-2.gap-4(class="md:grid-cols-4 md:gap-6")
             each prod in flashSaleProducts
               .bg-white.rounded-vamos-lg.p-4.text-vamos-dark.flex.flex-col.justify-between.transition-all.duration-300(class="hover:-translate-y-1 hover:shadow-2xl")
-                .relative.aspect-square.bg-gray-50.rounded-lg.overflow-hidden.mb-3
-                  img.w-full.h-full.object-contain(src=prod.imageUrl alt=prod.name)
+                .relative.aspect-square.bg-slate-50.rounded-lg.overflow-hidden.mb-3.p-4.flex.items-center.justify-center
+                  img.w-full.h-full.object-contain.mix-blend-multiply(src=prod.imageUrl alt=prod.name)
                   if prod.discountPercent > 0
                     span.badge-sale.absolute.top-2.left-2= `-${prod.discountPercent}%`
                 div
