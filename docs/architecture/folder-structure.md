@@ -1,7 +1,7 @@
 # CẤU TRÚC THƯ MỤC DỰ ÁN (PROJECT FOLDER STRUCTURE) - VAMOS STORE
 
 > **Dự án:** VAMOS STORE - E-commerce Footwear System  
-> **Phiên bản:** v1.1 Chuẩn hóa  
+> **Phiên bản:** v1.1 Chuẩn hóa
 
 ---
 

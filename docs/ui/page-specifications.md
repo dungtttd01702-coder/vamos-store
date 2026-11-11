@@ -45,3 +45,4 @@ Toàn bộ các trang quản trị đều được bảo vệ bởi middleware `
 | `/admin/customers` | `pages/admin/customers.pug` | Quản lý tài khoản khách hàng | Danh sách khách hàng, tổng số đơn đã mua, trạng thái hoạt động (`active`/`locked`), nút khóa/mở khóa tài khoản |
 | `/admin/customers/:id`| `pages/admin/customer-detail.pug`| Hồ sơ khách hàng chi tiết | Thông tin cá nhân, danh sách sổ địa chỉ, toàn bộ lịch sử đơn hàng của khách hàng, nút khóa tài khoản với hiệu lực vô hiệu hóa session tức thì |
 | `/admin/banners` | `pages/admin/banners.pug` | Quản lý slider banner trang chủ | Danh sách banner, xem trước ảnh, liên kết đích, thứ tự hiển thị, form thêm banner mới và nút bật/tắt hiển thị |
+

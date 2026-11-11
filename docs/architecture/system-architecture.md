@@ -3,23 +3,23 @@
 > **Dự án:** VAMOS STORE  
 > **Thương hiệu:** VAMOS - MOVE YOUR WAY.  
 > **Kiến trúc:** Layered MVC + Repository Pattern (Kiến trúc phân tầng chuyên sâu)  
-> **Phiên bản:** v1.1 Chuẩn hóa  
+> **Phiên bản:** v1.1 Chuẩn hóa
 
 ---
 
 ## 1. TỔNG QUAN NGĂN XẾP CÔNG NGHỆ (TECHNOLOGY STACK)
 
-| Tầng kiến trúc | Công nghệ sử dụng | Phiên bản | Vai trò kỹ thuật |
-| :--- | :--- | :---: | :--- |
-| **Frontend Rendering** | Pug Template Engine | v3.0.x | Server-Side Rendering (SSR), biên dịch HTML tốc độ cao, zero layout shift |
-| **Frontend Styling** | Tailwind CSS (JIT) | v3.4.x | Utility-first CSS, thiết kế giao diện thương hiệu VAMOS (Charcoal/Coral/White) |
-| **Client-side JS** | Vanilla JavaScript (ES6+) | Modern | Tương tác UI nhẹ nhàng, ngăn chặn double submit, kiểm tra form client |
-| **Backend Runtime** | Node.js (LTS) | v20.x | Môi trường thực thi non-blocking I/O hiệu năng cao |
-| **Application Framework**| Express.js | v4.19.x | Định tuyến HTTP, Middleware pipeline, RESTful Controllers |
-| **Session Management** | `express-session` | v1.18.x | Quản lý phiên làm việc máy chủ (Server-side Session) bảo mật |
-| **Database Driver** | `mssql` (Tedious) | v10.x | Kết nối Microsoft SQL Server với cơ chế Connection Pooling và Prepared Statements |
-| **Database Server** | Microsoft SQL Server | 2022/2025 | Lưu trữ dữ liệu quan hệ, đảm bảo ACID, T-SQL Transaction, khóa dòng `UPDLOCK, ROWLOCK` |
-| **Bảo mật & Hashing** | `bcryptjs` / `crypto` | v2.4.x | Băm mật khẩu một chiều an toàn (salt rounds = 10), sinh token mật mã |
+| Tầng kiến trúc            | Công nghệ sử dụng         | Phiên bản | Vai trò kỹ thuật                                                                       |
+| :------------------------ | :------------------------ | :-------: | :------------------------------------------------------------------------------------- |
+| **Frontend Rendering**    | Pug Template Engine       |  v3.0.x   | Server-Side Rendering (SSR), biên dịch HTML tốc độ cao, zero layout shift              |
+| **Frontend Styling**      | Tailwind CSS (JIT)        |  v3.4.x   | Utility-first CSS, thiết kế giao diện thương hiệu VAMOS (Charcoal/Coral/White)         |
+| **Client-side JS**        | Vanilla JavaScript (ES6+) |  Modern   | Tương tác UI nhẹ nhàng, ngăn chặn double submit, kiểm tra form client                  |
+| **Backend Runtime**       | Node.js (LTS)             |   v20.x   | Môi trường thực thi non-blocking I/O hiệu năng cao                                     |
+| **Application Framework** | Express.js                |  v4.19.x  | Định tuyến HTTP, Middleware pipeline, RESTful Controllers                              |
+| **Session Management**    | `express-session`         |  v1.18.x  | Quản lý phiên làm việc máy chủ (Server-side Session) bảo mật                           |
+| **Database Driver**       | `mssql` (Tedious)         |   v10.x   | Kết nối Microsoft SQL Server với cơ chế Connection Pooling và Prepared Statements      |
+| **Database Server**       | Microsoft SQL Server      | 2022/2025 | Lưu trữ dữ liệu quan hệ, đảm bảo ACID, T-SQL Transaction, khóa dòng `UPDLOCK, ROWLOCK` |
+| **Bảo mật & Hashing**     | `bcryptjs` / `crypto`     |  v2.4.x   | Băm mật khẩu một chiều an toàn (salt rounds = 10), sinh token mật mã                   |
 
 ---
 
@@ -71,6 +71,7 @@ graph TD
 ```
 
 ### 2.1. Tầng Trình diễn (Presentation & Controller Tier)
+
 - **Routes (`src/routes/`):** Tiếp nhận các HTTP Request, gắn kết các middleware xác thực và ủy quyền, sau đó chuyển tới Controller tương ứng.
 - **Middlewares (`src/middlewares/`):**
   - `requireAuth`: Xác thực người dùng đã đăng nhập; truy vấn CSDL để phát hiện tài khoản bị khóa và vô hiệu hóa session ngay lập tức.
@@ -79,6 +80,7 @@ graph TD
 - **Controllers (`src/controllers/`):** Tiếp nhận request, trích xuất dữ liệu, validate dữ liệu đầu vào, gọi Service thực hiện nghiệp vụ, và render Pug template hoặc trả về JSON.
 
 ### 2.2. Tầng Nghiệp vụ (Service Tier)
+
 - **`order.service.js`:** Trọng tâm nghiệp vụ của hệ thống. Quản lý toàn bộ vòng đời đơn hàng:
   - Khởi tạo Database Transaction khi đặt hàng COD (`createCodOrder`).
   - Thực hiện khóa bản ghi tồn kho `WITH (UPDLOCK, ROWLOCK)`.
@@ -86,6 +88,7 @@ graph TD
   - Thực hiện hủy đơn hàng (`cancelOrderCustomer` và `cancelOrderAdmin`) kèm theo logic hoàn tồn kho và giải phóng voucher một lần duy nhất (Idempotent).
 
 ### 2.3. Tầng Truy xuất Dữ liệu (Repository Tier)
+
 - Đóng gói toàn bộ các câu lệnh T-SQL vào các hàm thuần túy (`user.repository.js`, `product.repository.js`, v.v.).
 - 100% câu truy vấn đều sử dụng **Prepared Statements** thông qua `new sql.Request()` kết hợp `.input(name, type, value)`, triệt tiêu hoàn toàn lỗ hổng SQL Injection.
 
@@ -94,6 +97,7 @@ graph TD
 ## 3. LUỒNG ĐỒNG THỜI VÀ MÁY TRẠNG THÁI (CONCURRENCY & STATE MACHINE)
 
 ### 3.1. Máy Trạng thái Đơn hàng (Order State Machine)
+
 Hệ thống quản lý trạng thái đơn hàng theo luồng chuyển tiếp nghiêm ngặt:
 
 ```mermaid

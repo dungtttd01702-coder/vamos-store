@@ -201,6 +201,52 @@ class ProductRepository {
     const res = await query(sqlStr, { limit });
     return res.recordset;
   }
+
+  /**
+   * Real-time live search for products (Header search & Live autocomplete)
+   */
+  async searchLive(keyword, limit = 8) {
+    if (!keyword || typeof keyword !== 'string' || keyword.trim().length === 0) {
+      return [];
+    }
+
+    const cleanKeyword = keyword.trim();
+    const sqlStr = `
+      SELECT TOP (@limit)
+        p.id, p.product_code, p.name, p.slug, p.gender_target,
+        p.base_price, p.sale_price, p.status,
+        c.name AS category_name, c.slug AS category_slug,
+        b.name AS brand_name,
+        (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, display_order ASC) AS image_url,
+        (SELECT COALESCE(SUM(stock_quantity), 0) FROM product_variants WHERE product_id = p.id AND status = 'active') AS total_stock
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN brands b ON p.brand_id = b.id
+      WHERE p.status = 'active'
+        AND (
+          p.name LIKE @q
+          OR p.product_code LIKE @q
+          OR c.name LIKE @q
+          OR b.name LIKE @q
+        )
+      ORDER BY 
+        CASE 
+          WHEN p.name LIKE @exactStart THEN 0
+          WHEN p.name LIKE @wordStart THEN 1
+          ELSE 2 
+        END,
+        p.id DESC
+    `;
+
+    const res = await query(sqlStr, {
+      q: `%${cleanKeyword}%`,
+      exactStart: `${cleanKeyword}%`,
+      wordStart: `% ${cleanKeyword}%`,
+      limit,
+    });
+
+    return res.recordset;
+  }
 }
 
 module.exports = new ProductRepository();

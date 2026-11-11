@@ -3,7 +3,7 @@
 > **Dự án phần mềm thương mại điện tử chuyên ngành — VAMOS STORE v1.1**  
 > Nền tảng bán lẻ giày sneaker, thể thao và phụ kiện với kiến trúc phân tầng MVC chuẩn mực, giao diện hiện đại (Modern Kinetic UI - Dark Charcoal & Vibrant Coral), hệ thống lưu trữ Microsoft SQL Server 2025 với cơ chế khóa dòng cấp CSDL `WITH (UPDLOCK, ROWLOCK)` chống overselling tuyệt đối.
 
-[![Test Suite](https://img.shields.io/badge/tests-162%20passed-brightgreen.svg)]()
+[![Test Suite](https://img.shields.io/badge/tests-167%20passed-brightgreen.svg)]()
 [![Database](https://img.shields.io/badge/database-MSSQL%202025-blue.svg)]()
 [![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)]()
 [![License](https://img.shields.io/badge/version-v1.1.0-orange.svg)]()
@@ -220,12 +220,12 @@ Mở trình duyệt truy cập: **`http://localhost:3000`**
 
 ---
 
-## 🧪 Hệ Thống Kiểm Thử Tự Động (162 Tests)
+## 🧪 Hệ Thống Kiểm Thử Tự Động (167 Tests)
 
-Dự án sở hữu bộ kiểm thử tự động gồm **162 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
+Dự án sở hữu bộ kiểm thử tự động gồm **167 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
 
 ```bash
-# Chạy toàn bộ 162 bài kiểm thử (100% Pass):
+# Chạy toàn bộ 167 bài kiểm thử (100% Pass):
 npm run test:all
 ```
 
@@ -240,7 +240,10 @@ node tests/validator.test.js
 # 3. Kiểm thử luồng Đăng nhập, Session, Redirect:
 node tests/test_auth_flow.js
 
-# 4. Kiểm thử 103 ca hồi quy nghiệp vụ, Concurrency, Snapshot, Voucher Q8:
+# 4. Kiểm thử tìm kiếm Real-time Live Search:
+node tests/test_live_search.js
+
+# 5. Kiểm thử 103 ca hồi quy nghiệp vụ, Concurrency, Snapshot, Voucher Q8:
 node tests/regression_suite.js
 ```
 

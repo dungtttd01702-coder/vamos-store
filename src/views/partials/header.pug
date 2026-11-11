@@ -42,17 +42,24 @@ header
       //- RIGHT ACTIONS
       .flex.items-center.gap-3
 
-        //- Search (desktop)
-        form.hidden.relative(class="lg:block" action="/products" method="GET")
-          input.text-sm.bg-vamos-bg-subtle.rounded-full.border.border-transparent.transition-all(
-            class="w-52 pl-9 pr-4 py-2 focus:w-64 focus:bg-white focus:border-vamos-red focus:outline-none focus:shadow-vamos-hover"
-            type="text"
-            name="q"
-            placeholder="Tìm kiếm giày..."
-            autocomplete="off"
-          )
-          svg.w-4.h-4.text-vamos-muted.absolute.left-3.top-1(class="top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24")
-            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
+        //- Search (desktop with Real-time Live Search)
+        .hidden.relative#desktop-search-container(class="lg:block")
+          form#desktop-search-form(action="/products" method="GET")
+            input#desktop-search-input.text-sm.bg-vamos-bg-subtle.rounded-full.border.border-transparent.transition-all(
+              class="w-52 pl-9 pr-8 py-2 focus:w-80 focus:bg-white focus:border-vamos-red focus:outline-none focus:shadow-vamos-hover"
+              type="text"
+              name="q"
+              placeholder="Tìm kiếm giày..."
+              autocomplete="off"
+            )
+            svg.w-4.h-4.text-vamos-muted.absolute.left-3(class="top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
+            button#desktop-search-clear.hidden.absolute.right-3.text-gray-400(class="top-1/2 -translate-y-1/2 hover:text-gray-600" type="button" aria-label="Xóa tìm kiếm")
+              svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
+
+          //- Floating Live Search Dropdown
+          #desktop-search-dropdown.absolute.left-0.w-80.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-gray-200.overflow-hidden.z-50.hidden(style="top:100%")
 
         //- Cart icon
         a.relative.p-2.text-vamos-dark.transition-colors(class="hover:text-vamos-red" href="/cart" title="Giỏ hàng")
@@ -106,15 +113,23 @@ header
 
   //- ── MOBILE MENU ──
   #mobile-menu.bg-white.border-b.border-vamos-border.px-4.py-4.space-y-3(class="hidden md:hidden")
-    form.relative(action="/products" method="GET")
-      input.w-full.text-sm.bg-vamos-bg-subtle.rounded-lg.border.border-transparent.transition(
-        class="pl-9 pr-4 py-2.5 focus:bg-white focus:border-vamos-red focus:outline-none"
-        type="text"
-        name="q"
-        placeholder="Tìm kiếm giày sneaker..."
-      )
-      svg.w-4.h-4.text-vamos-muted.absolute.left-3(class="top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24")
-        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
+    .relative#mobile-search-container
+      form#mobile-search-form(action="/products" method="GET")
+        input#mobile-search-input.w-full.text-sm.bg-vamos-bg-subtle.rounded-lg.border.border-transparent.transition(
+          class="pl-9 pr-8 py-2.5 focus:bg-white focus:border-vamos-red focus:outline-none"
+          type="text"
+          name="q"
+          placeholder="Tìm kiếm giày sneaker..."
+          autocomplete="off"
+        )
+        svg.w-4.h-4.text-vamos-muted.absolute.left-3(class="top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+          path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
+        button#mobile-search-clear.hidden.absolute.right-3.text-gray-400(class="top-1/2 -translate-y-1/2 hover:text-gray-600" type="button" aria-label="Xóa tìm kiếm")
+          svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
+      
+      //- Mobile Live Search Dropdown
+      #mobile-search-dropdown.absolute.left-0.right-0.mt-1.bg-white.rounded-xl.shadow-2xl.border.border-gray-200.overflow-hidden.z-50.hidden(style="top:100%")
     nav.space-y-1.text-sm.font-semibold
       a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=sneaker-nam") Sneaker Nam
       a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=sneaker-nu") Sneaker Nữ

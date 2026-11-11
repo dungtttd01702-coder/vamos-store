@@ -24,6 +24,10 @@ class ProductService {
   async getFlashSaleProducts(limit = 4) {
     return productRepository.getFlashSaleProducts(limit);
   }
+
+  async searchLive(keyword, limit = 8) {
+    return productRepository.searchLive(keyword, limit);
+  }
 }
 
 module.exports = new ProductService();

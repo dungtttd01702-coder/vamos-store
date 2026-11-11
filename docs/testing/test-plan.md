@@ -19,6 +19,7 @@
 ## 2. PHẠM VI KIỂM THỬ (TEST SCOPE)
 
 ### 2.1. Trong phạm vi kiểm thử (In-Scope)
+
 - **Kiểm thử cú pháp giao diện (View Validation):** 35 tệp Pug template.
 - **Kiểm thử đơn vị (Unit Tests):** Bộ chuẩn hóa và kiểm tra dữ liệu đầu vào (Email, số điện thoại, định dạng họ tên).
 - **Kiểm thử tích hợp & Luồng người dùng (Integration Tests):** Quy trình Đăng ký, Đăng nhập, Quản lý Session, Guest Cart merge vào Database Cart.
@@ -31,6 +32,7 @@
   - Ngăn chặn Admin tự khóa tài khoản của chính mình.
 
 ### 2.2. Ngoài phạm vi kiểm thử (Out-of-Scope)
+
 - Tích hợp cổng thanh toán trực tuyến bên thứ ba (VNPay, MoMo) - Hệ thống chỉ dùng COD.
 - Giao diện ứng dụng di động riêng (Native Apps).
 
@@ -62,10 +64,10 @@ graph TD
 
 ## 4. MÔI TRƯỜNG VÀ CÔNG CỤ KIỂM THỬ
 
-| Hạng mục | Thông số kỹ thuật |
-| :--- | :--- |
-| **Hệ điều hành** | Windows 10/11 / Windows Server |
-| **Node.js** | v20.x LTS |
-| **Cơ sở dữ liệu** | Microsoft SQL Server 2022 / 2025 (`vamos_store_test_db`) |
-| **Test Runner** | Node.js Test Runner / Custom Assert Suites |
-| **Lệnh chạy toàn bộ** | `npm run test:all` |
+| Hạng mục              | Thông số kỹ thuật                                        |
+| :-------------------- | :------------------------------------------------------- |
+| **Hệ điều hành**      | Windows 10/11 / Windows Server                           |
+| **Node.js**           | v20.x LTS                                                |
+| **Cơ sở dữ liệu**     | Microsoft SQL Server 2022 / 2025 (`vamos_store_test_db`) |
+| **Test Runner**       | Node.js Test Runner / Custom Assert Suites               |
+| **Lệnh chạy toàn bộ** | `npm run test:all`                                       |

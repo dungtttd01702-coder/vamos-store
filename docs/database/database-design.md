@@ -11,12 +11,15 @@
 ## 1. NGUYÊN TẮC VÀ CHIẾN LƯỢC THIẾT KẾ
 
 ### 1.1. Lựa chọn Công nghệ
+
 Hệ thống VAMOS STORE được thiết kế vận hành 100% trên nền tảng **Microsoft SQL Server (T-SQL)**, đảm bảo:
+
 - **Tuân thủ ACID tuyệt đối:** Mọi giao dịch tài chính, tạo đơn hàng COD, trừ tồn kho và hoàn trả voucher đều chạy trong Transaction bảo mật.
 - **Khóa hàng cấp độ dòng (Row-level Locking):** Sử dụng các gợi ý khóa chuyên sâu `WITH (UPDLOCK, ROWLOCK)` để loại bỏ hoàn toàn hiện tượng Race Condition khi nhiều khách hàng cùng tranh chấp số lượng tồn kho của một biến thể tại cùng một thời điểm.
 - **Toàn vẹn khóa ngoại (Referential Integrity):** Mọi mối quan hệ cha-con đều được bảo vệ bởi Khóa ngoại (Foreign Key) chặt chẽ, sử dụng `ON DELETE CASCADE` đối với các bảng phụ thuộc vòng đời cha (như `cart_items`, `order_items`, `product_images`).
 
 ### 1.2. Chiến lược Bảo toàn Dữ liệu (Non-Destructive Evolution)
+
 - **Tuyệt đối không sử dụng `DROP TABLE` hoặc `DROP DATABASE`** trong môi trường triển khai hoặc kiểm thử.
 - Mọi thay đổi cấu trúc dữ liệu được quản lý qua các tệp migration lũy kế có đánh số thứ tự trong thư mục `database/migrations/` và lưu vết tại bảng `schema_migrations`.
 - Kiểm tra `OBJECT_ID('table_name', 'U') IS NULL` và `COL_LENGTH('table_name', 'column_name') IS NULL` trước khi khởi tạo hoặc thêm trường mới, bảo đảm tính idempotent 100%.
@@ -102,7 +105,9 @@ graph TD
 ## 3. CÁC MẪU THIẾT KẾ ĐẶC THÙ (DESIGN PATTERNS)
 
 ### 3.1. Thiết kế Snapshot Bất biến (Order Snapshot Pattern)
+
 Trong thương mại điện tử giày dép, giá sản phẩm, tên sản phẩm và thông tin biến thể có thể thay đổi liên tục theo thời gian. Để đảm bảo hóa đơn quá khứ không bao giờ bị sai lệch:
+
 - Bảng `order_items` lưu trữ đầy đủ các trường snapshot tại thời điểm bấm "Xác nhận đặt hàng":
   - `product_name_snapshot`: Tên sản phẩm gốc.
   - `sku_snapshot`: Mã SKU duy nhất của biến thể.
@@ -114,25 +119,32 @@ Trong thương mại điện tử giày dép, giá sản phẩm, tên sản ph�
   - `voucher_code_snapshot`: Lưu mã voucher đã được hưởng giảm giá.
 
 ### 3.2. Chống Race Condition khi Trừ Tồn Kho (Pessimistic Concurrency Pattern)
+
 Để bảo đảm không bao giờ xảy ra Overselling (bán quá số lượng tồn thực tế) khi nhiều khách đặt cùng một đôi giày phiên bản giới hạn:
+
 ```sql
 -- Đoạn mã T-SQL chuẩn hóa trong src/services/order.service.js:
 SELECT id, product_id, stock_quantity, status
 FROM product_variants WITH (UPDLOCK, ROWLOCK)
 WHERE id = @variantId;
 ```
+
 - Khi câu lệnh này được thực thi bên trong `BEGIN TRANSACTION`, SQL Server sẽ cấp phát Exclusive Row Lock trên bản ghi biến thể tương ứng, buộc các giao dịch checkout khác phải xếp hàng chờ cho đến khi Transaction hiện tại `COMMIT` hoặc `ROLLBACK`.
 - Nếu `stock_quantity < quantity_requested`, toàn bộ Transaction lập tức bị Rollback và thông báo rõ ràng cho khách hàng.
 
 ### 3.3. Ràng buộc Giới hạn 01 Voucher / Khách hàng (Voucher Usage Constraint Pattern - Q8)
+
 Để hiện thực hóa quyết định Q8, bảng `voucher_usages` được thiết lập với ràng buộc tổ hợp duy nhất:
+
 ```sql
 CONSTRAINT UQ_voucher_user_usage UNIQUE (voucher_id, user_id)
 ```
+
 - Khi đơn hàng được tạo, hệ thống ghi nhận một bản ghi vào `voucher_usages`. Nếu cùng một tài khoản khách hàng cố gắng tạo thêm đơn thứ hai dùng lại mã đó, CSDL sẽ kích hoạt Unique Violation và chặn đứng giao dịch.
 - Khi đơn hàng bị hủy (`CANCELLED`), hệ thống xóa dòng tương ứng trong `voucher_usages` và giảm `used_count` của voucher, tự động phục hồi quyền dùng mã cho khách hàng.
 
 ### 3.4. Gộp Giỏ hàng Tự động (Cart Merging Pattern - Q2)
+
 - Khi khách vãng lai (`Guest`) xem hàng và đưa sản phẩm vào giỏ, thông tin được lưu trữ tạm trong Session (`req.session.guestCart`).
 - Ngay khi người dùng Đăng nhập hoặc Đăng ký thành công:
   - Controller gọi hàm `CartController.mergeGuestCart(userCartId, guestCart)`.

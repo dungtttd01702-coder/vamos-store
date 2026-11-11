@@ -78,6 +78,42 @@ class ProductController {
       next(error);
     }
   }
+
+  /**
+   * Real-time live search API endpoint
+   * GET /products/live-search?q=... or GET /api/products/search?q=...
+   */
+  async liveSearch(req, res, next) {
+    try {
+      const q = req.query.q || '';
+      if (!q || typeof q !== 'string' || q.trim().length === 0) {
+        return res.json({ success: true, count: 0, results: [] });
+      }
+
+      const results = await productService.searchLive(q.trim(), 8);
+      return res.json({
+        success: true,
+        count: results.length,
+        query: q.trim(),
+        results: results.map(item => ({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          product_code: item.product_code,
+          category_name: item.category_name,
+          brand_name: item.brand_name,
+          gender_target: item.gender_target,
+          base_price: item.base_price,
+          sale_price: item.sale_price,
+          image_url: item.image_url || '/images/placeholder-shoe.png',
+          total_stock: item.total_stock || 0,
+          in_stock: (item.total_stock || 0) > 0,
+        })),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ProductController();

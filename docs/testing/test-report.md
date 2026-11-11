@@ -3,38 +3,42 @@
 > **Dự án:** VAMOS STORE  
 > **Phiên bản:** v1.1 Chuẩn hóa  
 > **Môi trường thực thi:** Microsoft SQL Server 2025 (`vamos_store_test_db`), Node.js v20 LTS, Windows 11  
-> **Thời điểm kiểm thử gần nhất:** 11/11/2026  
-> **Tổng số kịch bản kiểm thử:** 162 bài kiểm thử tự động  
-> **Kết quả chung:** **162 / 162 PASSED (100% PASS RATE, 0 FAILED, 0 SKIPPED)**
+> **Thời điểm kiểm thử gần nhất:** 12/11/2026  
+> **Tổng số kịch bản kiểm thử:** 167 bài kiểm thử tự động  
+> **Kết quả chung:** **167 / 167 PASSED (100% PASS RATE, 0 FAILED, 0 SKIPPED)**
 
 ---
 
 ## 1. BẢNG TỔNG HỢP KẾT QUẢ THEO TỪNG BỘ TEST
 
-| STT | Tên bộ kiểm thử | Lệnh thực thi | Số lượng tests | PASSED | FAILED | SKIPPED | Tỷ lệ đạt |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| 1 | **Biên dịch giao diện Pug** | `node tests/validate_pug.js` | 35 | 35 | 0 | 0 | **100%** |
-| 2 | **Kiểm tra chuẩn hóa Input** | `node tests/validator.test.js` | 14 | 14 | 0 | 0 | **100%** |
-| 3 | **Kiểm tra luồng Xác thực** | `node tests/test_auth_flow.js` | 10 | 10 | 0 | 0 | **100%** |
-| 4 | **Hồi quy nghiệp vụ CSDL** | `node tests/regression_suite.js` | 103 | 103 | 0 | 0 | **100%** |
-| **TỔNG**| **TOÀN BỘ HỆ THỐNG** | `npm run test:all` | **162** | **162** | **0** | **0** | **100%** |
+|   STT    | Tên bộ kiểm thử              | Lệnh thực thi                    | Số lượng tests | PASSED  | FAILED | SKIPPED | Tỷ lệ đạt |
+| :------: | :--------------------------- | :------------------------------- | :------------: | :-----: | :----: | :-----: | :-------: |
+|    1     | **Biên dịch giao diện Pug**  | `node tests/validate_pug.js`     |       35       |   35    |   0    |    0    | **100%**  |
+|    2     | **Kiểm tra chuẩn hóa Input** | `node tests/validator.test.js`   |       14       |   14    |   0    |    0    | **100%**  |
+|    3     | **Kiểm tra luồng Xác thực**  | `node tests/test_auth_flow.js`   |       10       |   10    |   0    |    0    | **100%**  |
+|    4     | **Tìm kiếm Real-time Live**  | `node tests/test_live_search.js` |       5        |    5    |   0    |    0    | **100%**  |
+|    5     | **Hồi quy nghiệp vụ CSDL**   | `node tests/regression_suite.js` |      103       |   103   |   0    |    0    | **100%**  |
+| **TỔNG** | **TOÀN BỘ HỆ THỐNG**         | `npm run test:all`               |    **167**     | **167** | **0**  |  **0**  | **100%**  |
 
 ---
 
 ## 2. CHI TIẾT KẾT QUẢ CÁC BỘ KIỂM THỬ
 
 ### 2.1. Kiểm thử Biên dịch Pug Templates (`tests/validate_pug.js`)
+
 - Đã quét và biên dịch thành công 35/35 tệp Pug trong `src/views/`.
 - Không phát sinh lỗi cú pháp (Cú pháp phân đoạn thập phân Tailwind `.py-0.5` đã được sửa thành `(class="py-0.5")` hợp lệ).
 - Các trang Admin Portal mới (`dashboard`, `products`, `product-form`, `inventory`, `inventory-history`, `categories`, `vouchers`, `voucher-form`, `customers`, `customer-detail`, `banners`) đều biên dịch sạch sẽ.
 
 ### 2.2. Kiểm thử Input Validator (`tests/validator.test.js`)
+
 - 14/14 trường hợp kiểm thử validator email và số điện thoại đều đạt:
   - Chặn đứng: `123@gmail`, `abc`, `abc@`, chuỗi rỗng.
   - Chấp nhận & chuẩn hóa: `abc@gmail.com`, `ABC@GMAIL.COM` (về chữ thường), `  abc@gmail.com  ` (loại bỏ khoảng trắng thừa).
   - Chuẩn hóa số điện thoại Việt Nam 10 chữ số.
 
 ### 2.3. Kiểm thử Luồng Xác thực & Session (`tests/test_auth_flow.js`)
+
 - 10/10 kiểm thử xác thực:
   - Đăng ký thành công tài khoản mới với mật khẩu bcrypt.
   - Ngăn chặn đăng ký trùng email.
@@ -44,6 +48,7 @@
   - Middleware `requireGuest` chặn tài khoản đang đăng nhập gửi lại form login/register.
 
 ### 2.4. Kiểm thử Hồi quy Nghiệp vụ & Concurrency (`tests/regression_suite.js`)
+
 - 103/103 kiểm thử phủ khắp 14 phân hệ nghiệp vụ:
   - **Suite 1 (Schema & DB):** 19 bảng thực thể tồn tại đầy đủ, khóa ngoại và ràng buộc CHECK hợp lệ.
   - **Suite 2 (Auth & Security):** Mã hóa bcrypt an toàn, chặn SQLi.
