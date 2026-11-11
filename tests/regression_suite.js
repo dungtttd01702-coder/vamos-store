@@ -1,13 +1,19 @@
 /**
  * VAMOS STORE - COMPREHENSIVE AUTOMATED REGRESSION TEST SUITE
- * Microsoft SQL Server 2025 / Node.js 18+ / Express.js / Layered MVC
+ * Microsoft SQL Server / Node.js 18+ / Express.js / Layered MVC
+ * Target Database: Isolated Test Database `vamos_store_test_db`
  */
 
+process.env.NODE_ENV = 'test';
+
 const bcrypt = require('bcryptjs');
+const { setupTestDb } = require('./setup_test_db');
 const { sql, getPool, query } = require('../src/config/database');
 const validator = require('../src/utils/validator');
 const orderService = require('../src/services/order.service');
 const productService = require('../src/services/product.service');
+const authController = require('../src/controllers/auth.controller');
+const csrfMiddleware = require('../src/middlewares/csrf.middleware');
 
 let passedTests = 0;
 let failedTests = 0;
@@ -28,32 +34,70 @@ function assert(condition, testId, description, details = '') {
 async function runSuite() {
   console.log('\n===============================================================');
   console.log('   VAMOS STORE - AUTOMATED REGRESSION & INTEGRATION TEST SUITE');
-  console.log('   Target DB: Microsoft SQL Server 2025 | Environment: Node.js');
+  console.log('   Target DB: vamos_store_test_db | Environment: Node.js (test)');
   console.log('===============================================================\n');
+
+  // 1. Ensure isolated test database exists and is migrated/seeded
+  await setupTestDb();
 
   const pool = await getPool();
 
   try {
     // -------------------------------------------------------------------------
-    // SUITE 1: AUTHENTICATION & SERVER-SIDE VALIDATION (AUTH-01)
+    // SUITE 1: AUTHENTICATION, VALIDATION & SECURITY
     // -------------------------------------------------------------------------
-    console.log('\n--- 1. AUTHENTICATION & VALIDATION TESTS ---');
+    console.log('\n--- 1. AUTHENTICATION, VALIDATION & SECURITY TESTS ---');
 
-    // Email validation
-    assert(!validator.isValidEmail('123@gmail'), 'VAL-01', 'Reject malformed email "123@gmail" (missing TLD)');
+    // Email validation (Strict TLD & format checking)
+    assert(!validator.isValidEmail('123@gmail'), 'VAL-01', 'Reject malformed email "123@gmail" (missing TLD .com/.vn)');
     assert(!validator.isValidEmail('invalid-email'), 'VAL-02', 'Reject email without @');
-    assert(validator.isValidEmail('admin@vamos.vn'), 'VAL-03', 'Accept valid domain email "admin@vamos.vn"');
-    assert(validator.isValidEmail('customer.test@gmail.com'), 'VAL-04', 'Accept valid gmail "customer.test@gmail.com"');
+    assert(!validator.isValidEmail('admin'), 'VAL-03', 'Reject non-email string "admin"');
+    assert(!validator.isValidEmail('user@domain'), 'VAL-04', 'Reject email without domain extension');
+    assert(validator.isValidEmail('admin@vamos.vn'), 'VAL-05', 'Accept valid domain email "admin@vamos.vn"');
+    assert(validator.isValidEmail('customer.test@gmail.com'), 'VAL-06', 'Accept valid gmail "customer.test@gmail.com"');
 
     // Phone validation
-    assert(validator.isValidPhone('0901234567'), 'VAL-05', 'Accept valid VN mobile number 0901234567');
-    assert(validator.isValidPhone('0389998888'), 'VAL-06', 'Accept valid VN Viettel number 0389998888');
-    assert(!validator.isValidPhone('0123456789'), 'VAL-07', 'Reject obsolete 11-digit VN prefix 0123456789');
-    assert(!validator.isValidPhone('123456'), 'VAL-08', 'Reject short phone number 123456');
+    assert(validator.isValidPhone('0901234567'), 'VAL-07', 'Accept valid VN mobile number 0901234567');
+    assert(validator.isValidPhone('0389998888'), 'VAL-08', 'Accept valid VN Viettel number 0389998888');
+    assert(!validator.isValidPhone('0123456789'), 'VAL-09', 'Reject obsolete 11-digit VN prefix 0123456789');
+    assert(!validator.isValidPhone('123456'), 'VAL-10', 'Reject short phone number 123456');
 
     // Password validation (min 6 chars)
-    assert(validator.isValidPassword('123456'), 'VAL-09', 'Accept password with 6 characters');
-    assert(!validator.isValidPassword('12345'), 'VAL-10', 'Reject password with < 6 characters');
+    assert(validator.isValidPassword('123456'), 'VAL-11', 'Accept password with 6 characters');
+    assert(!validator.isValidPassword('12345'), 'VAL-12', 'Reject password with < 6 characters');
+
+    // Full name validation
+    assert(validator.isValidFullName('Nguyễn Văn A'), 'VAL-13', 'Accept valid full name');
+    assert(!validator.isValidFullName('A'), 'VAL-14', 'Reject 1-character name');
+
+    // Safe Return URL / Open Redirect Prevention
+    assert(authController.getSafeReturnUrl('//evil.com') === '/', 'SEC-01', 'Reject protocol-relative "//evil.com" -> default "/"');
+    assert(authController.getSafeReturnUrl('/\\evil.com') === '/', 'SEC-02', 'Reject backslash escape "/\\evil.com" -> default "/"');
+    assert(authController.getSafeReturnUrl('https://evil.com') === '/', 'SEC-03', 'Reject absolute external URL "https://evil.com" -> default "/"');
+    assert(authController.getSafeReturnUrl('/account/orders') === '/account/orders', 'SEC-04', 'Accept internal safe path "/account/orders"');
+    assert(authController.getSafeReturnUrl('/products?cat=sneaker') === '/products?cat=sneaker', 'SEC-05', 'Accept internal safe query path');
+
+    // CSRF Protection Middleware
+    let csrfPassedGet = false;
+    const mockReqGet = { method: 'GET', session: { csrfToken: 'valid_token' }, _testCsrfEnforce: true };
+    const mockResGet = { locals: {} };
+    csrfMiddleware(mockReqGet, mockResGet, () => { csrfPassedGet = true; });
+    assert(csrfPassedGet, 'SEC-06', 'CSRF middleware permits safe GET requests without token');
+
+    let csrfBlockedPost = false;
+    const mockReqPostNoToken = { method: 'POST', body: {}, headers: {}, session: { csrfToken: 'valid_token' }, _testCsrfEnforce: true };
+    const mockResPost = { locals: {} };
+    csrfMiddleware(mockReqPostNoToken, mockResPost, (err) => {
+      if (err && err.status === 403) csrfBlockedPost = true;
+    });
+    assert(csrfBlockedPost, 'SEC-07', 'CSRF middleware blocks mutating POST request lacking anti-CSRF token (403 Forbidden)');
+
+    let csrfAcceptedPost = false;
+    const mockReqPostWithToken = { method: 'POST', body: { _csrf: 'valid_token' }, headers: {}, session: { csrfToken: 'valid_token' }, _testCsrfEnforce: true };
+    csrfMiddleware(mockReqPostWithToken, mockResPost, (err) => {
+      if (!err) csrfAcceptedPost = true;
+    });
+    assert(csrfAcceptedPost, 'SEC-08', 'CSRF middleware accepts mutating POST request with matching anti-CSRF token');
 
     // Password hash verification in DB
     const adminRes = await query("SELECT id, email, password_hash, role, status FROM users WHERE email = 'admin@vamos.vn'");
@@ -106,36 +150,22 @@ async function runSuite() {
     // -------------------------------------------------------------------------
     console.log('\n--- 3. CART OPERATIONS & STOCK BOUNDING TESTS ---');
 
-    // Ensure a dedicated test customer exists
-    let testUser = await query("SELECT id FROM users WHERE email = 'test_automation@vamos.vn'");
-    let testUserId;
-    if (testUser.recordset.length === 0) {
-      const hashedPw = await bcrypt.hash('123456', 10);
-      const createRes = await query(`
-        INSERT INTO users (full_name, email, phone, password_hash, role, status)
-        OUTPUT INSERTED.id
-        VALUES (N'Automation Tester', 'test_automation@vamos.vn', '0909999999', @pw, 'CUSTOMER', 'active')
-      `, { pw: hashedPw });
-      testUserId = createRes.recordset[0].id;
-    } else {
-      testUserId = testUser.recordset[0].id;
-    }
+    // Dedicated test customer with random email to prevent pollution
+    const testCustEmail = `test_customer_${Date.now()}@vamos.vn`;
+    const hashedPw = await bcrypt.hash('123456', 10);
+    const createRes = await query(`
+      INSERT INTO users (full_name, email, phone, password_hash, role, status)
+      OUTPUT INSERTED.id
+      VALUES (N'Automation Tester', @email, '0909999999', @pw, 'CUSTOMER', 'active')
+    `, { email: testCustEmail, pw: hashedPw });
+    const testUserId = createRes.recordset[0].id;
 
-    // Get or create user cart
-    let cartRes = await query("SELECT id FROM carts WHERE user_id = @userId", { userId: testUserId });
-    let testCartId;
-    if (cartRes.recordset.length === 0) {
-      const cIns = await query("INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)", { userId: testUserId });
-      testCartId = cIns.recordset[0].id;
-    } else {
-      testCartId = cartRes.recordset[0].id;
-    }
-
-    // Clear previous items in test cart
-    await query("DELETE FROM cart_items WHERE cart_id = @cartId", { cartId: testCartId });
+    // Create user cart
+    const cIns = await query("INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)", { userId: testUserId });
+    const testCartId = cIns.recordset[0].id;
 
     // Pick variant 1
-    const testVarRes = await query("SELECT id, stock_quantity, sku FROM product_variants WHERE id = 1");
+    const testVarRes = await query("SELECT TOP 1 id, stock_quantity, sku FROM product_variants WHERE stock_quantity >= 5 AND status = 'active'");
     const testVar = testVarRes.recordset[0];
     const initialVarStock = testVar.stock_quantity;
 
@@ -304,9 +334,9 @@ async function runSuite() {
     assert(stockNoDoubleRestock.recordset[0].stock_quantity === stockBefore, 'ORDER-07', 'Stock quantity was NOT restocked twice');
 
     // -------------------------------------------------------------------------
-    // SUITE 7: ADMIN LIFECYCLE & REVENUE CALCULATION (ADMIN-01)
+    // SUITE 7: ADMIN LIFECYCLE & STATE TRANSITION MATRIX (ADMIN-01)
     // -------------------------------------------------------------------------
-    console.log('\n--- 7. ADMIN LIFECYCLE & REVENUE INTEGRATION TESTS ---');
+    console.log('\n--- 7. ADMIN LIFECYCLE & STATE TRANSITION MATRIX TESTS ---');
 
     // Create a new order for admin processing
     await query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, 1)", {
@@ -323,6 +353,20 @@ async function runSuite() {
     });
 
     const adminOrderId = adminTestOrder.id || adminTestOrder.orderId;
+
+    // Test State Transition Matrix: ILLEGAL JUMP PENDING -> COMPLETED must be rejected
+    let illegalJumpRejected = false;
+    try {
+      await orderService.updateOrderStatusByAdmin({
+        orderId: adminOrderId,
+        newStatus: 'COMPLETED',
+        adminId: 1,
+        note: 'Illegal transition attempt'
+      });
+    } catch (err) {
+      illegalJumpRejected = true;
+    }
+    assert(illegalJumpRejected, 'TRANS-01', 'State transition matrix rejected illegal jump: PENDING -> COMPLETED');
 
     // Move to CONFIRMED
     await orderService.updateOrderStatusByAdmin({
@@ -374,6 +418,20 @@ async function runSuite() {
     chkStatus = await query("SELECT order_status, payment_status FROM orders WHERE id = @id", { id: adminOrderId });
     assert(chkStatus.recordset[0].order_status === 'COMPLETED', 'ADMIN-06', 'Admin updated status to COMPLETED');
     assert(chkStatus.recordset[0].payment_status === 'PAID', 'ADMIN-07', 'COD payment_status automatically transitioned to PAID upon COMPLETED');
+
+    // Illegal transition from COMPLETED -> CANCELLED must be rejected
+    let completedToCancelledRejected = false;
+    try {
+      await orderService.updateOrderStatusByAdmin({
+        orderId: adminOrderId,
+        newStatus: 'CANCELLED',
+        adminId: 1,
+        note: 'Attempt cancel completed order'
+      });
+    } catch (err) {
+      completedToCancelledRejected = true;
+    }
+    assert(completedToCancelledRejected, 'TRANS-02', 'State transition matrix rejected illegal transition: COMPLETED -> CANCELLED');
 
     // Verify Admin Revenue Calculation: only COMPLETED + PAID counts
     const revRes = await query(`
@@ -428,6 +486,20 @@ async function runSuite() {
     const stockAfterAdminCancel = stockAfterAdminCancelRes.recordset[0].stock_quantity;
     assert(stockAfterAdminCancel === stockBeforeAdminCancel + 1, 'ADMIN-11', `Stock restored on Admin cancellation (${stockBeforeAdminCancel} -> ${stockAfterAdminCancel})`);
 
+    // Illegal transition from CANCELLED -> CONFIRMED must be rejected
+    let cancelledToConfirmedRejected = false;
+    try {
+      await orderService.updateOrderStatusByAdmin({
+        orderId: adminCancelOrderId,
+        newStatus: 'CONFIRMED',
+        adminId: 1,
+        note: 'Attempt revive cancelled order'
+      });
+    } catch (err) {
+      cancelledToConfirmedRejected = true;
+    }
+    assert(cancelledToConfirmedRejected, 'TRANS-03', 'State transition matrix rejected illegal transition: CANCELLED -> CONFIRMED');
+
     // -------------------------------------------------------------------------
     // SUITE 9: CONCURRENCY & ANTI-OVERSELLING (CONCUR-01)
     // -------------------------------------------------------------------------
@@ -450,7 +522,6 @@ async function runSuite() {
     const tempVarId = tempVarRes.recordset[0].id;
 
     // Create two test users with carts
-    const hashedPw = await bcrypt.hash('123456', 10);
     const buyerEmail1 = 'buyer1_' + Math.floor(1000 + Math.random() * 9000) + '@concur.test';
     const buyerEmail2 = 'buyer2_' + Math.floor(1000 + Math.random() * 9000) + '@concur.test';
     const u1 = await query("INSERT INTO users (full_name, email, password_hash, role) OUTPUT INSERTED.id VALUES (N'Buyer 1', @e, @pw, 'CUSTOMER')", { e: buyerEmail1, pw: hashedPw });
@@ -492,27 +563,80 @@ async function runSuite() {
     const finalTempStock = await query("SELECT stock_quantity FROM product_variants WHERE id = @id", { id: tempVarId });
     assert(finalTempStock.recordset[0].stock_quantity === 0, 'CONCUR-03', 'Remaining stock is exactly 0 (No overselling / negative stock)');
 
-    // Cleanup concurrency test variant & users
+    // -------------------------------------------------------------------------
+    // SUITE 10: VOUCHER CONCURRENCY & ATOMIC USAGE LIMIT (CONCUR-04)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 10. VOUCHER CONCURRENCY & USAGE LIMIT TESTS ---');
+
+    // Create a voucher with usage_limit = 1
+    const testVoucherCode = 'LIMIT1_' + Math.floor(1000 + Math.random() * 9000);
+    await query(`
+      INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, usage_limit, used_count, start_date, end_date, is_active)
+      VALUES (@code, N'Limited 1 Usage Voucher', 'fixed_amount', 20000, 100000, 1, 0, '2025-01-01', '2028-12-31', 1)
+    `, { code: testVoucherCode });
+
+    // Create another variant with size_id = 2 and stock = 10 so stock is not the bottleneck
+    const vouchVarRes = await query(`
+      INSERT INTO product_variants (product_id, size_id, color_id, sku, stock_quantity, status)
+      OUTPUT INSERTED.id
+      VALUES (@prodId, 2, 1, @sku, 10, 'active')
+    `, { prodId: tempProdId, sku: randCode + '-VOUCH-VAR' });
+    const vouchVarId = vouchVarRes.recordset[0].id;
+
+    // Put item in both users' carts
+    await query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@c, @v, 1)", { c: cid1, v: vouchVarId });
+    await query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@c, @v, 1)", { c: cid2, v: vouchVarId });
+
+    // Both attempt checkout SIMULTANEOUSLY with the same single-use voucher
+    const vouchAttempts = await Promise.allSettled([
+      orderService.createCodOrder({
+        userId: uid1,
+        recipientName: 'Voucher Competitor 1',
+        recipientPhone: '0901111111',
+        deliveryAddress: 'Đà Nẵng',
+        voucherCode: testVoucherCode,
+      }),
+      orderService.createCodOrder({
+        userId: uid2,
+        recipientName: 'Voucher Competitor 2',
+        recipientPhone: '0902222222',
+        deliveryAddress: 'Đà Nẵng',
+        voucherCode: testVoucherCode,
+      })
+    ]);
+
+    const vouchSuccesses = vouchAttempts.filter(a => a.status === 'fulfilled');
+    const vouchFailures = vouchAttempts.filter(a => a.status === 'rejected');
+
+    assert(vouchSuccesses.length === 1, 'CONCUR-04', `Exactly 1 order succeeded with single-use voucher (Successes: ${vouchSuccesses.length})`);
+    assert(vouchFailures.length === 1, 'CONCUR-05', `Competing request rejected due to exhausted voucher limit (Failures: ${vouchFailures.length})`);
+
+    const finalVouchState = await query("SELECT used_count, usage_limit FROM vouchers WHERE code = @code", { code: testVoucherCode });
+    assert(finalVouchState.recordset[0].used_count === 1, 'CONCUR-06', 'Voucher used_count is exactly 1 (No race-condition over-usage)');
+
+    // -------------------------------------------------------------------------
+    // CLEANUP TEST FIXTURES
+    // -------------------------------------------------------------------------
     try {
-      await query("DELETE FROM cart_items WHERE cart_id IN (@c1, @c2)", { c1: cid1, c2: cid2 });
-      await query("DELETE FROM carts WHERE id IN (@c1, @c2)", { c1: cid1, c2: cid2 });
-      // clean up successful order
-      if (successes.length > 0) {
-        const succOrder = successes[0].value;
-        const succOrderId = succOrder.id || succOrder.orderId;
-        const succCode = succOrder.orderCode;
-        if (succCode) {
-          await query("DELETE FROM inventory_transactions WHERE reason LIKE @srch", { srch: `%${succCode}%` });
-        }
-        await query("DELETE FROM order_items WHERE order_id = @oid", { oid: succOrderId });
-        await query("DELETE FROM order_status_histories WHERE order_id = @oid", { oid: succOrderId });
-        await query("DELETE FROM orders WHERE id = @oid", { oid: succOrderId });
+      await query("DELETE FROM cart_items WHERE cart_id IN (@c1, @c2, @tc)", { c1: cid1, c2: cid2, tc: testCartId });
+      await query("DELETE FROM carts WHERE id IN (@c1, @c2, @tc)", { c1: cid1, c2: cid2, tc: testCartId });
+
+      // Clean up orders placed by test users or referencing test variants
+      const ordersToClean = await query("SELECT id FROM orders WHERE user_id IN (@u1, @u2, @tu)", { u1: uid1, u2: uid2, tu: testUserId });
+      for (const ord of ordersToClean.recordset) {
+        await query("DELETE FROM inventory_transactions WHERE variant_id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
+        await query("DELETE FROM order_items WHERE order_id = @oid", { oid: ord.id });
+        await query("DELETE FROM order_status_histories WHERE order_id = @oid", { oid: ord.id });
+        await query("DELETE FROM orders WHERE id = @oid", { oid: ord.id });
       }
-      await query("DELETE FROM users WHERE id IN (@u1, @u2)", { u1: uid1, u2: uid2 });
-      await query("DELETE FROM product_variants WHERE id = @id", { id: tempVarId });
+
+      await query("DELETE FROM inventory_transactions WHERE variant_id IN (@v1, @v2) OR user_id IN (@u1, @u2, @tu)", { v1: tempVarId, v2: vouchVarId, u1: uid1, u2: uid2, tu: testUserId });
+      await query("DELETE FROM product_variants WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
       await query("DELETE FROM products WHERE id = @id", { id: tempProdId });
+      await query("DELETE FROM vouchers WHERE code = @vc", { vc: testVoucherCode });
+      await query("DELETE FROM users WHERE id IN (@u1, @u2, @tu)", { u1: uid1, u2: uid2, tu: testUserId });
     } catch (cleanupErr) {
-      console.warn('  (Non-critical concurrency cleanup notice):', cleanupErr.message);
+      console.warn('  (Cleanup notice):', cleanupErr.message);
     }
 
     console.log('\n===============================================================');

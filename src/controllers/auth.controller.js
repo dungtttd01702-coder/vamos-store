@@ -1,11 +1,26 @@
 const bcrypt = require('bcryptjs');
-const { query } = require('../config/database');
+const { sql, getPool, query, withTransaction } = require('../config/database');
 const {
   isValidEmail,
   isValidPhone,
   isValidPassword,
   isValidFullName,
 } = require('../utils/validator');
+
+/**
+ * Sanitize and validate internal redirect URL (prevents open redirects and protocol-relative URLs)
+ * @param {string} returnUrl 
+ * @returns {string}
+ */
+function getSafeReturnUrl(returnUrl) {
+  if (!returnUrl || typeof returnUrl !== 'string') return '/';
+  const trimmed = returnUrl.trim();
+  // Must start with single / and not be followed by / or \ (blocks //evil.com or /\evil.com)
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//') && !trimmed.startsWith('/\\')) {
+    return trimmed;
+  }
+  return '/';
+}
 
 class AuthController {
   /**
@@ -17,23 +32,24 @@ class AuthController {
     }
     res.render('pages/auth/login', {
       title: 'Đăng Nhập Tài Khoản',
-      returnUrl: req.query.returnUrl || '/',
+      returnUrl: getSafeReturnUrl(req.query.returnUrl),
     });
   }
 
   /**
-   * Process Login
+   * Process Login with Session Regeneration
    */
   async postLogin(req, res, next) {
     try {
       const { email, password, returnUrl } = req.body;
+      const safeReturnUrl = getSafeReturnUrl(returnUrl);
 
       if (!email || !password) {
         return res.render('pages/auth/login', {
           title: 'Đăng Nhập Tài Khoản',
           error_msg: 'Vui lòng nhập đầy đủ email và mật khẩu.',
           email,
-          returnUrl,
+          returnUrl: safeReturnUrl,
         });
       }
 
@@ -45,7 +61,7 @@ class AuthController {
           title: 'Đăng Nhập Tài Khoản',
           error_msg: 'Địa chỉ email không đúng định dạng (ví dụ: user@example.com).',
           email,
-          returnUrl,
+          returnUrl: safeReturnUrl,
         });
       }
 
@@ -55,7 +71,7 @@ class AuthController {
           title: 'Đăng Nhập Tài Khoản',
           error_msg: 'Email hoặc mật khẩu không chính xác.',
           email,
-          returnUrl,
+          returnUrl: safeReturnUrl,
         });
       }
 
@@ -65,7 +81,7 @@ class AuthController {
           title: 'Đăng Nhập Tài Khoản',
           error_msg: 'Tài khoản của bạn hiện đang bị tạm khóa. Vui lòng liên hệ bộ phận hỗ trợ.',
           email,
-          returnUrl,
+          returnUrl: safeReturnUrl,
         });
       }
 
@@ -75,7 +91,7 @@ class AuthController {
           title: 'Đăng Nhập Tài Khoản',
           error_msg: 'Email hoặc mật khẩu không chính xác.',
           email,
-          returnUrl,
+          returnUrl: safeReturnUrl,
         });
       }
 
@@ -93,20 +109,23 @@ class AuthController {
       const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
       const cartCount = countRes.recordset[0]?.total_items || 0;
 
-      // Set user session
-      req.session.user = {
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        role: user.role,
-        cartId,
-      };
-      req.session.cartCount = cartCount;
+      // Regenerate session to protect against Session Fixation attacks
+      req.session.regenerate((regenErr) => {
+        if (regenErr) return next(regenErr);
 
-      req.session.save((err) => {
-        if (err) return next(err);
-        const redirectTarget = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/';
-        res.redirect(redirectTarget);
+        req.session.user = {
+          id: user.id,
+          email: user.email,
+          full_name: user.full_name,
+          role: user.role,
+          cartId,
+        };
+        req.session.cartCount = cartCount;
+
+        req.session.save((saveErr) => {
+          if (saveErr) return next(saveErr);
+          res.redirect(safeReturnUrl);
+        });
       });
     } catch (error) {
       next(error);
@@ -126,7 +145,7 @@ class AuthController {
   }
 
   /**
-   * Process Registration
+   * Process Registration in Atomic Database Transaction
    */
   async postRegister(req, res, next) {
     try {
@@ -150,7 +169,7 @@ class AuthController {
         });
       }
 
-      // 3. Strict Email Validation (domain + extension required)
+      // 3. Strict Email Validation
       const normalizedEmail = email.trim().toLowerCase();
       if (!isValidEmail(normalizedEmail)) {
         return res.render('pages/auth/register', {
@@ -198,40 +217,62 @@ class AuthController {
         });
       }
 
-      // 8. Hash password with bcrypt
+      // 8. Hash password with bcrypt (10 salt rounds)
       const passwordHash = await bcrypt.hash(password, 10);
 
-      // 9. Insert User
-      const userRes = await query(`
-        INSERT INTO users (full_name, email, password_hash, phone, role, status)
-        OUTPUT INSERTED.id, INSERTED.email, INSERTED.full_name, INSERTED.role
-        VALUES (@fullName, @email, @hash, @phone, 'CUSTOMER', 'active')
-      `, {
-        fullName: full_name.trim(),
-        email: normalizedEmail,
-        hash: passwordHash,
-        phone: cleanPhone,
-      });
+      // 9. Atomic Transaction: Create User + Cart
+      const pool = await getPool();
+      const transaction = new sql.Transaction(pool);
+      await transaction.begin();
 
-      const newUser = userRes.recordset[0];
+      let newUser;
+      let cartId;
 
-      // Create persistent cart for new customer
-      const cartRes = await query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)', { userId: newUser.id });
-      const cartId = cartRes.recordset[0].id;
+      try {
+        const userReq = new sql.Request(transaction);
+        userReq.input('fullName', full_name.trim());
+        userReq.input('email', normalizedEmail);
+        userReq.input('hash', passwordHash);
+        userReq.input('phone', cleanPhone);
+        const insertUserRes = await userReq.query(`
+          INSERT INTO users (full_name, email, password_hash, phone, role, status)
+          OUTPUT INSERTED.id, INSERTED.email, INSERTED.full_name, INSERTED.role
+          VALUES (@fullName, @email, @hash, @phone, 'CUSTOMER', 'active')
+        `);
+        newUser = insertUserRes.recordset[0];
 
-      // Automatically authenticate in session
-      req.session.user = {
-        id: newUser.id,
-        email: newUser.email,
-        full_name: newUser.full_name,
-        role: newUser.role,
-        cartId,
-      };
-      req.session.cartCount = 0;
+        const cartReq = new sql.Request(transaction);
+        cartReq.input('userId', newUser.id);
+        const insertCartRes = await cartReq.query(`
+          INSERT INTO carts (user_id)
+          OUTPUT INSERTED.id
+          VALUES (@userId)
+        `);
+        cartId = insertCartRes.recordset[0].id;
 
-      req.session.save((err) => {
-        if (err) return next(err);
-        res.redirect('/');
+        await transaction.commit();
+      } catch (txErr) {
+        await transaction.rollback();
+        throw txErr;
+      }
+
+      // 10. Automatically authenticate in session with regeneration
+      req.session.regenerate((regenErr) => {
+        if (regenErr) return next(regenErr);
+
+        req.session.user = {
+          id: newUser.id,
+          email: newUser.email,
+          full_name: newUser.full_name,
+          role: newUser.role,
+          cartId,
+        };
+        req.session.cartCount = 0;
+
+        req.session.save((saveErr) => {
+          if (saveErr) return next(saveErr);
+          res.redirect('/');
+        });
       });
     } catch (error) {
       next(error);
@@ -241,12 +282,19 @@ class AuthController {
   /**
    * Process Logout
    */
-  postLogout(req, res) {
-    req.session.destroy(() => {
+  postLogout(req, res, next) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('[Session Destroy Warning]:', err.message);
+      }
+      res.clearCookie('vamos_sid');
       res.redirect('/');
     });
   }
 }
 
-module.exports = new AuthController();
+const authController = new AuthController();
+authController.getSafeReturnUrl = getSafeReturnUrl;
+
+module.exports = authController;
 

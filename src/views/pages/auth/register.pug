@@ -15,6 +15,7 @@ block content
           = error_msg
 
       form.space-y-4(action="/auth/register" method="POST")
+        input(type="hidden" name="_csrf" value=csrfToken)
         div
           label.form-label(for="full_name") Họ và tên
           input#full_name.form-input(

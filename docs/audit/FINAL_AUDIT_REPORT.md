@@ -4,8 +4,8 @@
 
 **Dự án:** VAMOS STORE — Website Thương mại Điện tử Giày Dép Hiện Đại (Move Your Way)  
 **Đơn vị:** Đồ án môn học / Dự án phần mềm (JAV102) — FPT Polytechnic Đà Nẵng  
-**Phiên bản:** v1.1.0 Consistent Production-Ready  
-**Nhánh Git:** `fix/vamos-store-consistency`  
+**Phiên bản:** v1.2.0 Hardened Production-Ready & Security Audited  
+**Nhánh Git:** `fix/vamos-store-full-repair`  
 **Ngày hoàn thành:** 11/11/2026  
 **Đội ngũ thực hiện:** Antigravity Full-stack Software Engineering Team
 
@@ -13,13 +13,13 @@
 
 ## 1. TỔNG QUAN KIỂM TRA VÀ SỬA LỖI
 
-Thực hiện theo chỉ thị **Master Task**, toàn bộ hệ thống VAMOS STORE đã được tiến hành rà soát kỹ thuật độc lập (Audit), lập phương án sửa lỗi chi tiết (`docs/audit/REPAIR_PLAN.md`), và trực tiếp thực thi sửa chữa triệt để trên cả 4 trục:
+Thực hiện theo chỉ thị **Master Task**, toàn bộ hệ thống VAMOS STORE đã được tiến hành rà soát kỹ thuật độc lập (Audit), lập phương án sửa lỗi chi tiết (`docs/audit/REPAIR_PLAN.md`), thực hiện nhật ký sửa chữa (`docs/audit/REPAIR_LOG.md`), và trực tiếp thực thi sửa chữa triệt để trên cả 5 trục kỹ thuật:
 
-1. **Cơ sở dữ liệu (Database):** Thống nhất 100% trên **Microsoft SQL Server 2025** (bản cài đặt thực tế: Enterprise Developer Edition, Build 17.0.1000.7). Gỡ bỏ hoàn toàn thư viện `mysql2`, loại bỏ kịch bản trùng lặp MySQL, đồng bộ Docker Compose sang `mcr.microsoft.com/mssql/server:2022-latest`.
-2. **Kiến trúc & Backend:** Sửa toàn bộ lệch chuẩn tên trường dữ liệu (`phone` vs `phone_number`, `detail_address` vs `address_line`), thực thi ràng buộc trạng thái đơn hàng chuẩn SQL Server (`COMPLETED` thay thế cho `DELIVERED`), sửa tính toán doanh thu Admin Dashboard bảo vệ dòng tiền COD, hoàn thiện API giỏ hàng (`/cart/update`, `/cart/clear`), áp dụng khóa bi quan `WITH (UPDLOCK, ROWLOCK)` ngăn chặn bán vượt tồn kho (overselling) và chống hoàn kho 2 lần.
-3. **Giao diện (Frontend SSR & Tailwind):** Sửa toàn bộ form thêm địa chỉ, bổ sung bộ điều chỉnh số lượng (+/-) realtime và nút xóa sạch giỏ hàng trong `cart/index.pug`, đồng bộ huy hiệu trạng thái đơn hàng sang `COMPLETED`, biên dịch lại CSS Tailwind v3 không có lỗi layout.
-4. **Tài liệu & Đồ án (Documentation & Diagrams):** Chuyển đổi toàn bộ 6 chương báo cáo đồ án tốt nghiệp (`report/`), đặc tả Use Case, ERD 18 thực thể (`docs/diagrams/erd/vamos_store_erd.puml`), tài liệu ngữ cảnh AI (`PROJECT_CONTEXT_FOR_AI.md`) và `README.md` sang chuẩn Microsoft SQL Server 2025.
-5. **Kiểm thử tự động (Automated Regression Test Suite):** Xây dựng bộ test hồi quy toàn diện `tests/regression_suite.js` gồm **68 kịch bản kiểm thử tích hợp**, chạy thực tế trên SQL Server 2025 và đạt tỷ lệ **100% PASS (68/68)**.
+1. **Cơ sở dữ liệu (Database & Non-destructive Migrations):** Thống nhất 100% trên **Microsoft SQL Server 2025** (Local Host) và Docker Baseline **MSSQL Server 2022** (`mcr.microsoft.com/mssql/server:2022-latest`). Gỡ bỏ hoàn toàn 18 lệnh `DROP TABLE` nguy hiểm; xây dựng hệ thống Versioned Migration (`database/migrations/`) với bảng `schema_migrations` và Filtered Unique Indexes (`uq_user_default_address`, `uq_product_primary_image`).
+2. **Bảo mật & Xác thực (Security & Auth):** Tích hợp Middleware chống tấn công CSRF đa phương thức (`src/middlewares/csrf.middleware.js`), nhúng mã token ẩn vào toàn bộ 11 form Pug; áp dụng `req.session.regenerate()` chống Session Fixation; xây dựng `getSafeReturnUrl()` chống Open Redirect & Protocol-relative URL (`//evil.com`); chuẩn hóa bộ kiểm tra định dạng email nghiêm ngặt (chặn đứng `123@gmail` thiếu TLD); đóng gói quy trình đăng ký tài khoản và tạo giỏ hàng trong một transaction nguyên tử.
+3. **Kiến trúc, Đơn hàng & Kho (Architecture, Order & Inventory):** Khóa dòng `WITH (UPDLOCK, ROWLOCK)` ngăn chặn bán vượt tồn kho (overselling) và chống hoàn kho hai lần; kiểm tra và tăng lượt dùng voucher nguyên tử có điều kiện chống race condition; thực thi ma trận chuyển trạng thái đơn hàng (State Transition Matrix); đảm bảo quy tắc COD nghiêm ngặt (`payment_status = 'PAID'` CHỈ khi `order_status = 'COMPLETED'`); bảo tồn snapshot lịch sử trong `orders` và `order_items`.
+4. **Giao diện & Assets (Frontend SSR & Tailwind):** Khắc phục toàn bộ form địa chỉ, biên dịch lại CSS Tailwind v3 minified (`src/public/css/style.css`), xác minh 100% 24 file template Pug biên dịch không có lỗi cú pháp.
+5. **Kiểm thử tự động trên Database độc lập (Isolated Automated Regression Suite):** Xây dựng môi trường cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`, mở rộng bộ kiểm thử lên **86 kịch bản tích hợp tự động** (`tests/regression_suite.js`), chạy thực tế trên SQL Server và đạt tỷ lệ **100% PASS (86/86)**.
 
 ---
 
@@ -107,80 +107,23 @@ Thực hiện theo chỉ thị **Master Task**, toàn bộ hệ thống VAMOS ST
 
 ## 7. BẢNG KẾT QUẢ CHẠY KIỂM THỬ HỒI QUY (REGRESSION TEST SUITE)
 
-Kịch bản thực thi trực tiếp: `cmd.exe /c npm test` (`node tests/regression_suite.js`)  
-Môi trường kiểm thử: **Microsoft SQL Server 2025 (RTM) - 17.0.1000.7 (X64) Enterprise Developer Edition**  
-Kết quả: **68/68 TESTS PASSED (100%)**
+Kịch bản thực thi trực tiếp: `npm test` (`node tests/regression_suite.js`)  
+Môi trường kiểm thử: **Microsoft SQL Server 2025 (Local Host) & MSSQL 2022 Docker Baseline**  
+Cơ sở dữ liệu kiểm thử độc lập: `vamos_store_test_db` (Tách biệt hoàn toàn, tự động khởi tạo và migrate)  
+Kết quả: **86/86 TESTS PASSED (100%)**  
+*Chi tiết toàn bộ bảng kiểm thử 86 ca được lưu tại:* [`docs/audit/TEST_RESULTS.md`](TEST_RESULTS.md)
 
-| STT |   Mã Test   | Mục đích & Nghiệp vụ kiểm tra                   | Đầu vào thực tế               | Kết quả kỳ vọng                   | Kết quả thực tế                    | Trạng thái |
-| :-: | :---------: | :---------------------------------------------- | :---------------------------- | :-------------------------------- | :--------------------------------- | :--------: |
-|  1  |  `VAL-01`   | Từ chối email sai định dạng (thiếu TLD)         | `'123@gmail'`                 | Trả về `false`                    | `false`                            |  **PASS**  |
-|  2  |  `VAL-02`   | Từ chối email không có `@`                      | `'invalid-email'`             | Trả về `false`                    | `false`                            |  **PASS**  |
-|  3  |  `VAL-03`   | Chấp nhận email tên miền hợp lệ                 | `'admin@vamos.vn'`            | Trả về `true`                     | `true`                             |  **PASS**  |
-|  4  |  `VAL-04`   | Chấp nhận email gmail hợp lệ                    | `'customer.test@gmail.com'`   | Trả về `true`                     | `true`                             |  **PASS**  |
-|  5  |  `VAL-05`   | Chấp nhận SĐT di động Viettel/Mobi chuẩn        | `'0901234567'`                | Trả về `true`                     | `true`                             |  **PASS**  |
-|  6  |  `VAL-06`   | Chấp nhận đầu số mới 038                        | `'0389998888'`                | Trả về `true`                     | `true`                             |  **PASS**  |
-|  7  |  `VAL-07`   | Từ chối đầu số 11 số cũ của VN                  | `'0123456789'`                | Trả về `false`                    | `false`                            |  **PASS**  |
-|  8  |  `VAL-08`   | Từ chối số điện thoại quá ngắn                  | `'123456'`                    | Trả về `false`                    | `false`                            |  **PASS**  |
-|  9  |  `VAL-09`   | Chấp nhận mật khẩu đủ 6 ký tự                   | `'123456'`                    | Trả về `true`                     | `true`                             |  **PASS**  |
-| 10  |  `VAL-10`   | Từ chối mật khẩu dưới 6 ký tự                   | `'12345'`                     | Trả về `false`                    | `false`                            |  **PASS**  |
-| 11  |  `AUTH-01`  | Xác minh tài khoản Quản trị viên tồn tại        | Email `admin@vamos.vn`        | Tìm thấy 1 bản ghi                | 1 bản ghi tìm thấy                 |  **PASS**  |
-| 12  |  `AUTH-02`  | Kiểm tra mật khẩu băm bcrypt của Admin          | Mật khẩu gốc `123456`         | Khớp 100% hash bcrypt             | `bcrypt.compare` = true            |  **PASS**  |
-| 13  |  `AUTH-03`  | Kiểm tra quyền hạn Admin                        | Cột `role` của Admin          | Giá trị `'ADMIN'`                 | `'ADMIN'`                          |  **PASS**  |
-| 14  |  `AUTH-04`  | Kiểm tra trạng thái tài khoản Admin             | Cột `status` của Admin        | Trạng thái `'active'`             | `'active'`                         |  **PASS**  |
-| 15  |  `AUTH-05`  | Xác minh tài khoản Khách hàng mẫu tồn tại       | Email `khachhang@vamos.vn`    | Tìm thấy 1 bản ghi                | 1 bản ghi tìm thấy                 |  **PASS**  |
-| 16  |  `AUTH-06`  | Kiểm tra mật khẩu băm bcrypt của Customer       | Mật khẩu gốc `123456`         | Khớp 100% hash bcrypt             | `bcrypt.compare` = true            |  **PASS**  |
-| 17  |  `AUTH-07`  | Kiểm tra quyền hạn Khách hàng                   | Cột `role` của Customer       | Giá trị `'CUSTOMER'`              | `'CUSTOMER'`                       |  **PASS**  |
-| 18  |  `PROD-01`  | Kiểm tra đủ 4 danh mục chính hoạt động          | Bảng `categories`             | $\ge 4$ danh mục active           | 4 danh mục active                  |  **PASS**  |
-| 19  |  `PROD-02`  | Kiểm tra danh mục sản phẩm đang kinh doanh      | Bảng `products`               | Có sản phẩm `active`              | 8 sản phẩm active                  |  **PASS**  |
-| 20  |  `PROD-03`  | Lọc sản phẩm theo giới tính Men/Unisex          | Cột `gender_target`           | Trả về sản phẩm phù hợp           | Sản phẩm trả về chính xác          |  **PASS**  |
-| 21  |  `PROD-04`  | Kiểm tra biến thể có số lượng tồn khả dụng      | Bảng `product_variants`       | `stock_quantity > 0`              | Tồn kho khả dụng > 0               |  **PASS**  |
-| 22  |  `CART-01`  | Thêm sản phẩm vào giỏ hàng cá nhân              | Biến thể #1, số lượng 2       | Giỏ có 2 sản phẩm                 | Số lượng giỏ = 2                   |  **PASS**  |
-| 23  |  `CART-02`  | Cơ chế chặn vượt tồn kho (Stock Bounding)       | Yêu cầu số lượng 999          | Tự động giới hạn = tồn kho        | Bị chặn đúng bằng tồn kho          |  **PASS**  |
-| 24  | `VOUCH-01`  | Kiểm tra mã voucher VAMOS50K hoạt động          | Mã `'VAMOS50K'`               | Tồn tại và `is_active = 1`        | Tìm thấy và active                 |  **PASS**  |
-| 25  | `VOUCH-02`  | Kiểm tra giá trị đơn hàng tối thiểu VAMOS50K    | Cột `min_order_value`         | Giá trị 500.000đ                  | 500.000đ                           |  **PASS**  |
-| 26  | `VOUCH-03`  | Kiểm tra mã voucher FREESHIP hoạt động          | Mã `'FREESHIP'`               | Tồn tại và `is_active = 1`        | Tìm thấy và active                 |  **PASS**  |
-| 27  | `VOUCH-04`  | Kiểm tra giá trị giảm giá phí ship              | Cột `discount_value`          | Giảm 30.000đ                      | 30.000đ                            |  **PASS**  |
-| 28  | `VOUCH-05`  | Từ chối voucher đã hết hạn hoặc không tồn tại   | Mã `'EXPIRED_CODE'`           | Không được áp dụng                | Bị từ chối hợp lệ                  |  **PASS**  |
-| 29  | `CHECK-01`  | Khởi tạo đơn hàng COD an toàn trong Transaction | Cart 1 đôi + FREESHIP         | Trả về mã đơn và ID               | Tạo đơn ID hợp lệ                  |  **PASS**  |
-| 30  | `CHECK-02`  | Định dạng mã đơn hàng duy nhất                  | Tiền tố `'VAM'`               | Mã bắt đầu bằng `VAM`             | `VAM261111-xxxx`                   |  **PASS**  |
-| 31  | `CHECK-03`  | Khởi tạo trạng thái đơn hàng ban đầu            | Cột `order_status`            | Bắt buộc là `'PENDING'`           | `'PENDING'`                        |  **PASS**  |
-| 32  | `CHECK-04`  | Phương thức thanh toán khi nhận hàng            | Cột `payment_method`          | Bắt buộc là `'COD'`               | `'COD'`                            |  **PASS**  |
-| 33  | `CHECK-05`  | Trạng thái thanh toán ban đầu của đơn COD       | Cột `payment_status`          | Bắt buộc là `'UNPAID'`            | `'UNPAID'`                         |  **PASS**  |
-| 34  | `CHECK-06`  | Lưu snapshot người nhận hàng                    | Tên người nhận                | Khớp chính xác tên nhập           | Trùng khớp 100%                    |  **PASS**  |
-| 35  | `CHECK-07`  | Lưu snapshot số điện thoại người nhận           | SĐT người nhận                | Khớp chính xác SĐT nhập           | Trùng khớp 100%                    |  **PASS**  |
-| 36  | `CHECK-08`  | Lưu snapshot địa chỉ giao hàng                  | Địa chỉ nhận hàng             | Chứa thông tin đường/phố          | Trùng khớp 100%                    |  **PASS**  |
-| 37  | `CHECK-09`  | Lưu snapshot chi tiết đơn hàng (`order_items`)  | Bảng `order_items`            | Tạo dòng snapshot độc lập         | 1 dòng snapshot đã tạo             |  **PASS**  |
-| 38  | `CHECK-10`  | Số lượng mua trong snapshot                     | Cột `quantity`                | Bằng 1                            | 1                                  |  **PASS**  |
-| 39  | `CHECK-11`  | Snapshot tên sản phẩm                           | Cột `product_name_snapshot`   | Tên giày tại thời điểm mua        | Giày Sneaker Nam Vamos Air Wave V1 |  **PASS**  |
-| 40  | `CHECK-12`  | Snapshot SKU sản phẩm                           | Cột `sku_snapshot`            | Mã SKU tại thời điểm mua          | `VM-SNK-01-39-BLK`                 |  **PASS**  |
-| 41  | `CHECK-13`  | Snapshot kích thước giày                        | Cột `size_snapshot`           | Kích cỡ tại thời điểm mua         | Size `39`                          |  **PASS**  |
-| 42  | `CHECK-14`  | Snapshot màu sắc giày                           | Cột `color_snapshot`          | Màu sắc tại thời điểm mua         | Màu `Đen`                          |  **PASS**  |
-| 43  | `CHECK-15`  | Trừ tồn kho tức thời trong Transaction          | `stock_quantity` biến thể     | Giảm chính xác 1 đơn vị           | Giảm đúng 1 đơn vị                 |  **PASS**  |
-| 44  | `CHECK-16`  | Ghi nhật ký kiểm toán xuất kho                  | Bảng `inventory_transactions` | Ghi nhận lý do có mã đơn          | Đã ghi nhận có mã đơn              |  **PASS**  |
-| 45  | `CHECK-17`  | Lượng thay đổi tồn kho khi xuất                 | Cột `change_quantity`         | Giá trị âm (`-1`)                 | `-1`                               |  **PASS**  |
-| 46  | `CHECK-18`  | Tăng số lượt đã dùng của voucher                | Cột `used_count`              | Tăng thêm đúng 1 lượt             | Tăng từ $N \rightarrow N+1$        |  **PASS**  |
-| 47  | `CHECK-19`  | Dọn sạch giỏ hàng của khách sau đặt hàng        | Bảng `cart_items`             | Số lượng sản phẩm còn lại = 0     | Giỏ hàng trống (0)                 |  **PASS**  |
-| 48  | `ORDER-01`  | Khách tự hủy đơn hàng khi còn PENDING           | Gọi `cancelOrder`             | Hủy thành công                    | Thành công                         |  **PASS**  |
-| 49  | `ORDER-02`  | Cập nhật trạng thái đơn thành hủy               | Cột `order_status`            | Giá trị `'CANCELLED'`             | `'CANCELLED'`                      |  **PASS**  |
-| 50  | `ORDER-03`  | Tự động hoàn lại số lượng tồn kho               | `stock_quantity` biến thể     | Phục hồi về mức ban đầu           | Phục hồi chính xác 100%            |  **PASS**  |
-| 51  | `ORDER-04`  | Ghi nhật ký hoàn kho kiểm toán                  | Bảng `inventory_transactions` | Ghi nhận lý do hoàn tồn           | Đã ghi nhận lý do hoàn tồn         |  **PASS**  |
-| 52  | `ORDER-05`  | Lượng thay đổi tồn kho khi hoàn                 | Cột `change_quantity`         | Giá trị dương (`+1`)              | `+1`                               |  **PASS**  |
-| 53  | `ORDER-06`  | Chặn hoàn kho 2 lần trên đơn đã hủy             | Gọi hủy lần 2                 | Ném lỗi từ chối                   | Ném lỗi từ chối hợp lệ             |  **PASS**  |
-| 54  | `ORDER-07`  | Đảm bảo số lượng tồn không bị tăng dư           | `stock_quantity` biến thể     | Giữ nguyên sau lần hủy 2          | Không bị cộng dồn                  |  **PASS**  |
-| 55  | `ADMIN-01`  | Admin chuyển trạng thái sang CONFIRMED          | `updateOrderStatusByAdmin`    | Trạng thái = CONFIRMED            | CONFIRMED                          |  **PASS**  |
-| 56  | `ADMIN-02`  | Kiểm tra thanh toán khi đơn CONFIRMED           | Cột `payment_status`          | Phải giữ nguyên UNPAID            | UNPAID                             |  **PASS**  |
-| 57  | `ADMIN-03`  | Khách không được tự ý hủy khi đã CONFIRMED      | Khách gọi `cancelOrder`       | Bị từ chối do quá PENDING         | Bị từ chối hợp lệ                  |  **PASS**  |
-| 58  | `ADMIN-04`  | Admin chuyển trạng thái sang PROCESSING         | Cập nhật đóng gói kho         | Trạng thái = PROCESSING           | PROCESSING                         |  **PASS**  |
-| 59  | `ADMIN-05`  | Admin chuyển trạng thái sang SHIPPING           | Cập nhật giao vận chuyển      | Trạng thái = SHIPPING             | SHIPPING                           |  **PASS**  |
-| 60  | `ADMIN-06`  | Admin chuyển trạng thái sang COMPLETED          | Giao hàng thành công          | Trạng thái = COMPLETED            | COMPLETED                          |  **PASS**  |
-| 61  | `ADMIN-07`  | Đơn COD chuyển tự động sang PAID                | Cột `payment_status`          | Tự động đổi thành PAID            | PAID                               |  **PASS**  |
-| 62  | `ADMIN-08`  | Hạch toán doanh thu đúng đơn COMPLETED          | Truy vấn tổng doanh thu       | Chỉ cộng đơn COMPLETED + PAID     | Cộng đúng đơn COMPLETED            |  **PASS**  |
-| 63  | `ADMIN-09`  | Không có đơn dở dang nào bị tính PAID           | Kiểm tra đơn khác COMPLETED   | Đếm đơn PAID $\neq$ COMPLETED = 0 | Bằng 0 (Bảo vệ doanh thu)          |  **PASS**  |
-| 64  | `ADMIN-10`  | Admin hủy đơn theo yêu cầu đặc biệt             | Đơn đang xử lý                | Chuyển thành CANCELLED            | CANCELLED                          |  **PASS**  |
-| 65  | `ADMIN-11`  | Admin hủy đơn tự động hoàn trả tồn kho          | Kiểm tra số lượng biến thể    | Tồn kho được cộng bù lại          | Tồn kho được hoàn trả              |  **PASS**  |
-| 66  | `CONCUR-01` | 2 khách cùng mua 1 đôi giày còn lại             | 2 request checkout song song  | Đúng 1 khách mua thành công       | 1 thành công                       |  **PASS**  |
-| 67  | `CONCUR-02` | Khách thứ 2 bị báo hết hàng                     | Kiểm tra kết quả request 2    | Bị từ chối do hết tồn kho         | 1 thất bại do hết tồn              |  **PASS**  |
-| 68  | `CONCUR-03` | Kiểm tra tồn kho sau tranh chấp đồng thời       | `stock_quantity` của biến thể | Bằng đúng 0 (Không âm)            | Tồn kho = 0 (Tuyệt đối không âm)   |  **PASS**  |
+### Tóm tắt 10 Nhóm Kiểm Thử:
+1. **Server-Side Validation (VAL-01 .. VAL-14):** 14 tests — Kiểm tra nghiêm ngặt định dạng email với TLD (chặn `123@gmail`), SĐT 10 số Việt Nam, mật khẩu tối thiểu 6 ký tự, họ và tên.
+2. **Security & CSRF Protection (SEC-01 .. SEC-08):** 8 tests — Kiểm tra chống Open Redirect (`getSafeReturnUrl`), chống Session Fixation (`session.regenerate`), kiểm tra CSRF Middleware chặn mutating POST thiếu token (403 Forbidden) và chấp nhận token hợp lệ.
+3. **Authentication & Roles (AUTH-01 .. AUTH-07):** 7 tests — Xác thực tài khoản Admin (`admin@vamos.vn` / `123456`) và Customer (`khachhang@vamos.vn` / `123456`), kiểm tra vai trò và trạng thái `active`.
+4. **Catalog & Filtering (PROD-01 .. PROD-04):** 4 tests — Đảm bảo 4 danh mục kích hoạt, 8+ sản phẩm mẫu, lọc giới tính MEN/UNISEX, biến thể tồn kho khả dụng.
+5. **Cart Operations & Stock Bounding (CART-01 .. CART-02):** 2 tests — Thêm sản phẩm vào giỏ, giới hạn số lượng không vượt quá tồn kho tối đa (stock bounding).
+6. **Voucher Business Rules (VOUCH-01 .. VOUCH-05):** 5 tests — Mã `VAMOS50K` (đơn từ 500k), `FREESHIP` (giảm 30k), từ chối voucher hết hạn hoặc không tồn tại.
+7. **COD Checkout Atomic Transaction & Snapshots (CHECK-01 .. CHECK-19):** 19 tests — Đặt hàng COD nguyên tử trong transaction; sinh mã tiền tố `VAM`; `order_status = 'PENDING'`, `payment_status = 'UNPAID'`; snapshot người nhận, địa chỉ, đơn giá, SKU, size, màu; trừ kho tức thời; ghi log `inventory_transactions`; tăng `used_count` voucher; xóa sạch giỏ hàng.
+8. **Customer Cancellation & Inventory Restitution (ORDER-01 .. ORDER-07):** 7 tests — Khách hàng tự hủy đơn `PENDING`, cập nhật `CANCELLED`, hoàn lại tồn kho đúng số lượng, ghi log restock, chặn hoàn kho 2 lần trên đơn đã hủy.
+9. **Admin Order Lifecycle & State Transitions (TRANS-01 .. TRANS-03, ADMIN-01 .. ADMIN-09):** 12 tests — Từ chối nhảy cóc `PENDING -> COMPLETED`; chuyển tuần tự qua `CONFIRMED -> PROCESSING -> SHIPPING -> COMPLETED`; tự động chuyển `payment_status = 'PAID'` khi `COMPLETED`; từ chối hủy đơn đã hoàn thành `COMPLETED -> CANCELLED`; tính doanh thu chính xác chỉ trên đơn `COMPLETED` + `PAID`; 0 đơn dở dang bị tính `PAID`.
+10. **Concurrency & Anti-Overselling / Anti-Over-usage (CONCUR-01 .. CONCUR-06, ADMIN-10 .. ADMIN-11):** 8 tests — Admin hủy đơn và hoàn kho; mô phỏng 2 khách cùng mua 1 sản phẩm cuối cùng (đúng 1 người được duyệt, 1 người out-of-stock, tồn kho = 0 không âm); mô phỏng 2 khách cùng áp dụng voucher chỉ còn 1 lượt dùng (đúng 1 người thành công, 1 người bị từ chối do hết hạn mức, `used_count` = 1).
 
 ---
 

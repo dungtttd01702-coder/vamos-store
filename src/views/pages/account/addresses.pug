@@ -51,6 +51,7 @@ block content
           h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
             | THÊM ĐỊA CHỈ MỚI
           form.space-y-4(action="/account/addresses" method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
             .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
               div
                 label.form-label(for="recipient_name") Họ tên người nhận *

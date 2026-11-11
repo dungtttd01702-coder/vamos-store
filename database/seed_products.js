@@ -261,13 +261,23 @@ async function seed() {
     }
 
     console.log('✅ All sample products, images, and variants seeded successfully!');
-    await pool.close();
-    process.exit(0);
+    if (require.main === module) {
+      await pool.close();
+      process.exit(0);
+    }
   } catch (err) {
     console.error('SEEDING_ERROR:', err.message);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    } else {
+      throw err;
+    }
   }
 }
 
-seed();
+if (require.main === module) {
+  seed();
+}
+
+module.exports = { seedProducts: seed };
 

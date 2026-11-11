@@ -33,6 +33,7 @@ block content
             .flex.items-center.justify-between.pb-2
               span.text-xs.text-gray-500= `Có ${items.length} mặt hàng trong giỏ hàng`
               form(action="/cart/clear" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn làm rỗng toàn bộ giỏ hàng?')")
+                input(type="hidden" name="_csrf" value=csrfToken)
                 button.text-xs.text-red-500.font-semibold(class="hover:underline" type="submit") Xóa toàn bộ giỏ
 
             each item in items
@@ -57,6 +58,7 @@ block content
                   //- Quantity Adjuster
                   .flex.items-center.border.border-gray-200.rounded-lg.bg-gray-50(class="p-0.5")
                     form(action="/cart/update" method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
                       input(type="hidden" name="itemId" value=item.cart_item_id)
                       input(type="hidden" name="quantity" value=item.quantity - 1)
                       button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
@@ -66,6 +68,7 @@ block content
                       ) -
                     span.w-8.text-center.text-xs.font-bold.text-vamos-dark= item.quantity
                     form(action="/cart/update" method="POST")
+                      input(type="hidden" name="_csrf" value=csrfToken)
                       input(type="hidden" name="itemId" value=item.cart_item_id)
                       input(type="hidden" name="quantity" value=item.quantity + 1)
                       button.w-7.h-7.flex.items-center.justify-center.text-gray-600.rounded.transition-colors(
@@ -79,6 +82,7 @@ block content
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
 
                   form(action="/cart/remove" method="POST")
+                    input(type="hidden" name="_csrf" value=csrfToken)
                     input(type="hidden" name="itemId" value=item.cart_item_id)
                     button.text-gray-400.p-1.rounded.transition-colors(class="hover:text-vamos-red hover:bg-red-50" type="submit" title="Xóa khỏi giỏ")
                       svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")

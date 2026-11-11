@@ -89,6 +89,7 @@ header
                 span Sổ địa chỉ
               .h-px.bg-vamos-border.my-1
               form(action="/auth/logout" method="POST")
+                input(type="hidden" name="_csrf" value=csrfToken)
                 button.flex.items-center.gap-2.w-full.text-left.px-4.py-2.text-sm.text-red-600.transition-colors(class="hover:bg-red-50" type="submit")
                   span 🚪
                   span Đăng xuất

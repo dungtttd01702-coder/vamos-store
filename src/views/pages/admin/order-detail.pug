@@ -101,6 +101,7 @@ block content
             span.font-bold.text-vamos-red= order.order_status
 
           form.space-y-4(action=`/admin/orders/${order.id}/status` method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
             div
               label.form-label.text-xs(for="new_status") Chọn trạng thái mới *
               select#new_status.form-input.text-xs(name="new_status" required)

@@ -24,6 +24,16 @@ function requireAuth(req, res, next) {
 }
 
 /**
+ * Ensure user is a Guest (not logged in)
+ */
+function requireGuest(req, res, next) {
+  if (req.session?.user) {
+    return res.redirect('/');
+  }
+  next();
+}
+
+/**
  * Ensure user is an Admin
  */
 function requireAdmin(req, res, next) {
@@ -41,6 +51,7 @@ function requireAdmin(req, res, next) {
 module.exports = {
   sessionContextMiddleware,
   requireAuth,
+  requireGuest,
   requireAdmin,
 };
 

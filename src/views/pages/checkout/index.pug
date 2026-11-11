@@ -17,6 +17,7 @@ block content
       | THANH TOÁN ĐƠN HÀNG (COD)
 
     form(action="/checkout" method="POST")
+      input(type="hidden" name="_csrf" value=csrfToken)
       .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
 
         //- ── COLUMN 1: SHIPPING ADDRESS & RECIPIENT (7 cols) ──

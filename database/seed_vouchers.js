@@ -61,12 +61,16 @@ async function seedVouchers() {
   }
 }
 
-seedVouchers()
-  .then(() => {
-    console.log('Vouchers seed completed.');
-    process.exit(0);
-  })
-  .catch(err => {
-    console.error('Error seeding vouchers:', err);
-    process.exit(1);
-  });
+if (require.main === module) {
+  seedVouchers()
+    .then(() => {
+      console.log('Vouchers seed completed.');
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error('Error seeding vouchers:', err);
+      process.exit(1);
+    });
+}
+
+module.exports = { seedVouchers };

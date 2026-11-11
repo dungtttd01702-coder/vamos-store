@@ -37,6 +37,7 @@ block content
             | THÔNG TIN CÁ NHÂN
 
           form.space-y-4(action="/account/profile" method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
             div
               label.form-label(for="email") Địa chỉ Email (không thể thay đổi)
               input#email.form-input.bg-gray-100.text-gray-500.cursor-not-allowed(

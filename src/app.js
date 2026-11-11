@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const config = require('./config/app.config');
 const { sessionContextMiddleware } = require('./middlewares/auth.middleware');
+const csrfMiddleware = require('./middlewares/csrf.middleware');
 const { notFoundHandler, errorHandler } = require('./middlewares/error.middleware');
 const routes = require('./routes');
 
@@ -20,8 +21,12 @@ if (config.app.env === 'development') {
   app.use(morgan('dev'));
 }
 
-// Security & Cross-origin
-app.use(cors());
+// Security & Restricted Cross-origin (SSR application)
+if (config.app.isProduction) {
+  app.use(cors({ origin: config.app.url, credentials: true }));
+} else {
+  app.use(cors({ origin: true, credentials: true }));
+}
 
 // Body Parsers
 app.use(express.json());
@@ -35,6 +40,9 @@ app.use(session(config.session));
 
 // Context & User State Middleware for Pug Views
 app.use(sessionContextMiddleware);
+
+// CSRF Protection Middleware
+app.use(csrfMiddleware);
 
 // Mount Modular Application Routes
 app.use('/', routes);

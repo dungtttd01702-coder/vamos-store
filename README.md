@@ -176,18 +176,21 @@ DB_TRUST_SERVER_CERTIFICATE=true
 
 ### 4. Khởi Tạo Cơ Sở Dữ Liệu
 
-Chạy script tự động tạo cơ sở dữ liệu `vamos_store_db` và khởi tạo các bảng:
+Hệ thống sử dụng cơ chế **Migration theo phiên bản phi hủy diệt** (`database/migrations/`) và tự động kiểm tra database qua `master`:
 
 ```bash
+# Khởi tạo hoặc cập nhật database vamos_store_db:
 node database/init_mssql.js
-```
 
-Sau đó nạp dữ liệu mẫu (sản phẩm, tài khoản, voucher):
-
-```bash
+# Nạp dữ liệu mẫu (sản phẩm, tài khoản, voucher):
 node database/seed_products.js
 node database/seed_vouchers.js
 ```
+
+> **Gợi ý chạy qua Docker:** Bạn cũng có thể khởi chạy nhanh bằng Docker Compose:
+> ```bash
+> docker compose up -d
+> ```
 
 ### 5. Biên Dịch CSS (Tailwind) & Chạy Server
 
@@ -209,7 +212,7 @@ Truy cập trình duyệt tại: **`http://localhost:3000`**
 
 ### 6. Chạy Bộ Kiểm Thử Hồi Quy Tự Động (Regression Tests)
 
-Kiểm tra toàn bộ nghiệp vụ từ Auth, Catalog, Cart, Voucher, Transaction COD, Quản lý trạng thái và Hoàn kho:
+Hệ thống tích hợp **86 kịch bản kiểm thử tự động** chạy trên cơ sở dữ liệu kiểm thử độc lập `vamos_store_test_db` (không làm ô nhiễm `vamos_store_db`):
 
 ```bash
 npm test

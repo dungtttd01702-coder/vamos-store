@@ -1,8 +1,21 @@
 const { sql, getPool, query } = require('../config/database');
 
+/**
+ * State Transition Matrix for VAMOS STORE
+ * Enforces valid forward lifecycle and permitted cancellations
+ */
+const VALID_TRANSITIONS = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PROCESSING', 'CANCELLED'],
+  PROCESSING: ['SHIPPING', 'CANCELLED'],
+  SHIPPING: ['COMPLETED', 'CANCELLED'],
+  COMPLETED: [], // Terminal state
+  CANCELLED: [], // Terminal state
+};
+
 class OrderService {
   /**
-   * Create COD Order inside Transaction with Row Lock & Stock Deduction
+   * Create COD Order inside Atomic Transaction with Row Locks & Stock Deduction
    */
   async createCodOrder({
     userId,
@@ -12,84 +25,132 @@ class OrderService {
     customerNote = '',
     voucherCode = null,
   }) {
+    if (!userId) {
+      throw new Error('Yêu cầu định danh khách hàng (userId required).');
+    }
+    if (!recipientName || !recipientPhone || !deliveryAddress) {
+      throw new Error('Vui lòng cung cấp đầy đủ họ tên, số điện thoại và địa chỉ giao hàng.');
+    }
+
     const pool = await getPool();
-
-    // 1. Fetch Cart Items
-    const cartItemsRes = await query(`
-      SELECT 
-        ci.id AS cart_item_id, ci.quantity, ci.variant_id,
-        pv.sku, pv.stock_quantity,
-        p.id AS product_id, p.name AS product_name,
-        COALESCE(p.sale_price, p.base_price) AS unit_price,
-        (COALESCE(p.sale_price, p.base_price) * ci.quantity) AS line_total,
-        s.size_name,
-        c.color_name,
-        ct.id AS cart_id
-      FROM cart_items ci
-      JOIN carts ct ON ci.cart_id = ct.id
-      JOIN product_variants pv ON ci.variant_id = pv.id
-      JOIN products p ON pv.product_id = p.id
-      JOIN sizes s ON pv.size_id = s.id
-      JOIN colors c ON pv.color_id = c.id
-      WHERE ct.user_id = @userId
-    `, { userId });
-
-    const cartItems = cartItemsRes.recordset;
-    if (!cartItems || cartItems.length === 0) {
-      const err = new Error('Giỏ hàng của bạn đang trống, không thể tiến hành đặt hàng');
-      err.status = 400;
-      throw err;
-    }
-
-    const cartId = cartItems[0].cart_id;
-    const subtotal = cartItems.reduce((sum, item) => sum + Number(item.line_total), 0);
-    const shippingFee = subtotal >= 500000 ? 0 : 30000;
-    let discountAmount = 0;
-    let voucherId = null;
-    let appliedVoucherCode = null;
-
-    // 2. Validate Voucher if provided
-    if (voucherCode && voucherCode.trim() !== '') {
-      const codeTrim = voucherCode.trim().toUpperCase();
-      const vouchRes = await query(`
-        SELECT id, code, discount_type, discount_value, min_order_value, max_discount_amount, is_active, start_date, end_date, usage_limit, used_count
-        FROM vouchers
-        WHERE code = @code AND is_active = 1
-          AND start_date <= GETDATE() AND end_date >= GETDATE()
-      `, { code: codeTrim });
-
-      if (vouchRes.recordset.length > 0) {
-        const v = vouchRes.recordset[0];
-        const minOrder = Number(v.min_order_value || 0);
-        const limitReached = v.usage_limit > 0 && v.used_count >= v.usage_limit;
-
-        if (subtotal >= minOrder && !limitReached) {
-          voucherId = v.id;
-          appliedVoucherCode = v.code;
-          if (v.discount_type === 'fixed_amount') {
-            discountAmount = Math.min(Number(v.discount_value), subtotal);
-          } else if (v.discount_type === 'percentage') {
-            const calc = (subtotal * Number(v.discount_value)) / 100;
-            discountAmount = v.max_discount_amount ? Math.min(calc, Number(v.max_discount_amount)) : calc;
-          }
-        }
-      }
-    }
-
-    const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
-
-    // 3. Begin Database Transaction
     const transaction = new sql.Transaction(pool);
     await transaction.begin();
 
     try {
-      // Step A: Generate Unique Order Code (e.g. VAM261111-1234)
-      const orderDateStr = new Date().toISOString().slice(2, 10).replace(/-/g, '');
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-      const orderCode = `VAM${orderDateStr}-${randomSuffix}`;
+      // 1. Re-read and Lock Customer Cart Items INSIDE the Transaction
+      const cartReq = new sql.Request(transaction);
+      cartReq.input('userId', userId);
+      const cartItemsRes = await cartReq.query(`
+        SELECT 
+          ci.id AS cart_item_id, ci.quantity, ci.variant_id,
+          pv.sku, pv.stock_quantity, pv.status AS variant_status,
+          p.id AS product_id, p.name AS product_name, p.status AS product_status,
+          COALESCE(p.sale_price, p.base_price) AS unit_price,
+          (COALESCE(p.sale_price, p.base_price) * ci.quantity) AS line_total,
+          s.size_name,
+          c.color_name,
+          ct.id AS cart_id
+        FROM cart_items ci WITH (UPDLOCK)
+        JOIN carts ct ON ci.cart_id = ct.id
+        JOIN product_variants pv ON ci.variant_id = pv.id
+        JOIN products p ON pv.product_id = p.id
+        JOIN sizes s ON pv.size_id = s.id
+        JOIN colors c ON pv.color_id = c.id
+        WHERE ct.user_id = @userId
+      `);
 
-      // Step B: Lock and check stock for each variant & Deduct
+      const cartItems = cartItemsRes.recordset;
+      if (!cartItems || cartItems.length === 0) {
+        throw new Error('Giỏ hàng của bạn đang trống, không thể tiến hành đặt hàng.');
+      }
+
+      const cartId = cartItems[0].cart_id;
+      const subtotal = cartItems.reduce((sum, item) => sum + Number(item.line_total), 0);
+      const shippingFee = subtotal >= 500000 ? 0 : 30000;
+      let discountAmount = 0;
+      let voucherId = null;
+      let appliedVoucherCode = null;
+
+      // 2. Lock & Validate Voucher inside Transaction if provided
+      if (voucherCode && voucherCode.trim() !== '') {
+        const codeTrim = voucherCode.trim().toUpperCase();
+        const vouchReq = new sql.Request(transaction);
+        vouchReq.input('code', codeTrim);
+        const vouchRes = await vouchReq.query(`
+          SELECT id, code, discount_type, discount_value, min_order_value, max_discount_amount, is_active, start_date, end_date, usage_limit, used_count
+          FROM vouchers WITH (UPDLOCK, ROWLOCK)
+          WHERE code = @code AND is_active = 1
+            AND start_date <= GETDATE() AND end_date >= GETDATE()
+        `);
+
+        if (vouchRes.recordset.length === 0) {
+          throw new Error(`Mã giảm giá "${codeTrim}" không tồn tại hoặc đã hết hạn.`);
+        }
+
+        const v = vouchRes.recordset[0];
+        const minOrder = Number(v.min_order_value || 0);
+        if (subtotal < minOrder) {
+          throw new Error(`Mã giảm giá "${codeTrim}" yêu cầu đơn hàng tối thiểu từ ${minOrder.toLocaleString('vi-VN')} đ.`);
+        }
+
+        if (v.usage_limit > 0 && v.used_count >= v.usage_limit) {
+          throw new Error(`Mã giảm giá "${codeTrim}" đã hết lượt sử dụng.`);
+        }
+
+        // Calculate discount
+        voucherId = v.id;
+        appliedVoucherCode = v.code;
+        if (v.discount_type === 'fixed_amount') {
+          discountAmount = Math.min(Number(v.discount_value), subtotal);
+        } else if (v.discount_type === 'percentage') {
+          const calc = (subtotal * Number(v.discount_value)) / 100;
+          discountAmount = v.max_discount_amount ? Math.min(calc, Number(v.max_discount_amount)) : calc;
+        }
+
+        // Conditional atomic update of voucher used_count
+        const vUpdReq = new sql.Request(transaction);
+        vUpdReq.input('vouchId', voucherId);
+        const vUpdRes = await vUpdReq.query(`
+          UPDATE vouchers
+          SET used_count = used_count + 1
+          WHERE id = @vouchId AND (usage_limit = 0 OR used_count < usage_limit)
+        `);
+
+        if (vUpdRes.rowsAffected[0] === 0) {
+          throw new Error(`Mã giảm giá "${codeTrim}" vừa hết lượt sử dụng trong thời gian thực.`);
+        }
+      }
+
+      const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
+
+      // 3. Generate Order Code with Collision Handling
+      let orderCode = null;
+      let orderId = null;
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const orderDateStr = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        const candidateCode = `VAM${orderDateStr}-${randomSuffix}`;
+
+        const codeChkReq = new sql.Request(transaction);
+        codeChkReq.input('candCode', candidateCode);
+        const codeRes = await codeChkReq.query('SELECT id FROM orders WHERE order_code = @candCode');
+        if (codeRes.recordset.length === 0) {
+          orderCode = candidateCode;
+          break;
+        }
+      }
+
+      if (!orderCode) {
+        orderCode = `VAM${Date.now()}`;
+      }
+
+      // 4. Lock each variant with UPDLOCK/ROWLOCK, check stock, and deduct
       for (const item of cartItems) {
+        if (item.variant_status !== 'active' || item.product_status !== 'active') {
+          throw new Error(`Sản phẩm "${item.product_name}" hiện đã ngừng kinh doanh.`);
+        }
+
         const lockReq = new sql.Request(transaction);
         lockReq.input('varId', item.variant_id);
         const lockRes = await lockReq.query(`
@@ -99,7 +160,7 @@ class OrderService {
         `);
 
         if (lockRes.recordset.length === 0) {
-          throw new Error(`Biến thể sản phẩm #${item.sku} không còn tồn tại trên hệ thống`);
+          throw new Error(`Biến thể sản phẩm #${item.sku} không còn tồn tại trên hệ thống.`);
         }
 
         const currentStock = lockRes.recordset[0].stock_quantity;
@@ -107,7 +168,7 @@ class OrderService {
           throw new Error(`Sản phẩm ${item.product_name} (${item.color_name} - Size ${item.size_name}) chỉ còn ${currentStock} đôi trong kho, không đủ số lượng ${item.quantity} bạn yêu cầu.`);
         }
 
-        // Deduct stock immediately
+        // Deduct stock
         const deductReq = new sql.Request(transaction);
         deductReq.input('varId', item.variant_id);
         deductReq.input('qty', item.quantity);
@@ -117,7 +178,7 @@ class OrderService {
           WHERE id = @varId
         `);
 
-        // Log to inventory_transactions with order code
+        // Audit Log to inventory_transactions
         const invReq = new sql.Request(transaction);
         invReq.input('variantId', item.variant_id);
         invReq.input('userId', userId);
@@ -131,7 +192,7 @@ class OrderService {
         `);
       }
 
-      // Step C: Insert into orders table
+      // 5. Insert into orders table (Preserve recipient & address snapshot)
       const orderReq = new sql.Request(transaction);
       orderReq.input('orderCode', orderCode);
       orderReq.input('userId', userId);
@@ -147,7 +208,7 @@ class OrderService {
       orderReq.input('payMethod', 'COD');
       orderReq.input('payStatus', 'UNPAID');
       orderReq.input('orderStatus', 'PENDING');
-      orderReq.input('note', customerNote);
+      orderReq.input('note', customerNote || '');
 
       const orderInsertRes = await orderReq.query(`
         INSERT INTO orders (
@@ -165,13 +226,12 @@ class OrderService {
         )
       `);
 
-      const createdOrder = orderInsertRes.recordset[0];
-      const newOrderId = createdOrder.id;
+      orderId = orderInsertRes.recordset[0].id;
 
-      // Step F: Insert order items
+      // 6. Insert Order Items (Preserve product name, SKU, size, color, price snapshots)
       for (const item of cartItems) {
         const itemReq = new sql.Request(transaction);
-        itemReq.input('orderId', newOrderId);
+        itemReq.input('orderId', orderId);
         itemReq.input('varId', item.variant_id);
         itemReq.input('pName', item.product_name);
         itemReq.input('sku', item.sku);
@@ -193,36 +253,27 @@ class OrderService {
         `);
       }
 
-      // Step G: Insert status history
+      // 7. Insert Initial Order Status History
       const histReq = new sql.Request(transaction);
-      histReq.input('orderId', newOrderId);
-      histReq.input('changedBy', userId);
-      histReq.input('newStatus', 'PENDING');
-      histReq.input('histNote', 'Đơn hàng COD được tạo mới thành công bởi khách hàng.');
-
+      histReq.input('orderId', orderId);
+      histReq.input('userId', userId);
+      histReq.input('note', 'Khách hàng đặt hàng COD thành công qua website.');
       await histReq.query(`
         INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-        VALUES (@orderId, @changedBy, NULL, @newStatus, @histNote)
+        VALUES (@orderId, @userId, NULL, 'PENDING', @note)
       `);
 
-      // Step H: Increment voucher used_count if voucher was applied
-      if (voucherId) {
-        const vouchReq = new sql.Request(transaction);
-        vouchReq.input('vouchId', voucherId);
-        await vouchReq.query('UPDATE vouchers SET used_count = used_count + 1 WHERE id = @vouchId');
-      }
-
-      // Step I: Clear User Cart
+      // 8. Clear User's Cart
       const clearReq = new sql.Request(transaction);
       clearReq.input('cartId', cartId);
       await clearReq.query('DELETE FROM cart_items WHERE cart_id = @cartId');
 
-      // Commit Transaction
       await transaction.commit();
 
       return {
-        id: newOrderId,
-        orderCode: createdOrder.order_code,
+        id: orderId,
+        orderId,
+        orderCode,
         recipientName,
         recipientPhone,
         deliveryAddress,
@@ -238,9 +289,80 @@ class OrderService {
   }
 
   /**
-   * Cancel Order (Only permitted when order_status = 'PENDING')
+   * Internal Shared Cancellation Execution (ACID, Row Locking, Inventory Restitution, Anti-Double Cancel)
    */
-  async cancelOrder(orderId, userId) {
+  async _executeCancellation(transaction, { orderId, orderCode, actorId, note, cancelReason, previousStatus = 'PENDING' }) {
+    // 1. Fetch order items to restore stock
+    const itemsReq = new sql.Request(transaction);
+    itemsReq.input('orderId', orderId);
+    const itemsRes = await itemsReq.query(`
+      SELECT product_variant_id, quantity, product_name_snapshot
+      FROM order_items
+      WHERE order_id = @orderId
+    `);
+
+    // 2. Lock and restore stock for each variant with audit log
+    for (const item of itemsRes.recordset) {
+      const stockReq = new sql.Request(transaction);
+      stockReq.input('varId', item.product_variant_id);
+      const stockRes = await stockReq.query(`
+        SELECT stock_quantity 
+        FROM product_variants WITH (UPDLOCK, ROWLOCK) 
+        WHERE id = @varId
+      `);
+
+      if (stockRes.recordset.length > 0) {
+        const currentStock = stockRes.recordset[0].stock_quantity;
+        const newStock = currentStock + item.quantity;
+
+        const restoreReq = new sql.Request(transaction);
+        restoreReq.input('varId', item.product_variant_id);
+        restoreReq.input('newStock', newStock);
+        await restoreReq.query(`
+          UPDATE product_variants 
+          SET stock_quantity = @newStock, updated_at = GETDATE() 
+          WHERE id = @varId
+        `);
+
+        const invReq = new sql.Request(transaction);
+        invReq.input('varId', item.product_variant_id);
+        invReq.input('userId', actorId);
+        invReq.input('oldStock', currentStock);
+        invReq.input('newStock', newStock);
+        invReq.input('qty', item.quantity);
+        invReq.input('reason', cancelReason || `Hoàn tồn kho do hủy đơn hàng #${orderCode}`);
+        await invReq.query(`
+          INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
+          VALUES (@varId, @userId, @oldStock, @newStock, @qty, @reason)
+        `);
+      }
+    }
+
+    // 3. Update order status to CANCELLED
+    const updateReq = new sql.Request(transaction);
+    updateReq.input('orderId', orderId);
+    await updateReq.query(`
+      UPDATE orders 
+      SET order_status = 'CANCELLED', updated_at = GETDATE() 
+      WHERE id = @orderId
+    `);
+
+    // 4. Log status history
+    const histReq = new sql.Request(transaction);
+    histReq.input('orderId', orderId);
+    histReq.input('userId', actorId);
+    histReq.input('prevStatus', previousStatus);
+    histReq.input('note', note || `Hủy đơn hàng #${orderCode}. Đã tự động hoàn trả tồn kho.`);
+    await histReq.query(`
+      INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
+      VALUES (@orderId, @userId, @prevStatus, 'CANCELLED', @note)
+    `);
+  }
+
+  /**
+   * Cancel Order by Customer (Allowed ONLY when order_status = 'PENDING')
+   */
+  async cancelOrder(orderId, userId, reason = '') {
     const pool = await getPool();
     const transaction = new sql.Transaction(pool);
     await transaction.begin();
@@ -262,76 +384,27 @@ class OrderService {
 
       const order = orderRes.recordset[0];
 
-      // Business Rule: ONLY cancel when PENDING
+      // Anti Double Restitution: Check if already CANCELLED
+      if (order.order_status === 'CANCELLED') {
+        throw new Error(`Đơn hàng #${order.order_code} đã ở trạng thái ĐÃ HỦY (CANCELLED), không thể hủy thêm lần nữa.`);
+      }
+
+      // Rule: Customer can ONLY cancel PENDING orders
       if (order.order_status !== 'PENDING') {
         throw new Error(`Đơn hàng hiện đang ở trạng thái "${order.order_status}". Quý khách chỉ được hủy khi đơn hàng đang ở trạng thái "PENDING" (Chờ xác nhận).`);
       }
 
-      // 2. Fetch order items to restore inventory
-      const itemsReq = new sql.Request(transaction);
-      itemsReq.input('orderId', orderId);
-      const itemsRes = await itemsReq.query(`
-        SELECT product_variant_id, quantity, product_name_snapshot
-        FROM order_items
-        WHERE order_id = @orderId
-      `);
-
-      for (const item of itemsRes.recordset) {
-        // Fetch current stock
-        const stockReq = new sql.Request(transaction);
-        stockReq.input('varId', item.product_variant_id);
-        const stockRes = await stockReq.query(`
-          SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId
-        `);
-
-        if (stockRes.recordset.length > 0) {
-          const currentStock = stockRes.recordset[0].stock_quantity;
-          const newStock = currentStock + item.quantity;
-
-          // Restore stock
-          const restoreReq = new sql.Request(transaction);
-          restoreReq.input('varId', item.product_variant_id);
-          restoreReq.input('newStock', newStock);
-          await restoreReq.query(`
-            UPDATE product_variants SET stock_quantity = @newStock, updated_at = GETDATE() WHERE id = @varId
-          `);
-
-          // Log inventory transaction
-          const invReq = new sql.Request(transaction);
-          invReq.input('varId', item.product_variant_id);
-          invReq.input('userId', userId);
-          invReq.input('oldStock', currentStock);
-          invReq.input('newStock', newStock);
-          invReq.input('qty', item.quantity);
-          invReq.input('reason', `Hoàn tồn kho do hủy đơn hàng #${order.order_code}`);
-          await invReq.query(`
-            INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-            VALUES (@varId, @userId, @oldStock, @newStock, @qty, @reason)
-          `);
-        }
-      }
-
-      // 3. Update order status
-      const updateReq = new sql.Request(transaction);
-      updateReq.input('orderId', orderId);
-      await updateReq.query(`
-        UPDATE orders 
-        SET order_status = 'CANCELLED', updated_at = GETDATE() 
-        WHERE id = @orderId
-      `);
-
-      // 4. Log status history
-      const histReq = new sql.Request(transaction);
-      histReq.input('orderId', orderId);
-      histReq.input('userId', userId);
-      histReq.input('note', 'Khách hàng hủy đơn khi đang chờ xác nhận (PENDING).');
-      await histReq.query(`
-        INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-        VALUES (@orderId, @userId, 'PENDING', 'CANCELLED', @note)
-      `);
+      // Execute shared cancellation logic
+      await this._executeCancellation(transaction, {
+        orderId: order.id,
+        orderCode: order.order_code,
+        actorId: userId,
+        note: reason ? `Khách hàng hủy đơn: ${reason}` : 'Khách hàng tự hủy đơn khi đang chờ xác nhận.',
+        cancelReason: `Hoàn tồn kho do khách hủy đơn hàng #${order.order_code}`,
+      });
 
       await transaction.commit();
-      return order;
+      return { success: true, orderId: order.id, orderCode: order.order_code, status: 'CANCELLED' };
     } catch (err) {
       await transaction.rollback();
       throw err;
@@ -339,14 +412,123 @@ class OrderService {
   }
 
   /**
-   * Get Customer Order History
+   * Update Order Status by Admin with Matrix Verification & Audit Trail
    */
-  async getCustomerOrders(userId) {
+  async updateOrderStatusByAdmin({ orderId, newStatus, adminUserId, adminId, note = '' }) {
+    const actorId = adminUserId || adminId;
+    if (!actorId) {
+      throw new Error('Yêu cầu định danh quản trị viên thực hiện thao tác (adminUserId required).');
+    }
+
+    const allowedStatuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'COMPLETED', 'CANCELLED'];
+    if (!allowedStatuses.includes(newStatus)) {
+      throw new Error(`Trạng thái "${newStatus}" không hợp lệ trong hệ thống.`);
+    }
+
+    const pool = await getPool();
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    try {
+      // 1. Verify that actor is a valid, active ADMIN
+      const adminReq = new sql.Request(transaction);
+      adminReq.input('adminId', actorId);
+      const adminRes = await adminReq.query(`
+        SELECT id, role, status FROM users WHERE id = @adminId
+      `);
+      if (adminRes.recordset.length === 0 || adminRes.recordset[0].role !== 'ADMIN' || adminRes.recordset[0].status !== 'active') {
+        throw new Error('Tài khoản thực hiện không có quyền Quản trị viên (ADMIN) hoặc đã bị khóa.');
+      }
+
+      // 2. Lock Order
+      const orderReq = new sql.Request(transaction);
+      orderReq.input('orderId', orderId);
+      const orderRes = await orderReq.query(`
+        SELECT id, order_code, order_status, payment_status
+        FROM orders WITH (UPDLOCK, ROWLOCK)
+        WHERE id = @orderId
+      `);
+
+      if (orderRes.recordset.length === 0) {
+        throw new Error(`Không tìm thấy đơn hàng #${orderId}`);
+      }
+
+      const currentOrder = orderRes.recordset[0];
+      const oldStatus = currentOrder.order_status;
+
+      // Idempotency: if already in target status, return cleanly
+      if (oldStatus === newStatus) {
+        await transaction.commit();
+        return { id: orderId, oldStatus, newStatus, paymentStatus: currentOrder.payment_status };
+      }
+
+      // 3. State Transition Matrix Check
+      const allowedNext = VALID_TRANSITIONS[oldStatus] || [];
+      if (!allowedNext.includes(newStatus)) {
+        throw new Error(`Không thể chuyển trạng thái đơn hàng từ "${oldStatus}" sang "${newStatus}". Luồng chuyển trạng thái không được phép.`);
+      }
+
+      // 4. Handle CANCELLED (Restores inventory & logs audit)
+      if (newStatus === 'CANCELLED') {
+        await this._executeCancellation(transaction, {
+          orderId: currentOrder.id,
+          orderCode: currentOrder.order_code,
+          actorId,
+          note: note || `Admin hủy đơn hàng #${currentOrder.order_code}`,
+          cancelReason: `Admin hủy đơn hàng #${currentOrder.order_code}`,
+          previousStatus: oldStatus,
+        });
+
+        await transaction.commit();
+        return { id: orderId, oldStatus, newStatus: 'CANCELLED', paymentStatus: currentOrder.payment_status };
+      }
+
+      // 5. COD Payment Rule: payment_status = 'PAID' ONLY when order_status = 'COMPLETED'
+      let newPaymentStatus = currentOrder.payment_status;
+      if (newStatus === 'COMPLETED') {
+        newPaymentStatus = 'PAID';
+      }
+
+      // 6. Update orders table
+      const updateReq = new sql.Request(transaction);
+      updateReq.input('orderId', orderId);
+      updateReq.input('newStatus', newStatus);
+      updateReq.input('payStatus', newPaymentStatus);
+      await updateReq.query(`
+        UPDATE orders 
+        SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() 
+        WHERE id = @orderId
+      `);
+
+      // 7. Log History
+      const histReq = new sql.Request(transaction);
+      histReq.input('orderId', orderId);
+      histReq.input('adminId', actorId);
+      histReq.input('oldStatus', oldStatus);
+      histReq.input('newStatus', newStatus);
+      histReq.input('histNote', note || `Admin cập nhật trạng thái đơn hàng từ ${oldStatus} sang ${newStatus}`);
+      await histReq.query(`
+        INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
+        VALUES (@orderId, @adminId, @oldStatus, @newStatus, @histNote)
+      `);
+
+      await transaction.commit();
+      return { id: orderId, oldStatus, newStatus, paymentStatus: newPaymentStatus };
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
+  }
+
+  /**
+   * Get Orders of a Customer
+   */
+  async getOrdersByUser(userId) {
     const sqlStr = `
       SELECT 
-        o.id, o.order_code, o.total_amount, o.order_status, o.payment_method,
-        o.payment_status, o.created_at,
-        (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count
+        o.id, o.order_code, o.total_amount, o.order_status, o.payment_status, o.created_at,
+        (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count,
+        (SELECT TOP 1 product_name_snapshot FROM order_items WHERE order_id = o.id) AS first_item_name
       FROM orders o
       WHERE o.user_id = @userId
       ORDER BY o.id DESC
@@ -356,7 +538,7 @@ class OrderService {
   }
 
   /**
-   * Get Order Details by Numeric ID or Order Code String
+   * Get Order Details by Numeric ID or Order Code String (User Isolated)
    */
   async getOrderDetails(orderIdentifier, userId = null) {
     const isNumeric = /^\d+$/.test(String(orderIdentifier).trim());
@@ -406,114 +588,6 @@ class OrderService {
     order.histories = histRes.recordset;
 
     return order;
-  }
-
-  /**
-   * Update Order Status by Admin with Audit Trail & Auto Inventory Restitution
-   */
-  async updateOrderStatusByAdmin({ orderId, newStatus, adminUserId, adminId, note = '' }) {
-    const actorId = adminUserId || adminId || 1;
-    const allowedStatuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'COMPLETED', 'CANCELLED'];
-    if (!allowedStatuses.includes(newStatus)) {
-      throw new Error(`Trạng thái "${newStatus}" không hợp lệ.`);
-    }
-
-    const pool = await getPool();
-    const transaction = new sql.Transaction(pool);
-    await transaction.begin();
-
-    try {
-      // 1. Lock order
-      const orderReq = new sql.Request(transaction);
-      orderReq.input('orderId', orderId);
-      const orderRes = await orderReq.query(`
-        SELECT id, order_code, order_status, payment_status
-        FROM orders WITH (UPDLOCK, ROWLOCK)
-        WHERE id = @orderId
-      `);
-
-      if (orderRes.recordset.length === 0) {
-        throw new Error(`Không tìm thấy đơn hàng #${orderId}`);
-      }
-
-      const currentOrder = orderRes.recordset[0];
-      const oldStatus = currentOrder.order_status;
-
-      if (oldStatus === newStatus) {
-        await transaction.commit();
-        return currentOrder;
-      }
-
-      // If status changed to CANCELLED and was not already CANCELLED, restore inventory and log audit!
-      if (newStatus === 'CANCELLED' && oldStatus !== 'CANCELLED') {
-        const itemsReq = new sql.Request(transaction);
-        itemsReq.input('orderId', orderId);
-        const itemsRes = await itemsReq.query('SELECT product_variant_id, quantity FROM order_items WHERE order_id = @orderId');
-
-        for (const item of itemsRes.recordset) {
-          const stockReq = new sql.Request(transaction);
-          stockReq.input('varId', item.product_variant_id);
-          const stockRes = await stockReq.query('SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId');
-
-          if (stockRes.recordset.length > 0) {
-            const currentStock = stockRes.recordset[0].stock_quantity;
-            const newStock = currentStock + item.quantity;
-
-            const updateStockReq = new sql.Request(transaction);
-            updateStockReq.input('varId', item.product_variant_id);
-            updateStockReq.input('newStock', newStock);
-            await updateStockReq.query('UPDATE product_variants SET stock_quantity = @newStock, updated_at = GETDATE() WHERE id = @varId');
-
-            const invReq = new sql.Request(transaction);
-            invReq.input('varId', item.product_variant_id);
-            invReq.input('userId', actorId);
-            invReq.input('oldStock', currentStock);
-            invReq.input('newStock', newStock);
-            invReq.input('qty', item.quantity);
-            invReq.input('reason', `Admin hủy đơn hàng #${currentOrder.order_code}`);
-            await invReq.query(`
-              INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-              VALUES (@varId, @userId, @oldStock, @newStock, @qty, @reason)
-            `);
-          }
-        }
-      }
-
-      // COD payment rule: payment_status = 'PAID' ONLY when order_status = 'COMPLETED'
-      let newPaymentStatus = currentOrder.payment_status;
-      if (newStatus === 'COMPLETED') {
-        newPaymentStatus = 'PAID';
-      }
-
-      // 2. Update orders table
-      const updateReq = new sql.Request(transaction);
-      updateReq.input('orderId', orderId);
-      updateReq.input('newStatus', newStatus);
-      updateReq.input('payStatus', newPaymentStatus);
-      await updateReq.query(`
-        UPDATE orders 
-        SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() 
-        WHERE id = @orderId
-      `);
-
-      // 3. Log history
-      const histReq = new sql.Request(transaction);
-      histReq.input('orderId', orderId);
-      histReq.input('adminId', actorId);
-      histReq.input('oldStatus', oldStatus);
-      histReq.input('newStatus', newStatus);
-      histReq.input('histNote', note || `Admin cập nhật trạng thái đơn hàng từ ${oldStatus} sang ${newStatus}`);
-      await histReq.query(`
-        INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-        VALUES (@orderId, @adminId, @oldStatus, @newStatus, @histNote)
-      `);
-
-      await transaction.commit();
-      return { id: orderId, oldStatus, newStatus, paymentStatus: newPaymentStatus };
-    } catch (err) {
-      await transaction.rollback();
-      throw err;
-    }
   }
 }
 

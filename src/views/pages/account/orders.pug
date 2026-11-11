@@ -73,6 +73,7 @@ block content
                       | Xem chi tiết
                     if o.order_status === 'PENDING'
                       form(action=`/account/orders/${o.id}/cancel` method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Tồn kho sẽ được tự động hoàn lại.')")
+                        input(type="hidden" name="_csrf" value=csrfToken)
                         button.btn-outline-red.text-xs.py-2.px-4(type="submit")
                           | Hủy đơn
         else

@@ -75,13 +75,18 @@ class CartController {
 
       const qty = Math.max(1, parseInt(quantity, 10) || 1);
 
-      // Find matching variant
+      // Find matching variant (must be active and parent product must be active)
       const varRes = await query(`
-        SELECT pv.id, pv.stock_quantity
+        SELECT pv.id, pv.stock_quantity, p.name AS product_name
         FROM product_variants pv
+        JOIN products p ON pv.product_id = p.id
         JOIN sizes s ON pv.size_id = s.id
         JOIN colors c ON pv.color_id = c.id
-        WHERE pv.product_id = @productId AND s.size_name = @size AND c.color_name = @color AND pv.status = 'active'
+        WHERE pv.product_id = @productId 
+          AND s.size_name = @size 
+          AND c.color_name = @color 
+          AND pv.status = 'active' 
+          AND p.status = 'active'
       `, {
         productId: parseInt(productId, 10),
         size,
@@ -89,12 +94,19 @@ class CartController {
       });
 
       if (varRes.recordset.length === 0) {
-        const err = new Error('Biến thể sản phẩm (Size x Màu) không tồn tại hoặc đã ngừng kinh doanh');
+        const err = new Error('Biến thể sản phẩm (Size x Màu) không tồn tại hoặc đã ngừng kinh doanh.');
         err.status = 400;
         return next(err);
       }
 
       const variant = varRes.recordset[0];
+
+      // Check stock availability
+      if (variant.stock_quantity <= 0) {
+        const err = new Error(`Sản phẩm "${variant.product_name}" hiện đã hết hàng.`);
+        err.status = 400;
+        return next(err);
+      }
 
       // Get or create user cart
       let cartId = user.cartId;
@@ -118,12 +130,22 @@ class CartController {
       if (itemRes.recordset.length > 0) {
         const currentQty = itemRes.recordset[0].quantity;
         const newQty = Math.min(variant.stock_quantity, currentQty + qty);
+        if (newQty <= 0) {
+          const err = new Error('Số lượng sản phẩm không hợp lệ.');
+          err.status = 400;
+          return next(err);
+        }
         await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
           qty: newQty,
           id: itemRes.recordset[0].id,
         });
       } else {
         const initialQty = Math.min(variant.stock_quantity, qty);
+        if (initialQty <= 0) {
+          const err = new Error('Số lượng sản phẩm thêm vào giỏ không hợp lệ.');
+          err.status = 400;
+          return next(err);
+        }
         await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
           cartId,
           varId: variant.id,

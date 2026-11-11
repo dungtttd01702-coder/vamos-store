@@ -1,5 +1,5 @@
 # Docker Compose configuration for VAMOS STORE
-# System Architecture: Node.js (Express + Pug) with Microsoft SQL Server
+# System Architecture: Node.js (Express + Pug) with Microsoft SQL Server 2022
 version: '3.8'
 
 services:
@@ -8,20 +8,20 @@ services:
     container_name: vamos_store_app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - APP_NAME=VAMOS STORE
-      - APP_URL=http://localhost:3000
-      - SESSION_SECRET=vamos_docker_session_secret_2026_xyz
-      - DB_TYPE=mssql
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=${PORT:-3000}
+      - APP_NAME=${APP_NAME:-VAMOS STORE}
+      - APP_URL=${APP_URL:-http://localhost:3000}
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
       - DB_SERVER=mssql
-      - DB_PORT=1433
-      - DB_USER=sa
-      - DB_PASSWORD=VamosPassSecure2025!
-      - DB_NAME=vamos_store_db
-      - DB_TRUST_SERVER_CERTIFICATE=true
+      - DB_PORT=${DB_PORT:-1433}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      - DB_NAME=${DB_NAME:-vamos_store_db}
+      - DB_ENCRYPT=${DB_ENCRYPT:-false}
+      - DB_TRUST_SERVER_CERTIFICATE=${DB_TRUST_SERVER_CERTIFICATE:-true}
     depends_on:
       mssql:
         condition: service_healthy
@@ -35,17 +35,18 @@ services:
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=VamosPassSecure2025!
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
       - MSSQL_PID=Developer
     ports:
-      - "1433:1433"
+      - "${DB_PORT:-1433}:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'VamosPassSecure2025!' -C -Q 'SELECT 1' 2>/dev/null || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'VamosPassSecure2025!' -Q 'SELECT 1' 2>/dev/null"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' 2>/dev/null || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' 2>/dev/null"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 15s
 
 volumes:
   mssql_data:

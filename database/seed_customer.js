@@ -7,7 +7,7 @@ async function seedCustomer() {
   if (res.recordset.length === 0) {
     await query(`
       INSERT INTO users (email, password_hash, full_name, phone, role, status)
-      VALUES ('khachhang@vamos.vn', @hash, N'Nguyễn Văn Khách', '0905123456', 'CUSTOMER', 'ACTIVE')
+      VALUES ('khachhang@vamos.vn', @hash, N'Nguyễn Văn Khách', '0905123456', 'CUSTOMER', 'active')
     `, { hash });
     console.log('Customer seeded: khachhang@vamos.vn / 123456');
   } else {
@@ -15,10 +15,14 @@ async function seedCustomer() {
   }
 }
 
-seedCustomer()
-  .then(() => process.exit(0))
-  .catch(err => {
-    console.error('Error seeding customer:', err);
-    process.exit(1);
-  });
+if (require.main === module) {
+  seedCustomer()
+    .then(() => process.exit(0))
+    .catch(err => {
+      console.error('Error seeding customer:', err);
+      process.exit(1);
+    });
+}
+
+module.exports = { seedCustomer };
 
