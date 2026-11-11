@@ -35,14 +35,14 @@ block content
                 .text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") 100%
                 .text-xs.text-gray-500.font-medium Cao su bám
 
-            //- Dual CTAs
+            //- Dual CTAs (Stitch Kinetic Anchor)
             .flex.flex-wrap.items-center.gap-4.pt-2
-              a.btn-primary(href="/products")
-                span KHÁM PHÁ NGAY
+              a.btn-primary.shadow-vamos-cta(href="/products")
+                span MUA NGAY (1.099.000₫)
                 svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
                   path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3")
-              a.btn-outline(href="/promotions")
-                span ƯU ĐÃI HOT 🔥
+              a.btn-outline(href="/products" class="border-vamos-dark text-vamos-dark hover:bg-vamos-dark hover:text-white transition-all")
+                span XEM LOOKBOOK 📖
 
           //- Right Visual Column (5 cols)
           .relative.flex.items-center.justify-center(class="lg:col-span-5")
