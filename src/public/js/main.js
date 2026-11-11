@@ -51,7 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold text-white transition-all duration-300 transform translate-y-4 opacity-0 ${
       type === 'error' ? 'bg-red-600' : 'bg-vamos-dark border border-gray-700'
     }`;
-    toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '🎉'}</span><span>${message}</span>`;
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = type === 'error' ? '⚠️' : '🎉';
+    const textSpan = document.createElement('span');
+    textSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(textSpan);
     container.appendChild(toast);
 
     requestAnimationFrame(() => {
@@ -99,7 +104,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── 9. GLOBAL REAL-TIME FORM FIELD VALIDATORS ──
   initGlobalRealtimeValidators();
 
-  // ── 10. PREVENT DOUBLE SUBMISSIONS ON CHECKOUT ──
+  // ── 10. PRODUCT DETAIL: SAFE GALLERY THUMBNAIL SWITCHER ──
+  const thumbBtns = document.querySelectorAll('.gallery-thumb-btn');
+  const mainImage = document.getElementById('main-image');
+  if (thumbBtns.length > 0 && mainImage) {
+    thumbBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.getAttribute('data-image-url');
+        if (url) {
+          mainImage.src = url;
+          thumbBtns.forEach(b => {
+            b.classList.remove('border-vamos-red');
+            b.classList.add('border-gray-200');
+          });
+          btn.classList.remove('border-gray-200');
+          btn.classList.add('border-vamos-red');
+        }
+      });
+    });
+  }
+
+  // ── 11. PREVENT DOUBLE SUBMISSIONS ON CHECKOUT ──
   const checkoutForm = document.getElementById('checkout-form');
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', (e) => {
@@ -111,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         submitBtn.dataset.submitted = 'true';
         submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Đang xử lý đặt hàng COD...';
+        submitBtn.textContent = 'Đang xử lý đặt hàng COD...';
         submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
       }
     });
@@ -173,20 +198,30 @@ function initProductDetailQuantityAndStock() {
 
       const stock = variant.stock_quantity;
       if (stockBadge) {
+        stockBadge.textContent = '';
+        const badgeSpan = document.createElement('span');
         if (stock <= 0) {
-          stockBadge.innerHTML = '<span class="px-2 py-0.5 rounded text-xs font-bold text-red-600 bg-red-50 border border-red-200">❌ Tạm hết hàng</span>';
+          badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-red-600 bg-red-50 border border-red-200';
+          badgeSpan.textContent = '❌ Tạm hết hàng';
         } else if (stock <= 5) {
-          stockBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200">⚡ Sắp hết: Còn ${stock} đôi</span>`;
+          badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200';
+          badgeSpan.textContent = `⚡ Sắp hết: Còn ${stock} đôi`;
         } else {
-          stockBadge.innerHTML = `<span class="text-xs font-semibold text-green-600">✓ Còn hàng (${stock} đôi trong kho)</span>`;
+          badgeSpan.className = 'text-xs font-semibold text-green-600';
+          badgeSpan.textContent = `✓ Còn hàng (${stock} đôi trong kho)`;
         }
+        stockBadge.appendChild(badgeSpan);
       }
     } else {
       if (skuDisplay) {
         skuDisplay.textContent = 'Mã SKU: Chưa chọn biến thể';
       }
       if (stockBadge) {
-        stockBadge.innerHTML = '<span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">⚠️ Vui lòng chọn Màu và Kích cỡ phù hợp</span>';
+        stockBadge.textContent = '';
+        const badgeSpan = document.createElement('span');
+        badgeSpan.className = 'text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded';
+        badgeSpan.textContent = '⚠️ Vui lòng chọn Màu và Kích cỡ phù hợp';
+        stockBadge.appendChild(badgeSpan);
       }
     }
 
@@ -224,16 +259,15 @@ function initProductDetailQuantityAndStock() {
     if (minusBtn) minusBtn.disabled = false;
     if (plusBtn) plusBtn.disabled = false;
 
-    // Case 2: Empty or non-number
-    if (rawVal === '' || rawVal === null || isNaN(rawVal)) {
-      setInvalidState('⚠️ Vui lòng nhập số lượng hợp lệ (tối thiểu 1 đôi).', 'error');
+    // Case 2: Strict format check - rejects empty, non-integers, decimals (1.5), scientific notation (1e1), negatives
+    const trimmedVal = typeof rawVal === 'string' ? rawVal.trim() : String(rawVal ?? '').trim();
+    if (!/^[1-9]\d*$/.test(trimmedVal)) {
+      setInvalidState('⚠️ Vui lòng nhập số lượng hợp lệ (phải là số nguyên dương từ 1 đến 10, không nhập số âm, số thập phân hay ký tự).', 'error');
       return false;
     }
 
-    const num = parseInt(rawVal, 10);
-
-    // Case 3: Less than 1
-    if (num < 1) {
+    const num = Number(trimmedVal);
+    if (!Number.isSafeInteger(num) || num < 1) {
       setInvalidState('⚠️ Số lượng đặt mua tối thiểu là 1 đôi.', 'error');
       return false;
     }
@@ -242,7 +276,8 @@ function initProductDetailQuantityAndStock() {
     if (num > MAX_RETAIL_LIMIT) {
       setInvalidState(
         `⚠️ Bạn đang nhập ${num} đôi. Đơn hàng bán lẻ trên website tối đa 10 đôi/lần đặt. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (${num} đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!`,
-        'warning'
+        'warning',
+        '⚠️ Quá giới hạn lẻ (tối đa 10 đôi)'
       );
       return false;
     }
@@ -251,17 +286,24 @@ function initProductDetailQuantityAndStock() {
     if (variant && num > variant.stock_quantity) {
       setInvalidState(
         `⚠️ Biến thể này hiện chỉ còn ${variant.stock_quantity} đôi trong kho. Quý khách không thể đặt vượt quá số lượng tồn khả dụng!`,
-        'error'
+        'error',
+        `❌ Vượt quá tồn kho (${variant.stock_quantity} đôi)`
       );
       return false;
     }
 
-    // Valid state!
-    setValidState();
+    // Valid state! Update stepper button disabled states accurately
+    if (minusBtn) minusBtn.disabled = num <= 1;
+    if (plusBtn) {
+      const maxAllowed = Math.min(variant.stock_quantity, MAX_RETAIL_LIMIT);
+      plusBtn.disabled = num >= maxAllowed;
+    }
+
+    setValidState(variant);
     return true;
   }
 
-  function setInvalidState(message, level = 'error') {
+  function setInvalidState(message, level = 'error', badgeText = null) {
     if (validationMsg) {
       validationMsg.classList.remove('hidden');
       if (level === 'warning') {
@@ -269,7 +311,19 @@ function initProductDetailQuantityAndStock() {
       } else {
         validationMsg.className = 'mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-bold text-red-700 block leading-relaxed';
       }
-      validationMsg.innerHTML = message;
+      validationMsg.textContent = message;
+    }
+
+    if (stockBadge && badgeText) {
+      stockBadge.textContent = '';
+      const badgeSpan = document.createElement('span');
+      if (level === 'warning') {
+        badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200';
+      } else {
+        badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-red-600 bg-red-50 border border-red-200';
+      }
+      badgeSpan.textContent = badgeText;
+      stockBadge.appendChild(badgeSpan);
     }
 
     if (stepperBox) {
@@ -294,10 +348,27 @@ function initProductDetailQuantityAndStock() {
     }
   }
 
-  function setValidState() {
+  function setValidState(variant) {
     if (validationMsg) {
       validationMsg.classList.add('hidden');
-      validationMsg.innerHTML = '';
+      validationMsg.textContent = '';
+    }
+
+    if (stockBadge && variant) {
+      stockBadge.textContent = '';
+      const badgeSpan = document.createElement('span');
+      const stock = variant.stock_quantity;
+      if (stock <= 0) {
+        badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-red-600 bg-red-50 border border-red-200';
+        badgeSpan.textContent = '❌ Tạm hết hàng';
+      } else if (stock <= 5) {
+        badgeSpan.className = 'px-2 py-0.5 rounded text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200';
+        badgeSpan.textContent = `⚡ Sắp hết: Còn ${stock} đôi`;
+      } else {
+        badgeSpan.className = 'text-xs font-semibold text-green-600';
+        badgeSpan.textContent = `✓ Còn hàng (${stock} đôi trong kho)`;
+      }
+      stockBadge.appendChild(badgeSpan);
     }
 
     if (stepperBox) {
@@ -317,6 +388,13 @@ function initProductDetailQuantityAndStock() {
   }
 
   // ── ATTACH REAL-TIME LISTENERS (Triggers immediately on typing) ──
+  // Block non-digit keys: exponential 'e', minus '-', plus '+', decimal '.', ','
+  qtyInput.addEventListener('keydown', (e) => {
+    if (['e', 'E', '+', '-', '.', ','].includes(e.key)) {
+      e.preventDefault();
+    }
+  });
+
   qtyInput.addEventListener('input', validateQuantity);
   qtyInput.addEventListener('keyup', validateQuantity);
   qtyInput.addEventListener('paste', () => setTimeout(validateQuantity, 10));

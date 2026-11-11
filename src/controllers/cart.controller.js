@@ -1,4 +1,4 @@
-const { query } = require('../config/database');
+const { sql, getPool, query } = require('../config/database');
 
 const MAX_RETAIL_QUANTITY = 10;
 
@@ -57,25 +57,39 @@ class CartController {
             const liveMap = new Map(liveRes.recordset.map(r => [r.variant_id, r]));
 
             const updatedGuestItems = [];
+            const notices = [];
             for (const item of guestItems) {
               const live = liveMap.get(item.variant_id);
-              if (live && live.variant_status === 'active' && live.product_status === 'active' && live.stock_quantity > 0) {
-                const safeQty = Math.min(MAX_RETAIL_QUANTITY, live.stock_quantity, Math.max(1, parseInt(item.quantity, 10) || 1));
-                const unitPrice = Number(live.unit_price);
-                updatedGuestItems.push({
-                  ...item,
-                  product_name: live.product_name,
-                  product_slug: live.product_slug,
-                  sku: live.sku,
-                  size_name: live.size_name,
-                  color_name: live.color_name,
-                  unit_price: unitPrice,
-                  stock_quantity: live.stock_quantity,
-                  image_url: live.image_url || item.image_url,
-                  quantity: safeQty,
-                  line_total: unitPrice * safeQty,
-                });
+              if (!live || live.variant_status !== 'active' || live.product_status !== 'active') {
+                notices.push(`Sản phẩm "${item.product_name || 'Đã chọn'}" hiện đã ngừng kinh doanh và được gỡ khỏi giỏ hàng.`);
+                continue;
               }
+              if (live.stock_quantity <= 0) {
+                notices.push(`Sản phẩm "${live.product_name}" (Màu ${live.color_name} - Size ${live.size_name}) hiện đã hết hàng trong kho.`);
+                continue;
+              }
+              const oldQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+              const safeQty = Math.min(MAX_RETAIL_QUANTITY, live.stock_quantity, oldQty);
+              if (safeQty < oldQty) {
+                notices.push(`Số lượng sản phẩm "${live.product_name}" được điều chỉnh từ ${oldQty} thành ${safeQty} do hạn mức tồn kho.`);
+              }
+              const unitPrice = Number(live.unit_price);
+              updatedGuestItems.push({
+                ...item,
+                product_name: live.product_name,
+                product_slug: live.product_slug,
+                sku: live.sku,
+                size_name: live.size_name,
+                color_name: live.color_name,
+                unit_price: unitPrice,
+                stock_quantity: live.stock_quantity,
+                image_url: live.image_url || item.image_url,
+                quantity: safeQty,
+                line_total: unitPrice * safeQty,
+              });
+            }
+            if (notices.length > 0 && req.flash) {
+              req.flash('warning', notices.join(' '));
             }
             guestItems = updatedGuestItems;
             req.session.guestCart = guestItems;
@@ -249,60 +263,91 @@ class CartController {
         return res.redirect('/cart');
       }
 
-      // ── CASE B: LOGGED IN CUSTOMER (DATABASE CART) ──
-      let cartId = user.cartId;
-      if (!cartId) {
-        const cartRes = await query('SELECT id FROM carts WHERE user_id = @userId', { userId: user.id });
-        if (cartRes.recordset.length === 0) {
-          const newCart = await query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)', { userId: user.id });
-          cartId = newCart.recordset[0].id;
+      // ── CASE B: LOGGED IN CUSTOMER (DATABASE CART WITH ROW-LOCKING TRANSACTION) ──
+      const pool = await getPool();
+      const transaction = new sql.Transaction(pool);
+      await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
+
+      try {
+        let cartId = user.cartId;
+        if (!cartId) {
+          const cartReq = new sql.Request(transaction);
+          cartReq.input('userId', sql.Int, user.id);
+          const cartRes = await cartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE user_id = @userId');
+          if (cartRes.recordset.length === 0) {
+            const newCart = await cartReq.query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)');
+            cartId = newCart.recordset[0].id;
+          } else {
+            cartId = cartRes.recordset[0].id;
+          }
+          user.cartId = cartId;
         } else {
-          cartId = cartRes.recordset[0].id;
+          const lockCartReq = new sql.Request(transaction);
+          lockCartReq.input('cartId', sql.Int, cartId);
+          await lockCartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE id = @cartId');
         }
-        user.cartId = cartId;
+
+        // Lock live stock of variant
+        const varStockReq = new sql.Request(transaction);
+        varStockReq.input('varId', sql.Int, variant.id);
+        const liveStockRes = await varStockReq.query('SELECT stock_quantity, status FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId');
+        const liveStock = liveStockRes.recordset[0]?.stock_quantity || 0;
+        const liveStatus = liveStockRes.recordset[0]?.status;
+
+        if (liveStatus !== 'active' || liveStock <= 0) {
+          await transaction.rollback();
+          const msg = `Sản phẩm "${variant.product_name}" hiện đã hết hàng hoặc ngưng kinh doanh.`;
+          if (req.flash) req.flash('warning', msg);
+          return res.redirect('/cart');
+        }
+
+        // Lock cart_item with UPDLOCK, HOLDLOCK to avoid lost updates under concurrency
+        const itemReq = new sql.Request(transaction);
+        itemReq.input('cartId', sql.Int, cartId);
+        itemReq.input('varId', sql.Int, variant.id);
+        const itemRes = await itemReq.query('SELECT id, quantity FROM cart_items WITH (UPDLOCK, HOLDLOCK) WHERE cart_id = @cartId AND variant_id = @varId');
+
+        if (itemRes.recordset.length > 0) {
+          const currentQty = itemRes.recordset[0].quantity;
+          const newQty = currentQty + qty;
+          if (newQty > MAX_RETAIL_QUANTITY) {
+            await transaction.rollback();
+            const msg = `Mỗi sản phẩm chỉ được mua tối đa 10 đôi trong đơn hàng bán lẻ (Hiện trong giỏ đã có ${currentQty} đôi). Vui lòng liên hệ Hotline 1900 2126 để mua sỉ!`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
+          if (newQty > liveStock) {
+            await transaction.rollback();
+            const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${liveStock} đôi trong kho (Hiện trong giỏ đã có ${currentQty} đôi).`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
+          itemReq.input('newQty', sql.Int, newQty);
+          itemReq.input('itemId', sql.Int, itemRes.recordset[0].id);
+          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE() WHERE id = @itemId');
+        } else {
+          if (qty > liveStock) {
+            await transaction.rollback();
+            const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${liveStock} đôi trong kho.`;
+            if (req.flash) req.flash('warning', msg);
+            return res.redirect('/cart');
+          }
+          itemReq.input('qty', sql.Int, qty);
+          await itemReq.query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)');
+        }
+
+        // Update cart count in session
+        const countReq = new sql.Request(transaction);
+        countReq.input('cartId', sql.Int, cartId);
+        const countRes = await countReq.query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId');
+        req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+
+        await transaction.commit();
+        res.redirect('/cart');
+      } catch (txErr) {
+        await transaction.rollback();
+        throw txErr;
       }
-
-      // Check if already in cart
-      const itemRes = await query('SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId', {
-        cartId,
-        varId: variant.id,
-      });
-
-      if (itemRes.recordset.length > 0) {
-        const currentQty = itemRes.recordset[0].quantity;
-        const newQty = currentQty + qty;
-        if (newQty > MAX_RETAIL_QUANTITY) {
-          const msg = `Mỗi sản phẩm chỉ được mua tối đa 10 đôi trong đơn hàng bán lẻ (Hiện trong giỏ đã có ${currentQty} đôi). Vui lòng liên hệ Hotline 1900 2126 để mua sỉ!`;
-          if (req.flash) req.flash('warning', msg);
-          return res.redirect('/cart');
-        }
-        if (newQty > variant.stock_quantity) {
-          const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho (Hiện trong giỏ đã có ${currentQty} đôi).`;
-          if (req.flash) req.flash('warning', msg);
-          return res.redirect('/cart');
-        }
-        await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
-          qty: newQty,
-          id: itemRes.recordset[0].id,
-        });
-      } else {
-        if (qty > variant.stock_quantity) {
-          const msg = `Sản phẩm "${variant.product_name}" hiện chỉ còn ${variant.stock_quantity} đôi trong kho.`;
-          if (req.flash) req.flash('warning', msg);
-          return res.redirect('/cart');
-        }
-        await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
-          cartId,
-          varId: variant.id,
-          qty,
-        });
-      }
-
-      // Update cart count in session
-      const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
-      req.session.cartCount = countRes.recordset[0]?.total_items || 0;
-
-      res.redirect('/cart');
     } catch (error) {
       next(error);
     }
@@ -397,44 +442,72 @@ class CartController {
         return res.redirect('/auth/login?returnUrl=/checkout');
       }
 
-      // Logged in Customer: add to DB cart and redirect directly to /checkout
-      let cartId = user.cartId;
-      if (!cartId) {
-        const cartRes = await query('SELECT id FROM carts WHERE user_id = @userId', { userId: user.id });
-        if (cartRes.recordset.length === 0) {
-          const newCart = await query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)', { userId: user.id });
-          cartId = newCart.recordset[0].id;
+      // Logged in Customer: atomic transaction with row locking and direct redirect to /checkout
+      const pool = await getPool();
+      const transaction = new sql.Transaction(pool);
+      await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
+
+      try {
+        let cartId = user.cartId;
+        if (!cartId) {
+          const cartReq = new sql.Request(transaction);
+          cartReq.input('userId', sql.Int, user.id);
+          const cartRes = await cartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE user_id = @userId');
+          if (cartRes.recordset.length === 0) {
+            const newCart = await cartReq.query('INSERT INTO carts (user_id) OUTPUT INSERTED.id VALUES (@userId)');
+            cartId = newCart.recordset[0].id;
+          } else {
+            cartId = cartRes.recordset[0].id;
+          }
+          user.cartId = cartId;
         } else {
-          cartId = cartRes.recordset[0].id;
+          const lockCartReq = new sql.Request(transaction);
+          lockCartReq.input('cartId', sql.Int, cartId);
+          await lockCartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE id = @cartId');
         }
-        user.cartId = cartId;
+
+        // Lock live stock of variant
+        const varStockReq = new sql.Request(transaction);
+        varStockReq.input('varId', sql.Int, variant.id);
+        const liveStockRes = await varStockReq.query('SELECT stock_quantity, status FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId');
+        const liveStock = liveStockRes.recordset[0]?.stock_quantity || 0;
+        const liveStatus = liveStockRes.recordset[0]?.status;
+
+        if (liveStatus !== 'active' || liveStock <= 0) {
+          await transaction.rollback();
+          const msg = `Sản phẩm "${variant.product_name}" hiện đã hết hàng hoặc ngưng kinh doanh.`;
+          if (req.flash) req.flash('warning', msg);
+          return res.redirect('/cart');
+        }
+
+        const itemReq = new sql.Request(transaction);
+        itemReq.input('cartId', sql.Int, cartId);
+        itemReq.input('varId', sql.Int, variant.id);
+        const itemRes = await itemReq.query('SELECT id, quantity FROM cart_items WITH (UPDLOCK, HOLDLOCK) WHERE cart_id = @cartId AND variant_id = @varId');
+
+        if (itemRes.recordset.length > 0) {
+          const currentQty = itemRes.recordset[0].quantity;
+          const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(liveStock, currentQty + qty));
+          itemReq.input('newQty', sql.Int, newQty);
+          itemReq.input('itemId', sql.Int, itemRes.recordset[0].id);
+          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE() WHERE id = @itemId');
+        } else {
+          const initialQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(liveStock, qty));
+          itemReq.input('qty', sql.Int, initialQty);
+          await itemReq.query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)');
+        }
+
+        const countReq = new sql.Request(transaction);
+        countReq.input('cartId', sql.Int, cartId);
+        const countRes = await countReq.query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId');
+        req.session.cartCount = countRes.recordset[0]?.total_items || 0;
+
+        await transaction.commit();
+        return res.redirect('/checkout');
+      } catch (txErr) {
+        await transaction.rollback();
+        throw txErr;
       }
-
-      const itemRes = await query('SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId', {
-        cartId,
-        varId: variant.id,
-      });
-
-      if (itemRes.recordset.length > 0) {
-        const currentQty = itemRes.recordset[0].quantity;
-        const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, currentQty + qty));
-        await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id', {
-          qty: newQty,
-          id: itemRes.recordset[0].id,
-        });
-      } else {
-        const initialQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(variant.stock_quantity, qty));
-        await query('INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)', {
-          cartId,
-          varId: variant.id,
-          qty: initialQty,
-        });
-      }
-
-      const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
-      req.session.cartCount = countRes.recordset[0]?.total_items || 0;
-
-      return res.redirect('/checkout');
     } catch (error) {
       next(error);
     }
@@ -595,45 +668,76 @@ class CartController {
       return 0;
     }
 
-    for (const item of guestCart) {
-      const variantId = parseInt(item.variant_id, 10);
-      const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
-      if (!variantId) continue;
+    const pool = await getPool();
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
 
-      // Verify active status and current available stock
-      const varRes = await query(`
-        SELECT pv.id, pv.stock_quantity 
-        FROM product_variants pv
-        JOIN products p ON pv.product_id = p.id
-        WHERE pv.id = @varId AND pv.status = 'active' AND p.status = 'active'
-      `, { varId: variantId });
+    try {
+      // Lock cart record
+      const lockCartReq = new sql.Request(transaction);
+      lockCartReq.input('cartId', sql.Int, cartId);
+      await lockCartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE id = @cartId');
 
-      if (varRes.recordset.length === 0) continue;
-      const variant = varRes.recordset[0];
-      if (variant.stock_quantity <= 0) continue;
+      for (const item of guestCart) {
+        const variantId = parseInt(item.variant_id, 10);
+        if (!variantId || isNaN(variantId)) continue;
 
-      // Check if item already exists in customer's cart
-      const existRes = await query(`
-        SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId
-      `, { cartId, varId: variantId });
+        // Strict quantity validation
+        const qtyCheck = validateCartQuantity(item.quantity);
+        const quantity = qtyCheck.valid ? qtyCheck.quantity : Math.min(MAX_RETAIL_QUANTITY, Math.max(1, parseInt(item.quantity, 10) || 1));
 
-      if (existRes.recordset.length > 0) {
-        const currentQty = existRes.recordset[0].quantity;
-        const newQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, currentQty + quantity);
-        await query(`
-          UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id
-        `, { qty: newQty, id: existRes.recordset[0].id });
-      } else {
-        const initialQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, quantity);
-        await query(`
-          INSERT INTO cart_items (cart_id, variant_id, quantity)
-          VALUES (@cartId, @varId, @qty)
-        `, { cartId, varId: variantId, qty: initialQty });
+        // Verify active status and current available stock inside transaction
+        const varReq = new sql.Request(transaction);
+        varReq.input('varId', sql.Int, variantId);
+        const varRes = await varReq.query(`
+          SELECT pv.id, pv.stock_quantity 
+          FROM product_variants pv WITH (UPDLOCK, ROWLOCK)
+          JOIN products p ON pv.product_id = p.id
+          WHERE pv.id = @varId AND pv.status = 'active' AND p.status = 'active'
+        `);
+
+        if (varRes.recordset.length === 0) continue;
+        const variant = varRes.recordset[0];
+        if (variant.stock_quantity <= 0) continue;
+
+        // Lock existing cart item if any
+        const existReq = new sql.Request(transaction);
+        existReq.input('cartId', sql.Int, cartId);
+        existReq.input('varId', sql.Int, variantId);
+        const existRes = await existReq.query(`
+          SELECT id, quantity 
+          FROM cart_items WITH (UPDLOCK, HOLDLOCK) 
+          WHERE cart_id = @cartId AND variant_id = @varId
+        `);
+
+        if (existRes.recordset.length > 0) {
+          const currentQty = existRes.recordset[0].quantity;
+          const newQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, currentQty + quantity);
+          existReq.input('qty', sql.Int, newQty);
+          existReq.input('id', sql.Int, existRes.recordset[0].id);
+          await existReq.query(`
+            UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id
+          `);
+        } else {
+          const initialQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, quantity);
+          existReq.input('qty', sql.Int, initialQty);
+          await existReq.query(`
+            INSERT INTO cart_items (cart_id, variant_id, quantity)
+            VALUES (@cartId, @varId, @qty)
+          `);
+        }
       }
-    }
 
-    const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId });
-    return countRes.recordset[0]?.total_items || 0;
+      const countReq = new sql.Request(transaction);
+      countReq.input('cartId', sql.Int, cartId);
+      const countRes = await countReq.query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId');
+
+      await transaction.commit();
+      return countRes.recordset[0]?.total_items || 0;
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
   }
 }
 

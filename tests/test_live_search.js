@@ -96,10 +96,13 @@ async function runLiveSearchTests() {
   passed++;
 
   server.close();
+  const { closePool } = require('../src/config/database');
+  await closePool();
 
   console.log('===============================================================');
   console.log(`   LIVE SEARCH SUMMARY: ${passed} PASSED, 0 FAILED`);
   console.log('===============================================================');
+  process.exit(0);
 }
 
 runLiveSearchTests().catch((err) => {

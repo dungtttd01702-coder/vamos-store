@@ -52,10 +52,40 @@ function isValidFullName(name) {
   return trimmed.length >= 2 && trimmed.length <= 100;
 }
 
+const MAX_RETAIL_QUANTITY = 10;
+
+/**
+ * Validate cart quantity strictly according to VAMOS retail rules (1-10 pairs, positive integer only)
+ * @param {any} quantity 
+ * @returns {{ valid: boolean, quantity?: number, message?: string }}
+ */
+function validateCartQuantity(quantity) {
+  if (quantity === undefined || quantity === null || String(quantity).trim() === '') {
+    return { valid: false, message: 'Vui lòng cung cấp số lượng sản phẩm hợp lệ.' };
+  }
+  const str = String(quantity).trim();
+  if (!/^[1-9]\d*$/.test(str)) {
+    return { valid: false, message: 'Số lượng sản phẩm không hợp lệ (phải là số nguyên dương từ 1 đến 10).' };
+  }
+  const num = Number(str);
+  if (!Number.isSafeInteger(num) || num < 1) {
+    return { valid: false, message: 'Số lượng sản phẩm không hợp lệ (phải là số nguyên dương từ 1 đến 10).' };
+  }
+  if (num > MAX_RETAIL_QUANTITY) {
+    return {
+      valid: false,
+      message: `Đơn hàng bán lẻ trên website tối đa 10 đôi/sản phẩm. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (${num} đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!`,
+    };
+  }
+  return { valid: true, quantity: num };
+}
+
 module.exports = {
   isValidEmail,
   isValidPhone,
   isValidPassword,
   isValidFullName,
+  validateCartQuantity,
+  MAX_RETAIL_QUANTITY,
 };
 

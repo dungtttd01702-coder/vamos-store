@@ -128,9 +128,10 @@ block content
                       img.product-card-img(src=prod.image_url alt=prod.name)
                     else
                       .text-gray-400.text-xs Chưa có ảnh
-                  if prod.sale_price && prod.sale_price < prod.base_price
-                    - const discount = Math.round((1 - (prod.sale_price / prod.base_price)) * 100)
-                    span.badge-sale.absolute.top-2.left-2= `-${discount}%`
+                  - const hasSale = prod.sale_price && Number(prod.sale_price) > 0 && Number(prod.sale_price) < Number(prod.base_price)
+                  - const discountPct = hasSale ? Math.round((1 - (Number(prod.sale_price) / Number(prod.base_price))) * 100) : 0
+                  if hasSale && discountPct > 0
+                    span.badge-sale.absolute.top-2.left-2= `-${discountPct}%`
 
                 //- Product Info
                 .p-4.flex-grow.flex.flex-col.justify-between
@@ -141,7 +142,7 @@ block content
 
                   .mt-3
                     .flex.items-baseline.gap-2
-                      if prod.sale_price
+                      if hasSale && discountPct > 0
                         span.price-current
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.sale_price)
                         span.price-original

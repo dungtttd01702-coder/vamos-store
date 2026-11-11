@@ -28,7 +28,7 @@
   "author": "VAMOS STORE Team",
   "license": "ISC",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

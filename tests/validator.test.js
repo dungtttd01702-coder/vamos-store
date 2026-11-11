@@ -59,6 +59,51 @@ assertTest(!validator.isValidFullName('A'), 'VAL-UNIT-13', 'Reject 1-character n
 // 14. Full name: valid
 assertTest(validator.isValidFullName('Trần Trung Dũng'), 'VAL-UNIT-14', 'Accept valid full name "Trần Trung Dũng"');
 
+// 15. Cart Qty: 1 (valid boundary)
+assertTest(validator.validateCartQuantity(1).valid === true && validator.validateCartQuantity(1).quantity === 1, 'VAL-QTY-01', 'Accept valid minimum quantity 1');
+
+// 16. Cart Qty: 10 (valid boundary)
+assertTest(validator.validateCartQuantity(10).valid === true && validator.validateCartQuantity(10).quantity === 10, 'VAL-QTY-02', 'Accept valid maximum retail quantity 10');
+
+// 17. Cart Qty: 0 (invalid)
+assertTest(!validator.validateCartQuantity(0).valid, 'VAL-QTY-03', 'Reject zero quantity (0)');
+
+// 18. Cart Qty: 11 (invalid, exceeds retail cap)
+assertTest(!validator.validateCartQuantity(11).valid && validator.validateCartQuantity(11).message.includes('1900 2126'), 'VAL-QTY-04', 'Reject quantity 11 with wholesale notice');
+
+// 19. Cart Qty: -1 (invalid negative)
+assertTest(!validator.validateCartQuantity(-1).valid, 'VAL-QTY-05', 'Reject negative quantity (-1)');
+
+// 20. Cart Qty: -10 (invalid negative)
+assertTest(!validator.validateCartQuantity(-10).valid, 'VAL-QTY-06', 'Reject negative quantity (-10)');
+
+// 21. Cart Qty: 1.5 (invalid decimal)
+assertTest(!validator.validateCartQuantity('1.5').valid, 'VAL-QTY-07', 'Reject decimal quantity ("1.5")');
+
+// 22. Cart Qty: 3.5 (invalid decimal)
+assertTest(!validator.validateCartQuantity('3.5').valid, 'VAL-QTY-08', 'Reject decimal quantity ("3.5")');
+
+// 23. Cart Qty: '1e1' (invalid scientific notation)
+assertTest(!validator.validateCartQuantity('1e1').valid, 'VAL-QTY-09', 'Reject scientific notation ("1e1")');
+
+// 24. Cart Qty: '1e2' (invalid scientific notation)
+assertTest(!validator.validateCartQuantity('1e2').valid, 'VAL-QTY-10', 'Reject scientific notation ("1e2")');
+
+// 25. Cart Qty: 'abc' (invalid non-numeric)
+assertTest(!validator.validateCartQuantity('abc').valid, 'VAL-QTY-11', 'Reject non-numeric string ("abc")');
+
+// 26. Cart Qty: '' (invalid empty)
+assertTest(!validator.validateCartQuantity('').valid, 'VAL-QTY-12', 'Reject empty string quantity ("")');
+
+// 27. Cart Qty: '   ' (invalid whitespace)
+assertTest(!validator.validateCartQuantity('   ').valid, 'VAL-QTY-13', 'Reject whitespace string quantity ("   ")');
+
+// 28. Cart Qty: 99 (invalid wholesale)
+assertTest(!validator.validateCartQuantity(99).valid && validator.validateCartQuantity(99).message.includes('99 đôi'), 'VAL-QTY-14', 'Reject wholesale quantity (99) with prompt wholesale notice');
+
+// 29. Cart Qty: 999999 (invalid huge)
+assertTest(!validator.validateCartQuantity(999999).valid, 'VAL-QTY-15', 'Reject huge wholesale quantity (999999)');
+
 console.log('===============================================================');
 console.log(`   VALIDATOR TEST SUMMARY: ${passCount} PASSED, ${failCount} FAILED`);
 console.log('===============================================================');

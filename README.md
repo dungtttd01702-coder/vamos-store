@@ -3,9 +3,9 @@
 > **Dự án phần mềm thương mại điện tử chuyên ngành — VAMOS STORE v1.1**  
 > Nền tảng bán lẻ giày sneaker, thể thao và phụ kiện với kiến trúc phân tầng MVC chuẩn mực, giao diện hiện đại (Modern Kinetic UI - Dark Charcoal & Vibrant Coral), hệ thống lưu trữ Microsoft SQL Server 2025 với cơ chế khóa dòng cấp CSDL `WITH (UPDLOCK, ROWLOCK)` chống overselling tuyệt đối.
 
-[![Test Suite](https://img.shields.io/badge/tests-178%20passed-brightgreen.svg)]()
+[![Test Suite](https://img.shields.io/badge/tests-201%20passed-brightgreen.svg)]()
 [![Database](https://img.shields.io/badge/database-MSSQL%202025-blue.svg)]()
-[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg)]()
+[![Node](https://img.shields.io/badge/node-%3E%3D22.0.0-green.svg)]()
 [![License](https://img.shields.io/badge/version-v1.1.0-orange.svg)]()
 
 ---
@@ -19,7 +19,7 @@
 - [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
 - [Hướng Dẫn Cài Đặt & Khởi Chạy](#-hướng-dẫn-cài-đặt--khởi-chạy)
 - [Tài Khoản Thử Nghiệm (Demo Accounts)](#-tài-khoản-thử-nghiệm-demo-accounts)
-- [Hệ Thống Kiểm Thử Tự Động (178 Tests)](#-hệ-thống-kiểm-thử-tự-động-178-tests)
+- [Hệ Thống Kiểm Thử Tự Động (201 Tests)](#-hệ-thống-kiểm-thử-tự-động-201-tests)
 - [Tài Liệu Kỹ Thuật Đầy Đủ](#-tài-liệu-kỹ-thuật-đầy-đủ)
 - [Bản Quyền](#-bản-quyền)
 
@@ -43,7 +43,7 @@
 
 | Thành phần | Công nghệ / Thư viện | Phiên bản | Vai trò kỹ thuật |
 | :--- | :--- | :---: | :--- |
-| **Runtime** | Node.js (LTS) | v20.x | Môi trường thực thi JavaScript phía máy chủ |
+| **Runtime** | Node.js (LTS) | v22.x / v24.x | Môi trường thực thi JavaScript phía máy chủ (hỗ trợ Promise.withResolvers) |
 | **Framework** | Express.js | v4.19.x | Định tuyến HTTP, Middleware pipeline, RESTful API |
 | **Template Engine** | Pug (Jade) | v3.0.x | Server-Side Rendering (SSR) hiệu năng cao, zero layout shift |
 | **Styling** | Tailwind CSS (JIT) | v3.4.x | Utility-first CSS biên dịch tối ưu theo Brand Design System |
@@ -151,7 +151,7 @@ vamos-store/
 ## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
 
 ### 1. Yêu Cầu Môi Trường
-- [Node.js](https://nodejs.org/) phiên bản LTS (v20.x trở lên).
+- [Node.js](https://nodejs.org/) phiên bản LTS (v22.x hoặc v24.x trở lên, đáp ứng yêu cầu Tedious MSSQL Driver).
 - [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server) (bản 2019, 2022 hoặc 2025) và SQL Server Management Studio (SSMS).
 - [Git](https://git-scm.com/).
 
@@ -220,21 +220,21 @@ Mở trình duyệt truy cập: **`http://localhost:3000`**
 
 ---
 
-## 🧪 Hệ Thống Kiểm Thử Tự Động (178 Tests)
+## 🧪 Hệ Thống Kiểm Thử Tự Động (201 Tests)
 
-Dự án sở hữu bộ kiểm thử tự động gồm **178 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
+Dự án sở hữu bộ kiểm thử tự động gồm **201 bài test**, chạy trên cơ sở dữ liệu kiểm thử riêng biệt `vamos_store_test_db`:
 
 ```bash
-# Chạy toàn bộ 178 bài kiểm thử (100% Pass):
+# Chạy toàn bộ 201 bài kiểm thử (100% Pass):
 npm run test:all
 ```
 
 Hoặc chạy từng bộ kiểm thử độc lập:
 ```bash
-# 1. Kiểm thử biên dịch cú pháp 35 file Pug:
+# 1. Kiểm thử biên dịch cú pháp 36 file Pug:
 node tests/validate_pug.js
 
-# 2. Kiểm thử chuẩn hóa dữ liệu Input (Email, SĐT):
+# 2. Kiểm thử chuẩn hóa dữ liệu Input (Email, SĐT, Giỏ hàng 1-10 đôi):
 node tests/validator.test.js
 
 # 3. Khởi tạo & Seed CSDL kiểm thử (Idempotent):
@@ -246,7 +246,7 @@ node tests/test_auth_flow.js
 # 5. Kiểm thử tìm kiếm Real-time Live Search & XSS Safety:
 node tests/test_live_search.js
 
-# 6. Kiểm thử 111 ca hồi quy nghiệp vụ, Concurrency, Giới hạn bán lẻ 10 đôi, IDOR:
+# 6. Kiểm thử 118 ca hồi quy nghiệp vụ, Concurrency, Giới hạn bán lẻ 10 đôi, Error Handling, IDOR:
 node tests/regression_suite.js
 ```
 

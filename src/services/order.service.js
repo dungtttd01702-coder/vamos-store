@@ -50,8 +50,8 @@ class OrderService {
           s.size_name,
           c.color_name,
           ct.id AS cart_id
-        FROM cart_items ci WITH (UPDLOCK)
-        JOIN carts ct ON ci.cart_id = ct.id
+        FROM carts ct WITH (UPDLOCK, ROWLOCK)
+        JOIN cart_items ci WITH (UPDLOCK, HOLDLOCK) ON ci.cart_id = ct.id
         JOIN product_variants pv ON ci.variant_id = pv.id
         JOIN products p ON pv.product_id = p.id
         JOIN sizes s ON pv.size_id = s.id

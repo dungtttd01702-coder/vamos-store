@@ -1000,6 +1000,73 @@ async function runSuite() {
       'Guest cart index synchronizes stale session items with live DB price (500,000) and retail stock cap (10)'
     );
 
+    // 11. Concurrency: Two simultaneous addItem requests on Customer cart
+    await query("DELETE FROM cart_items WHERE cart_id = @c", { c: cid1 });
+    const mockAddReq1 = {
+      session: { user: { id: uid1, cartId: cid1 } },
+      body: { productId: tempProdId, size: testSize, color: testColor, quantity: 1 },
+      flash: () => {},
+    };
+    const mockAddReq2 = {
+      session: { user: { id: uid1, cartId: cid1 } },
+      body: { productId: tempProdId, size: testSize, color: testColor, quantity: 1 },
+      flash: () => {},
+    };
+    const dummyRes = { redirect: () => {} };
+    await Promise.all([
+      cartController.addItem(mockAddReq1, dummyRes, () => {}),
+      cartController.addItem(mockAddReq2, dummyRes, () => {})
+    ]);
+    const concurCartRes = await query("SELECT quantity FROM cart_items WHERE cart_id = @c AND variant_id = @v", { c: cid1, v: tempVarId });
+    assert(
+      concurCartRes.recordset.length === 1 && concurCartRes.recordset[0].quantity === 2,
+      'CONCUR-CART-01',
+      'Concurrent addItem requests serialized atomically without lost updates (1 + 1 = 2)'
+    );
+
+    // 12. Centralized Error Handler JSON & Redirect tests
+    const errorMiddleware = require('../src/middlewares/error.middleware');
+    let jsonErrOutput = null;
+    let jsonErrStatus = null;
+    const mockApiErrReq = {
+      method: 'POST',
+      originalUrl: '/api/test',
+      xhr: true,
+      headers: { accept: 'application/json' },
+    };
+    const mockApiErrRes = {
+      status: (code) => { jsonErrStatus = code; },
+      json: (data) => { jsonErrOutput = data; },
+    };
+    const testBadReqErr = new Error('Tham số không hợp lệ');
+    testBadReqErr.status = 400;
+    errorMiddleware.errorHandler(testBadReqErr, mockApiErrReq, mockApiErrRes, () => {});
+    assert(
+      jsonErrStatus === 400 && jsonErrOutput && jsonErrOutput.success === false && jsonErrOutput.status === 400 && jsonErrOutput.message.includes('Tham số không hợp lệ'),
+      'ERR-STATUS-01',
+      'Centralized error handler returns unified JSON format { success: false, status: 400, message } on API requests'
+    );
+
+    let redirectLocation = '';
+    let flashWarningMsg = '';
+    const mockBrowserErrReq = {
+      method: 'GET',
+      originalUrl: '/cart/add',
+      get: (header) => header.toLowerCase() === 'referrer' ? 'http://localhost:3000/products/test-slug' : 'localhost:3000',
+      flash: (type, msg) => { if (type === 'warning') flashWarningMsg = msg; },
+    };
+    const mockBrowserErrRes = {
+      status: () => {},
+      redirect: (url) => { redirectLocation = url; },
+      render: () => {},
+    };
+    errorMiddleware.errorHandler(testBadReqErr, mockBrowserErrReq, mockBrowserErrRes, () => {});
+    assert(
+      redirectLocation === '/products/test-slug' && flashWarningMsg.includes('Tham số không hợp lệ'),
+      'ERR-STATUS-02',
+      'Centralized error handler redirects browser 400 errors back to safe referer with flash warning instead of 500 error page'
+    );
+
     // -------------------------------------------------------------------------
     // CLEANUP TEST FIXTURES
     // -------------------------------------------------------------------------
