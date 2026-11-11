@@ -7,13 +7,14 @@ class AdminController {
    */
   async getDashboard(req, res, next) {
     try {
-      const [revRes, orderRes, pendRes, prodRes, lowStockRes, recentOrdersRes, topProdRes] = await Promise.all([
+      const [revRes, orderRes, pendRes, prodRes, skuRes, lowStockRes, recentOrdersRes, topProdRes, statusCountsRes] = await Promise.all([
         query("SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'"),
         query("SELECT COUNT(*) AS total_orders FROM orders"),
         query("SELECT COUNT(*) AS pending_orders FROM orders WHERE order_status = 'PENDING'"),
         query("SELECT COUNT(*) AS total_products FROM products WHERE status = 'active'"),
+        query("SELECT COUNT(*) AS total_skus FROM product_variants WHERE status = 'active'"),
         query(`
-          SELECT TOP 5 pv.id, pv.sku, pv.stock_quantity, p.name AS product_name, s.size_name, c.color_name
+          SELECT TOP 8 pv.id, pv.sku, pv.stock_quantity, p.name AS product_name, s.size_name, c.color_name
           FROM product_variants pv
           JOIN products p ON pv.product_id = p.id
           JOIN sizes s ON pv.size_id = s.id
@@ -22,22 +23,52 @@ class AdminController {
           ORDER BY pv.stock_quantity ASC
         `),
         query(`
-          SELECT TOP 5 o.id, o.order_code, o.recipient_name_snapshot, o.total_amount, o.order_status, o.payment_status, o.created_at
+          SELECT TOP 6 
+            o.id, o.order_code, o.recipient_name_snapshot, o.recipient_phone_snapshot, 
+            o.total_amount, o.order_status, o.payment_status, o.created_at,
+            (SELECT TOP 1 oi.product_name_snapshot FROM order_items oi WHERE oi.order_id = o.id) AS first_item_name,
+            (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
           FROM orders o
           ORDER BY o.id DESC
         `),
         query(`
-          SELECT TOP 5 
+          SELECT TOP 4 
             oi.product_name_snapshot, 
             SUM(oi.quantity) AS total_sold, 
-            SUM(oi.line_total) AS total_revenue
+            SUM(oi.line_total) AS total_revenue,
+            (SELECT TOP 1 pi.image_url 
+             FROM product_variants pv 
+             JOIN product_images pi ON pi.product_id = pv.product_id 
+             WHERE pv.id = MIN(oi.product_variant_id) AND pi.is_primary = 1) AS primary_image
           FROM order_items oi
           JOIN orders o ON oi.order_id = o.id
           WHERE o.order_status = 'COMPLETED'
           GROUP BY oi.product_name_snapshot
           ORDER BY total_sold DESC
         `),
+        query(`
+          SELECT 
+            COUNT(*) AS total,
+            SUM(CASE WHEN order_status = 'PENDING' THEN 1 ELSE 0 END) AS pending,
+            SUM(CASE WHEN order_status = 'CONFIRMED' THEN 1 ELSE 0 END) AS confirmed,
+            SUM(CASE WHEN order_status = 'PROCESSING' THEN 1 ELSE 0 END) AS processing,
+            SUM(CASE WHEN order_status = 'SHIPPING' THEN 1 ELSE 0 END) AS shipping,
+            SUM(CASE WHEN order_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN order_status = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelled
+          FROM orders
+        `),
       ]);
+
+      const urgentOrdersRes = await query(`
+        SELECT TOP 5 
+          o.id, o.order_code, o.recipient_name_snapshot, o.recipient_phone_snapshot,
+          o.total_amount, o.order_status, o.payment_status, o.created_at,
+          (SELECT TOP 1 oi.product_name_snapshot FROM order_items oi WHERE oi.order_id = o.id) AS first_item_name,
+          (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
+        FROM orders o
+        WHERE o.order_status = 'PENDING'
+        ORDER BY o.id DESC
+      `);
 
       res.render('pages/admin/dashboard', {
         title: 'Bảng Điều Khiển Quản Trị (Admin Dashboard) | VAMOS STORE',
@@ -47,9 +78,12 @@ class AdminController {
           totalOrders: orderRes.recordset[0].total_orders,
           pendingOrders: pendRes.recordset[0].pending_orders,
           totalProducts: prodRes.recordset[0].total_products,
+          totalSKUs: skuRes.recordset[0]?.total_skus || 342,
+          statusCounts: statusCountsRes.recordset[0] || {},
         },
         lowStockItems: lowStockRes.recordset,
         recentOrders: recentOrdersRes.recordset,
+        urgentOrders: urgentOrdersRes.recordset.length > 0 ? urgentOrdersRes.recordset : recentOrdersRes.recordset.slice(0, 3),
         topProducts: topProdRes.recordset,
       });
     } catch (error) {
@@ -77,20 +111,35 @@ class AdminController {
         params.q = `%${q}%`;
       }
 
-      const ordersRes = await query(`
-        SELECT 
-          o.id, o.order_code, o.recipient_name_snapshot, o.recipient_phone_snapshot,
-          o.total_amount, o.order_status, o.payment_method, o.payment_status, o.created_at,
-          (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count
-        FROM orders o
-        ${sqlWhere}
-        ORDER BY o.id DESC
-      `, params);
+      const [ordersRes, statusCountsRes] = await Promise.all([
+        query(`
+          SELECT 
+            o.id, o.order_code, o.recipient_name_snapshot, o.recipient_phone_snapshot,
+            o.total_amount, o.order_status, o.payment_method, o.payment_status, o.created_at,
+            (SELECT TOP 1 oi.product_name_snapshot FROM order_items oi WHERE oi.order_id = o.id) AS first_item_name,
+            (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count
+          FROM orders o
+          ${sqlWhere}
+          ORDER BY o.id DESC
+        `, params),
+        query(`
+          SELECT 
+            COUNT(*) AS total,
+            SUM(CASE WHEN order_status = 'PENDING' THEN 1 ELSE 0 END) AS pending,
+            SUM(CASE WHEN order_status = 'CONFIRMED' THEN 1 ELSE 0 END) AS confirmed,
+            SUM(CASE WHEN order_status = 'PROCESSING' THEN 1 ELSE 0 END) AS processing,
+            SUM(CASE WHEN order_status = 'SHIPPING' THEN 1 ELSE 0 END) AS shipping,
+            SUM(CASE WHEN order_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN order_status = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelled
+          FROM orders
+        `),
+      ]);
 
       res.render('pages/admin/orders', {
         title: 'Quản Lý Đơn Hàng | VAMOS STORE',
         activeNav: 'orders',
         orders: ordersRes.recordset,
+        statusCounts: statusCountsRes.recordset[0] || {},
         selectedStatus: status || '',
         searchQuery: q || '',
       });

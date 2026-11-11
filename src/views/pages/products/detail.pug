@@ -131,6 +131,8 @@ block content
                       min="1"
                       max="10"
                       autocomplete="off"
+                      oninput="if(window.handleDetailQtyChange)window.handleDetailQtyChange()"
+                      onkeyup="if(window.handleDetailQtyChange)window.handleDetailQtyChange()"
                     )
                     button#qty-plus-btn.px-3.py-2.text-gray-600.transition-colors(class="hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed" type="button" aria-label="Tăng số lượng") +
                   #stock-status-badge.text-xs.font-semibold.flex.items-center.gap-1.transition-colors
@@ -138,6 +140,61 @@ block content
 
                 //- Dynamic Instant Validation Message (Appears immediately as user types)
                 #qty-validation-msg.mt-2.p-2.rounded-lg.text-xs.font-bold.transition-all.duration-200.hidden
+
+                script.
+                  (function() {
+                    function instantQtyCheck() {
+                      const inp = document.getElementById('qty-input');
+                      const msg = document.getElementById('qty-validation-msg');
+                      const box = document.getElementById('qty-stepper-box');
+                      const addBtn = document.getElementById('btn-add-to-cart');
+                      const buyBtn = document.getElementById('btn-buy-now');
+                      if (!inp || !msg) return;
+
+                      const val = inp.value.trim();
+                      const n = parseInt(val, 10);
+
+                      if (!val || isNaN(n) || n < 1) {
+                        msg.className = 'mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-bold text-red-700 block leading-relaxed';
+                        msg.textContent = '⚠️ Vui lòng nhập số lượng hợp lệ (từ 1 đến 10 đôi).';
+                        msg.classList.remove('hidden');
+                        if (addBtn) addBtn.disabled = true;
+                        if (buyBtn) buyBtn.disabled = true;
+                        return;
+                      }
+
+                      if (n > 10) {
+                        msg.className = 'mt-2 p-3 bg-amber-50 border border-amber-300 rounded-lg text-xs font-bold text-amber-900 block leading-relaxed animate-pulse';
+                        msg.textContent = '⚠️ Bạn đang nhập ' + n + ' đôi. Có ai đặt ' + n + ' đôi cho một đơn hàng bán lẻ không? Đơn hàng bán lẻ trên website tối đa 10 đôi/lần đặt để đảm bảo công bằng cho mọi khách hàng. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (' + n + ' đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!';
+                        msg.classList.remove('hidden');
+                        if (addBtn) addBtn.disabled = true;
+                        if (buyBtn) buyBtn.disabled = true;
+                        if (box) {
+                          box.classList.add('border-amber-400', 'ring-2', 'ring-amber-200', 'bg-amber-50/20');
+                          box.classList.remove('border-gray-200');
+                        }
+                        return;
+                      }
+
+                      // Valid: Hide message and re-enable buttons
+                      msg.classList.add('hidden');
+                      msg.textContent = '';
+                      if (box) {
+                        box.classList.remove('border-amber-400', 'ring-2', 'ring-amber-200', 'bg-amber-50/20', 'border-red-500', 'ring-red-200', 'bg-red-50/20');
+                        box.classList.add('border-gray-200');
+                      }
+                      if (addBtn) addBtn.disabled = false;
+                      if (buyBtn) buyBtn.disabled = false;
+                    }
+
+                    window.handleDetailQtyChange = instantQtyCheck;
+                    const inpEl = document.getElementById('qty-input');
+                    if (inpEl) {
+                      inpEl.addEventListener('input', instantQtyCheck);
+                      inpEl.addEventListener('keyup', instantQtyCheck);
+                      inpEl.addEventListener('change', instantQtyCheck);
+                    }
+                  })();
 
               //- Action Buttons
               .flex.flex-col.gap-3.mb-6(class="sm:flex-row")
@@ -198,6 +255,61 @@ block content
           .p-3.bg-vamos-bg-light.rounded-lg
             .text-xs.text-gray-400 Thanh toán
             .text-sm.font-bold.text-vamos-red COD toàn quốc
+
+    //- ── ACCORDION: HƯỚNG DẪN VỆ SINH & BẢO QUẢN (Stitch Design Handoff) ──
+    .mt-6.bg-white.rounded-vamos-xl.border.border-vamos-border.p-6.shadow-vamos-card
+      details.group
+        summary.flex.items-center.justify-between.cursor-pointer.list-none.text-sm.font-bold.text-vamos-dark
+          span.flex.items-center.gap-2
+            span 🧼
+            | Hướng Dẫn Vệ Sinh & Bảo Quản Giày VAMOS Chuẩn Nhà Sản Xuất
+          span.text-xs.text-gray-400.transition-transform.duration-200(class="group-open:rotate-180") ▼
+        .mt-4.pt-4.border-t.border-gray-100.text-xs.text-gray-600.space-y-2.leading-relaxed
+          p • 
+            strong Vệ sinh định kỳ: 
+            | Dùng bàn chải lông mềm hoặc khăn microfiber thấm nước xà phòng pha loãng để lau sạch vết bẩn nhẹ trên bề mặt vải hoặc da.
+          p • 
+            strong Tránh phơi nắng gắt: 
+            | Phơi giày ở nơi râm mát, thoáng khí tự nhiên. Tuyệt đối không sấy nhiệt độ cao hoặc phơi dưới ánh nắng trực tiếp để tránh làm biến dạng đế Phylon và làm giòn keo dán.
+          p • 
+            strong Bảo quản giữ phom: 
+            | Giữ lót đệm khô ráo, nhét giấy mềm hoặc túi hút ẩm chuyên dụng vào lòng giày khi cất trong hộp để giữ dáng giày luôn chuẩn form.
+
+    //- ── RELATED PRODUCTS SECTION (Stitch C-DET-02) ──
+    if relatedProducts && relatedProducts.length > 0
+      .mt-12
+        .flex.items-center.justify-between.mb-6
+          div
+            span.text-xs.font-bold.text-vamos-red.uppercase.tracking-wider GỢI Ý CHO BẠN
+            h2.text-xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") SẢN PHẨM CÙNG BỘ SƯU TẬP
+          a.text-xs.font-bold.text-vamos-red(class="hover:underline flex items-center gap-1" href="/products")
+            | Xem tất cả sản phẩm
+            span →
+        .grid.grid-cols-2.gap-4(class="sm:grid-cols-4 lg:gap-6")
+          each relP in relatedProducts
+            article.group.bg-white.rounded-vamos-xl.border.border-vamos-border.overflow-hidden.flex.flex-col.transition-all.duration-200.shadow-vamos-card(class="hover:-translate-y-1 hover:shadow-vamos-hover")
+              a.relative.aspect-square.bg-slate-50.p-4.flex.items-center.justify-center.overflow-hidden(href=`/products/${relP.slug}`)
+                if relP.primary_image || relP.image_url
+                  img.w-full.h-full.object-contain.mix-blend-multiply.transition-transform.duration-300(class="group-hover:scale-105" src=(relP.primary_image || relP.image_url) alt=relP.name)
+                else
+                  .text-gray-400.text-xs VAMOS
+                - const relDiscount = relP.sale_price && Number(relP.sale_price) > 0 && Number(relP.sale_price) < Number(relP.base_price) ? Math.round((1 - (Number(relP.sale_price) / Number(relP.base_price))) * 100) : 0
+                if relDiscount > 0
+                  span.badge-sale.absolute.top-2.left-2= `-${relDiscount}%`
+              .p-4.flex.flex-col.flex-1.justify-between
+                div
+                  span.text-xs.text-gray-400= relP.gender_target || 'UNISEX'
+                  h3.text-xs.font-bold.text-vamos-dark.line-clamp-2.mt-1(class="group-hover:text-vamos-red transition-colors")
+                    a(href=`/products/${relP.slug}`)= relP.name
+                .mt-3.flex.items-baseline.gap-2
+                  if relP.sale_price && Number(relP.sale_price) > 0 && Number(relP.sale_price) < Number(relP.base_price)
+                    span.text-sm.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(relP.sale_price)
+                    span.text-xs.text-gray-400.line-through
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(relP.base_price)
+                  else
+                    span.text-sm.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(relP.base_price)
 
     script.
       window.PRODUCT_DATA = {

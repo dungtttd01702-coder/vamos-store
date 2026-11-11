@@ -1,146 +1,275 @@
 extends ../../layouts/main
 
 block content
-  //- ── BREADCRUMB ──
-  .bg-vamos-bg-light.py-3.border-b.border-vamos-border
-    .vamos-container
-      nav.text-xs.text-gray-500.flex.items-center.gap-2
-        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
-        span /
-        a.transition-colors(class="hover:text-vamos-red" href="/cart") Giỏ hàng
-        span /
-        span.text-vamos-dark.font-bold Thanh toán COD
+  //- ── TOP ANNOUNCEMENT MICRO-BAR ──
+  aside.bg-slate-900.text-white.px-4.py-2.text-center.text-xs.flex.items-center.justify-center.gap-2
+    span.inline-block.w-2.h-2.rounded-full.bg-vamos-red.animate-pulse
+    span TRẢI NGHIỆM ĐỒNG KIỂM COD 100%: NHẬN HÀNG HÀI LÒNG MỚI THANH TOÁN • ĐỔI TRẢ MIỄN PHÍ 7 NGÀY TẬN NƠI
+
+  //- ── DISTRACTION-FREE CHECKOUT SUB-HEADER ──
+  section.w-full.bg-white.border-b.border-slate-200.py-4
+    .max-w-7xl.mx-auto.px-4.flex.items-center.justify-between(class="lg:px-16")
+      //- 3-Step Checkout Progress Breadcrumb
+      nav.flex.items-center.gap-3(aria-label="Tiến trình thanh toán")
+        a.flex.items-center.gap-2.text-slate-500.text-xs.transition-colors(class="hover:text-vamos-red" href="/cart")
+          span.w-6.h-6.rounded-full.bg-emerald-100.text-emerald-700.flex.items-center.justify-center.text-xs.font-bold ✓
+          span.font-semibold 1. Giỏ hàng
+        span.w-6.h-px.bg-slate-300
+        .flex.items-center.gap-2.text-vamos-red.text-xs
+          span.w-6.h-6.rounded-full.bg-vamos-red.text-white.flex.items-center.justify-center.text-xs.font-bold.shadow-sm 2
+          span.font-bold Thông tin &amp; Thanh toán COD
+        span.w-6.h-px.bg-slate-300
+        .flex.items-center.gap-2.text-slate-400.text-xs
+          span.w-6.h-6.rounded-full.bg-slate-100.text-slate-400.flex.items-center.justify-center.text-xs.font-bold 3
+          span.font-medium Hoàn tất
+
+      //- Support & Security Badges
+      .flex.items-center.gap-4.text-right
+        .hidden.flex-col.items-end(class="sm:flex")
+          span.text-xs.text-slate-500 Hỗ trợ đặt hàng COD 24/7
+          a.font-bold.text-slate-900.text-xs(class="hover:text-vamos-red transition-colors" href="tel:19002126") Hotline: 1900 2126
+        .flex.items-center.gap-1.px-3.py-1.bg-emerald-50.text-emerald-800.rounded-full.border.border-emerald-200
+          span.text-xs 🔒
+          span.text-xs.font-bold.tracking-tight(style="font-family:'Space Grotesk',sans-serif") SSL 256-BIT
 
   //- ── MAIN CHECKOUT CONTAINER ──
-  .vamos-container.py-8
-    h1.text-2xl.font-black.text-vamos-dark.mb-6(style="font-family:'Space Grotesk',sans-serif")
-      | THANH TOÁN ĐƠN HÀNG (COD)
-
+  main.flex-grow.max-w-7xl.mx-auto.w-full.px-4.py-8(class="lg:px-16 lg:py-12")
     if error_msg
-      .bg-red-50.border.border-red-200.rounded-vamos-lg.p-4.mb-6.flex.items-center.gap-3
-        span.text-xl ⚠️
-        p.text-xs.font-bold.text-red-700= error_msg
+      .mb-6.p-4.rounded-xl.bg-red-50.border.border-red-200.flex.items-center.gap-3.text-xs.font-bold.text-red-700
+        span.text-base ⚠️
+        span= error_msg
 
     form#checkout-form(action="/checkout" method="POST")
       input(type="hidden" name="_csrf" value=csrfToken)
-      .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
+      .grid.grid-cols-1.gap-8.items-start(class="lg:grid-cols-12")
 
-        //- ── COLUMN 1: SHIPPING ADDRESS & RECIPIENT (7 cols) ──
-        .space-y-6(class="lg:col-span-7")
-          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-              | 1. THÔNG TIN GIAO NHẬN HÀNG
-            
-            .space-y-4
-              .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
-                div
-                  label.form-label(for="recipient_name") Họ và tên người nhận *
-                  input#recipient_name.form-input(
-                    type="text"
-                    name="recipient_name"
-                    value=formData.recipientName
-                    placeholder="Ví dụ: Nguyễn Văn A"
-                    required
-                  )
-                div
-                  label.form-label(for="recipient_phone") Số điện thoại *
-                  input#recipient_phone.form-input(
-                    type="tel"
-                    name="recipient_phone"
-                    value=formData.recipientPhone
-                    placeholder="Ví dụ: 0901234567"
-                    pattern="(0|\\+84)[3|5|7|8|9][0-9]{8}"
-                    title="Số điện thoại Việt Nam 10 chữ số"
-                    required
-                  )
-
+        //- ── CỘT TRÁI: THÔNG TIN GIAO HÀNG & PHƯƠNG THỨC (7-8 cols) ──
+        section.flex.flex-col.gap-6(class="lg:col-span-7 xl:col-span-8")
+          //- Member Club callout banner
+          .p-4.bg-gradient-to-r.from-red-50.to-slate-50.border.border-red-100.rounded-xl.flex.items-center.justify-between.gap-4.shadow-sm
+            .flex.items-center.gap-3
+              .w-10.h-10.rounded-full.bg-red-100.text-vamos-red.flex.items-center.justify-center.font-bold.text-lg.shrink-0 🏅
               div
-                label.form-label(for="full_address") Địa chỉ giao hàng cụ thể *
-                textarea#full_address.form-input(
+                p.text-xs.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") ĐỒNG KIỂM &amp; TẬN NƠI COD
+                p.text-xs.text-slate-600 Mở hộp xem giày, thử form vừa chân trước khi thanh toán cho shipper.
+            span.px-3.py-1.bg-white.text-slate-900.border.border-slate-200.rounded-lg.text-xs.font-bold.shadow-xs MIỄN PHÍ ĐỔI SIZE
+
+          //- Khung thông tin giao nhận hàng
+          .bg-white.p-6.rounded-xl.border.border-slate-200.shadow-sm.flex.flex-col.gap-6(class="sm:p-8")
+            .flex.items-center.justify-between.border-b.border-slate-100.pb-4
+              h2.text-base.font-bold.text-slate-900.flex.items-center.gap-2(style="font-family:'Space Grotesk',sans-serif")
+                span 📍
+                | THÔNG TIN NHẬN HÀNG (COD)
+              span.text-xs.text-slate-500 * Bắt buộc điền
+
+            //- Sổ địa chỉ đã lưu (nếu khách hàng có)
+            if addresses && addresses.length > 0
+              .p-3.bg-slate-50.rounded-lg.border.border-slate-200
+                label.block.text-xs.font-bold.text-slate-700(class="mb-1.5") Chọn nhanh từ sổ địa chỉ đã lưu:
+                select#saved_address_select.w-full.px-3.py-2.rounded-lg.border.border-slate-300.bg-white.text-xs.font-medium.text-slate-800(
+                  onchange="if(this.value){const opt=this.options[this.selectedIndex]; document.getElementById('recipient_name').value=opt.dataset.name||''; document.getElementById('recipient_phone').value=opt.dataset.phone||''; document.getElementById('full_address').value=opt.dataset.address||'';}"
+                )
+                  option(value="") -- Sử dụng địa chỉ mới hoặc chọn bên dưới --
+                  each addr in addresses
+                    option(
+                      value=addr.id
+                      data-name=addr.recipient_name
+                      data-phone=(addr.phone || addr.phone_number)
+                      data-address=`${addr.detail_address || addr.address_line}, ${addr.ward}, ${addr.district}, ${addr.province}`
+                      selected=defaultAddr && defaultAddr.id === addr.id
+                    )= `${addr.recipient_name} - ${addr.phone || addr.phone_number} (${addr.detail_address || addr.address_line})`
+
+            //- Form Fields Grid
+            .grid.grid-cols-1.gap-4(class="md:grid-cols-2")
+              //- Họ và tên
+              div
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="recipient_name") Họ và tên người nhận *
+                input#recipient_name.w-full.px-4.rounded-lg.border.border-slate-300.bg-white.text-slate-900.text-xs.outline-none.transition-all(
+                  class="py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                  type="text"
+                  name="recipient_name"
+                  value=(formData && formData.recipientName ? formData.recipientName : '')
+                  placeholder="Ví dụ: Nguyễn Văn An"
+                  required
+                )
+
+              //- Số điện thoại
+              div
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="recipient_phone") Số điện thoại (10 chữ số) *
+                input#recipient_phone.w-full.px-4.rounded-lg.border.border-slate-300.bg-white.text-slate-900.text-xs.outline-none.transition-all(
+                  class="py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                  type="tel"
+                  name="recipient_phone"
+                  value=(formData && formData.recipientPhone ? formData.recipientPhone : '')
+                  placeholder="Ví dụ: 0918888234"
+                  pattern="(0|\\+84)[3|5|7|8|9][0-9]{8}"
+                  title="Số điện thoại Việt Nam 10 chữ số"
+                  required
+                )
+
+              //- Địa chỉ cụ thể
+              .col-span-1(class="md:col-span-2")
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="full_address") Địa chỉ giao hàng cụ thể *
+                textarea#full_address.w-full.px-4.rounded-lg.border.border-slate-300.bg-white.text-slate-900.text-xs.outline-none.transition-all(
+                  class="py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   name="full_address"
                   rows="3"
-                  placeholder="Số nhà, tên đường, thôn/ấp, phường/xã, quận/huyện, tỉnh/thành phố..."
+                  placeholder="Số nhà, tên đường, khu dân cư, phường/xã, quận/huyện, tỉnh/thành phố..."
                   required
-                )= formData.deliveryAddress
+                )= (formData && formData.deliveryAddress ? formData.deliveryAddress : '')
 
-              div
-                label.form-label(for="customer_note") Ghi chú cho đơn hàng (tùy chọn)
-                input#customer_note.form-input(
+              //- Ghi chú giao hàng
+              .col-span-1(class="md:col-span-2")
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="customer_note") Ghi chú cho nhân viên giao hàng (Không bắt buộc)
+                input#customer_note.w-full.px-4.rounded-lg.border.border-slate-300.bg-white.text-slate-900.text-xs.outline-none.transition-all(
+                  class="py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   type="text"
                   name="customer_note"
-                  value=(formData.customerNote || '')
-                  placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."
+                  value=(formData && formData.customerNote ? formData.customerNote : '')
+                  placeholder="Ví dụ: Giao giờ hành chính, gọi trước 15 phút, gửi lễ tân..."
                 )
 
-          //- Payment Method Block (COD Only as per rules)
-          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-              | 2. PHƯƠNG THỨC THANH TOÁN
-            
-            .p-4.rounded-vamos-lg.border-2.border-vamos-red.bg-red-50.flex.items-start.gap-3
-              input#pay_cod.mt-1.text-vamos-red(type="radio" name="payment_method" value="COD" checked required)
-              label.cursor-pointer(for="pay_cod")
-                .flex.items-center.gap-2
-                  span.font-bold.text-sm.text-vamos-dark Thanh toán tiền mặt khi nhận hàng (COD)
-                  span.badge-sale COD
-                p.text-xs.text-gray-600.mt-1.leading-relaxed
-                  | Quý khách được quyền mở hộp kiểm tra đúng mẫu, đúng size và hình thức sản phẩm trước khi thanh toán tiền mặt cho nhân viên giao hàng.
-
-        //- ── COLUMN 2: ORDER SUMMARY & CONFIRMATION (5 cols) ──
-        .space-y-6(class="lg:col-span-5")
-          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.sticky.top-20
-            h2.text-sm.font-bold.text-vamos-dark.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-              | TÓM TẮT ĐƠN HÀNG (#{items.length} SẢN PHẨM)
-
-            //- Items preview
-            .max-h-60.overflow-y-auto.divide-y.divide-gray-100.mb-4.pr-1
-              each item in items
-                .py-3.flex.items-center.gap-3
-                  .w-12.h-12.rounded-lg.bg-gray-50.p-1.border.border-gray-100.flex-shrink-0.flex.items-center.justify-center
-                    if item.image_url
-                      img.w-full.h-full.object-contain(src=item.image_url alt=item.product_name)
-                    else
-                      span.text-xs.text-gray-400 SP
-                  .flex-grow.min-w-0
-                    h4.text-xs.font-bold.text-vamos-dark.truncate= item.product_name
-                    p.text-xs.text-gray-400= `${item.color_name} | Size: ${item.size_name} | SL: ${item.quantity}`
-                  .text-right.flex-shrink-0
-                    span.text-xs.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
-
-            //- Voucher Code Input
-            .mb-4.pt-3.border-t.border-gray-100
-              label.form-label.text-xs(for="voucher_code") Mã giảm giá Voucher
-              .flex.gap-2
-                input#voucher_code.form-input.text-xs(
-                  type="text"
-                  name="voucher_code"
-                  value=(formData.voucherCode || '')
-                  placeholder="Nhập mã: VAMOS50K"
-                )
-
-            //- Calculations
-            .space-y-2.text-xs.border-t.border-gray-100.pt-4
-              .flex.justify-between
-                span.text-gray-500 Tiền hàng tạm tính:
-                span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
-              .flex.justify-between
-                span.text-gray-500 Phí vận chuyển:
+          //- Khung Phương thức vận chuyển
+          .bg-white.p-6.rounded-xl.border.border-slate-200.shadow-sm.flex.flex-col.gap-4(class="sm:p-8")
+            h2.text-base.font-bold.text-slate-900.flex.items-center.gap-2.border-b.border-slate-100.pb-4(style="font-family:'Space Grotesk',sans-serif")
+              span 🚚
+              | PHƯƠNG THỨC VẬN CHUYỂN
+            .space-y-3
+              label.flex.items-center.justify-between.p-4.rounded-xl.border-2.border-vamos-red.bg-red-50.cursor-pointer.transition-all
+                .flex.items-center.gap-3
+                  input.text-vamos-red(type="radio" name="shipping_method" value="standard" checked required)
+                  div
+                    .flex.items-center.gap-2
+                      span.text-xs.font-bold.text-slate-900 Giao hàng tiêu chuẩn toàn quốc
+                      span.px-2.rounded.text-xs.font-bold.bg-emerald-100.text-emerald-800(class="py-0.5") TIẾT KIỆM
+                    p.text-xs.text-slate-500(class="mt-0.5") Dự kiến nhận hàng: 2 - 3 ngày làm việc (Đồng kiểm COD)
                 if shippingFee === 0
-                  span.font-bold.text-green-600 Miễn phí vận chuyển
+                  span.text-xs.font-bold.text-emerald-700 Miễn phí (0 ₫)
                 else
-                  span.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+                  span.text-xs.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 30.000 ₫
+
+          //- Khung Phương thức thanh toán (COD Ưu tiên số 1)
+          .bg-white.p-6.rounded-xl.border.border-slate-200.shadow-sm.flex.flex-col.gap-4(class="sm:p-8")
+            h2.text-base.font-bold.text-slate-900.flex.items-center.gap-2.border-b.border-slate-100.pb-4(style="font-family:'Space Grotesk',sans-serif")
+              span 🛡️
+              | PHƯƠNG THỨC THANH TOÁN AN TOÀN
+            
+            .space-y-4
+              //- Option 1: COD (Thanh toán khi nhận hàng - Selected)
+              .rounded-xl.border-2.border-vamos-red.bg-red-50.overflow-hidden.transition-all.shadow-xs
+                label.flex.items-center.justify-between.p-4.cursor-pointer
+                  .flex.items-center.gap-3
+                    input.text-vamos-red(type="radio" name="payment_method" value="COD" checked required)
+                    .flex.items-center.gap-2
+                      span.text-xl 💵
+                      div
+                        span.text-xs.font-bold.text-slate-900 Thanh toán tiền mặt khi nhận hàng (COD)
+                        span.ml-2.px-2.rounded-full.text-xs.font-bold.bg-vamos-red.text-white(class="py-0.5") KHUYÊN DÙNG
+                  span.text-emerald-600.font-bold.text-base ✓
+                //- COD Security Callout (Stitch Design Handoff)
+                .px-5.py-3.bg-red-100.border-t.border-red-200.flex.items-start.gap-3
+                  span.text-vamos-red.font-bold 📋
+                  .space-y-1
+                    p.text-xs.font-bold.text-slate-900 100% Yên tâm với chính sách Đồng kiểm VAMOS:
+                    p.text-xs.text-slate-700.leading-relaxed
+                      | Quý khách được quyền mở hộp kiểm tra đúng mẫu, đúng size, thử form vừa chân trước khi thanh toán tiền mặt cho nhân viên giao hàng. Không vừa ý được trả lại ngay, miễn phí đổi size trong 7 ngày.
+
+        //- ── CỘT PHẢI: TÓM TẮT ĐƠN HÀNG & CHỐT ĐƠN (4-5 cols) ──
+        aside.flex.flex-col.gap-6.sticky.top-28(class="lg:col-span-5 xl:col-span-4")
+          .bg-white.rounded-2xl.border.border-slate-200.shadow-md.p-6.flex.flex-col.gap-6
+            //- Tiêu đề Header Giỏ hàng
+            .flex.items-center.justify-between.border-b.border-slate-100.pb-4
+              h3.text-base.font-bold.text-slate-900.flex.items-center.gap-2(style="font-family:'Space Grotesk',sans-serif")
+                span 🛍️
+                | ĐƠN HÀNG CỦA BẠN
+              span.px-2.py-1.bg-slate-100.rounded-full.text-xs.font-bold.text-slate-700= `${items.length} món`
+
+            //- Danh sách snapshot sản phẩm (Thumbnails 70x70)
+            .divide-y.divide-slate-100.max-h-72.overflow-y-auto.pr-1
+              each item in items
+                .py-3.flex.gap-3.items-center
+                  .w-16.h-16.rounded-lg.bg-slate-50.border.border-slate-200.flex.items-center.justify-center.overflow-hidden.shrink-0.p-1
+                    if item.image_url
+                      img.w-full.h-full.object-contain.mix-blend-multiply(src=item.image_url alt=item.product_name)
+                    else
+                      span.text-xs.text-slate-400 VAMOS
+                  .flex-grow.min-w-0
+                    h4.text-xs.font-bold.text-slate-900.truncate= item.product_name
+                    p.text-xs.text-slate-500= `Màu: ${item.color_name} | Size: ${item.size_name}`
+                    .flex.items-center.justify-between.mt-1
+                      span.text-xs.text-slate-400= `Số lượng: ${item.quantity}`
+                      span.text-xs.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                        = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.line_total)
+
+            //- Khung Voucher Khuyến mãi
+            .space-y-2.pt-2.border-t.border-slate-100
+              label.text-xs.font-bold.text-slate-700(for="checkout_voucher_code") Mã Voucher giảm giá
+              .flex.gap-2
+                input#checkout_voucher_code.w-full.bg-slate-50.border.border-slate-300.uppercase.text-slate-900.text-xs.rounded-lg.px-3.outline-none(
+                  class="py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                  name="voucher_code"
+                  value=(formData && formData.voucherCode ? formData.voucherCode : '')
+                  placeholder="Nhập mã: VAMOS100"
+                  type="text"
+                )
+                button.bg-slate-900.text-white.px-4.rounded-lg.font-bold.text-xs.uppercase.tracking-wider.transition-colors.shrink-0(
+                  class="py-2.5 hover:bg-slate-800"
+                  type="button"
+                  onclick="window.showToast ? window.showToast('Mã voucher đang được áp dụng trực tiếp cho đơn hàng!', 'success') : null"
+                )
+                  | Áp Dụng
+
+            //- Chi tiết bảng giá
+            .space-y-2.border-t.border-slate-100.pt-4.text-xs
+              .flex.justify-between.text-slate-600
+                span Tạm tính (#{items.length} sản phẩm):
+                span.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
+              .flex.justify-between.text-slate-600
+                span Phí vận chuyển toàn quốc:
+                if shippingFee === 0
+                  span.font-bold.text-emerald-700 Miễn phí (0 ₫)
+                else
+                  span.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)
-              .border-t.border-gray-100.pt-3.flex.justify-between.items-baseline
-                span.text-sm.font-bold.text-vamos-dark Tổng thanh toán:
-                span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+              
+              //- Tổng cộng thanh toán
+              .border-t.border-slate-200.pt-4.mt-2.flex.items-baseline.justify-between
+                div
+                  span.text-sm.font-bold.text-slate-900.block(style="font-family:'Space Grotesk',sans-serif") TỔNG CỘNG COD
+                  span.text-xs.text-slate-400.block Đã bao gồm thuế VAT &amp; phí đồng kiểm
+                span.text-2xl.font-black.text-vamos-red.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
                   = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)
 
-            //- Submit Button
-            button.mt-6.w-full.btn-primary.text-xs.py-4(type="submit")
-              | XÁC NHẬN ĐẶT HÀNG (COD)
+            //- Nút Chốt Đơn lớn COD
+            .space-y-3.pt-2
+              button#btn-submit-order.w-full.py-4.px-6.bg-vamos-red.text-white.rounded-lg.font-bold.text-xs.uppercase.tracking-wide.shadow-vamos-cta.transition-all.flex.items-center.justify-center.gap-2(
+                class="hover:bg-red-700 active:scale-[0.99]"
+                type="submit"
+              )
+                span XÁC NHẬN ĐẶT HÀNG (COD)
+                span →
+              p.text-xs.text-center.text-slate-400.leading-relaxed
+                | Nhấn xác nhận đồng nghĩa với việc bạn đồng ý với Điều khoản dịch vụ và Chính sách đổi trả 7 ngày của VAMOS STORE.
 
-            p.text-center.text-xs.text-gray-400.mt-3
-              | Bằng việc đặt hàng, quý khách đồng ý với Điều khoản mua sắm và Chính sách đổi trả 7 ngày của VAMOS STORE.
+            //- Huy hiệu 3 cam kết vàng
+            .border-t.border-slate-100.pt-4.grid.grid-cols-3.gap-2.text-center.text-slate-600
+              .flex.flex-col.items-center
+                span.text-vamos-red.text-lg 🛡️
+                span.text-xs.font-bold.mt-1.text-slate-900 100% CHÍNH HÃNG
+                span.text-xs.text-slate-400 Bồi hoàn 200%
+              .flex.flex-col.items-center.border-x.border-slate-200
+                span.text-vamos-red.text-lg 🔄
+                span.text-xs.font-bold.mt-1.text-slate-900 ĐỔI SIZE 7 NGÀY
+                span.text-xs.text-slate-400 Tận nhà miễn phí
+              .flex.flex-col.items-center
+                span.text-vamos-red.text-lg 👟
+                span.text-xs.font-bold.mt-1.text-slate-900 BẢO HÀNH KEO
+                span.text-xs.text-slate-400 Trọn đời sản phẩm
 
+          //- Box Giữ giỏ hàng trong 15:00
+          .p-3.bg-slate-100.rounded-xl.border.border-slate-200.flex.items-center.justify-between.text-xs.text-slate-600
+            .flex.items-center.gap-2
+              span ⏱️
+              span Khóa giữ sản phẩm trong giỏ:
+            span.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 14:52

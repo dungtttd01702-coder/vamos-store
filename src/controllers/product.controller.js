@@ -68,11 +68,21 @@ class ProductController {
       const availableSizes = [...new Map(product.variants.map(v => [v.size_name, { id: v.size_order, name: v.size_name }])).values()];
       const availableColors = [...new Map(product.variants.map(v => [v.color_name, { name: v.color_name, hex: v.hex_code }])).values()];
 
+      // Related products from same store catalog (Stitch C-DET-02)
+      let relatedProducts = [];
+      try {
+        const flashSales = await productService.getFlashSaleProducts(5);
+        relatedProducts = (flashSales || []).filter(p => p.id !== product.id).slice(0, 4);
+      } catch (err) {
+        relatedProducts = [];
+      }
+
       res.render('pages/products/detail', {
         title: product.name,
         product,
         availableSizes,
         availableColors,
+        relatedProducts,
       });
     } catch (error) {
       next(error);

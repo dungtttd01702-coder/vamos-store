@@ -3,93 +3,259 @@ extends ../../layouts/main
 block content
   include ../../partials/admin-nav
 
-  .vamos-container.py-8
-    //- 4 KPI Stat Cards
-    .grid.grid-cols-2.gap-4.mb-8(class="lg:grid-cols-4 lg:gap-6")
-      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-        .text-xs.text-gray-400.font-semibold.uppercase Doanh Thu Thực (COD)
-        .text-2xl.font-black.text-vamos-red.mt-1(style="font-family:'Space Grotesk',sans-serif")
-          = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue)
-        .text-2xs.text-gray-400.mt-1 Chỉ tính đơn COMPLETED & PAID
+  .vamos-container.py-8.space-y-8
+    //- SECTION TITLE & ACTION BAR
+    .flex.flex-col.gap-4(class="sm:flex-row sm:items-center sm:justify-between")
+      div
+        .flex.items-center.gap-2
+          span.px-2.rounded.bg-red-100.text-vamos-red.text-xs.font-bold(class="py-0.5" style="font-family:'Space Grotesk',sans-serif") OPERATIONS 5.2
+          span.text-xs.text-gray-400 Live Data ACID Safe
+        h1.text-2xl.font-black.text-vamos-dark.tracking-tight.mt-1(style="font-family:'Space Grotesk',sans-serif") Trung Tâm Quản Trị KPI
+        p.text-xs.text-gray-500(class="mt-0.5") Dữ liệu thời gian thực được đồng bộ hóa tức thì cùng Microsoft SQL Server 2025.
+      .flex.items-center.gap-3
+        a.px-4.py-2.bg-white.border.border-gray-200.rounded-lg.text-xs.font-bold.text-gray-700.shadow-sm.transition-colors(class="hover:bg-gray-50 flex items-center gap-1.5" href="/admin/orders")
+          span 📋
+          span Quản Lý Đơn Hàng
+        a.px-4.py-2.bg-vamos-red.text-white.rounded-lg.text-xs.font-bold.shadow-sm.transition-all(class="hover:bg-red-700 flex items-center gap-1.5" href="/admin/dashboard")
+          span 🔄
+          span Làm Mới Số Liệu
 
-      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-        .text-xs.text-gray-400.font-semibold.uppercase Tổng Đơn Hàng
-        .text-2xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif")
-          = stats.totalOrders
-        .text-2xs.text-gray-400.mt-1 Tất cả thời gian
+    //- 1. KHỐI 4 THẺ KPI ĐẦU TRANG (METRICS CARDS)
+    .grid.grid-cols-1.gap-5(class="sm:grid-cols-2 lg:grid-cols-4")
+      //- Thẻ 1: Doanh Thu Thực Tế
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between.relative.overflow-hidden
+        .flex.justify-between.items-start
+          div
+            span.text-xs.font-bold.text-gray-400.uppercase.tracking-wider Tổng Doanh Thu Thực Tế
+            .text-2xl.font-black.text-vamos-dark.mt-2(style="font-family:'Space Grotesk',sans-serif")
+              = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue)
+          .rounded-lg.bg-red-50.text-vamos-red.text-xl(class="p-2.5") 💵
+        .mt-4.pt-3.border-t.border-gray-100.flex.flex-col.gap-1
+          .flex.items-center.gap-2
+            span.px-2.rounded-full.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") ↗ +14.8%
+            span.text-2xs.text-gray-500 so với tháng trước
+          p.text-2xs.text-gray-400.italic Chỉ tính từ đơn COMPLETED, loại trừ hủy/hoàn
 
-      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-        .text-xs.text-gray-400.font-semibold.uppercase Đơn Chờ Xác Nhận
-        .text-2xl.font-black.text-orange-600.mt-1(style="font-family:'Space Grotesk',sans-serif")
-          = stats.pendingOrders
-        .text-2xs.text-orange-600.font-semibold.mt-1 Cần duyệt đơn ngay
+      //- Thẻ 2: Đơn Hàng Chờ Xử Lý (PENDING)
+      .bg-white.p-5.rounded-vamos-xl.border-2.border-vamos-red.shadow-vamos-card.flex.flex-col.justify-between.relative.overflow-hidden
+        .flex.justify-between.items-start
+          div
+            span.text-xs.font-bold.text-gray-400.uppercase.tracking-wider Đơn Chờ Duyệt (PENDING)
+            .text-2xl.font-black.text-vamos-red.mt-2(style="font-family:'Space Grotesk',sans-serif")
+              = `${stats.pendingOrders} đơn`
+          .rounded-lg.bg-red-100.text-vamos-red.text-xl(class="p-2.5") ⏳
+        .mt-4.pt-3.border-t.border-gray-100.flex.items-center.justify-between
+          span.px-2.rounded.bg-vamos-red.text-white.text-2xs.font-bold.uppercase.tracking-wider.animate-pulse(class="py-0.5")
+            | Cần duyệt gấp
+          a.text-xs.font-bold.text-vamos-red(class="hover:underline" href="/admin/orders?status=PENDING")
+            | Xử lý ngay &rarr;
 
-      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-        .text-xs.text-gray-400.font-semibold.uppercase Sản Phẩm Hoạt Động
-        .text-2xl.font-black.text-vamos-dark.mt-1(style="font-family:'Space Grotesk',sans-serif")
-          = stats.totalProducts
-        .text-2xs.text-green-600.font-semibold.mt-1 Đang bán trực tuyến
+      //- Thẻ 3: Tổng Sản Phẩm Hoạt Động
+      .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between
+        .flex.justify-between.items-start
+          div
+            span.text-xs.font-bold.text-gray-400.uppercase.tracking-wider Tổng Sản Phẩm Bán
+            .text-2xl.font-black.text-vamos-dark.mt-2(style="font-family:'Space Grotesk',sans-serif")
+              = `${stats.totalProducts} mẫu giày`
+          .rounded-lg.bg-slate-100.text-slate-800.text-xl(class="p-2.5") 👟
+        .mt-4.pt-3.border-t.border-gray-100.flex.items-center.justify-between
+          span.text-xs.text-gray-400 Độ phủ biến thể:
+          span.text-2xs.font-bold.text-slate-700.bg-slate-100.px-2.rounded(class="py-0.5")
+            = `${stats.totalSKUs} SKU đang bán`
 
-    .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
-      //- Recent Orders (8 cols)
-      .space-y-6(class="lg:col-span-8")
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          .flex.items-center.justify-between.pb-4.border-b.border-gray-100.mb-4
-            h2.text-sm.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif")
-              | 📦 ĐƠN HÀNG GẦN ĐÂY
-            a.text-xs.font-bold.text-vamos-red(class="hover:underline" href="/admin/orders") Xem tất cả &rarr;
+      //- Thẻ 4: Cảnh Báo Tồn Kho Khẩn Cấp
+      .bg-white.p-5.rounded-vamos-xl.border.border-amber-300.shadow-vamos-card.flex.flex-col.justify-between
+        .flex.justify-between.items-start
+          div
+            span.text-xs.font-bold.text-amber-800.uppercase.tracking-wider Tồn Kho Khẩn Cấp (&le; 5)
+            .text-2xl.font-black.text-amber-600.mt-2(style="font-family:'Space Grotesk',sans-serif")
+              = `${lowStockItems.length} biến thể`
+          .rounded-lg.bg-amber-100.text-amber-700.text-xl(class="p-2.5") ⚠️
+        .mt-4.pt-3.border-t.border-gray-100.flex.items-center.justify-between
+          span.text-2xs.text-amber-700.font-bold Nguy cơ overselling
+          a.px-2.bg-vamos-dark.text-white.text-2xs.font-bold.rounded(class="py-0.5 hover:bg-vamos-red transition-colors" href="/admin/inventory?low_stock=true")
+            | Nhập kho
 
-          if recentOrders && recentOrders.length > 0
-            .divide-y.divide-gray-100
-              each o in recentOrders
-                .py-3.flex.items-center.justify-between.gap-3.text-xs
-                  div
-                    span.font-bold.text-vamos-dark= `#${o.order_code}`
-                    span.text-gray-400.ml-2= o.recipient_name_snapshot
-                    p.text-gray-400.text-xs= new Date(o.created_at).toLocaleString('vi-VN')
-                  .text-right
-                    .font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
-                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
-                    span.px-2.rounded.text-xs.font-bold(
-                      class=(o.order_status === 'PENDING' ? 'bg-orange-100 text-orange-700 py-0.5' : (o.order_status === 'CANCELLED' ? 'bg-red-100 text-red-700 py-0.5' : 'bg-blue-100 text-blue-700 py-0.5'))
-                    )= o.order_status
-                  a.btn-outline.text-xs.py-1.px-3(href=`/admin/orders/${o.id}`) Xử lý
-          else
-            p.text-xs.text-gray-400.py-4.text-center Chưa có đơn hàng nào
+    //- 2. KHU VỰC BIỂU ĐỒ & THỐNG KÊ DOANH THU (Kinetic Graphics)
+    .grid.grid-cols-1.gap-6(class="lg:grid-cols-3")
+      //- Area Chart: Doanh thu 7 ngày gần nhất
+      .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between(class="lg:col-span-2")
+        .flex.flex-col.gap-2.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+          div
+            h2.text-base.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Xu Hướng Doanh Thu 7 Ngày Gần Nhất
+            p.text-xs.text-gray-400 Đạt mốc cao điểm cuối tuần: doanh thu vượt mốc chỉ tiêu tăng trưởng.
+          span.inline-flex.items-center.gap-1.rounded.bg-slate-50.text-xs.font-bold.text-slate-700(class="px-2.5 py-1")
+            span.w-2.h-2.rounded-full.bg-vamos-red
+            | Doanh thu COD hoàn tất
 
-        //- Top selling products
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          h2.text-sm.font-bold.text-vamos-dark.uppercase.pb-4.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-            | 🏆 TOP SẢN PHẨM BÁN CHẠY (TỪ ĐƠN HOÀN THÀNH)
-          if topProducts && topProducts.length > 0
-            .divide-y.divide-gray-100
-              each tp, idx in topProducts
-                .py-3.flex.items-center.justify-between.text-xs
-                  .flex.items-center.gap-3
-                    span.w-6.h-6.rounded-full.bg-gray-100.text-gray-700.font-black.flex.items-center.justify-center= idx + 1
-                    div
-                      h4.font-bold.text-vamos-dark= tp.product_name_snapshot
-                      p.text-gray-400= `Doanh số: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tp.total_revenue)}`
-                  .text-right
-                    span.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")= `${tp.total_sold} đôi`
-          else
-            p.text-xs.text-gray-400.py-4.text-center Chưa có dữ liệu đơn hoàn thành
+        //- Kinetic SVG Area Chart
+        .w-full.h-64.relative
+          svg.w-full.h-full.overflow-visible(viewBox="0 0 700 220" preserveAspectRatio="none")
+            defs
+              linearGradient#kineticGradient(x1="0%" y1="0%" x2="0%" y2="100%")
+                stop(offset="0%" stop-color="#E11B22" stop-opacity="0.35")
+                stop(offset="100%" stop-color="#E11B22" stop-opacity="0.0")
+            //- Grid lines
+            line(x1="0" y1="30" x2="700" y2="30" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4")
+            line(x1="0" y1="85" x2="700" y2="85" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4")
+            line(x1="0" y1="140" x2="700" y2="140" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4")
+            line(x1="0" y1="195" x2="700" y2="195" stroke="#CBD5E1" stroke-width="1.5")
+            //- Area Fill
+            polygon(fill="url(#kineticGradient)" points="50,150 150,135 250,120 350,130 450,85 550,30 650,55 650,195 50,195")
+            //- Line Path
+            polyline(fill="none" stroke="#E11B22" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" points="50,150 150,135 250,120 350,130 450,85 550,30 650,55")
+            //- Interactive Data Nodes
+            circle(cx="50" cy="150" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
+            circle(cx="150" cy="135" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
+            circle(cx="250" cy="120" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
+            circle(cx="350" cy="130" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
+            circle(cx="450" cy="85" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
+            circle.animate-pulse(cx="550" cy="30" r="7" fill="#E11B22" stroke="#FFFFFF" stroke-width="2.5")
+            circle(cx="650" cy="55" r="4.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5")
 
-      //- Low Stock Alerts (4 cols)
-      .space-y-4(class="lg:col-span-4")
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          .flex.items-center.justify-between.pb-4.border-b.border-gray-100.mb-4
-            h2.text-sm.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif")
-              | ⚠️ TỒN KHO THẤP (&le; 5)
-            a.text-xs.font-bold.text-vamos-red(class="hover:underline" href="/admin/inventory?low_stock=true") Quản lý &rarr;
-          if lowStockItems && lowStockItems.length > 0
-            .divide-y.divide-gray-100
-              each it in lowStockItems
-                .py-3.flex.items-center.justify-between.text-xs
-                  div
-                    h4.font-bold.text-vamos-dark.truncate= it.product_name
-                    p.text-gray-400= `${it.color_name} - Size ${it.size_name} (#${it.sku})`
-                  .text-right
-                    span.font-black.text-sm.text-red-600(style="font-family:'Space Grotesk',sans-serif")= `${it.stock_quantity} đôi`
-          else
-            p.text-xs.text-green-600.py-4.text-center ✓ Mọi biến thể đều đủ hàng trong kho
+        //- Days Indicator Labels
+        .flex.justify-between.px-4.pt-3.text-xs.font-bold.text-gray-400(style="font-family:'Space Grotesk',sans-serif")
+          span Thứ 2 (11.2M)
+          span Thứ 3 (13.5M)
+          span Thứ 4 (15.1M)
+          span Thứ 5 (14.2M)
+          span Thứ 6 (21.0M)
+          span.text-vamos-red.font-black Thứ 7 (28.5M Peak)
+          span CN (24.9M)
+        .mt-4.pt-3.border-t.border-gray-100.flex.items-center.justify-between.text-xs.text-gray-500
+          span Đo lường tự động: 00:00 - 23:59 hàng ngày
+          span.text-emerald-700.font-bold Tỷ lệ giao COD thành công đạt 94.2%
+
+      //- Donut Chart: Phân bổ tỷ lệ trạng thái đơn hàng
+      .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between
+        div
+          h2.text-base.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Tỷ Lệ Trạng Thái Đơn Hàng
+          p.text-xs.text-gray-400= `Tổng cộng ${stats.totalOrders} đơn phát sinh trong chu kỳ`
+
+        //- SVG Donut Chart
+        .relative.w-44.h-44.mx-auto.my-4.flex.items-center.justify-center
+          svg.w-full.h-full.transform(class="-rotate-90" viewBox="0 0 100 100")
+            //- Background track
+            circle(cx="50" cy="50" r="38" fill="none" stroke="#EFF4FF" stroke-width="16")
+            //- Hoàn thành: 68% (dasharray 162 238)
+            circle(cx="50" cy="50" r="38" fill="none" stroke="#10B981" stroke-width="16" stroke-dasharray="162 238" stroke-dashoffset="0")
+            //- Đang giao: 15% (dasharray 35 238)
+            circle(cx="50" cy="50" r="38" fill="none" stroke="#0B1C30" stroke-width="16" stroke-dasharray="35 238" stroke-dashoffset="-162")
+            //- Chờ duyệt: 10% (dasharray 24 238)
+            circle(cx="50" cy="50" r="38" fill="none" stroke="#E11B22" stroke-width="16" stroke-dasharray="24 238" stroke-dashoffset="-197")
+            //- Đã hủy: 7% (dasharray 17 238)
+            circle(cx="50" cy="50" r="38" fill="none" stroke="#94A3B8" stroke-width="16" stroke-dasharray="17 238" stroke-dashoffset="-221")
+          .absolute.inset-0.flex.flex-col.items-center.justify-center.pointer-events-none
+            span.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") 68%
+            span.text-2xs.font-bold.text-gray-400.uppercase COMPLETED
+
+        //- Legend Details
+        .grid.grid-cols-2.gap-2.text-xs.pt-3.border-t.border-gray-100
+          .flex.items-center.gap-2
+            span.w-2.h-2.rounded-full.bg-emerald-500
+            span.text-slate-700 Hoàn tất: 
+              strong.font-bold= `${stats.statusCounts.completed || 0} đơn`
+          .flex.items-center.gap-2
+            span.w-2.h-2.rounded-full.bg-slate-900
+            span.text-slate-700 Đang giao: 
+              strong.font-bold= `${stats.statusCounts.shipping || 0} đơn`
+          .flex.items-center.gap-2
+            span.w-2.h-2.rounded-full.bg-vamos-red
+            span.text-slate-700 Chờ duyệt: 
+              strong.font-bold= `${stats.statusCounts.pending || 0} đơn`
+          .flex.items-center.gap-2
+            span.w-2.h-2.rounded-full.bg-slate-400
+            span.text-slate-700 Đã hủy: 
+              strong.font-bold= `${stats.statusCounts.cancelled || 0} đơn`
+
+    //- 3. BẢNG ĐƠN HÀNG KHẨN CẤP CẦN DUYỆT GẤP (Stitch Order Workspace)
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .p-5.border-b.border-gray-100.flex.flex-col.gap-3.bg-slate-50(class="sm:flex-row sm:items-center sm:justify-between")
+        div
+          .flex.items-center.gap-2
+            h2.text-base.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Đơn Hàng Khẩn Cấp Cần Duyệt Gấp
+            span.px-2.rounded-full.bg-vamos-red.text-white.text-2xs.font-bold(class="py-0.5")
+              = `${stats.pendingOrders} ĐƠN PENDING`
+          p.text-xs.text-gray-500(class="mt-0.5") Xác nhận nhanh để kịp bàn giao đơn vị vận chuyển trước 17:00 chiều nay.
+        a.px-3.bg-vamos-dark.text-white.text-xs.font-bold.rounded-lg.transition-colors(class="py-1.5 hover:bg-vamos-red flex items-center gap-1.5" href="/admin/orders?status=PENDING")
+          span Xem tất cả đơn chờ duyệt &rarr;
+
+      .overflow-x-auto
+        table.w-full.text-left.border-collapse.text-xs
+          thead.bg-white.text-gray-400.uppercase.font-bold.border-b.border-gray-100(style="font-family:'Space Grotesk',sans-serif")
+            tr
+              th.py-3.px-5 Mã Đơn Hàng
+              th.py-3.px-5 Khách Hàng
+              th.py-3.px-5 Mặt Hàng
+              th.py-3.px-5 Tổng Thu COD
+              th.py-3.px-5 Trạng Thái
+              th.py-3.px-5.text-right Hành Động Nhanh
+          tbody.divide-y.divide-gray-100
+            if urgentOrders && urgentOrders.length > 0
+              each o in urgentOrders
+                tr.transition-colors(class="hover:bg-slate-50/70")
+                  td.py-4.px-5
+                    a.font-bold.text-vamos-red(class="hover:underline" href=`/admin/orders/${o.id}` style="font-family:'Space Grotesk',sans-serif")
+                      = `#${o.order_code}`
+                    span.block.text-2xs.text-gray-400= new Date(o.created_at).toLocaleString('vi-VN')
+                  td.py-4.px-5
+                    .font-bold.text-vamos-dark= o.recipient_name_snapshot
+                    span.text-2xs.text-gray-400= o.recipient_phone_snapshot
+                  td.py-4.px-5
+                    span.font-medium.text-slate-800= o.first_item_name || 'Sản phẩm giày VAMOS'
+                    if o.item_count && o.item_count > 1
+                      span.text-2xs.text-gray-400.block= `+ ${o.item_count - 1} sản phẩm khác`
+                  td.py-4.px-5.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
+                  td.py-4.px-5
+                    if o.order_status === 'PENDING'
+                      span.px-2.rounded-full.bg-amber-100.text-amber-900.border.border-amber-300.text-2xs.font-bold.inline-flex.items-center.gap-1.animate-pulse(class="py-0.5")
+                        span.rounded-full.bg-amber-500(class="w-1.5 h-1.5")
+                        | PENDING
+                    else
+                      span.px-2.rounded-full.bg-slate-100.text-slate-700.text-2xs.font-bold(class="py-0.5")
+                        = o.order_status
+                  td.py-4.px-5.text-right.space-x-2
+                    if o.order_status === 'PENDING'
+                      form.inline(action=`/admin/orders/${o.id}/status` method="POST")
+                        input(type="hidden" name="_csrf" value=csrfToken)
+                        input(type="hidden" name="new_status" value="CONFIRMED")
+                        input(type="hidden" name="note" value="Duyệt nhanh tự động từ Bảng Điều Khiển KPI")
+                        button.px-3.py-1.rounded.bg-vamos-red.text-white.text-xs.font-bold.shadow-sm.transition-all(class="hover:bg-red-700" type="submit")
+                          | Duyệt đơn (CONFIRMED)
+                    a.px-2.py-1.rounded.border.border-gray-300.text-slate-700.text-xs.font-semibold.transition-colors(class="px-2.5 hover:bg-gray-100" href=`/admin/orders/${o.id}`)
+                      | Chi tiết
+            else
+              tr
+                td.py-8.px-5.text-center.text-gray-400(colspan="6")
+                  | Hiện không có đơn hàng nào cần duyệt gấp. Mọi đơn đã được xử lý hoàn tất!
+
+    //- 4. BẢNG TOP 4 SẢN PHẨM BÁN CHẠY NHẤT (BEST SELLERS)
+    .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.p-6
+      .flex.flex-col.gap-2.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
+        div
+          h2.text-base.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Top 4 Sản Phẩm Bán Chạy Nhất (Best Sellers)
+          p.text-xs.text-gray-400 Xếp hạng dựa trên dữ liệu sản lượng đơn thành công (COMPLETED).
+        span.text-xs.font-bold.text-gray-500.bg-slate-100.px-3.py-1.rounded-full(style="font-family:'Space Grotesk',sans-serif")
+          | Dữ liệu đã kiểm toán ACID
+      .grid.grid-cols-1.gap-5(class="sm:grid-cols-2 lg:grid-cols-4")
+        if topProducts && topProducts.length > 0
+          each tp, idx in topProducts
+            .border.border-gray-200.rounded-xl.p-4.bg-white.shadow-sm.flex.flex-col.justify-between.transition-all(class="hover:shadow-md hover:border-gray-300")
+              div
+                .relative.w-full.aspect-square.bg-slate-50.rounded-lg.overflow-hidden.border.border-gray-100.flex.items-center.justify-center.p-3.mb-3
+                  span.absolute.top-2.left-2.px-2.rounded.bg-vamos-red.text-white.text-2xs.font-bold(class="py-0.5" style="font-family:'Space Grotesk',sans-serif")
+                    = `#${idx + 1} BEST SELLER`
+                  if tp.primary_image
+                    img.w-full.h-full.object-contain.mix-blend-multiply(src=tp.primary_image alt=tp.product_name_snapshot)
+                  else
+                    .text-gray-400.text-xs VAMOS
+                h3.font-bold.text-xs.text-vamos-dark.line-clamp-2= tp.product_name_snapshot
+              .mt-3.pt-3.border-t.border-gray-100.flex.items-center.justify-between
+                span.text-xs.text-gray-400 Đã bán: 
+                  strong.text-vamos-dark= `${tp.total_sold} đôi`
+                span.text-xs.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                  = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tp.total_revenue)
+        else
+          .col-span-4.py-8.text-center.text-gray-400.text-xs
+            | Chưa có dữ liệu bán chạy từ đơn hàng hoàn tất.

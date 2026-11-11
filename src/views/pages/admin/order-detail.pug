@@ -3,111 +3,202 @@ extends ../../layouts/main
 block content
   include ../../partials/admin-nav
 
-  .vamos-container.py-8
+  .vamos-container.py-8.space-y-6
+    //- CARD HEADER: Urgency & Order Identifier (Stitch Focus Header)
+    .bg-vamos-dark.text-white.p-6.rounded-vamos-xl.shadow-vamos-card.flex.flex-col.gap-4(class="md:flex-row md:items-center md:justify-between")
+      .flex.items-center.gap-3
+        .w-12.h-12.rounded-lg.bg-vamos-red.flex.items-center.justify-center.text-white.text-2xl.font-black(style="font-family:'Space Grotesk',sans-serif")
+          | ⚡
+        div
+          .flex.items-center.gap-2
+            if order.order_status === 'PENDING'
+              span.px-2.rounded.bg-vamos-red.text-white.text-2xs.font-bold.animate-pulse(class="py-0.5") CẦN XỬ LÝ GẤP
+            span.text-xs.text-gray-400= `Đặt lúc ${new Date(order.created_at).toLocaleString('vi-VN')}`
+          h1.text-xl.font-black.tracking-tight.text-white.mt-1.flex.items-center.gap-3(style="font-family:'Space Grotesk',sans-serif")
+            = `ĐƠN HÀNG #${order.order_code}`
+            span.text-xs.font-bold.text-red-300.bg-red-950.px-2.rounded.border.border-red-800(class="py-0.5")
+              = `TRẠNG THÁI: ${order.order_status}`
+      .flex.items-center.gap-3
+        a.px-4.py-2.rounded-lg.bg-gray-800.text-gray-200.text-xs.font-bold.border.border-gray-700.transition-colors(class="hover:bg-gray-700 hover:text-white" href="/admin/orders")
+          | &larr; Quay lại danh sách
+        button.px-4.py-2.rounded-lg.bg-gray-800.text-gray-200.text-xs.font-bold.border.border-gray-700.transition-colors(class="hover:bg-gray-700 hover:text-white" type="button" onclick="window.print()")
+          | 🖨️ In Phiếu
+
+    //- 2-COLUMN WORKSPACE: Left = State Machine Controller, Right = Immutable Snapshot
     .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
-      //- Left Column: Order Details (8 cols)
-      .space-y-6(class="lg:col-span-8")
-        //- Customer & Recipient Info
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          h2.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
-            | THÔNG TIN KHÁCH HÀNG & GIAO NHẬN
-          .grid.grid-cols-1.gap-4.text-xs(class="sm:grid-cols-2")
+      //- LEFT 7 COLUMNS: State Machine Progression & Action Dispatcher
+      .space-y-6(class="lg:col-span-7")
+        //- STATE MACHINE VISUAL TIMELINE TRACKER
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .flex.items-center.justify-between.text-xs.uppercase.font-bold.text-gray-400.mb-4(style="font-family:'Space Grotesk',sans-serif")
+            span TIẾN TRÌNH STATE MACHINE 6 BƯỚC
+            span.text-vamos-red.font-black= `TRẠNG THÁI HIỆN TẠI: ${order.order_status}`
+
+          - const statusSteps = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'COMPLETED']
+          - const currentStepIdx = statusSteps.indexOf(order.order_status)
+          .grid.grid-cols-5.gap-2.text-center
+            each stepName, idx in statusSteps
+              - const isPassed = currentStepIdx >= idx
+              - const isCurrent = order.order_status === stepName
+              .flex.flex-col.items-center
+                .w-8.h-8.rounded-full.flex.items-center.justify-center.text-xs.font-bold.transition-all(
+                  class=isCurrent ? 'bg-vamos-red text-white ring-4 ring-red-100' : (isPassed ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400')
+                )= idx + 1
+                span.text-2xs.font-bold.mt-1(
+                  class=isCurrent ? 'text-vamos-red' : (isPassed ? 'text-emerald-700' : 'text-gray-400')
+                )= stepName
+
+          if order.order_status === 'CANCELLED'
+            .mt-4.p-3.rounded-lg.bg-red-50.border.border-red-200.text-xs.font-bold.text-red-700.flex.items-center.gap-2
+              span ❌
+              span Đơn hàng này đã bị hủy (CANCELLED). Toàn bộ tồn kho và voucher quota đã được hoàn trả.
+
+        //- CONTROLLER ACTION FORM
+        .bg-white.rounded-vamos-xl.p-6.border.border-vamos-border.shadow-vamos-card.space-y-4
+          div
+            span.text-xs.font-bold.text-gray-400.uppercase(style="font-family:'Space Grotesk',sans-serif")
+              | ĐIỀU CHUYỂN TRẠNG THÁI TIẾP THEO
+            p.text-xs.text-gray-500.mt-1
+              | Kiểm tra tính hợp lệ của địa chỉ người nhận và tồn kho trước khi cập nhật.
+
+          form.space-y-4(action=`/admin/orders/${order.id}/status` method="POST")
+            input(type="hidden" name="_csrf" value=csrfToken)
+            .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+              div
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="new_status") Chọn Trạng Thái Mới *
+                select#new_status.w-full.px-3.py-2.bg-slate-50.border.border-gray-200.rounded-lg.text-xs.font-bold.text-slate-800(name="new_status" required)
+                  option(value="PENDING" selected=order.order_status === 'PENDING') 1. Chờ duyệt (PENDING)
+                  option(value="CONFIRMED" selected=order.order_status === 'CONFIRMED') 2. Đã duyệt (CONFIRMED)
+                  option(value="PROCESSING" selected=order.order_status === 'PROCESSING') 3. Đang đóng gói (PROCESSING)
+                  option(value="SHIPPING" selected=order.order_status === 'SHIPPING') 4. Đang giao hàng (SHIPPING)
+                  option(value="COMPLETED" selected=order.order_status === 'COMPLETED') 5. Giao xong & Đã thu COD (COMPLETED)
+                  option(value="CANCELLED" selected=order.order_status === 'CANCELLED') 6. Hủy đơn & Hoàn tồn kho (CANCELLED)
+              div
+                label.block.text-xs.font-bold.text-slate-800(class="mb-1.5" for="note") Ghi Chú Nội Bộ
+                input#note.w-full.px-3.py-2.bg-slate-50.border.border-gray-200.rounded-lg.text-xs.text-slate-800(
+                  type="text"
+                  name="note"
+                  placeholder="Lý do hoặc mã vận đơn..."
+                )
+
+            button.w-full.py-3.px-4.bg-vamos-red.text-white.rounded-xl.text-xs.font-bold.transition-all.shadow-sm(class="hover:bg-red-700" type="submit")
+              | CẬP NHẬT TRẠNG THÁI STATE MACHINE
+
+          //- Business Rule & Restock Logic Note
+          .bg-slate-50.p-4.rounded-lg.border-l-4.border-vamos-red.text-xs(class="space-y-1.5")
+            .flex.items-center.font-bold.text-vamos-red(class="gap-1.5")
+              span ℹ️
+              span QUY TẮC STATE MACHINE NGHIỆP VỤ (VAMOS PROTOCOL Q10):
+            p.text-slate-700
+              | Quy tắc tuần tự: 
+              strong.text-vamos-red PENDING &rarr; CONFIRMED &rarr; PROCESSING &rarr; SHIPPING &rarr; COMPLETED
+            p.text-gray-500
+              | Khi thực hiện 
+              strong "HỦY ĐƠN & HOÀN KHO (CANCELLED)": 
+              | Hệ thống tự động hoàn trả số lượng vào bảng 
+              code.bg-white.px-1.rounded.border.border-gray-200 inventory
+              |  và phục hồi voucher cho tài khoản khách hàng.
+
+        //- CUSTOMER RECEIVER INFO BOX
+        .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+          .flex.items-center.justify-between.mb-3.border-b.border-gray-100.pb-2
+            span.text-xs.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif")
+              | Thông Tin Người Nhận & Địa Chỉ Giao Hàng
+            span.px-2.rounded.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") SĐT XÁC THỰC
+          .grid.grid-cols-1.gap-4.text-xs(class="md:grid-cols-2")
             div
-              p
-                strong Tài khoản đặt:&nbsp;
-                span= `${order.customer_name || 'Khách'} (${order.customer_email})`
-              p.mt-1
-                strong Người nhận hàng:&nbsp;
-                span= order.recipient_name_snapshot
-              p.mt-1
-                strong Số điện thoại:&nbsp;
-                span.font-bold.text-vamos-dark= order.recipient_phone_snapshot
+              span.text-gray-400 Họ và tên người nhận:
+              .font-bold.text-slate-900.text-sm(class="mt-0.5")= order.recipient_name_snapshot
+              .text-slate-600.mt-1
+                | 📞 
+                strong= order.recipient_phone_snapshot
+              if order.customer_email
+                .text-2xs.text-gray-400.mt-1= `Email tài khoản: ${order.customer_email}`
             div
-              p
-                strong Địa chỉ giao COD:&nbsp;
-                span= order.delivery_address_snapshot
+              span.text-gray-400 Địa chỉ nhận hàng (COD):
+              .font-medium.text-slate-800.leading-relaxed(class="mt-0.5")= order.delivery_address_snapshot
               if order.customer_note
-                p.mt-1.italic.text-gray-500
-                  strong Ghi chú khách:&nbsp;
-                  span= order.customer_note
+                .mt-2.p-2.bg-amber-50.rounded.border.border-amber-200.text-amber-800.text-2xs
+                  strong Ghi chú của khách: 
+                  = order.customer_note
 
-        //- Items List
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          h2.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
-            | SẢN PHẨM TRONG ĐƠN (#{order.items.length} mặt hàng)
-          .divide-y.divide-gray-100
-            each it in order.items
-              .py-3.flex.items-center.justify-between.gap-4
-                .flex.items-center.gap-3
-                  if it.image_url
-                    img.w-12.h-12.rounded-lg.object-contain.border.border-gray-100.p-1.bg-gray-50(src=it.image_url alt=it.product_name_snapshot)
-                  else
-                    .w-12.h-12.rounded-lg.bg-gray-50.flex.items-center.justify-center.text-xs.text-gray-400 SP
-                  div
-                    h4.text-xs.font-bold.text-vamos-dark= it.product_name_snapshot
-                    p.text-xs.text-gray-400= `Màu: ${it.color_snapshot} | Size: ${it.size_snapshot} | SKU: ${it.sku_snapshot}`
-                .text-right
-                  .text-xs.text-gray-400= `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.unit_price)} x ${it.quantity}`
-                  .text-xs.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                    = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.line_total)
-
-          //- Total calculation
-          .border-t.border-gray-100.mt-4.pt-4.space-y-1.text-xs(class="sm:w-72 sm:ml-auto")
-            .flex.justify-between
-              span.text-gray-500 Tiền hàng:
-              span.font-bold= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
-            if order.discount_amount > 0
-              .flex.justify-between.text-vamos-red
-                span Giảm giá:
-                span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
-            .flex.justify-between
-              span.text-gray-500 Phí ship COD:
-              span.font-bold= order.shipping_fee === 0 ? '0 ₫ (Miễn phí)' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
-            .border-t.border-gray-200.pt-2.flex.justify-between.items-baseline.text-sm
-              span.font-bold.text-vamos-dark Tổng thu COD:
-              span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
-                = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)
-
-        //- Status History
+        //- STATUS AUDIT HISTORY
         if order.histories && order.histories.length > 0
-          .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-            h2.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
-              | LỊCH SỬ THAY ĐỔI TRẠNG THÁI
+          .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
+            span.text-xs.font-bold.text-vamos-dark.uppercase.block.mb-3.border-b.border-gray-100.pb-2(style="font-family:'Space Grotesk',sans-serif")
+              | Nhật Ký Thay Đổi Trạng Thái
             .space-y-3
               each h in order.histories
                 .flex.items-start.gap-3.text-xs
                   span.w-2.h-2.rounded-full.bg-vamos-red.mt-1.flex-shrink-0
                   div
-                    .font-bold.text-vamos-dark= `Trạng thái: ${h.new_status}`
-                    p.text-gray-500= h.note
-                    p.text-gray-400.text-xs= new Date(h.created_at).toLocaleString('vi-VN')
+                    .font-bold.text-slate-900= `Trạng thái: ${h.new_status}`
+                    if h.note
+                      p.text-gray-600= h.note
+                    span.text-2xs.text-gray-400= new Date(h.created_at).toLocaleString('vi-VN')
 
-      //- Right Column: Update Status Form (4 cols)
-      .space-y-6(class="lg:col-span-4")
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.sticky.top-20
-          h2.text-xs.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4
-            | CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+      //- RIGHT 5 COLUMNS: Immutable Order Snapshot (Receipt Canvas)
+      .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between(class="lg:col-span-5")
+        div
+          .flex.items-center.justify-between.border-b.border-gray-100.pb-3.mb-4
+            h2.text-xs.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif")
+              | Snapshot Chi Tiết Đơn Hàng
+            span.px-2.rounded.bg-slate-100.text-slate-700.text-2xs.font-bold(class="py-0.5") Q10 LOCKED
 
-          .mb-4.text-xs
-            span.text-gray-500 Trạng thái hiện tại:&nbsp;
-            span.font-bold.text-vamos-red= order.order_status
+          //- Product Items List
+          .divide-y.divide-gray-100
+            each it in order.items
+              .py-3.flex.items-start.gap-3
+                .w-16.h-16.rounded-lg.bg-slate-50.flex-shrink-0.overflow-hidden.border.border-gray-100.p-1.flex.items-center.justify-center
+                  if it.image_url
+                    img.w-full.h-full.object-contain.mix-blend-multiply(src=it.image_url alt=it.product_name_snapshot)
+                  else
+                    span.text-2xs.text-gray-400 VAMOS
+                .flex-1.min-w-0
+                  .flex.items-center.justify-between.gap-1
+                    span.text-2xs.font-bold.text-vamos-red.uppercase VAMOS
+                    span.text-xs.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                      = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(it.line_total)
+                  h4.text-xs.font-bold.text-slate-900.truncate= it.product_name_snapshot
+                  .flex.items-center.gap-2.text-2xs.text-gray-500.mt-1
+                    span= `Màu: ${it.color_snapshot}`
+                    span •
+                    span= `Size: ${it.size_snapshot}`
+                    span •
+                    strong.text-vamos-red= `x${it.quantity} đôi`
 
-          form.space-y-4(action=`/admin/orders/${order.id}/status` method="POST")
-            input(type="hidden" name="_csrf" value=csrfToken)
+          //- Pricing Calculation Breakdown
+          .mt-4.space-y-2.pt-3.border-t.border-gray-100.text-xs
+            .flex.justify-between.text-gray-500
+              span Tạm tính tiền hàng:
+              span.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
+            .flex.justify-between.text-gray-500
+              span Phí vận chuyển tiêu chuẩn (COD):
+              span.font-bold.text-emerald-600
+                = order.shipping_fee === 0 ? 'MIỄN PHÍ' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
+            if order.discount_amount > 0
+              .flex.justify-between.items-center.text-vamos-red.py-1.px-2.rounded.bg-red-50.border.border-red-100
+                span.font-bold Voucher giảm giá:
+                span.font-black(style="font-family:'Space Grotesk',sans-serif")
+                  = `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
+
+        //- Final Grand Total COD
+        .mt-6.pt-4.border-t-2.border-gray-100
+          .flex.justify-between.items-end
             div
-              label.form-label.text-xs(for="new_status") Chọn trạng thái mới *
-              select#new_status.form-input.text-xs(name="new_status" required)
-                option(value="PENDING" selected=order.order_status === 'PENDING') Chờ xác nhận (PENDING)
-                option(value="CONFIRMED" selected=order.order_status === 'CONFIRMED') Xác nhận đơn (CONFIRMED)
-                option(value="PROCESSING" selected=order.order_status === 'PROCESSING') Đang xử lý đóng gói (PROCESSING)
-                option(value="SHIPPING" selected=order.order_status === 'SHIPPING') Đang giao hàng (SHIPPING)
-                option(value="COMPLETED" selected=order.order_status === 'COMPLETED') Giao thành công & Đã thu COD (COMPLETED)
-                option(value="CANCELLED" selected=order.order_status === 'CANCELLED') Hủy đơn & Hoàn tồn kho (CANCELLED)
+              span.text-2xs.font-bold.text-gray-400.uppercase(style="font-family:'Space Grotesk',sans-serif")
+                | TỔNG THU TIỀN TẬN NƠI (COD)
+              .text-2xs.text-gray-500 Thanh toán khi nhận hàng
+            .text-right
+              span.text-2xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)
 
-            div
-              label.form-label.text-xs(for="note") Ghi chú nội bộ
-              textarea#note.form-input.text-xs(name="note" rows="3" placeholder="Nhập lý do hoặc mã vận đơn chuyển phát...")
-
-            button.w-full.btn-primary.text-xs.py-3(type="submit")
-              | CẬP NHẬT TRẠNG THÁI
-
+          //- Payment Method Pill
+          .mt-4.flex.items-center.justify-between.p-3.rounded-lg.bg-slate-50.border.border-gray-200
+            span.text-xs.font-semibold.text-slate-800
+              | Phương thức: Tiền mặt (COD)
+            if order.payment_status === 'PAID'
+              span.px-2.rounded.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") ĐÃ THU COD
+            else
+              span.px-2.rounded.bg-amber-100.text-amber-800.text-2xs.font-bold(class="py-0.5") CHƯA THU TIỀN

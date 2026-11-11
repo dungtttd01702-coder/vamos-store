@@ -275,7 +275,7 @@ function initProductDetailQuantityAndStock() {
     // Case 4: Retail Wholesale Limit (User enters 99, 999, or > 10)
     if (num > MAX_RETAIL_LIMIT) {
       setInvalidState(
-        `⚠️ Bạn đang nhập ${num} đôi. Đơn hàng bán lẻ trên website tối đa 10 đôi/lần đặt. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (${num} đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!`,
+        `⚠️ Bạn đang nhập ${num} đôi. Có ai đặt ${num} đôi cho một đơn hàng bán lẻ không? Đơn hàng bán lẻ trên website tối đa 10 đôi/lần đặt để đảm bảo công bằng cho mọi khách hàng. Nếu quý khách có nhu cầu mua sỉ số lượng lớn (${num} đôi), vui lòng liên hệ Hotline 1900 2126 để nhận báo giá sỉ ưu đãi!`,
         'warning',
         '⚠️ Quá giới hạn lẻ (tối đa 10 đôi)'
       );
@@ -399,6 +399,7 @@ function initProductDetailQuantityAndStock() {
   qtyInput.addEventListener('keyup', validateQuantity);
   qtyInput.addEventListener('paste', () => setTimeout(validateQuantity, 10));
   qtyInput.addEventListener('change', validateQuantity);
+  window.handleDetailQtyChange = validateQuantity;
 
   // Stepper Buttons
   if (minusBtn) {

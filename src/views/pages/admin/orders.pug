@@ -3,81 +3,199 @@ extends ../../layouts/main
 block content
   include ../../partials/admin-nav
 
-  .vamos-container.py-8
-    //- Filter & Search Bar
-    .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.mb-6
-      form.flex.flex-col.gap-4(class="md:flex-row md:items-center md:justify-between" action="/admin/orders" method="GET")
-        .flex.flex-wrap.items-center.gap-2
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === '' ? 'bg-vamos-dark text-white py-1.5' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 py-1.5'
-            href="/admin/orders"
-          ) Tất cả
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === 'PENDING' ? 'bg-orange-500 text-white py-1.5' : 'bg-orange-50 text-orange-700 hover:bg-orange-100 py-1.5'
-            href="/admin/orders?status=PENDING"
-          ) Chờ xác nhận
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === 'CONFIRMED' ? 'bg-blue-600 text-white py-1.5' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 py-1.5'
-            href="/admin/orders?status=CONFIRMED"
-          ) Đã xác nhận
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === 'SHIPPING' ? 'bg-purple-600 text-white py-1.5' : 'bg-purple-50 text-purple-700 hover:bg-purple-100 py-1.5'
-            href="/admin/orders?status=SHIPPING"
-          ) Đang giao
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === 'COMPLETED' ? 'bg-green-600 text-white py-1.5' : 'bg-green-50 text-green-700 hover:bg-green-100 py-1.5'
-            href="/admin/orders?status=COMPLETED"
-          ) Hoàn tất
-          a.px-3.rounded-lg.text-xs.font-bold.transition-colors(
-            class=selectedStatus === 'CANCELLED' ? 'bg-red-600 text-white py-1.5' : 'bg-red-50 text-red-700 hover:bg-red-100 py-1.5'
-            href="/admin/orders?status=CANCELLED"
-          ) Đã hủy
-
+  .vamos-container.py-8.space-y-6
+    //- TOP ADMIN HEADER
+    .flex.flex-col.gap-4(class="sm:flex-row sm:items-center sm:justify-between")
+      div
         .flex.items-center.gap-2
-          input.form-input.text-xs.py-2(
-            type="text"
-            name="q"
-            value=searchQuery
-            placeholder="Tìm mã đơn, tên, sđt..."
-          )
-          button.btn-primary.text-xs.py-2.px-4(type="submit") Tìm
+          span.px-2.rounded.bg-red-100.text-vamos-red.text-xs.font-bold(class="py-0.5" style="font-family:'Space Grotesk',sans-serif") OPERATIONS 5.2
+          span.text-xs.text-gray-400 Antigravity State Machine Protocol
+        h1.text-2xl.font-black.text-vamos-dark.tracking-tight.mt-1(style="font-family:'Space Grotesk',sans-serif")
+          | QUẢN LÝ ĐƠN HÀNG TOÀN HỆ THỐNG
+      .flex.items-center.gap-3
+        a.inline-flex.items-center.gap-2.px-4.py-2.bg-white.border.border-gray-200.rounded-lg.text-xs.font-bold.text-gray-700.shadow-sm.transition-colors(class="hover:bg-gray-50" href="/admin/orders")
+          span 🔄
+          span Làm mới danh sách
+        a.inline-flex.items-center.gap-2.px-4.py-2.bg-vamos-dark.text-white.rounded-lg.text-xs.font-bold.shadow-sm.transition-all(class="hover:bg-black" href="/admin/dashboard")
+          span 📊
+          span Xem KPI Analytics
 
-    //- Orders Table
+    //- 6-STEP STATE MACHINE TABS & METRICS (Stitch Linear Flow)
+    section.bg-white.rounded-vamos-xl.p-5.shadow-vamos-card.border.border-vamos-border
+      .flex.items-center.justify-between.border-b.border-gray-100.pb-3.mb-4
+        .flex.items-center.gap-2
+          span ⚙️
+          h2.text-xs.font-bold.text-vamos-dark.uppercase(style="font-family:'Space Grotesk',sans-serif") Luồng Xử Lý State Machine 6 Bước (Linear Flow)
+        span.text-2xs.text-gray-400 Khóa dữ liệu bất biến: Q10 Enforcement Active
+
+      //- Responsive State Tabs with Badges
+      .grid.grid-cols-2.gap-2(class="md:grid-cols-4 lg:grid-cols-7")
+        //- All
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders"
+          class=selectedStatus === '' ? 'border-vamos-dark bg-slate-50 ring-1 ring-slate-800' : 'border-gray-200 hover:bg-slate-50'
+        )
+          span.text-xs.font-bold.text-gray-400 Tất cả đơn
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")= statusCounts.total || 0
+            span.text-xs 📦
+
+        //- Step 1: PENDING
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left.relative.overflow-hidden(
+          href="/admin/orders?status=PENDING"
+          class=selectedStatus === 'PENDING' ? 'border-2 border-vamos-red bg-red-50/50' : 'border-gray-200 hover:bg-red-50/30'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-vamos-red.uppercase 1. Chờ duyệt
+            span.px-1.rounded.text-2xs.font-bold.bg-vamos-red.text-white(class="py-0.5") PENDING
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")= statusCounts.pending || 0
+            span.text-xs.animate-pulse ⏳
+
+        //- Step 2: CONFIRMED
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders?status=CONFIRMED"
+          class=selectedStatus === 'CONFIRMED' ? 'border-2 border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:bg-slate-50'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-blue-700.uppercase 2. Đã duyệt
+            span.px-1.rounded.text-2xs.font-bold.bg-blue-100.text-blue-800(class="py-0.5") CONFIRM
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-slate-800(style="font-family:'Space Grotesk',sans-serif")= statusCounts.confirmed || 0
+            span.text-xs ✔️
+
+        //- Step 3: PROCESSING
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders?status=PROCESSING"
+          class=selectedStatus === 'PROCESSING' ? 'border-2 border-amber-500 bg-amber-50/50' : 'border-gray-200 hover:bg-slate-50'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-amber-800.uppercase 3. Đóng gói
+            span.px-1.rounded.text-2xs.font-bold.bg-amber-100.text-amber-800(class="py-0.5") PROCESS
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-slate-800(style="font-family:'Space Grotesk',sans-serif")= statusCounts.processing || 0
+            span.text-xs 📦
+
+        //- Step 4: SHIPPING
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders?status=SHIPPING"
+          class=selectedStatus === 'SHIPPING' ? 'border-2 border-purple-600 bg-purple-50/50' : 'border-gray-200 hover:bg-slate-50'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-purple-700.uppercase 4. Vận chuyển
+            span.px-1.rounded.text-2xs.font-bold.bg-purple-100.text-purple-800(class="py-0.5") SHIP
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-slate-800(style="font-family:'Space Grotesk',sans-serif")= statusCounts.shipping || 0
+            span.text-xs 🚚
+
+        //- Step 5: COMPLETED
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders?status=COMPLETED"
+          class=selectedStatus === 'COMPLETED' ? 'border-2 border-emerald-600 bg-emerald-50/50' : 'border-gray-200 hover:bg-emerald-50/20'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-emerald-800.uppercase 5. Giao xong
+            span.px-1.rounded.text-2xs.font-bold.bg-emerald-600.text-white(class="py-0.5") SUCCESS
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-emerald-700(style="font-family:'Space Grotesk',sans-serif")= statusCounts.completed || 0
+            span.text-xs 🏁
+
+        //- Step 6: CANCELLED
+        a.flex.flex-col.items-start.p-3.rounded-lg.border.transition-all.text-left(
+          href="/admin/orders?status=CANCELLED"
+          class=selectedStatus === 'CANCELLED' ? 'border-2 border-gray-400 bg-gray-100' : 'border-gray-200 hover:bg-gray-50'
+        )
+          .flex.items-center.justify-between.w-full
+            span.text-2xs.font-bold.text-gray-500.uppercase 6. Đã hủy
+            span.px-1.rounded.text-2xs.font-bold.bg-gray-200.text-gray-700(class="py-0.5") VOID
+          .flex.items-center.justify-between.w-full.mt-1
+            span.text-xl.font-black.text-gray-500(style="font-family:'Space Grotesk',sans-serif")= statusCounts.cancelled || 0
+            span.text-xs ❌
+
+      //- Search & Filter Toolbar
+      .mt-4.pt-4.border-t.border-gray-100
+        form.flex.flex-col.gap-3(class="sm:flex-row sm:items-center" action="/admin/orders" method="GET")
+          if selectedStatus
+            input(type="hidden" name="status" value=selectedStatus)
+          .flex-1.relative
+            input.w-full.px-4.py-2.bg-slate-50.rounded-lg.border.border-gray-200.text-xs.font-medium.text-slate-800(
+              type="text"
+              name="q"
+              value=searchQuery
+              placeholder="Tìm theo mã đơn (VMS-XXXXX), Họ tên khách, Số điện thoại..."
+            )
+          button.px-4.py-2.bg-vamos-red.text-white.rounded-lg.text-xs.font-bold.transition-colors(class="hover:bg-red-700 flex items-center justify-center gap-1" type="submit")
+            span 🔍
+            span Tìm Kiếm
+          if searchQuery
+            a.px-3.py-2.bg-gray-100.text-gray-600.rounded-lg.text-xs.font-semibold(class="hover:bg-gray-200 text-center" href=`/admin/orders${selectedStatus ? '?status=' + selectedStatus : ''}`)
+              | Xóa lọc tìm kiếm
+
+    //- ORDERS DATA TABLE (Stitch Master Responsive Table)
     .bg-white.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.overflow-hidden
+      .p-5.border-b.border-gray-100.flex.flex-col.gap-2.bg-slate-50(class="sm:flex-row sm:items-center sm:justify-between")
+        div
+          h3.text-sm.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Danh Sách Đơn Hàng Cần Điều Phối
+          p.text-xs.text-gray-400= `Hiển thị ${orders.length} đơn hàng trong danh sách`
+        span.px-3.rounded-full.text-2xs.font-bold.bg-white.border.border-gray-200.text-gray-600(class="py-1")
+          | ACID Immutable Enforcement
+
       if orders && orders.length > 0
         .overflow-x-auto
           table.w-full.text-left.border-collapse.text-xs
-            thead.bg-gray-50.border-b.border-gray-200.text-gray-500.uppercase.font-bold
+            thead.bg-white.border-b.border-gray-100.text-gray-400.uppercase.font-bold(style="font-family:'Space Grotesk',sans-serif")
               tr
-                th.p-4 Mã Đơn Hàng
-                th.p-4 Khách Hàng
-                th.p-4 Số Điện Thoại
-                th.p-4 Ngày Đặt
-                th.p-4 Tổng Tiền COD
-                th.p-4 Trạng Thái
-                th.p-4 Thanh Toán
-                th.p-4 Hành Động
+                th.py-3.px-5 Mã Đơn Hàng
+                th.py-3.px-5 Khách Hàng
+                th.py-3.px-5 Sản Phẩm Tóm Tắt
+                th.py-3.px-5 Ngày Đặt
+                th.py-3.px-5 Tổng Thu COD
+                th.py-3.px-5 Trạng Thái
+                th.py-3.px-5 Thanh Toán
+                th.py-3.px-5.text-right Thao Tác
             tbody.divide-y.divide-gray-100
               each o in orders
-                tr.transition-colors(class="hover:bg-gray-50")
-                  td.p-4.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
-                    = `#${o.order_code}`
-                  td.p-4.font-medium.text-gray-900= o.recipient_name_snapshot
-                  td.p-4.text-gray-500= o.recipient_phone_snapshot
-                  td.p-4.text-gray-500= new Date(o.created_at).toLocaleDateString('vi-VN')
-                  td.p-4.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+                tr.transition-colors(class="hover:bg-slate-50/70")
+                  td.py-4.px-5
+                    a.font-bold.text-vamos-red(class="hover:underline" href=`/admin/orders/${o.id}` style="font-family:'Space Grotesk',sans-serif")
+                      = `#${o.order_code}`
+                  td.py-4.px-5
+                    .font-bold.text-vamos-dark= o.recipient_name_snapshot
+                    span.text-2xs.text-gray-400= o.recipient_phone_snapshot
+                  td.py-4.px-5
+                    span.font-medium.text-slate-800= o.first_item_name || 'Giày VAMOS Sneaker'
+                    if o.item_count && o.item_count > 1
+                      span.text-2xs.text-gray-400.block= `+ ${o.item_count - 1} sản phẩm khác`
+                  td.py-4.px-5.text-gray-400= new Date(o.created_at).toLocaleDateString('vi-VN')
+                  td.py-4.px-5.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
-                  td.p-4
-                    span.px-2.py-1.rounded-full.font-bold(
-                      class=o.order_status === 'PENDING' ? 'bg-orange-100 text-orange-700' : (o.order_status === 'CANCELLED' ? 'bg-red-100 text-red-700' : (o.order_status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'))
-                    )= o.order_status
-                  td.p-4
-                    span.px-2.py-1.rounded(
-                      class=o.payment_status === 'PAID' ? 'bg-green-50 text-green-700 font-bold' : 'bg-gray-100 text-gray-600'
-                    )= o.payment_status === 'PAID' ? 'Đã thu tiền' : 'Chưa thu tiền'
-                  td.p-4
-                    a.btn-outline.text-xs.py-1.px-3(href=`/admin/orders/${o.id}`) Chi tiết
+                  td.py-4.px-5
+                    if o.order_status === 'PENDING'
+                      span.px-2.rounded-full.bg-amber-100.text-amber-900.border.border-amber-300.text-2xs.font-bold.inline-flex.items-center.gap-1.animate-pulse(class="py-0.5")
+                        span.rounded-full.bg-amber-500(class="w-1.5 h-1.5")
+                        | PENDING
+                    else if o.order_status === 'CONFIRMED'
+                      span.px-2.rounded-full.bg-blue-100.text-blue-800.text-2xs.font-bold(class="py-0.5") CONFIRMED
+                    else if o.order_status === 'PROCESSING'
+                      span.px-2.rounded-full.bg-amber-100.text-amber-800.text-2xs.font-bold(class="py-0.5") PROCESSING
+                    else if o.order_status === 'SHIPPING'
+                      span.px-2.rounded-full.bg-purple-100.text-purple-800.text-2xs.font-bold(class="py-0.5") SHIPPING
+                    else if o.order_status === 'COMPLETED'
+                      span.px-2.rounded-full.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") COMPLETED
+                    else
+                      span.px-2.rounded-full.bg-gray-100.text-gray-600.text-2xs.font-bold(class="py-0.5") CANCELLED
+                  td.py-4.px-5
+                    if o.payment_status === 'PAID'
+                      span.px-2.rounded.bg-emerald-50.text-emerald-700.text-2xs.font-bold(class="py-0.5")
+                        | ✓ Đã thu COD
+                    else
+                      span.px-2.rounded.bg-amber-50.text-amber-800.text-2xs.font-bold(class="py-0.5")
+                        | Chưa thu tiền
+                  td.py-4.px-5.text-right
+                    a.px-3.rounded.bg-vamos-dark.text-white.text-xs.font-bold.transition-colors(class="py-1.5 hover:bg-vamos-red inline-block" href=`/admin/orders/${o.id}`)
+                      | Chi tiết &rarr;
       else
         .p-12.text-center
           .text-3xl.mb-2 📋
-          p.text-sm.text-gray-500 Không có đơn hàng nào phù hợp với bộ lọc.
+          p.text-sm.font-bold.text-slate-800 Không tìm thấy đơn hàng nào phù hợp với bộ lọc.
+          p.text-xs.text-gray-400.mt-1 Vui lòng chọn trạng thái khác hoặc xóa từ khóa tìm kiếm.
