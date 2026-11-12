@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="vamos_store_erd">
+	<entities>
+		<data-source id="sqlserver-vamos-store-dev">
+			<entity id="1" name="users" fq-name="vamos_store_db.dbo.users" order="0" x="40" y="40">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="2" name="categories" fq-name="vamos_store_db.dbo.categories" order="1" x="320" y="40">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="3" name="brands" fq-name="vamos_store_db.dbo.brands" order="2" x="600" y="40">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="4" name="sizes" fq-name="vamos_store_db.dbo.sizes" order="3" x="880" y="40">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="5" name="colors" fq-name="vamos_store_db.dbo.colors" order="4" x="1160" y="40">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="6" name="products" fq-name="vamos_store_db.dbo.products" order="5" x="460" y="280">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="7" name="product_variants" fq-name="vamos_store_db.dbo.product_variants" order="6" x="820" y="280">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="8" name="product_images" fq-name="vamos_store_db.dbo.product_images" order="7" x="180" y="280">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="9" name="carts" fq-name="vamos_store_db.dbo.carts" order="8" x="40" y="560">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="10" name="cart_items" fq-name="vamos_store_db.dbo.cart_items" order="9" x="320" y="560">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="11" name="vouchers" fq-name="vamos_store_db.dbo.vouchers" order="10" x="600" y="560">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="12" name="voucher_usages" fq-name="vamos_store_db.dbo.voucher_usages" order="11" x="880" y="560">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="13" name="orders" fq-name="vamos_store_db.dbo.orders" order="12" x="460" y="800">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="14" name="order_items" fq-name="vamos_store_db.dbo.order_items" order="13" x="820" y="800">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="15" name="order_status_history" fq-name="vamos_store_db.dbo.order_status_history" order="14" x="180" y="800">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="16" name="inventory_transactions" fq-name="vamos_store_db.dbo.inventory_transactions" order="15" x="1140" y="280">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="17" name="addresses" fq-name="vamos_store_db.dbo.addresses" order="16" x="40" y="280">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+			<entity id="18" name="banners" fq-name="vamos_store_db.dbo.banners" order="17" x="1160" y="560">
+				<path name="vamos_store_db"/>
+				<path name="dbo"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="fk_products_categories" fq-name="vamos_store_db.dbo.products.fk_products_categories" type="fk" pk-ref="2" fk-ref="6"/>
+		<relation name="fk_products_brands" fq-name="vamos_store_db.dbo.products.fk_products_brands" type="fk" pk-ref="3" fk-ref="6"/>
+		<relation name="fk_product_images_products" fq-name="vamos_store_db.dbo.product_images.fk_product_images_products" type="fk" pk-ref="6" fk-ref="8"/>
+		<relation name="fk_product_variants_products" fq-name="vamos_store_db.dbo.product_variants.fk_product_variants_products" type="fk" pk-ref="6" fk-ref="7"/>
+		<relation name="fk_product_variants_sizes" fq-name="vamos_store_db.dbo.product_variants.fk_product_variants_sizes" type="fk" pk-ref="4" fk-ref="7"/>
+		<relation name="fk_product_variants_colors" fq-name="vamos_store_db.dbo.product_variants.fk_product_variants_colors" type="fk" pk-ref="5" fk-ref="7"/>
+		<relation name="fk_carts_users" fq-name="vamos_store_db.dbo.carts.fk_carts_users" type="fk" pk-ref="1" fk-ref="9"/>
+		<relation name="fk_cart_items_carts" fq-name="vamos_store_db.dbo.cart_items.fk_cart_items_carts" type="fk" pk-ref="9" fk-ref="10"/>
+		<relation name="fk_cart_items_variants" fq-name="vamos_store_db.dbo.cart_items.fk_cart_items_variants" type="fk" pk-ref="7" fk-ref="10"/>
+		<relation name="fk_orders_users" fq-name="vamos_store_db.dbo.orders.fk_orders_users" type="fk" pk-ref="1" fk-ref="13"/>
+		<relation name="fk_orders_vouchers" fq-name="vamos_store_db.dbo.orders.fk_orders_vouchers" type="fk" pk-ref="11" fk-ref="13"/>
+		<relation name="fk_order_items_orders" fq-name="vamos_store_db.dbo.order_items.fk_order_items_orders" type="fk" pk-ref="13" fk-ref="14"/>
+		<relation name="fk_order_items_variants" fq-name="vamos_store_db.dbo.order_items.fk_order_items_variants" type="fk" pk-ref="7" fk-ref="14"/>
+		<relation name="fk_order_status_history_orders" fq-name="vamos_store_db.dbo.order_status_history.fk_order_status_history_orders" type="fk" pk-ref="13" fk-ref="15"/>
+		<relation name="fk_inventory_variants" fq-name="vamos_store_db.dbo.inventory_transactions.fk_inventory_variants" type="fk" pk-ref="7" fk-ref="16"/>
+		<relation name="fk_voucher_usages_vouchers" fq-name="vamos_store_db.dbo.voucher_usages.fk_voucher_usages_vouchers" type="fk" pk-ref="11" fk-ref="12"/>
+		<relation name="fk_voucher_usages_users" fq-name="vamos_store_db.dbo.voucher_usages.fk_voucher_usages_users" type="fk" pk-ref="1" fk-ref="12"/>
+		<relation name="fk_addresses_users" fq-name="vamos_store_db.dbo.addresses.fk_addresses_users" type="fk" pk-ref="1" fk-ref="17"/>
+	</relations>
+</diagram>
