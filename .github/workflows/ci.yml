@@ -51,16 +51,16 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Verify Pug template compilation
         run: node tests/validate_pug.js
 
       - name: Build Tailwind CSS
-        run: npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify
+        run: npm run build:css
 
       - name: Run Validator Unit Tests
-        run: node tests/validator.test.js
+        run: node tests/test_validator.js
 
       - name: Bootstrap Test Database & Seed Fixtures
         run: node tests/setup_test_db.js

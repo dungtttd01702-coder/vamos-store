@@ -7,13 +7,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including Tailwind for CSS build)
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copy application files
 COPY . .
 
 # Build production Tailwind CSS
-RUN npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify
+RUN npm run build:css
 
 # Production runner
 FROM node:20-alpine AS runner
@@ -24,10 +24,12 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/server.js ./server.js
+
+USER node
 
 EXPOSE 3000
 

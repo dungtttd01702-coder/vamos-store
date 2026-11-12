@@ -6,6 +6,7 @@
 
 process.env.NODE_ENV = 'test';
 
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { setupTestDb } = require('./setup_test_db');
 const { sql, getPool, query } = require('../src/config/database');
@@ -536,7 +537,7 @@ async function runSuite() {
     console.log('\n--- 9. CONCURRENCY & ANTI-OVERSELLING SIMULATION ---');
 
     // Create temporary test product & variant with stock = 1
-    const randCode = 'CONCUR-' + Math.floor(10000 + Math.random() * 90000);
+    const randCode = 'CONCUR-' + crypto.randomInt(10000, 100000);
     const tempProdRes = await query(`
       INSERT INTO products (category_id, product_code, name, slug, base_price, status)
       OUTPUT INSERTED.id
@@ -552,8 +553,8 @@ async function runSuite() {
     const tempVarId = tempVarRes.recordset[0].id;
 
     // Create two test users with carts
-    const buyerEmail1 = 'buyer1_' + Math.floor(1000 + Math.random() * 9000) + '@concur.test';
-    const buyerEmail2 = 'buyer2_' + Math.floor(1000 + Math.random() * 9000) + '@concur.test';
+    const buyerEmail1 = 'buyer1_' + crypto.randomInt(1000, 10000) + '@concur.test';
+    const buyerEmail2 = 'buyer2_' + crypto.randomInt(1000, 10000) + '@concur.test';
     const u1 = await query("INSERT INTO users (full_name, email, password_hash, role) OUTPUT INSERTED.id VALUES (N'Buyer 1', @e, @pw, 'CUSTOMER')", { e: buyerEmail1, pw: hashedPw });
     const u2 = await query("INSERT INTO users (full_name, email, password_hash, role) OUTPUT INSERTED.id VALUES (N'Buyer 2', @e, @pw, 'CUSTOMER')", { e: buyerEmail2, pw: hashedPw });
     const uid1 = u1.recordset[0].id;
@@ -599,7 +600,7 @@ async function runSuite() {
     console.log('\n--- 10. VOUCHER CONCURRENCY & USAGE LIMIT TESTS ---');
 
     // Create a voucher with usage_limit = 1
-    const testVoucherCode = 'LIMIT1_' + Math.floor(1000 + Math.random() * 9000);
+    const testVoucherCode = 'LIMIT1_' + crypto.randomInt(1000, 10000);
     await query(`
       INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, usage_limit, used_count, start_date, end_date, is_active)
       VALUES (@code, N'Limited 1 Usage Voucher', 'fixed_amount', 20000, 100000, 1, 0, '2025-01-01', '2028-12-31', 1)
@@ -689,7 +690,7 @@ async function runSuite() {
     // -------------------------------------------------------------------------
     console.log('\n--- 12. VOUCHER 1-USE PER CUSTOMER & RESTITUTION TESTS ---');
 
-    const q8VoucherCode = 'Q8_' + Math.floor(1000 + Math.random() * 9000);
+    const q8VoucherCode = 'Q8_' + crypto.randomInt(1000, 10000);
     const q8VouchRes = await query(`
       INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, usage_limit, used_count, start_date, end_date, is_active)
       OUTPUT INSERTED.id
@@ -1106,4 +1107,7 @@ async function runSuite() {
   }
 }
 
-runSuite();
+runSuite().catch(err => {
+  console.error('Test suite failed:', err);
+  process.exit(1);
+});

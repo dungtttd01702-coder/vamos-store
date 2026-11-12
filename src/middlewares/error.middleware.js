@@ -16,7 +16,11 @@ function errorHandler(err, req, res, next) {
   const statusCode = err.status || (res.statusCode >= 400 ? res.statusCode : 500);
   const isDev = config.app.env === 'development';
 
-  console.error(`[Error ${statusCode}] ${req.method} ${req.originalUrl} - ${err.message}`);
+  const safeMethod = String(req.method || '').replace(/[\r\n]/g, '');
+  const safeUrl = String(req.originalUrl || '').replace(/[\r\n]/g, '');
+  const safeMsg = String(err.message || '').replace(/[\r\n]/g, '');
+
+  console.error(`[Error ${statusCode}] ${safeMethod} ${safeUrl} - ${safeMsg}`);
   if (isDev && statusCode === 500 && err.stack) {
     console.error(err.stack);
   }
@@ -30,8 +34,7 @@ function errorHandler(err, req, res, next) {
       success: false,
       status: statusCode,
       message: err.message || 'Đã có lỗi xảy ra trên hệ thống.',
-      ...(err.errors ? { errors: err.errors } : {}),
-      ...(isDev ? { stack: err.stack } : {}),
+      ...(err.errors ? { errors: err.errors } : {})
     });
   }
 
@@ -80,8 +83,7 @@ function errorHandler(err, req, res, next) {
   // Handle 500 Internal Server Error (and other unhandled 5xx)
   return res.render('pages/errors/500', {
     title: 'Lỗi hệ thống - 500',
-    message: isDev ? err.message : 'Hệ thống đang gặp sự cố tạm thời. Vui lòng thử lại sau.',
-    stack: isDev ? err.stack : null,
+    message: isDev ? err.message : 'Hệ thống đang gặp sự cố tạm thời. Vui lòng thử lại sau.'
   });
 }
 

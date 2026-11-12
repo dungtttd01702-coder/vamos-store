@@ -15,13 +15,13 @@ class ProductController {
       }
 
       // Sanitize and normalize price range (clamp negatives, auto-swap if min > max)
-      let cleanMinPrice = minPrice !== undefined && minPrice !== '' ? parseFloat(minPrice) : null;
-      let cleanMaxPrice = maxPrice !== undefined && maxPrice !== '' ? parseFloat(maxPrice) : null;
+      let cleanMinPrice = minPrice !== undefined && minPrice !== '' ? Number.parseFloat(minPrice) : null;
+      let cleanMaxPrice = maxPrice !== undefined && maxPrice !== '' ? Number.parseFloat(maxPrice) : null;
 
-      if (cleanMinPrice !== null && (isNaN(cleanMinPrice) || cleanMinPrice < 0)) {
+      if (cleanMinPrice !== null && (Number.isNaN(cleanMinPrice) || cleanMinPrice < 0)) {
         cleanMinPrice = 0;
       }
-      if (cleanMaxPrice !== null && (isNaN(cleanMaxPrice) || cleanMaxPrice < 0)) {
+      if (cleanMaxPrice !== null && (Number.isNaN(cleanMaxPrice) || cleanMaxPrice < 0)) {
         cleanMaxPrice = null;
       }
       if (cleanMinPrice !== null && cleanMaxPrice !== null && cleanMinPrice > cleanMaxPrice) {
@@ -40,7 +40,7 @@ class ProductController {
           maxPrice: cleanMaxPrice !== null ? cleanMaxPrice : undefined,
           search: q,
           sort,
-          page: parseInt(page, 10) || 1,
+          page: Number.parseInt(page, 10) || 1,
           limit: 12,
         }),
         productService.getAllCategories(),

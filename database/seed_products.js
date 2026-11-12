@@ -976,7 +976,10 @@ async function seed() {
 }
 
 if (require.main === module) {
-  seed();
+  seed().catch(err => {
+    console.error('Seed products error:', err);
+    process.exit(1);
+  });
 }
 
 module.exports = { seedProducts: seed };

@@ -185,7 +185,7 @@ class CheckoutController {
       const user = req.session?.user;
       const { orderId } = req.params;
 
-      const order = await orderService.getOrderDetails(parseInt(orderId, 10), user ? user.id : null);
+      const order = await orderService.getOrderDetails(Number.parseInt(orderId, 10), user ? user.id : null);
       if (!order) {
         const err = new Error('Không tìm thấy thông tin đơn hàng này.');
         err.status = 404;

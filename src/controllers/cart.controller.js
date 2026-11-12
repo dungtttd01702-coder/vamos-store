@@ -14,7 +14,7 @@ function validateCartQuantity(quantity) {
   if (!/^[1-9]\d*$/.test(str)) {
     return { valid: false, message: 'Số lượng sản phẩm không hợp lệ (phải là số nguyên dương từ 1 đến 10).' };
   }
-  const num = parseInt(str, 10);
+  const num = Number.parseInt(str, 10);
   if (num > MAX_RETAIL_QUANTITY) {
     return {
       valid: false,
@@ -38,7 +38,7 @@ class CartController {
 
         // Live DB Sync for Guest Items: current price, live stock, active status, and retail cap
         if (guestItems.length > 0) {
-          const varIds = guestItems.map(i => parseInt(i.variant_id, 10)).filter(id => !isNaN(id) && id > 0);
+          const varIds = guestItems.map(i => Number.parseInt(i.variant_id, 10)).filter(id => !Number.isNaN(id) && id > 0);
           if (varIds.length > 0) {
             const varListSql = `
               SELECT 
@@ -68,7 +68,7 @@ class CartController {
                 notices.push(`Sản phẩm "${live.product_name}" (Màu ${live.color_name} - Size ${live.size_name}) hiện đã hết hàng trong kho.`);
                 continue;
               }
-              const oldQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+              const oldQty = Math.max(1, Number.parseInt(item.quantity, 10) || 1);
               const safeQty = Math.min(MAX_RETAIL_QUANTITY, live.stock_quantity, oldQty);
               if (safeQty < oldQty) {
                 notices.push(`Số lượng sản phẩm "${live.product_name}" được điều chỉnh từ ${oldQty} thành ${safeQty} do hạn mức tồn kho.`);
@@ -196,7 +196,7 @@ class CartController {
           AND pv.status = 'active' 
           AND p.status = 'active'
       `, {
-        productId: parseInt(productId, 10),
+        productId: Number.parseInt(productId, 10),
         size,
         color,
       });
@@ -392,7 +392,7 @@ class CartController {
           AND pv.status = 'active' 
           AND p.status = 'active'
       `, {
-        productId: parseInt(productId, 10),
+        productId: Number.parseInt(productId, 10),
         size,
         color,
       });
@@ -563,7 +563,7 @@ class CartController {
         return res.redirect('/cart');
       }
 
-      const cartItemId = parseInt(itemId, 10);
+      const cartItemId = Number.parseInt(itemId, 10);
       if (isRemoval || targetQty <= 0) {
         await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
           itemId: cartItemId,
@@ -647,7 +647,7 @@ class CartController {
 
       if (user.cartId) {
         await query('DELETE FROM cart_items WHERE id = @itemId AND cart_id = @cartId', {
-          itemId: parseInt(itemId, 10),
+          itemId: Number.parseInt(itemId, 10),
           cartId: user.cartId,
         });
         const countRes = await query('SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId', { cartId: user.cartId });
@@ -679,12 +679,12 @@ class CartController {
       await lockCartReq.query('SELECT id FROM carts WITH (UPDLOCK, ROWLOCK) WHERE id = @cartId');
 
       for (const item of guestCart) {
-        const variantId = parseInt(item.variant_id, 10);
-        if (!variantId || isNaN(variantId)) continue;
+        const variantId = Number.parseInt(item.variant_id, 10);
+        if (!variantId || Number.isNaN(variantId)) continue;
 
         // Strict quantity validation
         const qtyCheck = validateCartQuantity(item.quantity);
-        const quantity = qtyCheck.valid ? qtyCheck.quantity : Math.min(MAX_RETAIL_QUANTITY, Math.max(1, parseInt(item.quantity, 10) || 1));
+        const quantity = qtyCheck.valid ? qtyCheck.quantity : Math.min(MAX_RETAIL_QUANTITY, Math.max(1, Number.parseInt(item.quantity, 10) || 1));
 
         // Verify active status and current available stock inside transaction
         const varReq = new sql.Request(transaction);

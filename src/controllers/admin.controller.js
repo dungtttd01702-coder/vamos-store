@@ -154,7 +154,7 @@ class AdminController {
   async getOrderDetail(req, res, next) {
     try {
       const { id } = req.params;
-      const order = await orderService.getOrderDetails(parseInt(id, 10));
+      const order = await orderService.getOrderDetails(Number.parseInt(id, 10));
       if (!order) {
         const err = new Error('Không tìm thấy đơn hàng này');
         err.status = 404;
@@ -184,7 +184,7 @@ class AdminController {
         new_status = 'COMPLETED';
       }
 
-      const orderId = parseInt(id, 10);
+      const orderId = Number.parseInt(id, 10);
       await orderService.updateOrderStatusByAdmin({
         orderId,
         newStatus: new_status,
@@ -213,7 +213,7 @@ class AdminController {
       }
       if (category_id) {
         sqlWhere += ' AND p.category_id = @catId';
-        params.catId = parseInt(category_id, 10);
+        params.catId = Number.parseInt(category_id, 10);
       }
       if (status) {
         sqlWhere += ' AND p.status = @status';
@@ -309,14 +309,14 @@ class AdminController {
         throw new Error('Vui lòng điền đầy đủ thông tin bắt buộc của sản phẩm (Tên, Mã SP, Danh mục, Giá gốc).');
       }
 
-      const numBasePrice = parseFloat(base_price);
-      if (isNaN(numBasePrice) || numBasePrice <= 0) {
+      const numBasePrice = Number.parseFloat(base_price);
+      if (Number.isNaN(numBasePrice) || numBasePrice <= 0) {
         throw new Error('Giá gốc của sản phẩm phải là số dương lớn hơn 0.');
       }
 
       if (sale_price !== undefined && sale_price !== null && String(sale_price).trim() !== '') {
-        const numSalePrice = parseFloat(sale_price);
-        if (isNaN(numSalePrice) || numSalePrice < 0) {
+        const numSalePrice = Number.parseFloat(sale_price);
+        if (Number.isNaN(numSalePrice) || numSalePrice < 0) {
           throw new Error('Giá khuyến mãi không thể là số âm.');
         }
         if (numSalePrice > numBasePrice) {
@@ -335,15 +335,15 @@ class AdminController {
 
       // 1. Insert product
       const pReq = new sql.Request(transaction);
-      pReq.input('catId', parseInt(category_id, 10));
-      pReq.input('brandId', brand_id ? parseInt(brand_id, 10) : null);
+      pReq.input('catId', Number.parseInt(category_id, 10));
+      pReq.input('brandId', brand_id ? Number.parseInt(brand_id, 10) : null);
       pReq.input('code', product_code.trim().toUpperCase());
       pReq.input('name', name.trim());
       pReq.input('slug', slug);
       pReq.input('desc', description ? description.trim() : '');
       pReq.input('gender', gender_target || 'UNISEX');
-      pReq.input('basePrice', parseFloat(base_price));
-      pReq.input('salePrice', sale_price ? parseFloat(sale_price) : null);
+      pReq.input('basePrice', Number.parseFloat(base_price));
+      pReq.input('salePrice', sale_price ? Number.parseFloat(sale_price) : null);
       pReq.input('status', status);
 
       const pRes = await pReq.query(`
@@ -366,13 +366,13 @@ class AdminController {
 
       // 3. Create initial variant if size and color provided
       if (size_id && color_id) {
-        const initialStock = Math.max(0, parseInt(stock_quantity, 10) || 10);
+        const initialStock = Math.max(0, Number.parseInt(stock_quantity, 10) || 10);
         const sku = `${product_code.trim().toUpperCase()}-${size_id}-${color_id}`;
 
         const vReq = new sql.Request(transaction);
         vReq.input('pId', productId);
-        vReq.input('sId', parseInt(size_id, 10));
-        vReq.input('cId', parseInt(color_id, 10));
+        vReq.input('sId', Number.parseInt(size_id, 10));
+        vReq.input('cId', Number.parseInt(color_id, 10));
         vReq.input('sku', sku);
         vReq.input('stock', initialStock);
         await vReq.query(`
@@ -400,7 +400,7 @@ class AdminController {
           SELECT p.*, (SELECT TOP 1 image_url FROM product_images WHERE product_id = p.id AND is_primary = 1) AS image_url
           FROM products p
           WHERE p.id = @id
-        `, { id: parseInt(id, 10) }),
+        `, { id: Number.parseInt(id, 10) }),
         query('SELECT id, name FROM categories WHERE is_active = 1 ORDER BY name ASC'),
         query('SELECT id, name FROM brands ORDER BY name ASC'),
         query(`
@@ -409,7 +409,7 @@ class AdminController {
           JOIN sizes s ON pv.size_id = s.id
           JOIN colors c ON pv.color_id = c.id
           WHERE pv.product_id = @id
-        `, { id: parseInt(id, 10) }),
+        `, { id: Number.parseInt(id, 10) }),
       ]);
 
       if (prodRes.recordset.length === 0) {
@@ -464,19 +464,19 @@ class AdminController {
           updated_at = GETDATE()
         WHERE id = @id
       `, {
-        id: parseInt(id, 10),
+        id: Number.parseInt(id, 10),
         name: name.trim(),
-        catId: parseInt(category_id, 10),
-        brandId: brand_id ? parseInt(brand_id, 10) : null,
+        catId: Number.parseInt(category_id, 10),
+        brandId: brand_id ? Number.parseInt(brand_id, 10) : null,
         gender: gender_target || 'UNISEX',
-        basePrice: parseFloat(base_price),
-        salePrice: sale_price ? parseFloat(sale_price) : null,
+        basePrice: Number.parseFloat(base_price),
+        salePrice: sale_price ? Number.parseFloat(sale_price) : null,
         desc: description ? description.trim() : '',
         status: status || 'active',
       });
 
       if (image_url && image_url.trim() !== '') {
-        const imgRes = await query('SELECT id FROM product_images WHERE product_id = @id AND is_primary = 1', { id: parseInt(id, 10) });
+        const imgRes = await query('SELECT id FROM product_images WHERE product_id = @id AND is_primary = 1', { id: Number.parseInt(id, 10) });
         if (imgRes.recordset.length > 0) {
           await query('UPDATE product_images SET image_url = @url WHERE id = @imgId', {
             url: image_url.trim(),
@@ -484,7 +484,7 @@ class AdminController {
           });
         } else {
           await query('INSERT INTO product_images (product_id, image_url, is_primary, display_order) VALUES (@id, @url, 1, 1)', {
-            id: parseInt(id, 10),
+            id: Number.parseInt(id, 10),
             url: image_url.trim(),
           });
         }
@@ -507,7 +507,7 @@ class AdminController {
         SET status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END,
             updated_at = GETDATE()
         WHERE id = @id
-      `, { id: parseInt(id, 10) });
+      `, { id: Number.parseInt(id, 10) });
 
       res.redirect('/admin/products');
     } catch (error) {
@@ -569,13 +569,13 @@ class AdminController {
       const adminUser = req.session.user;
       const { variant_id, change_quantity, reason } = req.body;
 
-      const varId = parseInt(variant_id, 10);
-      const changeQty = parseInt(change_quantity, 10);
+      const varId = Number.parseInt(variant_id, 10);
+      const changeQty = Number.parseInt(change_quantity, 10);
 
       if (!reason || reason.trim() === '') {
         throw new Error('Lý do điều chỉnh tồn kho là bắt buộc phục vụ kiểm toán kho.');
       }
-      if (isNaN(changeQty) || changeQty === 0) {
+      if (Number.isNaN(changeQty) || changeQty === 0) {
         throw new Error('Số lượng thay đổi phải là một số nguyên khác 0 (+ hoặc -).');
       }
 
@@ -730,7 +730,7 @@ class AdminController {
         UPDATE categories
         SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END
         WHERE id = @id
-      `, { id: parseInt(id, 10) });
+      `, { id: Number.parseInt(id, 10) });
 
       res.redirect('/admin/categories');
     } catch (error) {
@@ -824,8 +824,8 @@ class AdminController {
         throw new Error('Mã giảm giá và giá trị chiết khấu là bắt buộc.');
       }
 
-      const numDiscount = parseFloat(discount_value);
-      if (isNaN(numDiscount) || numDiscount <= 0) {
+      const numDiscount = Number.parseFloat(discount_value);
+      if (Number.isNaN(numDiscount) || numDiscount <= 0) {
         throw new Error('Giá trị chiết khấu phải là số dương lớn hơn 0.');
       }
 
@@ -855,10 +855,10 @@ class AdminController {
         code: code.trim().toUpperCase(),
         name: name ? name.trim() : code.trim().toUpperCase(),
         discountType: discount_type || 'fixed_amount',
-        discountValue: parseFloat(discount_value),
-        minOrder: min_order_value ? parseFloat(min_order_value) : 0,
-        maxDiscount: max_discount_amount ? parseFloat(max_discount_amount) : null,
-        usageLimit: parseInt(usage_limit, 10) || 0,
+        discountValue: Number.parseFloat(discount_value),
+        minOrder: min_order_value ? Number.parseFloat(min_order_value) : 0,
+        maxDiscount: max_discount_amount ? Number.parseFloat(max_discount_amount) : null,
+        usageLimit: Number.parseInt(usage_limit, 10) || 0,
         startDate: start_date ? new Date(start_date) : new Date(),
         endDate: end_date ? new Date(end_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
@@ -879,7 +879,7 @@ class AdminController {
         UPDATE vouchers
         SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END
         WHERE id = @id
-      `, { id: parseInt(id, 10) });
+      `, { id: Number.parseInt(id, 10) });
 
       res.redirect('/admin/vouchers');
     } catch (error) {
@@ -929,9 +929,9 @@ class AdminController {
     try {
       const { id } = req.params;
       const [userRes, addrsRes, ordersRes] = await Promise.all([
-        query("SELECT id, full_name, email, phone, role, status, created_at FROM users WHERE id = @id AND role = 'CUSTOMER'", { id: parseInt(id, 10) }),
-        query('SELECT * FROM addresses WHERE user_id = @id ORDER BY is_default DESC, id DESC', { id: parseInt(id, 10) }),
-        query('SELECT id, order_code, total_amount, order_status, payment_status, created_at FROM orders WHERE user_id = @id ORDER BY id DESC', { id: parseInt(id, 10) }),
+        query("SELECT id, full_name, email, phone, role, status, created_at FROM users WHERE id = @id AND role = 'CUSTOMER'", { id: Number.parseInt(id, 10) }),
+        query('SELECT * FROM addresses WHERE user_id = @id ORDER BY is_default DESC, id DESC', { id: Number.parseInt(id, 10) }),
+        query('SELECT id, order_code, total_amount, order_status, payment_status, created_at FROM orders WHERE user_id = @id ORDER BY id DESC', { id: Number.parseInt(id, 10) }),
       ]);
 
       if (userRes.recordset.length === 0) {
@@ -958,7 +958,7 @@ class AdminController {
   async postToggleCustomerStatus(req, res, next) {
     try {
       const { id } = req.params;
-      const custId = parseInt(id, 10);
+      const custId = Number.parseInt(id, 10);
 
       // Guard: Never lock ADMIN account
       const checkAdmin = await query('SELECT role FROM users WHERE id = @id', { id: custId });
@@ -1010,7 +1010,7 @@ class AdminController {
         title: title ? title.trim() : 'Banner VAMOS',
         url: image_url.trim(),
         link: link_url ? link_url.trim() : '/products',
-        order: parseInt(display_order, 10) || 1,
+        order: Number.parseInt(display_order, 10) || 1,
       });
 
       res.redirect('/admin/banners?success=created');
@@ -1029,7 +1029,7 @@ class AdminController {
         UPDATE banners
         SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END
         WHERE id = @id
-      `, { id: parseInt(id, 10) });
+      `, { id: Number.parseInt(id, 10) });
 
       res.redirect('/admin/banners');
     } catch (error) {
@@ -1040,7 +1040,7 @@ class AdminController {
   async postDeleteBanner(req, res, next) {
     try {
       const { id } = req.params;
-      await query('DELETE FROM banners WHERE id = @id', { id: parseInt(id, 10) });
+      await query('DELETE FROM banners WHERE id = @id', { id: Number.parseInt(id, 10) });
       res.redirect('/admin/banners?success=Đã+xóa+banner+thành+công');
     } catch (error) {
       next(error);

@@ -53,7 +53,7 @@ class AccountController {
       const { id } = req.params;
 
       const isNumeric = /^\d+$/.test(String(id).trim());
-      let orderId = isNumeric ? parseInt(id, 10) : null;
+      let orderId = isNumeric ? Number.parseInt(id, 10) : null;
       if (!orderId) {
         const oRes = await query('SELECT id FROM orders WHERE order_code = @code AND user_id = @userId', {
           code: String(id).trim(),

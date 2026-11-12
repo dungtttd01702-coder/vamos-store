@@ -7,10 +7,12 @@
 const fs = require('fs');
 const path = require('path');
 const sql = require('mssql');
+const bcrypt = require('bcryptjs');
 const appConfig = require('../src/config/app.config');
 
 const baseConfig = appConfig.db;
 const targetDbName = baseConfig.database || 'vamos_store_db';
+const defaultAdminHash = bcrypt.hashSync(process.env.ADMIN_DEFAULT_PASSWORD || '123456', 10);
 
 const initialSeedsSql = `
 -- Seed default Sizes
@@ -57,7 +59,7 @@ END
 IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@vamos.vn')
 BEGIN
     INSERT INTO users (full_name, email, password_hash, phone, role, status) VALUES
-    (N'Quản Trị Viên VAMOS', 'admin@vamos.vn', '$2a$10$5/YUt6bsJwra3RelCJELq.vaUnh1lLX8X2qADt0eob.U25xoORoIW', '0905123456', 'ADMIN', 'active');
+    (N'Quản Trị Viên VAMOS', 'admin@vamos.vn', '${defaultAdminHash}', '0905123456', 'ADMIN', 'active');
 END
 `;
 
@@ -181,7 +183,10 @@ async function init(dbNameOverride) {
 }
 
 if (require.main === module) {
-  init();
+  init().catch(err => {
+    console.error('Database bootstrap error:', err);
+    process.exit(1);
+  });
 }
 
 module.exports = { init };

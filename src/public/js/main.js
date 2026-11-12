@@ -108,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
           buttonElement.classList.remove('bg-green-600', 'hover:bg-green-700');
         }, 2000);
       }
+    }).catch(() => {
+      prompt('Mã voucher của bạn:', code);
     });
   };
 
@@ -432,7 +434,7 @@ function initProductDetailQuantityAndStock() {
   // Stepper Buttons
   if (minusBtn) {
     minusBtn.addEventListener('click', () => {
-      const current = parseInt(qtyInput.value, 10) || 1;
+      const current = Number.parseInt(qtyInput.value, 10) || 1;
       if (current > 1) {
         qtyInput.value = current - 1;
         validateQuantity();
@@ -442,7 +444,7 @@ function initProductDetailQuantityAndStock() {
 
   if (plusBtn) {
     plusBtn.addEventListener('click', () => {
-      const current = parseInt(qtyInput.value, 10) || 1;
+      const current = Number.parseInt(qtyInput.value, 10) || 1;
       const variant = getActiveVariant();
       const maxAllowed = Math.min(variant ? variant.stock_quantity : MAX_RETAIL_LIMIT, MAX_RETAIL_LIMIT);
 
@@ -818,7 +820,7 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
 
     // Debounce API call by 250ms
     debounceTimer = setTimeout(() => {
-      performSearch(query);
+      performSearch(query).catch(console.error);
     }, 250);
   });
 
@@ -1123,7 +1125,7 @@ function initAutomaticCatalogFiltering() {
     }
 
     const newUrl = `/products?${params.toString()}`;
-    loadCatalogUrl(newUrl, true);
+    loadCatalogUrl(newUrl, true).catch(console.error);
   }
 
   window.submitFiltersViaPjax = submitFiltersViaPjax;
@@ -1210,7 +1212,7 @@ function initAutomaticCatalogFiltering() {
       const href = link.getAttribute('href');
       if (href && href.startsWith('/products')) {
         e.preventDefault();
-        loadCatalogUrl(href, true);
+        loadCatalogUrl(href, true).catch(console.error);
       }
     });
   });
@@ -1228,7 +1230,7 @@ function initAutomaticCatalogFiltering() {
     window._pjaxPopstateBound = true;
     window.addEventListener('popstate', () => {
       if (window.location.pathname === '/products') {
-        loadCatalogUrl(window.location.href, false);
+        loadCatalogUrl(window.location.href, false).catch(console.error);
       }
     });
   }

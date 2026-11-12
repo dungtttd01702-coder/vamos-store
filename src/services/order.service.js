@@ -605,7 +605,7 @@ class OrderService {
       JOIN users u ON o.user_id = u.id
       WHERE ${isNumeric ? 'o.id = @orderId' : 'o.order_code = @orderCode'}
     `;
-    const params = isNumeric ? { orderId: parseInt(orderIdentifier, 10) } : { orderCode: String(orderIdentifier).trim() };
+    const params = isNumeric ? { orderId: Number.parseInt(orderIdentifier, 10) } : { orderCode: String(orderIdentifier).trim() };
 
     if (userId) {
       sqlStr += ' AND o.user_id = @userId';

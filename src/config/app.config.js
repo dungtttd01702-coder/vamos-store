@@ -10,7 +10,7 @@ if (isProduction && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.i
 const config = {
   app: {
     name: process.env.APP_NAME || 'VAMOS STORE',
-    port: parseInt(process.env.PORT, 10) || 3000,
+    port: Number.parseInt(process.env.PORT, 10) || 3000,
     env: process.env.NODE_ENV || 'development',
     url: process.env.APP_URL || 'http://localhost:3000',
     isProduction,
@@ -30,7 +30,7 @@ const config = {
   },
   db: {
     server: process.env.DB_SERVER || process.env.DB_HOST || '127.0.0.1',
-    port: parseInt(process.env.DB_PORT, 10) || 1433,
+    port: Number.parseInt(process.env.DB_PORT, 10) || 1433,
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || '',
     database: isTest ? (process.env.DB_TEST_NAME || 'vamos_store_test_db') : (process.env.DB_NAME || 'vamos_store_db'),
