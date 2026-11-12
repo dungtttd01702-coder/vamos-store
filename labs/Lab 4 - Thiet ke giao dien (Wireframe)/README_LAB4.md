@@ -122,22 +122,82 @@ Sơ đồ cây phân cấp thể hiện toàn bộ các luồng di chuyển củ
 
 ---
 
+### 3.11. UI-11: Quản lý Danh mục & Thương hiệu (Admin Categories & Brands)
+- **Mục đích:** Thêm mới, chỉnh sửa thông tin danh mục giày và các thương hiệu phân phối chính hãng.
+- **Quyền truy cập:** `Admin`.
+
+![Giao diện Quản lý Danh mục](images/ui-11-admin-categories.png)
+*Hình 4.11: Bản vẽ thiết kế giao diện Quản lý Danh mục & Thương hiệu*
+
+---
+
+### 3.12. UI-12: Quản lý Tồn kho & Kiểm toán Biến động (Inventory Audit)
+- **Mục đích:** Giám sát mức tồn kho theo từng SKU biến thể, theo dõi biến động nhập xuất kho và cảnh báo tồn thấp.
+- **Quyền truy cập:** `Admin`.
+
+![Giao diện Quản lý Tồn kho](images/ui-12-admin-inventory.png)
+*Hình 4.12: Bản vẽ thiết kế giao diện Quản lý Tồn kho & Kiểm toán Biến động*
+
+---
+
+### 3.13. UI-13: Quản lý Vouchers & Khuyến mãi (Voucher Management)
+- **Mục đích:** Cấu hình mã voucher giảm giá, giới hạn ngân sách và điều kiện áp dụng giá trị đơn tối thiểu.
+- **Quyền truy cập:** `Admin`.
+
+![Giao diện Quản lý Voucher](images/ui-13-admin-vouchers.png)
+*Hình 4.13: Bản vẽ thiết kế giao diện Quản lý Vouchers & Khuyến mãi*
+
+---
+
+### 3.14. UI-14: Quản lý Khách hàng & Vô hiệu hóa Phiên (Customer & Session Audit)
+- **Mục đích:** Quản lý danh bạ tài khoản khách hàng, thống kê chi tiêu tích lũy và thu hồi phiên đăng nhập khi phát hiện bất thường.
+- **Quyền truy cập:** `Admin`.
+
+![Giao diện Quản lý Khách hàng](images/ui-14-admin-customers.png)
+*Hình 4.14: Bản vẽ thiết kế giao diện Quản lý Khách hàng & Vô hiệu hóa Phiên*
+
+---
+
+### 3.15. UI-15: Quản lý Banners & Slider Marketing (Banner Management)
+- **Mục đích:** Quản lý nội dung banner sự kiện trang chủ, điều chỉnh thứ tự ưu tiên và kích hoạt bộ sưu tập theo mùa.
+- **Quyền truy cập:** `Admin`.
+
+![Giao diện Quản lý Banner](images/ui-15-admin-banners.png)
+*Hình 4.15: Bản vẽ thiết kế giao diện Quản lý Banners & Slider Marketing*
+
+---
+
+### 3.16. UI-16: Đăng ký Tài khoản Thành viên Mở rộng (Member Registration)
+- **Mục đích:** Form đăng ký thành viên chuyên biệt với chỉ báo độ mạnh mật khẩu và bảo vệ chống brute-force/CSRF.
+- **Quyền truy cập:** `Khách vãng lai` (Guest).
+
+![Giao diện Đăng ký Thành viên](images/ui-16-register.png)
+*Hình 4.16: Bản vẽ thiết kế giao diện Đăng Ký Tài Khoản Thành Viên*
+
+---
+
 ## 4. DANH MỤC FILE NỘP TRONG LAB 4
 
 ```
 labs/Lab 4 - Thiet ke giao dien (Wireframe)/
-├── images/                               # Thư mục hình ảnh giao diện độ phân giải cao
+├── images/                               # Thư mục hình ảnh giao diện độ phân giải cao (2560px)
 │   ├── sitemap.png                       # Cây sơ đồ điều hướng website
-│   ├── ui-01-home.png                    # Giao diện Trang chủ
+│   ├── ui-01-home.png                    # Giao diện Trang chủ (Stitch Spec)
 │   ├── ui-02-shop.png                    # Giao diện Cửa hàng & Bộ lọc
 │   ├── ui-03-product-detail.png          # Giao diện Chi tiết sản phẩm
-│   ├── ui-04-cart.png                    # Giao diện Giỏ hàng
+│   ├── ui-04-cart.png                    # Giao diện Giỏ hàng & Tóm tắt đơn
 │   ├── ui-05-checkout-cod.png            # Giao diện Đặt hàng COD
 │   ├── ui-06-auth.png                    # Giao diện Đăng nhập / Đăng ký
 │   ├── ui-07-order-history.png           # Giao diện Lịch sử đơn hàng
 │   ├── ui-08-admin-dashboard.png         # Giao diện Admin Dashboard
 │   ├── ui-09-admin-products.png          # Giao diện Admin Quản lý sản phẩm
 │   ├── ui-10-admin-orders.png            # Giao diện Admin Vận hành đơn hàng
+│   ├── ui-11-admin-categories.png        # Giao diện Admin Quản lý Danh mục
+│   ├── ui-12-admin-inventory.png         # Giao diện Admin Quản lý Tồn kho
+│   ├── ui-13-admin-vouchers.png          # Giao diện Admin Quản lý Voucher
+│   ├── ui-14-admin-customers.png         # Giao diện Admin Quản lý Khách hàng
+│   ├── ui-15-admin-banners.png           # Giao diện Admin Quản lý Banners
+│   ├── ui-16-register.png                # Giao diện Đăng ký Thành viên
 │   ├── fpt_polytechnic_logo.jpg          # Logo chuẩn FPT Polytechnic
 │   └── fpt_assignment_border.png         # Khung viền bìa học thuật
 ├── BAO_CAO_LAB4_PRINT.html               # Báo cáo in ấn xuất PDF chuẩn A4 (1-Click Print)

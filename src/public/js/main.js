@@ -1163,37 +1163,41 @@ function initAutomaticCatalogFiltering() {
     });
   });
 
-  // Preset Price Buttons
+  // Preset Price Buttons (Click để chọn nhanh, click lại để bỏ chọn)
   const presetBtns = (container || document).querySelectorAll('.preset-price-btn');
   presetBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const minInp = document.getElementById('minPriceInput');
       const maxInp = document.getElementById('maxPriceInput');
-      if (minInp) minInp.value = btn.dataset.min || '';
-      if (maxInp) maxInp.value = btn.dataset.max || '';
+      const isActive = btn.dataset.active === 'true';
+      if (isActive) {
+        if (minInp) minInp.value = '';
+        if (maxInp) maxInp.value = '';
+      } else {
+        if (minInp) minInp.value = btn.dataset.min || '';
+        if (maxInp) maxInp.value = btn.dataset.max || '';
+      }
       submitFiltersViaPjax();
     });
   });
 
-  // Price range auto-submit (typing debounced 500ms or on blur/change/Enter)
-  const minPriceInput = document.getElementById('minPriceInput');
-  const maxPriceInput = document.getElementById('maxPriceInput');
-  let debounceTimer = null;
-  [minPriceInput, maxPriceInput].forEach(inp => {
-    if (!inp) return;
-    inp.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(submitFiltersViaPjax, 500);
-    });
-    inp.addEventListener('change', () => {
-      clearTimeout(debounceTimer);
+  // Price range manual apply button & Enter key (Chuẩn UX E-commerce không phá hủy focus khi đang gõ)
+  const applyPriceBtn = (container || document).getElementById('btnApplyPrice');
+  if (applyPriceBtn) {
+    applyPriceBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       submitFiltersViaPjax();
     });
+  }
+
+  const minPriceInput = document.getElementById('minPriceInput');
+  const maxPriceInput = document.getElementById('maxPriceInput');
+  [minPriceInput, maxPriceInput].forEach(inp => {
+    if (!inp) return;
     inp.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        clearTimeout(debounceTimer);
         submitFiltersViaPjax();
       }
     });

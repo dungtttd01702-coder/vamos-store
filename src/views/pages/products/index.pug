@@ -102,26 +102,37 @@ block content
                 .w-full.text-center.text-xs.font-bold.rounded-lg.border.border-dashed.border-slate-300.text-slate-400.bg-slate-50.cursor-not-allowed.line-through.opacity-60(class="py-1.5" title="Size 44 hiện tạm hết hàng")
                   | 44
 
-            //- Lọc Khoảng giá (Tự động submit khi nhập hoặc đổi giá)
+            //- Lọc Khoảng giá (Chuẩn UX E-commerce: Nhập số + Nút Áp dụng + Chọn nhanh)
             .py-4.border-b.border-slate-100
               .flex.items-center.justify-between.mb-3
                 h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider Khoảng giá (VNĐ)
                 span.text-2xs.text-slate-400 Tự động lọc
-              .grid.grid-cols-2.gap-2.mb-3
+              .grid.grid-cols-2.gap-2.mb-2
                 input#minPriceInput.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
                   class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="minPrice"
-                  placeholder="Từ..."
+                  placeholder="Từ ₫..."
                   value=selectedFilters.minPrice
+                  min="0"
                 )
                 input#maxPriceInput.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
                   class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="maxPrice"
-                  placeholder="Đến..."
+                  placeholder="Đến ₫..."
                   value=selectedFilters.maxPrice
+                  min="0"
                 )
+              button#btnApplyPrice.w-full.mb-3.py-2.px-3.bg-slate-900.text-white.text-xs.font-bold.rounded-lg.transition-all(
+                type="button"
+                class="hover:bg-red-600 active:scale-98 flex items-center justify-center gap-1.5 shadow-xs"
+                title="Áp dụng lọc theo khoảng giá đã nhập"
+              )
+                svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                  path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7")
+                | Áp dụng khoảng giá
+
               //- Gợi ý mức giá chọn nhanh (Stitch Spec - Click để tự động lọc)
               - const isUnder500k = selectedFilters.maxPrice === '500000' && (!selectedFilters.minPrice || selectedFilters.minPrice === '0')
               - const is500kTo1M = selectedFilters.minPrice === '500000' && selectedFilters.maxPrice === '1000000'
@@ -133,7 +144,6 @@ block content
                   data-min=""
                   data-max="500000"
                   data-active=isUnder500k ? 'true' : 'false'
-                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span Dưới 500k
                   if isUnder500k
@@ -146,7 +156,6 @@ block content
                   data-min="500000"
                   data-max="1000000"
                   data-active=is500kTo1M ? 'true' : 'false'
-                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span 500k - 1.000.000 ₫
                   if is500kTo1M
@@ -159,7 +168,6 @@ block content
                   data-min="1000000"
                   data-max=""
                   data-active=isOver1M ? 'true' : 'false'
-                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span Trên 1.000.000 ₫
                   if isOver1M
