@@ -73,6 +73,12 @@ header
           //- Live Search Dropdown
           #desktop-search-dropdown.absolute.left-0.w-80.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-slate-200.overflow-hidden.z-50.hidden(style="top:100%")
 
+        //- Wishlist Heart Action (Stitch Spec)
+        button#header-wishlist-btn.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" type="button" title="Danh sách yêu thích")
+          svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
+          span#header-wishlist-badge.absolute.top-0.right-0.w-4.h-4.bg-red-600.text-white.font-bold.rounded-full.items-center.justify-center.shadow-sm.hidden(style="font-size:9px") 0
+
         //- Shopping Cart Action
         a.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" href="/cart" title="Giỏ hàng")
           svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")

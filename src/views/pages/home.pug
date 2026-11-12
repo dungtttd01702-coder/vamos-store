@@ -113,6 +113,18 @@ block content
                   img.w-full.h-full.object-contain.mix-blend-multiply(src=prod.imageUrl alt=prod.name)
                   if prod.discountPercent > 0
                     span.badge-sale.absolute.top-2.left-2= `-${prod.discountPercent}%`
+                  button.btn-wishlist.absolute.top-2.right-2.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
+                    class="hover:text-red-600 hover:scale-110 active:scale-95"
+                    type="button"
+                    title="Thêm vào yêu thích"
+                    data-product-id=prod.id
+                    data-product-name=prod.name
+                    data-product-slug=prod.slug
+                    data-product-price=prod.salePrice
+                    data-product-img=prod.imageUrl
+                  )
+                    svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
                 div
                   span.text-xs.text-gray-400.font-semibold.uppercase= prod.brand
                   h3.text-sm.font-bold.text-vamos-dark.line-clamp-2.mt-1
@@ -185,6 +197,18 @@ block content
                   span.badge-sale= `-${prod.discountPercent}%`
                 if prod.isNew
                   span.badge-new MỚI
+              button.btn-wishlist.absolute.top-3.right-3.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
+                class="hover:text-red-600 hover:scale-110 active:scale-95"
+                type="button"
+                title="Thêm vào yêu thích"
+                data-product-id=prod.id
+                data-product-name=prod.name
+                data-product-slug=prod.slug
+                data-product-price=prod.salePrice
+                data-product-img=prod.imageUrl
+              )
+                svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                  path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
             //- Info
             .p-4.flex-grow.flex.flex-col.justify-between
               div

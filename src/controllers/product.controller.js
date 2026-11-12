@@ -6,12 +6,13 @@ class ProductController {
    */
   async index(req, res, next) {
     try {
-      const { cat, gender, minPrice, maxPrice, q, sort, page } = req.query;
+      const { cat, gender, size, minPrice, maxPrice, q, sort, page } = req.query;
 
       const [catalogData, categories] = await Promise.all([
         productService.getCatalog({
           categorySlug: cat,
           gender,
+          size,
           minPrice,
           maxPrice,
           search: q,
@@ -39,6 +40,7 @@ class ProductController {
         selectedFilters: {
           cat: cat || '',
           gender: gender || '',
+          size: size || '',
           minPrice: minPrice || '',
           maxPrice: maxPrice || '',
           q: q || '',

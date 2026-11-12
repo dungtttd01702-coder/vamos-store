@@ -110,32 +110,50 @@ block content
                   placeholder="Đến..."
                   value=selectedFilters.maxPrice
                 )
-              //- Gợi ý mức giá chọn nhanh
+              //- Gợi ý mức giá chọn nhanh (Stitch Spec - Click để tự động lọc)
+              - const isUnder500k = selectedFilters.maxPrice === '500000' && (!selectedFilters.minPrice || selectedFilters.minPrice === '0')
+              - const is500kTo1M = selectedFilters.minPrice === '500000' && selectedFilters.maxPrice === '1000000'
+              - const isOver1M = selectedFilters.minPrice === '1000000' && (!selectedFilters.maxPrice || selectedFilters.maxPrice === '')
               .flex.flex-col(class="space-y-1.5")
-                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
-                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                button.preset-price-btn.text-left.text-xs.rounded-lg.transition-all.flex.items-center.justify-between(
+                  class=isUnder500k ? 'px-2.5 py-2 bg-red-50 text-red-600 font-bold border border-red-200 shadow-xs' : 'px-2.5 py-2 text-slate-600 hover:bg-slate-50 hover:text-red-600 border border-transparent'
                   type="button"
                   data-min=""
                   data-max="500000"
+                  data-active=isUnder500k ? 'true' : 'false'
+                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span Dưới 500k
-                  span.text-slate-300 →
-                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
-                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                  if isUnder500k
+                    span.text-red-600.font-bold ✓
+                  else
+                    span.text-slate-300 →
+                button.preset-price-btn.text-left.text-xs.rounded-lg.transition-all.flex.items-center.justify-between(
+                  class=is500kTo1M ? 'px-2.5 py-2 bg-red-50 text-red-600 font-bold border border-red-200 shadow-xs' : 'px-2.5 py-2 text-slate-600 hover:bg-slate-50 hover:text-red-600 border border-transparent'
                   type="button"
                   data-min="500000"
                   data-max="1000000"
+                  data-active=is500kTo1M ? 'true' : 'false'
+                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span 500k - 1.000.000 ₫
-                  span.text-slate-300 →
-                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
-                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                  if is500kTo1M
+                    span.text-red-600.font-bold ✓
+                  else
+                    span.text-slate-300 →
+                button.preset-price-btn.text-left.text-xs.rounded-lg.transition-all.flex.items-center.justify-between(
+                  class=isOver1M ? 'px-2.5 py-2 bg-red-50 text-red-600 font-bold border border-red-200 shadow-xs' : 'px-2.5 py-2 text-slate-600 hover:bg-slate-50 hover:text-red-600 border border-transparent'
                   type="button"
                   data-min="1000000"
                   data-max=""
+                  data-active=isOver1M ? 'true' : 'false'
+                  onclick="window.selectPricePreset && window.selectPricePreset(this.dataset.min, this.dataset.max, this.dataset.active === 'true')"
                 )
                   span Trên 1.000.000 ₫
-                  span.text-slate-300 →
+                  if isOver1M
+                    span.text-red-600.font-bold ✓
+                  else
+                    span.text-slate-300 →
 
             - const hasPriceVal = (selectedFilters.minPrice && Number(selectedFilters.minPrice) > 0) || (selectedFilters.maxPrice && Number(selectedFilters.maxPrice) > 0)
             - const isFiltered = Boolean(selectedFilters.cat || selectedFilters.gender || hasPriceVal || selectedFilters.size)
@@ -221,12 +239,17 @@ block content
                     else
                       span.rounded-md.bg-slate-900.text-white.text-xs.font-bold.tracking-wider(class="px-2.5 py-1")
                         | NEW
-                    button.w-8.h-8.rounded-full.flex.items-center.justify-center.text-slate-400.transition-colors(
-                      class="hover:text-red-600 hover:bg-red-50"
+                    button.btn-wishlist.w-8.h-8.rounded-full.flex.items-center.justify-center.text-slate-400.transition-all(
+                      class="hover:text-red-600 hover:bg-red-50 hover:scale-110 active:scale-95"
                       type="button"
                       title="Thêm vào yêu thích"
+                      data-product-id=prod.id
+                      data-product-name=prod.name
+                      data-product-slug=prod.slug
+                      data-product-price=(prod.sale_price || prod.base_price)
+                      data-product-img=(prod.image_url || '/images/placeholder-shoe.png')
                     )
-                      svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      svg.w-4.h-4.transition-colors(fill="none" stroke="currentColor" viewBox="0 0 24 24")
                         path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
 
                   //- KHUNG ẢNH NỀN TRẮNG STUDIO (STITCH SPEC)

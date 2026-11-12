@@ -58,11 +58,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const toast = document.createElement('div');
-    toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold text-white transition-all duration-300 transform translate-y-4 opacity-0 ${
-      type === 'error' ? 'bg-red-600' : 'bg-vamos-dark border border-gray-700'
-    }`;
+    let bgClass = 'bg-slate-900 border border-slate-700 text-white';
+    let icon = '🎉';
+    if (type === 'error') {
+      bgClass = 'bg-red-600 text-white shadow-red-500/30';
+      icon = '⚠️';
+    } else if (type === 'heart') {
+      bgClass = 'bg-slate-900 text-white border border-red-500/50 shadow-lg shadow-red-500/20';
+      icon = '❤️';
+    } else if (type === 'info') {
+      bgClass = 'bg-slate-800 text-white border border-slate-700';
+      icon = 'ℹ️';
+    }
+
+    toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold transition-all duration-300 transform translate-y-4 opacity-0 ${bgClass}`;
     const iconSpan = document.createElement('span');
-    iconSpan.textContent = type === 'error' ? '⚠️' : '🎉';
+    iconSpan.className = 'text-sm';
+    iconSpan.textContent = icon;
     const textSpan = document.createElement('span');
     textSpan.textContent = message;
     toast.appendChild(iconSpan);
@@ -154,6 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 12. AUTOMATIC CATALOG INSTANT FILTERING (STITCH SPEC) ──
   initAutomaticCatalogFiltering();
+
+  // ── 13. WISHLIST ENGINE & GUEST AUTHENTICATION (STITCH SPEC) ──
+  initWishlistEngine();
 });
 
 // ══════════════════════════════════════════════════════════
@@ -539,7 +554,9 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
   // Perform Fetch to Live Search API with AbortController to prevent race condition
   async function performSearch(query) {
     if (abortController) {
-      abortController.abort();
+      try {
+        abortController.abort();
+      } catch (e) {}
     }
     abortController = new AbortController();
     const requestId = ++activeRequestId;
@@ -550,32 +567,36 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       try {
         res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
           signal: abortController.signal,
+          headers: { 'Accept': 'application/json' }
         });
       } catch (err1) {
-        if (err1.name === 'AbortError') return;
+        if (err1.name === 'AbortError' || err1.code === 20 || (err1.message && err1.message.toLowerCase().includes('abort'))) {
+          return;
+        }
       }
 
       if (!res || !res.ok) {
         // Fallback to /products/live-search alias
         res = await fetch(`/products/live-search?q=${encodeURIComponent(query)}`, {
           signal: abortController.signal,
+          headers: { 'Accept': 'application/json' }
         });
       }
 
       if (!res.ok) throw new Error('Search request failed with status ' + res.status);
       data = await res.json();
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === 'AbortError' || err.code === 20 || (err.message && err.message.toLowerCase().includes('abort'))) {
         return;
       }
       if (requestId !== activeRequestId) return;
-      console.error('Live search network error:', err);
+      console.warn('Live search network error:', err);
 
       dropdown.replaceChildren();
       const errBox = document.createElement('div');
       errBox.className = 'p-4 text-center text-xs text-gray-500';
       const errP = document.createElement('p');
-      errP.textContent = '⚠️ Không thể kết nối tìm kiếm. Vui lòng thử lại sau.';
+      errP.textContent = '⚠️ Không tìm thấy kết quả hoặc kết nối gián đoạn. Thử gõ lại từ khóa khác.';
       errBox.appendChild(errP);
       dropdown.appendChild(errBox);
       dropdown.classList.remove('hidden');
@@ -734,9 +755,6 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
     footerLink.className = 'block text-center py-2.5 px-4 text-xs font-bold text-vamos-red bg-red-50 hover:bg-red-100 transition-colors border-t border-red-100';
     footerLink.textContent = `Xem tất cả kết quả cho "${query}" ➔`;
     dropdown.appendChild(footerLink);
-
-    dropdown.classList.remove('hidden');
-  }
 
     dropdown.classList.remove('hidden');
   }
@@ -1060,12 +1078,15 @@ function initAutomaticCatalogFiltering() {
       const newContainer = newDoc.getElementById('catalog-pjax-container');
 
       if (newContainer && currentContainer) {
-        currentContainer.replaceWith(newContainer);
+        currentContainer.innerHTML = newContainer.innerHTML;
         if (pushState) {
           window.history.pushState(null, '', url);
         }
-        // Re-bind listeners on the new container
+        // Re-bind listeners on the new container and sync wishlist state
         initAutomaticCatalogFiltering();
+        if (typeof window.syncWishlistUI === 'function') {
+          window.syncWishlistUI();
+        }
       } else {
         window.location.href = url;
       }
@@ -1104,6 +1125,21 @@ function initAutomaticCatalogFiltering() {
     const newUrl = `/products?${params.toString()}`;
     loadCatalogUrl(newUrl, true);
   }
+
+  window.submitFiltersViaPjax = submitFiltersViaPjax;
+
+  window.selectPricePreset = function(min, max, isActive) {
+    const minInp = document.getElementById('minPriceInput');
+    const maxInp = document.getElementById('maxPriceInput');
+    if (isActive) {
+      if (minInp) minInp.value = '';
+      if (maxInp) maxInp.value = '';
+    } else {
+      if (minInp) minInp.value = min || '';
+      if (maxInp) maxInp.value = max || '';
+    }
+    submitFiltersViaPjax();
+  };
 
   // Radio button click handling (Gender, Size)
   const radios = (container || document).querySelectorAll('input[type="radio"]');
@@ -1192,4 +1228,229 @@ function initAutomaticCatalogFiltering() {
       }
     });
   }
+}
+
+// ══════════════════════════════════════════════════════════
+// SECTION F: WISHLIST ENGINE & GUEST AUTHENTICATION MODAL (STITCH SPEC)
+// ══════════════════════════════════════════════════════════
+function initWishlistEngine() {
+  const WISHLIST_STORAGE_KEY = 'vamos_wishlist_items_v1';
+
+  function getWishlist() {
+    try {
+      const raw = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveWishlist(items) {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {}
+  }
+
+  function updateBadge() {
+    const items = getWishlist();
+    const badge = document.getElementById('header-wishlist-badge');
+    if (!badge) return;
+    if (items.length > 0) {
+      badge.textContent = items.length > 99 ? '99+' : items.length;
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+    } else {
+      badge.classList.add('hidden');
+      badge.classList.remove('flex');
+    }
+  }
+
+  window.syncWishlistUI = function() {
+    const items = getWishlist();
+    const idSet = new Set(items.map(i => String(i.id)));
+
+    document.querySelectorAll('.btn-wishlist').forEach(btn => {
+      const pid = String(btn.dataset.productId || '');
+      const svg = btn.querySelector('svg');
+      if (!svg) return;
+
+      if (idSet.has(pid)) {
+        btn.classList.add('text-red-600');
+        btn.classList.remove('text-slate-400');
+        svg.setAttribute('fill', 'currentColor');
+        btn.setAttribute('title', 'Đã lưu trong yêu thích (Nhấn để bỏ lưu)');
+      } else {
+        btn.classList.remove('text-red-600');
+        btn.classList.add('text-slate-400');
+        svg.setAttribute('fill', 'none');
+        btn.setAttribute('title', 'Thêm vào yêu thích');
+      }
+    });
+
+    updateBadge();
+  };
+
+  // Open Guest Login Required Modal
+  window.openGuestWishlistModal = function(productData) {
+    const modal = document.getElementById('guest-wishlist-modal');
+    const card = document.getElementById('guest-wishlist-card');
+    const previewBox = document.getElementById('wishlist-modal-product-preview');
+    const previewImg = document.getElementById('wishlist-modal-product-img');
+    const previewName = document.getElementById('wishlist-modal-product-name');
+    const previewPrice = document.getElementById('wishlist-modal-product-price');
+    const loginBtn = document.getElementById('btn-wishlist-login');
+
+    if (!modal) return;
+
+    // Set returnUrl on Login button
+    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+    if (loginBtn) {
+      loginBtn.href = `/auth/login?returnUrl=${returnUrl}`;
+    }
+
+    // Populate product preview if available
+    if (productData && productData.name) {
+      if (previewImg) previewImg.src = productData.img || '/images/placeholder-shoe.png';
+      if (previewName) previewName.textContent = productData.name;
+      if (previewPrice) {
+        const p = Number(productData.price) || 0;
+        previewPrice.textContent = p.toLocaleString('vi-VN') + ' ₫';
+      }
+      if (previewBox) previewBox.classList.remove('hidden');
+    } else if (previewBox) {
+      previewBox.classList.add('hidden');
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+
+    requestAnimationFrame(() => {
+      if (card) {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      }
+    });
+  };
+
+  // Close Guest Login Required Modal
+  window.closeGuestWishlistModal = function() {
+    const modal = document.getElementById('guest-wishlist-modal');
+    const card = document.getElementById('guest-wishlist-card');
+    if (!modal) return;
+
+    if (card) {
+      card.classList.remove('scale-100', 'opacity-100');
+      card.classList.add('scale-95', 'opacity-0');
+    }
+
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }, 200);
+  };
+
+  // Toggle Wishlist for a Product
+  window.toggleWishlist = function(productData, buttonEl) {
+    const isAuth = Boolean(window.IS_AUTHENTICATED);
+
+    // If user is a Guest (khách vãng lai): Open Modal immediately!
+    if (!isAuth) {
+      window.openGuestWishlistModal(productData);
+      return;
+    }
+
+    // Authenticated user: Toggle item in wishlist
+    const pid = String(productData.id);
+    let items = getWishlist();
+    const existingIndex = items.findIndex(i => String(i.id) === pid);
+
+    if (existingIndex > -1) {
+      // Remove
+      items.splice(existingIndex, 1);
+      saveWishlist(items);
+      window.syncWishlistUI();
+      if (typeof window.showToast === 'function') {
+        window.showToast(`Đã xóa "${productData.name}" khỏi danh sách yêu thích.`, 'info');
+      }
+    } else {
+      // Add
+      items.push({
+        id: productData.id,
+        name: productData.name,
+        slug: productData.slug,
+        price: productData.price,
+        img: productData.img,
+        addedAt: Date.now()
+      });
+      saveWishlist(items);
+      window.syncWishlistUI();
+
+      // Kinetic bounce animation on button
+      if (buttonEl) {
+        buttonEl.classList.add('animate-bounce');
+        setTimeout(() => buttonEl.classList.remove('animate-bounce'), 600);
+      }
+
+      if (typeof window.showToast === 'function') {
+        window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!`, 'heart');
+      }
+    }
+  };
+
+  // Global Event Delegation for Wishlist Buttons
+  if (!window._wishlistEventsBound) {
+    window._wishlistEventsBound = true;
+
+    document.addEventListener('click', (e) => {
+      // Check if clicked button or inside button
+      const btn = e.target.closest('.btn-wishlist');
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const productData = {
+          id: btn.dataset.productId,
+          name: btn.dataset.productName,
+          slug: btn.dataset.productSlug,
+          price: btn.dataset.productPrice,
+          img: btn.dataset.productImg
+        };
+        window.toggleWishlist(productData, btn);
+        return;
+      }
+
+      // Header Wishlist Icon Click
+      const headerBtn = e.target.closest('#header-wishlist-btn');
+      if (headerBtn) {
+        e.preventDefault();
+        if (!window.IS_AUTHENTICATED) {
+          window.openGuestWishlistModal();
+        } else {
+          const count = getWishlist().length;
+          if (count === 0) {
+            window.showToast('Danh sách yêu thích của bạn đang trống. Hãy chọn ❤️ trên sản phẩm để lưu lại!', 'info');
+          } else {
+            window.showToast(`Bạn đang có ${count} sản phẩm yêu thích đã lưu.`, 'heart');
+          }
+        }
+        return;
+      }
+
+      // Modal Close Triggers
+      if (e.target.closest('#btn-close-wishlist-modal') || e.target.closest('#btn-wishlist-dismiss') || e.target.classList.contains('modal-backdrop')) {
+        window.closeGuestWishlistModal();
+      }
+    });
+
+    // ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.closeGuestWishlistModal();
+      }
+    });
+  }
+
+  // Initial sync
+  window.syncWishlistUI();
 }
