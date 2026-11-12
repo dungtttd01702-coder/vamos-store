@@ -3,6 +3,16 @@
 // Real-time Live Validation & Real-time Live Search Engine
 // ══════════════════════════════════════════════════════════
 
+// ── GLOBAL CURRENCY FORMATTER UTILITY ──
+function formatVND(amount) {
+  try {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(amount) || 0);
+  } catch (err) {
+    return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
+  }
+}
+window.formatVND = formatVND;
+
 document.addEventListener('DOMContentLoaded', () => {
   // ── 1. MOBILE NAVIGATION TOGGLE ──
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -141,6 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // ── 12. AUTOMATIC CATALOG INSTANT FILTERING (STITCH SPEC) ──
+  initAutomaticCatalogFiltering();
 });
 
 // ══════════════════════════════════════════════════════════
@@ -532,11 +545,18 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
     const requestId = ++activeRequestId;
 
     try {
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
+      let res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
         signal: abortController.signal,
       });
 
-      if (!res.ok) throw new Error('Search request failed');
+      if (!res.ok) {
+        // Fallback to /products/live-search alias
+        res = await fetch(`/products/live-search?q=${encodeURIComponent(query)}`, {
+          signal: abortController.signal,
+        });
+      }
+
+      if (!res.ok) throw new Error('Search request failed with status ' + res.status);
       const data = await res.json();
 
       // Guard: Discard stale response if input or requestId changed
@@ -551,6 +571,7 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
         return;
       }
       if (requestId !== activeRequestId) return;
+      console.error('Live search error:', err);
 
       dropdown.replaceChildren();
       const errBox = document.createElement('div');
@@ -975,6 +996,71 @@ function initGlobalRealtimeValidators() {
         const end = input.selectionEnd;
         input.value = input.value.toUpperCase();
         input.setSelectionRange(start, end);
+      }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// SECTION E: AUTOMATIC CATALOG INSTANT FILTERING (STITCH SPEC)
+// ══════════════════════════════════════════════════════════
+function initAutomaticCatalogFiltering() {
+  const filterForm = document.getElementById('filterForm');
+  if (!filterForm) return;
+
+  const minPriceInput = document.getElementById('minPriceInput');
+  const maxPriceInput = document.getElementById('maxPriceInput');
+  let debounceTimer = null;
+
+  const autoSubmit = () => {
+    if (minPriceInput && !minPriceInput.value.trim()) {
+      minPriceInput.disabled = true;
+    }
+    if (maxPriceInput && !maxPriceInput.value.trim()) {
+      maxPriceInput.disabled = true;
+    }
+    filterForm.submit();
+  };
+
+  // Price range auto-submit (typing debounced 600ms or on blur/change/Enter)
+  [minPriceInput, maxPriceInput].forEach(inp => {
+    if (!inp) return;
+    inp.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(autoSubmit, 600);
+    });
+    inp.addEventListener('change', () => {
+      clearTimeout(debounceTimer);
+      autoSubmit();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        clearTimeout(debounceTimer);
+        autoSubmit();
+      }
+    });
+  });
+
+  // Radio button click handling (Gender, Size)
+  const radios = filterForm.querySelectorAll('input[type="radio"]');
+  radios.forEach(radio => {
+    if (radio.checked && radio.value !== '') {
+      radio.dataset.waschecked = 'true';
+    }
+    radio.addEventListener('click', function() {
+      if (this.dataset.waschecked === 'true') {
+        this.checked = false;
+        this.dataset.waschecked = 'false';
+        if (this.name === 'gender') {
+          const allRadio = filterForm.querySelector('input[name="gender"][value=""]');
+          if (allRadio) allRadio.checked = true;
+        }
+        autoSubmit();
+      } else {
+        filterForm.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.dataset.waschecked = 'false');
+        this.dataset.waschecked = 'true';
+        autoSubmit();
       }
     });
   });

@@ -90,18 +90,20 @@ block content
                 .w-full.text-center.text-xs.font-bold.rounded-lg.border.border-dashed.border-slate-300.text-slate-400.bg-slate-50.cursor-not-allowed.line-through.opacity-60(class="py-1.5" title="Size 44 hiện tạm hết hàng")
                   | 44
 
-            //- Lọc Khoảng giá
+            //- Lọc Khoảng giá (Tự động submit khi nhập hoặc đổi giá)
             .py-4.border-b.border-slate-100
-              h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Khoảng giá (VNĐ)
-              .grid.grid-cols-2.gap-2.mb-3
-                input.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
+              .flex.items-center.justify-between.mb-3
+                h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider Khoảng giá (VNĐ)
+                span.text-2xs.text-slate-400 Tự động lọc
+              .grid.grid-cols-2.gap-2.mb-1
+                input#minPriceInput.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
                   class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="minPrice"
                   placeholder="Từ..."
                   value=selectedFilters.minPrice
                 )
-                input.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
+                input#maxPriceInput.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
                   class="focus:outline-none focus:border-red-600"
                   type="number"
                   name="maxPrice"
@@ -109,13 +111,14 @@ block content
                   value=selectedFilters.maxPrice
                 )
 
-            //- Nút Áp Dụng Lọc
-            .pt-4
-              button.w-full.px-4.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-md.transition-all(
-                class="py-2.5 hover:bg-red-700 shadow-red-500/20"
-                type="submit"
-              )
-                | ÁP DỤNG BỘ LỌC
+            - const hasPriceVal = (selectedFilters.minPrice && Number(selectedFilters.minPrice) > 0) || (selectedFilters.maxPrice && Number(selectedFilters.maxPrice) > 0)
+            - const isFiltered = Boolean(selectedFilters.cat || selectedFilters.gender || hasPriceVal || selectedFilters.size)
+            if isFiltered
+              .pt-3
+                a.w-full.py-2.px-4.rounded-lg.border.border-slate-200.text-slate-600.text-xs.font-semibold.flex.items-center.justify-center.transition-colors(class="gap-1.5 hover:bg-slate-50 hover:text-slate-900" href="/products")
+                  svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
+                  | Xóa tất cả bộ lọc
 
       //- CỘT PHẢI: HEADER DANH MỤC + ACTIVE FILTER TAGS + GRID SẢN PHẨM
       main.flex-1
@@ -160,7 +163,7 @@ block content
                 a.text-slate-400(class="hover:text-red-600" href=`/products?gender=${selectedFilters.gender || ''}&size=${selectedFilters.size || ''}&minPrice=${selectedFilters.minPrice || ''}&maxPrice=${selectedFilters.maxPrice || ''}`) ×
             if selectedFilters.gender
               span.inline-flex.items-center.px-3.py-1.rounded-full.text-xs.font-bold.bg-slate-100.text-slate-700(class="gap-1.5")
-                = `Giới tính: ${selectedFilters.gender}`
+                = `Giới tính: ${selectedFilters.gender === 'MEN' ? 'Nam' : (selectedFilters.gender === 'WOMEN' ? 'Nữ' : 'Unisex')}`
                 a.text-slate-400(class="hover:text-red-600" href=`/products?cat=${selectedFilters.cat || ''}&size=${selectedFilters.size || ''}&minPrice=${selectedFilters.minPrice || ''}&maxPrice=${selectedFilters.maxPrice || ''}`) ×
             if selectedFilters.size
               span.inline-flex.items-center.px-3.py-1.rounded-full.text-xs.font-bold.bg-slate-100.text-slate-700(class="gap-1.5")
@@ -172,7 +175,7 @@ block content
                 a.text-slate-400(class="hover:text-red-600" href=`/products?cat=${selectedFilters.cat || ''}&gender=${selectedFilters.gender || ''}&size=${selectedFilters.size || ''}`) ×
             a.text-xs.font-semibold.text-red-600.ml-2(class="hover:underline" href="/products") Xóa tất cả
 
-        //- PRODUCT GRID (Grid 3 Cột Hiện Đại - Tôn Vinh Sản Phẩm)
+        //- PRODUCT GRID (Grid 3 Cột Hiện Đại Chuẩn Stitch)
         if products && products.length > 0
           .grid.grid-cols-1.gap-6.mt-2(class="sm:grid-cols-2 xl:grid-cols-3")
             each prod in products
@@ -189,7 +192,8 @@ block content
                       span.rounded-md.bg-red-600.text-white.text-xs.font-black.tracking-wider(class="px-2.5 py-1")
                         = `-${discountPct}%`
                     else
-                      span
+                      span.rounded-md.bg-slate-900.text-white.text-xs.font-bold.tracking-wider(class="px-2.5 py-1")
+                        | NEW
                     button.w-8.h-8.rounded-full.flex.items-center.justify-center.text-slate-400.transition-colors(
                       class="hover:text-red-600 hover:bg-red-50"
                       type="button"
@@ -198,8 +202,8 @@ block content
                       svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
                         path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
 
-                  //- KHUNG ẢNH NỀN TRẮNG TINH KHIẾT (KHỬ TOÀN BỘ BACKGROUND XẤU)
-                  a.block.w-full.aspect-square.bg-slate-50.rounded-lg.p-4.overflow-hidden.flex.items-center.justify-center(href=`/products/${prod.slug}`)
+                  //- KHUNG ẢNH NỀN TRẮNG STUDIO (STITCH SPEC)
+                  a.relative.block.w-full.aspect-square.bg-slate-50.rounded-lg.p-4.overflow-hidden.flex.items-center.justify-center(href=`/products/${prod.slug}`)
                     if prod.image_url
                       img.w-full.h-full.object-contain.mix-blend-multiply.transition-transform.duration-500(
                         class="group-hover:scale-105"
@@ -210,9 +214,19 @@ block content
                     else
                       .text-slate-400.text-xs Chưa có ảnh
 
+                    //- Quick Size Strip (Hiển thị khi hover như Stitch)
+                    .absolute.bottom-2.left-2.right-2.bg-white(class="bg-opacity-95 backdrop-blur py-1.5 px-2 rounded-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-1.5 shadow-md z-10")
+                      span.text-2xs.font-bold.text-slate-400.mr-1 Size:
+                      each sz in ['39', '40', '41', '42']
+                        span.text-xs.font-bold.px-1.text-slate-700= sz
+
                   //- THÔNG TIN SẢN PHẨM
                   .mt-4
-                    .text-xxs.font-bold.text-slate-400.uppercase.tracking-wider= prod.brand_name || 'VAMOS ORIGINALS'
+                    .flex.items-center.justify-between
+                      .text-xxs.font-bold.text-slate-400.uppercase.tracking-wider= prod.brand_name || 'VAMOS ORIGINALS'
+                      if prod.total_stock !== undefined && prod.total_stock <= 5 && prod.total_stock > 0
+                        span.text-2xs.font-bold.text-red-600= `🔥 Còn ${prod.total_stock} đôi`
+
                     a.block.text-sm.font-bold.text-slate-900.transition-colors.mt-1.line-clamp-1(
                       class="hover:text-red-600"
                       href=`/products/${prod.slug}`
@@ -230,17 +244,14 @@ block content
                         span.text-base.font-extrabold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
 
-                    if prod.total_stock !== undefined && prod.total_stock <= 5 && prod.total_stock > 0
-                      .text-xxs.font-bold.text-amber-600.mt-1= `🔥 Chỉ còn ${prod.total_stock} đôi trong kho!`
-
                 //- NÚT HÀNH ĐỘNG
                 .mt-4.pt-3.border-t.border-slate-100
-                  a.w-full.py-2.px-4.rounded-lg.border.border-slate-300.text-xs.font-bold.text-slate-700.flex.items-center.justify-center.transition-colors(
-                    class="gap-1.5 hover:border-red-600 hover:bg-red-50 hover:text-red-600"
+                  a.w-full.px-4.rounded-lg.bg-slate-100.text-xs.font-bold.text-slate-800.flex.items-center.justify-center.transition-all.duration-200(
+                    class="py-2.5 gap-1.5 hover:bg-red-600 hover:text-white group-hover:bg-red-600 group-hover:text-white shadow-sm"
                     href=`/products/${prod.slug}`
                   )
-                    | XEM CHI TIẾT
-                    svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                    span XEM CHI TIẾT
+                    svg(class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24")
                       path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7")
 
           //- Pagination

@@ -2,6 +2,7 @@ const sql = require('mssql');
 const config = require('../src/config/app.config');
 
 const productsData = [
+  // ── 1. SNEAKER NAM (6 SẢN PHẨM) ──
   {
     category_slug: 'sneaker-nam',
     brand_slug: 'vamos-originals',
@@ -48,6 +49,90 @@ const productsData = [
     ]
   },
   {
+    category_slug: 'sneaker-nam',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-05',
+    name: 'Giày Sneaker Nam Vamos Chunky Horizon V2',
+    slug: 'giay-sneaker-nam-vamos-chunky-horizon-v2',
+    description: 'Thiết kế đế Chunky hầm hố chuẩn phong cách Streetwear đương đại. Đệm đế nâng chiều cao 5cm êm ái, bám sàn cực tốt cho chàng trai tự tin.',
+    gender_target: 'MEN',
+    base_price: 920000,
+    sale_price: 780000,
+    images: [
+      'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Đen', stock: 16, sku: 'VM-SNK-05-39-BLK' },
+      { size: '40', color: 'Đen', stock: 22, sku: 'VM-SNK-05-40-BLK' },
+      { size: '41', color: 'Đen', stock: 20, sku: 'VM-SNK-05-41-BLK' },
+      { size: '42', color: 'Đen', stock: 14, sku: 'VM-SNK-05-42-BLK' },
+      { size: '43', color: 'Đen', stock: 10, sku: 'VM-SNK-05-43-BLK' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nam',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-06',
+    name: 'Giày Sneaker Da Nam Vamos Minimalist White',
+    slug: 'giay-sneaker-da-nam-vamos-minimalist-white',
+    description: 'Da PU mềm thuần trắng tinh giản, đế cao su khâu chỉ viền chắc chắn, thanh lịch phù hợp môi trường công sở lẫn dạo phố cuối tuần.',
+    gender_target: 'MEN',
+    base_price: 890000,
+    sale_price: 720000,
+    images: [
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Trắng', stock: 18, sku: 'VM-SNK-06-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 25, sku: 'VM-SNK-06-40-WHT' },
+      { size: '41', color: 'Trắng', stock: 20, sku: 'VM-SNK-06-41-WHT' },
+      { size: '42', color: 'Trắng', stock: 15, sku: 'VM-SNK-06-42-WHT' },
+      { size: '43', color: 'Trắng', stock: 12, sku: 'VM-SNK-06-43-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nam',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-07',
+    name: 'Giày Cổ Cao Nam Vamos Street High Force',
+    slug: 'giay-co-cao-nam-vamos-street-high-force',
+    description: 'Thiết kế High-Top bảo vệ cổ chân, phối màu tương phản cá tính đậm chất hiphop đường phố, đệm lót memory foam đàn hồi vượt trội.',
+    gender_target: 'MEN',
+    base_price: 1150000,
+    sale_price: 990000,
+    images: [
+      'https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '40', color: 'Đen', stock: 14, sku: 'VM-SNK-07-40-BLK' },
+      { size: '41', color: 'Đen', stock: 18, sku: 'VM-SNK-07-41-BLK' },
+      { size: '42', color: 'Đen', stock: 12, sku: 'VM-SNK-07-42-BLK' },
+      { size: '43', color: 'Đen', stock: 8, sku: 'VM-SNK-07-43-BLK' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nam',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SNK-08',
+    name: 'Giày Lười Sneaker Nam Vamos Slip-On Knit',
+    slug: 'giay-luoi-sneaker-nam-vamos-slip-on-knit',
+    description: 'Vải dệt co giãn 4 chiều thông thoáng tuyệt đối, không cần buộc dây, tiện lợi mang vào tháo ra trong 1 giây mà vẫn ôm khít mu bàn chân.',
+    gender_target: 'MEN',
+    base_price: 650000,
+    sale_price: 499000,
+    images: [
+      'https://images.unsplash.com/photo-1582588678413-dbf45f4823e9?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Xám', stock: 15, sku: 'VM-SNK-08-39-GRY' },
+      { size: '40', color: 'Xám', stock: 20, sku: 'VM-SNK-08-40-GRY' },
+      { size: '41', color: 'Xám', stock: 22, sku: 'VM-SNK-08-41-GRY' },
+      { size: '42', color: 'Xám', stock: 16, sku: 'VM-SNK-08-42-GRY' },
+    ]
+  },
+
+  // ── 2. SNEAKER NỮ (6 SẢN PHẨM) ──
+  {
     category_slug: 'sneaker-nu',
     brand_slug: 'vamos-originals',
     product_code: 'VM-SNK-03',
@@ -59,7 +144,6 @@ const productsData = [
     sale_price: 650000,
     images: [
       'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '38', color: 'Trắng', stock: 15, sku: 'VM-SNK-03-38-WHT' },
@@ -83,8 +167,87 @@ const productsData = [
     variants: [
       { size: '38', color: 'Đen', stock: 10, sku: 'VM-SNK-04-38-BLK' },
       { size: '39', color: 'Đen', stock: 15, sku: 'VM-SNK-04-39-BLK' },
+      { size: '40', color: 'Đen', stock: 18, sku: 'VM-SNK-04-40-BLK' },
     ]
   },
+  {
+    category_slug: 'sneaker-nu',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-09',
+    name: 'Giày Sneaker Nữ Vamos Rose Blossom Chunky',
+    slug: 'giay-sneaker-nu-vamos-rose-blossom-chunky',
+    description: 'Tông màu hồng pastel kết hợp trắng tinh tế, đường cong uốn lượn thời thượng, đế tăng chiều cao nhẹ nhàng tôn dáng đôi chân thon thả.',
+    gender_target: 'WOMEN',
+    base_price: 860000,
+    sale_price: 690000,
+    images: [
+      'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Trắng', stock: 18, sku: 'VM-SNK-09-38-WHT' },
+      { size: '39', color: 'Trắng', stock: 24, sku: 'VM-SNK-09-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 15, sku: 'VM-SNK-09-40-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nu',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-10',
+    name: 'Giày Sneaker Nữ Đế Cao Vamos Platform Soft',
+    slug: 'giay-sneaker-nu-de-cao-vamos-platform-soft',
+    description: 'Đế platform đúc nguyên khối siêu nhẹ, chất liệu da vi sợi kháng nước, dễ dàng lau chùi vệ sinh mỗi ngày.',
+    gender_target: 'WOMEN',
+    base_price: 790000,
+    sale_price: 620000,
+    images: [
+      'https://images.unsplash.com/photo-1597045566677-8cf032ed6634?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Trắng', stock: 14, sku: 'VM-SNK-10-38-WHT' },
+      { size: '39', color: 'Trắng', stock: 20, sku: 'VM-SNK-10-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 16, sku: 'VM-SNK-10-40-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nu',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SNK-11',
+    name: 'Giày Thể Thao Nữ Vamos Light Runner Air',
+    slug: 'giay-the-thao-nu-vamos-light-runner-air',
+    description: 'Trọng lượng siêu nhẹ chỉ 240g, đệm Air trợ lực gót chân, mang lại cảm giác êm như bước trên mây cho nàng năng động suốt cả ngày dài.',
+    gender_target: 'WOMEN',
+    base_price: 750000,
+    sale_price: 580000,
+    images: [
+      'https://images.unsplash.com/photo-1588117260148-b47818741c74?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Trắng', stock: 12, sku: 'VM-SNK-11-38-WHT' },
+      { size: '39', color: 'Trắng', stock: 18, sku: 'VM-SNK-11-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 14, sku: 'VM-SNK-11-40-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sneaker-nu',
+    brand_slug: 'vamos-originals',
+    product_code: 'VM-SNK-12',
+    name: 'Giày Sneaker Canvas Nữ Vamos Urban Vintage',
+    slug: 'giay-sneaker-canvas-nu-vamos-urban-vintage',
+    description: 'Vải canvas dệt sợi mộc phong cách vintage Nhật Bản, mũi giày bọc cao su chống va đập, phù hợp học sinh sinh viên phối đồ cực xinh.',
+    gender_target: 'WOMEN',
+    base_price: 590000,
+    sale_price: 450000,
+    images: [
+      'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Đen', stock: 20, sku: 'VM-SNK-12-38-BLK' },
+      { size: '39', color: 'Đen', stock: 25, sku: 'VM-SNK-12-39-BLK' },
+      { size: '40', color: 'Đen', stock: 16, sku: 'VM-SNK-12-40-BLK' },
+    ]
+  },
+
+  // ── 3. GIÀY THỂ THAO (6 SẢN PHẨM) ──
   {
     category_slug: 'giay-the-thao',
     brand_slug: 'vamos-sport',
@@ -117,16 +280,99 @@ const productsData = [
     description: 'Đế bằng bản rộng vững chắc hỗ trợ squat và deadlift tối đa, cổ giày ôm sát bảo vệ mắt cá chân chống lật chấn thương khi tập luyện nặng.',
     gender_target: 'MEN',
     base_price: 890000,
-    sale_price: null,
+    sale_price: 749000,
     images: [
-      'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '40', color: 'Đen', stock: 15, sku: 'VM-SPT-02-40-BLK' },
       { size: '41', color: 'Đen', stock: 18, sku: 'VM-SPT-02-41-BLK' },
       { size: '42', color: 'Đen', stock: 12, sku: 'VM-SPT-02-42-BLK' },
+      { size: '43', color: 'Đen', stock: 10, sku: 'VM-SPT-02-43-BLK' },
     ]
   },
+  {
+    category_slug: 'giay-the-thao',
+    brand_slug: 'vamos-sport',
+    product_code: 'VM-SPT-03',
+    name: 'Giày Bóng Rổ Vamos Court Dominator Elite',
+    slug: 'giay-bong-ro-vamos-court-dominator-elite',
+    description: 'Đệm khí nén kép Zoom Air hỗ trợ bật nhảy tối đa, gai đế hoa văn xương cá bám sân gỗ và sân bê tông cực nhạy chống trơn trượt.',
+    gender_target: 'MEN',
+    base_price: 1290000,
+    sale_price: 1099000,
+    images: [
+      'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '40', color: 'Xanh Navy', stock: 14, sku: 'VM-SPT-03-40-NVY' },
+      { size: '41', color: 'Xanh Navy', stock: 20, sku: 'VM-SPT-03-41-NVY' },
+      { size: '42', color: 'Xanh Navy', stock: 16, sku: 'VM-SPT-03-42-NVY' },
+      { size: '43', color: 'Xanh Navy', stock: 10, sku: 'VM-SPT-03-43-NVY' },
+    ]
+  },
+  {
+    category_slug: 'giay-the-thao',
+    brand_slug: 'vamos-sport',
+    product_code: 'VM-SPT-04',
+    name: 'Giày Cầu Lông & Tennis Vamos Control Grip',
+    slug: 'giay-cau-long-tennis-vamos-control-grip',
+    description: 'Thân giày gia cố sợi TPU chống mài mòn mũi chân khi trượt cứu bóng. Đế cao su sống không để lại vệt sàn nhà thi đấu chuyên nghiệp.',
+    gender_target: 'UNISEX',
+    base_price: 880000,
+    sale_price: 720000,
+    images: [
+      'https://images.unsplash.com/photo-1605348532760-6753d2c43329?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Trắng', stock: 15, sku: 'VM-SPT-04-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 22, sku: 'VM-SPT-04-40-WHT' },
+      { size: '41', color: 'Trắng', stock: 18, sku: 'VM-SPT-04-41-WHT' },
+      { size: '42', color: 'Trắng', stock: 14, sku: 'VM-SPT-04-42-WHT' },
+    ]
+  },
+  {
+    category_slug: 'giay-the-thao',
+    brand_slug: 'vamos-sport',
+    product_code: 'VM-SPT-05',
+    name: 'Giày Đi Bộ Trợ Lực Vamos Walk Ease Cushion',
+    slug: 'giay-di-bo-tro-luc-vamos-walk-ease-cushion',
+    description: 'Thiết kế form công thái học nâng đỡ hõm chân, giảm áp lực lên khớp gối khi đi bộ đường dài hoặc đứng làm việc cả ngày.',
+    gender_target: 'UNISEX',
+    base_price: 690000,
+    sale_price: 550000,
+    images: [
+      'https://images.unsplash.com/photo-1512374382149-233c42b6a83b?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Đen', stock: 18, sku: 'VM-SPT-05-39-BLK' },
+      { size: '40', color: 'Đen', stock: 25, sku: 'VM-SPT-05-40-BLK' },
+      { size: '41', color: 'Đen', stock: 20, sku: 'VM-SPT-05-41-BLK' },
+      { size: '42', color: 'Đen', stock: 16, sku: 'VM-SPT-05-42-BLK' },
+    ]
+  },
+  {
+    category_slug: 'giay-the-thao',
+    brand_slug: 'vamos-sport',
+    product_code: 'VM-SPT-06',
+    name: 'Giày Marathon Chuyên Nghiệp Vamos Pace Maker',
+    slug: 'giay-marathon-chuyen-nghiep-vamos-pace-maker',
+    description: 'Tấm đệm carbon trợ lực đàn hồi đẩy bàn chân về phía trước, vải dệt siêu mỏng thoát nhiệt nhanh trong suốt cự ly 42km.',
+    gender_target: 'UNISEX',
+    base_price: 1350000,
+    sale_price: 1150000,
+    images: [
+      'https://images.unsplash.com/photo-1575537302964-96cd47c06b1b?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '40', color: 'Xanh Navy', stock: 15, sku: 'VM-SPT-06-40-NVY' },
+      { size: '41', color: 'Xanh Navy', stock: 22, sku: 'VM-SPT-06-41-NVY' },
+      { size: '42', color: 'Xanh Navy', stock: 18, sku: 'VM-SPT-06-42-NVY' },
+      { size: '43', color: 'Xanh Navy', stock: 12, sku: 'VM-SPT-06-43-NVY' },
+    ]
+  },
+
+  // ── 4. SANDAL & DÉP (6 SẢN PHẨM) ──
   {
     category_slug: 'sandal-dep',
     brand_slug: 'vamos-active',
@@ -166,6 +412,86 @@ const productsData = [
       { size: '40', color: 'Đen', stock: 35, sku: 'VM-SDL-02-40-BLK' },
       { size: '41', color: 'Đen', stock: 40, sku: 'VM-SDL-02-41-BLK' },
       { size: '40', color: 'Trắng', stock: 25, sku: 'VM-SDL-02-40-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sandal-dep',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SDL-03',
+    name: 'Sandal Nam Dã Ngoại Vamos Trail Explorer',
+    slug: 'sandal-nam-da-ngoai-vamos-trail-explorer',
+    description: 'Khóa bấm tiện lợi điều chỉnh 3 vị trí, đế răng cưa sâu chống trượt tuyệt đối khi đi phượt, suối thác hoặc địa hình đá ghồ ghề.',
+    gender_target: 'MEN',
+    base_price: 480000,
+    sale_price: 380000,
+    images: [
+      'https://images.unsplash.com/photo-1562183241-b937e95585b6?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Đen', stock: 20, sku: 'VM-SDL-03-39-BLK' },
+      { size: '40', color: 'Đen', stock: 28, sku: 'VM-SDL-03-40-BLK' },
+      { size: '41', color: 'Đen', stock: 25, sku: 'VM-SDL-03-41-BLK' },
+      { size: '42', color: 'Đen', stock: 18, sku: 'VM-SDL-03-42-BLK' },
+    ]
+  },
+  {
+    category_slug: 'sandal-dep',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SDL-04',
+    name: 'Sandal Quai Hậu Học Sinh Vamos Basic All-Day',
+    slug: 'sandal-quai-hau-hoc-sinh-vamos-basic-all-day',
+    description: 'Quai vải dệt mịn không gây xước da chân, đế xốp nén êm ái bền bỉ suốt năm học, phù hợp cả đi học lẫn dạo phố cuối tuần.',
+    gender_target: 'UNISEX',
+    base_price: 350000,
+    sale_price: 279000,
+    images: [
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Xanh Navy', stock: 25, sku: 'VM-SDL-04-38-NVY' },
+      { size: '39', color: 'Xanh Navy', stock: 30, sku: 'VM-SDL-04-39-NVY' },
+      { size: '40', color: 'Xanh Navy', stock: 35, sku: 'VM-SDL-04-40-NVY' },
+      { size: '41', color: 'Xanh Navy', stock: 20, sku: 'VM-SDL-04-41-NVY' },
+    ]
+  },
+  {
+    category_slug: 'sandal-dep',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SDL-05',
+    name: 'Dép Bánh Mì Siêu Êm Vamos Cloud Eva Clog',
+    slug: 'dep-banh-mi-sieu-em-vamos-cloud-eva-clog',
+    description: 'Chất liệu EVA đúc nguyên khối chống mùi, các lỗ thông hơi thoáng khí phía trên, quai xoay 2 chiều đa năng đi êm chân như dạo trên cát.',
+    gender_target: 'UNISEX',
+    base_price: 290000,
+    sale_price: 219000,
+    images: [
+      'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '38', color: 'Trắng', stock: 22, sku: 'VM-SDL-05-38-WHT' },
+      { size: '39', color: 'Trắng', stock: 30, sku: 'VM-SDL-05-39-WHT' },
+      { size: '40', color: 'Trắng', stock: 28, sku: 'VM-SDL-05-40-WHT' },
+      { size: '41', color: 'Trắng', stock: 20, sku: 'VM-SDL-05-41-WHT' },
+    ]
+  },
+  {
+    category_slug: 'sandal-dep',
+    brand_slug: 'vamos-active',
+    product_code: 'VM-SDL-06',
+    name: 'Dép Kẹp Xỏ Ngón Thể Thao Vamos Beach Flow',
+    slug: 'dep-kep-xo-ngon-the-thao-vamos-beach-flow',
+    description: 'Quai kẹp cao su dẻo mềm không cấn ngón chân, mặt đế có rãnh massage bàn chân, kháng nước 100% phù hợp đi biển hay đi mưa.',
+    gender_target: 'UNISEX',
+    base_price: 199000,
+    sale_price: 149000,
+    images: [
+      'https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=800&q=80',
+    ],
+    variants: [
+      { size: '39', color: 'Đen', stock: 35, sku: 'VM-SDL-06-39-BLK' },
+      { size: '40', color: 'Đen', stock: 40, sku: 'VM-SDL-06-40-BLK' },
+      { size: '41', color: 'Đen', stock: 30, sku: 'VM-SDL-06-41-BLK' },
+      { size: '42', color: 'Đen', stock: 25, sku: 'VM-SDL-06-42-BLK' },
     ]
   }
 ];
@@ -218,6 +544,28 @@ async function seed() {
         console.log(`Inserted product: ${prod.name} (ID: ${productId})`);
       } else {
         productId = checkRes.recordset[0].id;
+        // Update product metadata & sale price if needed
+        await pool.request()
+          .input('id', productId)
+          .input('desc', prod.description)
+          .input('salePrice', prod.sale_price)
+          .query(`
+            UPDATE products 
+            SET description = @desc, sale_price = @salePrice, updated_at = GETDATE()
+            WHERE id = @id
+          `);
+      }
+
+      // Special fix: update primary image for VM-SPT-02 to replace dumbbell image
+      if (prod.product_code === 'VM-SPT-02') {
+        await pool.request()
+          .input('prodId', productId)
+          .input('imgUrl', prod.images[0])
+          .query(`
+            UPDATE product_images 
+            SET image_url = @imgUrl 
+            WHERE product_id = @prodId AND is_primary = 1
+          `);
       }
 
       // Insert images
@@ -280,4 +628,3 @@ if (require.main === module) {
 }
 
 module.exports = { seedProducts: seed };
-
