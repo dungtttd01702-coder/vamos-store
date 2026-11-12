@@ -93,7 +93,7 @@ BEGIN
     CREATE TABLE banners (
         id INT IDENTITY(1,1) PRIMARY KEY,
         title NVARCHAR(150) NOT NULL,
-        image_url NVARCHAR(255) NOT NULL,
+        image_url NVARCHAR(1000) NOT NULL,
         link_url NVARCHAR(255) NULL,
         display_order INT NOT NULL DEFAULT 0,
         is_active BIT NOT NULL DEFAULT 1,
@@ -170,7 +170,7 @@ BEGIN
     CREATE TABLE product_images (
         id INT IDENTITY(1,1) PRIMARY KEY,
         product_id INT NOT NULL,
-        image_url NVARCHAR(255) NOT NULL,
+        image_url NVARCHAR(1000) NOT NULL,
         is_primary BIT NOT NULL DEFAULT 0,
         display_order INT NOT NULL DEFAULT 0,
         CONSTRAINT fk_product_images_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE

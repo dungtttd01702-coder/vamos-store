@@ -1,138 +1,149 @@
 //- ══════════════════════════════════════════════════
-//- VAMOS STORE – Header & Navigation (Stitch Design)
-//- Design: Modern Kinetic | 60-30-10 Color Rule
+//- VAMOS STORE – Header & Navigation (Stitch Kinetic Design)
+//- 60-30-10 Color Rule | Space Grotesk | Sticky Blur
 //- ══════════════════════════════════════════════════
 header
-  //- ── TOP ANNOUNCEMENT BAR ──
-  .bg-vamos-dark.text-white.overflow-hidden(style="height:38px")
-    .vamos-container.flex.items-center.justify-between.h-full
-      //- Ticker / Marquee
-      .ticker-wrap.flex-1
-        .ticker-content.text-xs.font-medium(style="display:inline-block;animation:marquee 30s linear infinite")
-          span 🔥&nbsp;FLASH SALE TOÀN HỆ THỐNG&nbsp;&nbsp;•&nbsp;&nbsp;
-          span MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500K&nbsp;&nbsp;•&nbsp;&nbsp;
-          span BẢO HÀNH CHÍNH HÃNG TRỌN ĐỜI&nbsp;&nbsp;•&nbsp;&nbsp;
-          span 🔥&nbsp;FLASH SALE TOÀN HỆ THỐNG&nbsp;&nbsp;•&nbsp;&nbsp;
-          span MIỄN PHÍ VẬN CHUYỂN ĐƠN TỪ 500K&nbsp;&nbsp;•&nbsp;&nbsp;
-          span BẢO HÀNH CHÍNH HÃNG TRỌN ĐỜI&nbsp;&nbsp;•&nbsp;
-      //- Right utility
-      .hidden.items-center.gap-4.text-xs.text-gray-300.flex-shrink-0(class="md:flex")
-        span Hotline:&nbsp;
-          a.text-white.font-semibold(href="tel:19002126") 1900 2126
-        span |
-        span support@vamos.vn
+  //- ── 1. TOP ANNOUNCEMENT BAR (Stitch Spec) ──
+  .bg-neutral-900.text-white.border-b.border-neutral-800.text-xs.font-medium(style="height:38px")
+    .max-w-7xl.mx-auto.px-4.h-full.flex.items-center.justify-between(class="sm:px-6 lg:px-8")
+      //- Left: Hotline & Tra cứu
+      .hidden.items-center.gap-4.text-neutral-400(class="lg:flex")
+        a.flex.items-center.gap-1.transition-colors(class="hover:text-white" href="tel:19002126")
+          svg.text-red-500(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z")
+          span Hotline: 1900 2126
+        span.text-neutral-600 |
+        a.transition-colors(class="hover:text-white" href="/account/orders") Tra cứu đơn hàng
 
-  //- ── MAIN HEADER ──
-  nav.bg-white.border-b.border-vamos-border.sticky.top-0.z-50(style="backdrop-filter:blur(12px)")
-    .vamos-container.flex.items-center.justify-between.py-3.gap-4
+      //- Center: Value Propositions
+      .mx-auto.flex.items-center.justify-center.gap-2.text-xs.tracking-wide
+        span.text-amber-400.font-bold 🔥 FLASH SALE TOÀN HỆ THỐNG
+        span.text-neutral-500.hidden(class="sm:inline") •
+        span.hidden(class="sm:inline") MIỄN PHÍ VẬN CHUYỂN TỪ 500K
+        span.text-neutral-500 •
+        span.text-neutral-300 BẢO HÀNH TRỌN ĐỜI
 
-      //- LOGO
-      a.flex.items-center.gap-1.flex-shrink-0(href="/")
-        span.text-2xl.font-black.tracking-widest(style="font-family:'Space Grotesk',sans-serif;color:#E11B22") VAMOS
-        span.text-xs.font-black.tracking-widest.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") STORE
+      //- Right: Language & Support
+      .hidden.items-center.gap-3.text-neutral-400(class="lg:flex")
+        span.text-white.font-semibold VN
+        span.text-neutral-600 /
+        span.cursor-pointer(class="hover:text-white") EN
+        span.text-neutral-600 |
+        a.transition-colors(class="hover:text-white" href="mailto:support@vamos.vn") support@vamos.vn
 
-      //- DESKTOP NAV (hidden on mobile)
-      .hidden.items-center.gap-7.text-sm.font-semibold.text-vamos-dark(class="md:flex")
-        a.transition-colors.duration-200.border-b-2.border-transparent(class="pb-0.5 hover:text-vamos-red hover:border-vamos-red" href="/products?cat=sneaker-nam") Sneaker Nam
-        a.transition-colors.duration-200.border-b-2.border-transparent(class="pb-0.5 hover:text-vamos-red hover:border-vamos-red" href="/products?cat=sneaker-nu") Sneaker Nữ
-        a.transition-colors.duration-200.border-b-2.border-transparent(class="pb-0.5 hover:text-vamos-red hover:border-vamos-red" href="/products?cat=giay-the-thao") Giày Thể Thao
-        a.transition-colors.duration-200.border-b-2.border-transparent(class="pb-0.5 hover:text-vamos-red hover:border-vamos-red" href="/products?cat=sandal-dep") Sandal & Dép
-        a.text-vamos-red.font-bold.border-b-2.border-vamos-red(class="pb-0.5" href="/promotions") 🔥 Khuyến Mãi
+  //- ── 2. MAIN STICKY NAVBAR ──
+  nav.sticky.top-0.w-full.z-50.bg-white.border-b.border-slate-200.transition-all.duration-200(style="background-color:rgba(255,255,255,0.95);backdrop-filter:blur(12px)")
+    .max-w-7xl.mx-auto.px-4.h-20.flex.items-center.justify-between.gap-4(class="sm:px-6 lg:px-8")
 
-      //- RIGHT ACTIONS
+      //- Brand Logo Anchor
+      a.flex.items-center.gap-1.group.flex-shrink-0(href="/")
+        span.text-2xl.font-black.tracking-tight.text-red-600.transition-transform(class="group-hover:scale-105" style="font-family:'Space Grotesk',sans-serif") VAMOS
+        span.w-2.h-2.rounded-full.bg-red-600.inline-block
+        span.text-xs.font-black.tracking-widest.text-slate-900.ml-1(style="font-family:'Space Grotesk',sans-serif") STORE
+
+      //- Desktop Navigation Categories
+      .hidden.items-center.gap-6.text-sm.font-semibold.text-slate-700(class="md:flex")
+        a.transition-colors.pb-1(class="hover:text-red-600" href="/products?cat=sneaker-nam") Sneaker Nam
+        a.transition-colors.pb-1(class="hover:text-red-600" href="/products?cat=sneaker-nu") Sneaker Nữ
+        a.transition-colors.pb-1(class="hover:text-red-600" href="/products?cat=giay-the-thao") Giày Thể Thao
+        a.transition-colors.pb-1(class="hover:text-red-600" href="/products?cat=sandal-dep") Sandal & Dép
+        a.text-red-600.font-bold.flex.items-center.pb-1(class="gap-1.5 hover:text-red-700" href="/products")
+          span 🔥 Khuyến Mãi
+          span.text-white.bg-red-600.font-bold.rounded-full.leading-none(class="px-1.5 py-0.5" style="font-size:10px") HOT
+
+      //- Right Actions: Search + Cart + Account
       .flex.items-center.gap-3
 
-        //- Search (desktop with Real-time Live Search)
+        //- Live Search Input (Desktop)
         .hidden.relative#desktop-search-container(class="lg:block")
-          form#desktop-search-form(action="/products" method="GET")
-            input#desktop-search-input.text-sm.bg-vamos-bg-subtle.rounded-full.border.border-transparent.transition-all(
-              class="w-52 pl-9 pr-8 py-2 focus:w-80 focus:bg-white focus:border-vamos-red focus:outline-none focus:shadow-vamos-hover"
+          form#desktop-search-form.relative.flex.items-center(action="/products" method="GET")
+            input#desktop-search-input.w-56.pl-9.pr-8.py-2.text-xs.bg-slate-100.rounded-lg.border.border-transparent.transition-all(
+              class="focus:w-72 focus:bg-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
               type="text"
               name="q"
-              placeholder="Tìm kiếm giày..."
+              placeholder="Tìm kiếm giày, sandal..."
               autocomplete="off"
             )
-            svg.w-4.h-4.text-vamos-muted.absolute.left-3(class="top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            svg.w-4.h-4.text-slate-400.absolute.left-3.pointer-events-none(fill="none" stroke="currentColor" viewBox="0 0 24 24")
               path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
-            button#desktop-search-clear.hidden.absolute.right-3.text-gray-400(class="top-1/2 -translate-y-1/2 hover:text-gray-600" type="button" aria-label="Xóa tìm kiếm")
-              svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            button#desktop-search-clear.hidden.absolute.text-slate-400(class="right-2.5 hover:text-slate-600" type="button" aria-label="Xóa tìm kiếm")
+              svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
                 path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
 
-          //- Floating Live Search Dropdown
-          #desktop-search-dropdown.absolute.left-0.w-80.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-gray-200.overflow-hidden.z-50.hidden(style="top:100%")
+          //- Live Search Dropdown
+          #desktop-search-dropdown.absolute.left-0.w-80.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-slate-200.overflow-hidden.z-50.hidden(style="top:100%")
 
-        //- Cart icon
-        a.relative.p-2.text-vamos-dark.transition-colors(class="hover:text-vamos-red" href="/cart" title="Giỏ hàng")
+        //- Shopping Cart Action
+        a.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" href="/cart" title="Giỏ hàng")
           svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
             path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
           if cartCount > 0
-            span.absolute.top-0.right-0.text-xs.w-5.h-5.rounded-full.flex.items-center.justify-center.font-bold(style="background:#E11B22;color:white;font-size:10px") #{cartCount}
+            span.absolute.top-0.right-0.w-5.h-5.bg-red-600.text-white.font-bold.rounded-full.flex.items-center.justify-center.shadow-sm(style="font-size:10px") #{cartCount}
           else
-            span.absolute.top-0.right-0.text-xs.w-4.h-4.rounded-full.flex.items-center.justify-center.font-bold(style="background:#9CA3AF;color:white;font-size:9px") 0
+            span.absolute.top-0.right-0.w-4.h-4.bg-slate-300.text-slate-700.font-bold.rounded-full.flex.items-center.justify-center(style="font-size:9px") 0
 
-        //- Account
+        //- Account Actions
         if isAuthenticated
           .relative.group
-            button.flex.items-center.gap-1.text-sm.font-semibold.text-vamos-dark.py-2(class="hover:text-vamos-red")
-              span.w-8.h-8.rounded-full.bg-vamos-dark.text-white.flex.items-center.justify-center.font-bold.text-xs.uppercase= (user.full_name || user.email).charAt(0)
-              svg.w-4.h-4.text-vamos-muted.transition-transform.duration-200(class="group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            button.flex.items-center.text-xs.font-semibold.text-slate-800.px-2.rounded-lg.transition-colors(class="gap-1.5 py-1.5 hover:bg-slate-100")
+              span.w-8.h-8.rounded-full.bg-slate-900.text-white.flex.items-center.justify-center.font-bold.text-xs.uppercase= (user.full_name || user.email).charAt(0)
+              svg.text-slate-500.transition-transform(class="w-3.5 h-3.5 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24")
                 path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7")
 
-            //- Dropdown
-            .absolute.right-0.w-52.mt-1.bg-white.rounded-vamos-lg.shadow-vamos-hover.border.border-vamos-border.py-2.z-50.opacity-0.invisible.transition-all.duration-200(class="group-hover:opacity-100 group-hover:visible" style="top:calc(100% + 4px)")
+            //- Dropdown Menu
+            .absolute.right-0.w-56.mt-1.bg-white.rounded-xl.shadow-xl.border.border-slate-200.py-2.z-50.opacity-0.invisible.transition-all.duration-200(class="group-hover:opacity-100 group-hover:visible" style="top:calc(100% + 4px)")
               if isAdmin
-                a.flex.items-center.gap-2.px-4.py-2.text-xs.font-bold.text-vamos-red.bg-red-50(href="/admin/dashboard")
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.font-bold.text-red-600.bg-red-50(href="/admin/dashboard")
                   span ⚙️
                   span Quản trị Admin
-                .h-px.bg-vamos-border.my-1
-              a.flex.items-center.gap-2.px-4.py-2.text-sm.text-vamos-dark.transition-colors(class="hover:bg-vamos-bg-subtle" href="/account/profile")
+                .h-px.bg-slate-100.my-1
+              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/profile")
                 span 👤
                 span Thông tin tài khoản
-              a.flex.items-center.gap-2.px-4.py-2.text-sm.text-vamos-dark.transition-colors(class="hover:bg-vamos-bg-subtle" href="/account/orders")
+              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/orders")
                 span 📦
                 span Lịch sử đơn hàng
-              a.flex.items-center.gap-2.px-4.py-2.text-sm.text-vamos-dark.transition-colors(class="hover:bg-vamos-bg-subtle" href="/account/addresses")
+              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/addresses")
                 span 📍
                 span Sổ địa chỉ
-              .h-px.bg-vamos-border.my-1
+              .h-px.bg-slate-100.my-1
               form(action="/auth/logout" method="POST")
                 input(type="hidden" name="_csrf" value=csrfToken)
-                button.flex.items-center.gap-2.w-full.text-left.px-4.py-2.text-sm.text-red-600.transition-colors(class="hover:bg-red-50" type="submit")
+                button.flex.items-center.gap-2.w-full.text-left.px-4.py-2.text-xs.text-red-600.font-semibold.transition-colors(class="hover:bg-red-50" type="submit")
                   span 🚪
                   span Đăng xuất
 
         else
           .flex.items-center.gap-2
-            a.text-xs.font-semibold.text-slate-700.transition-colors.px-3.py-2.rounded-lg(class="hover:text-red-600 hover:bg-slate-100" href="/auth/login") Đăng nhập
-            a.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-sm.transition-all(class="hover:bg-red-700 hover:shadow-md" href="/auth/register") Đăng ký
+            a.text-xs.font-semibold.text-slate-700.px-3.py-2.rounded-lg.transition-colors(class="hover:text-red-600 hover:bg-slate-100" href="/auth/login") Đăng nhập
+            a.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-sm.transition-all(class="hover:bg-red-700 shadow-red-500/20 hover:shadow-md" href="/auth/register") Đăng ký
 
-        //- Mobile hamburger
-        button#mobile-menu-btn.p-2.text-vamos-dark.rounded-lg.transition-colors(class="md:hidden hover:bg-vamos-bg-subtle")
+        //- Mobile Menu Trigger
+        button#mobile-menu-btn.p-2.text-slate-700.rounded-lg.transition-colors(class="md:hidden hover:bg-slate-100")
           svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
             path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16")
 
-  //- ── MOBILE MENU ──
-  #mobile-menu.bg-white.border-b.border-vamos-border.px-4.py-4.space-y-3(class="hidden md:hidden")
+  //- ── 3. MOBILE MENU ──
+  #mobile-menu.bg-white.border-b.border-slate-200.px-4.py-4.space-y-3(class="hidden md:hidden")
     .relative#mobile-search-container
-      form#mobile-search-form(action="/products" method="GET")
-        input#mobile-search-input.w-full.text-sm.bg-vamos-bg-subtle.rounded-lg.border.border-transparent.transition(
-          class="pl-9 pr-8 py-2.5 focus:bg-white focus:border-vamos-red focus:outline-none"
+      form#mobile-search-form.relative.flex.items-center(action="/products" method="GET")
+        input#mobile-search-input.w-full.text-xs.bg-slate-100.rounded-lg.border.border-transparent.pl-9.pr-8(
+          class="py-2.5 focus:bg-white focus:border-red-600 focus:outline-none"
           type="text"
           name="q"
-          placeholder="Tìm kiếm giày sneaker..."
+          placeholder="Tìm kiếm giày, sandal..."
           autocomplete="off"
         )
-        svg.w-4.h-4.text-vamos-muted.absolute.left-3(class="top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+        svg.w-4.h-4.text-slate-400.absolute.left-3.pointer-events-none(fill="none" stroke="currentColor" viewBox="0 0 24 24")
           path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
-        button#mobile-search-clear.hidden.absolute.right-3.text-gray-400(class="top-1/2 -translate-y-1/2 hover:text-gray-600" type="button" aria-label="Xóa tìm kiếm")
-          svg.w-4.h-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+        button#mobile-search-clear.hidden.absolute.text-slate-400(class="right-2.5" type="button" aria-label="Xóa")
+          svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
             path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
-      
-      //- Mobile Live Search Dropdown
-      #mobile-search-dropdown.absolute.left-0.right-0.mt-1.bg-white.rounded-xl.shadow-2xl.border.border-gray-200.overflow-hidden.z-50.hidden(style="top:100%")
-    nav.space-y-1.text-sm.font-semibold
-      a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=sneaker-nam") Sneaker Nam
-      a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=sneaker-nu") Sneaker Nữ
-      a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=giay-the-thao") Giày Thể Thao
-      a.block.px-3.rounded-lg.text-vamos-dark.transition-colors(class="py-2.5 hover:text-vamos-red hover:bg-red-50" href="/products?cat=sandal-dep") Sandal & Dép
-      a.block.px-3.rounded-lg.text-vamos-red.font-bold(class="py-2.5" href="/promotions") 🔥 Khuyến Mãi HOT
+      #mobile-search-dropdown.w-full.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-slate-200.overflow-hidden.hidden
+
+    nav.flex.flex-col.space-y-2.pt-2.border-t.border-slate-100.text-xs.font-semibold
+      a.py-2.px-3.rounded-lg(class="hover:bg-slate-50 hover:text-red-600" href="/products?cat=sneaker-nam") Sneaker Nam
+      a.py-2.px-3.rounded-lg(class="hover:bg-slate-50 hover:text-red-600" href="/products?cat=sneaker-nu") Sneaker Nữ
+      a.py-2.px-3.rounded-lg(class="hover:bg-slate-50 hover:text-red-600" href="/products?cat=giay-the-thao") Giày Thể Thao
+      a.py-2.px-3.rounded-lg(class="hover:bg-slate-50 hover:text-red-600" href="/products?cat=sandal-dep") Sandal & Dép
+      a.py-2.px-3.rounded-lg.text-red-600.font-bold(class="hover:bg-red-50" href="/products") 🔥 Khuyến Mãi HOT

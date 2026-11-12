@@ -544,12 +544,18 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
     abortController = new AbortController();
     const requestId = ++activeRequestId;
 
+    let data = null;
     try {
-      let res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
-        signal: abortController.signal,
-      });
+      let res;
+      try {
+        res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
+          signal: abortController.signal,
+        });
+      } catch (err1) {
+        if (err1.name === 'AbortError') return;
+      }
 
-      if (!res.ok) {
+      if (!res || !res.ok) {
         // Fallback to /products/live-search alias
         res = await fetch(`/products/live-search?q=${encodeURIComponent(query)}`, {
           signal: abortController.signal,
@@ -557,21 +563,13 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       }
 
       if (!res.ok) throw new Error('Search request failed with status ' + res.status);
-      const data = await res.json();
-
-      // Guard: Discard stale response if input or requestId changed
-      if (requestId !== activeRequestId || input.value.trim() !== query) {
-        return;
-      }
-
-      renderResults(data.results || [], query);
+      data = await res.json();
     } catch (err) {
       if (err.name === 'AbortError') {
-        // Stale fetch aborted cleanly
         return;
       }
       if (requestId !== activeRequestId) return;
-      console.error('Live search error:', err);
+      console.error('Live search network error:', err);
 
       dropdown.replaceChildren();
       const errBox = document.createElement('div');
@@ -581,6 +579,18 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       errBox.appendChild(errP);
       dropdown.appendChild(errBox);
       dropdown.classList.remove('hidden');
+      return;
+    }
+
+    // Guard: Discard stale response if input or requestId changed
+    if (requestId !== activeRequestId || input.value.trim() !== query) {
+      return;
+    }
+
+    try {
+      renderResults(data && data.results ? data.results : [], query);
+    } catch (renderErr) {
+      console.error('Live search render error:', renderErr);
     }
   }
 
@@ -630,6 +640,15 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
     const listContainer = document.createElement('div');
     listContainer.className = 'max-h-80 overflow-y-auto divide-y divide-gray-50';
 
+    const formatSafePrice = (price) => {
+      try {
+        if (typeof formatVND === 'function') return formatVND(price);
+        return (Number(price) || 0).toLocaleString('vi-VN') + ' ₫';
+      } catch (e) {
+        return (Number(price) || 0) + ' ₫';
+      }
+    };
+
     results.forEach((item, idx) => {
       const a = document.createElement('a');
       a.href = `/products/${encodeURIComponent(item.slug)}`;
@@ -644,6 +663,9 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       img.src = getSafeImageUrl(item.image_url);
       img.alt = String(item.name || 'Sản phẩm');
       img.loading = 'lazy';
+      img.onerror = () => {
+        img.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80';
+      };
       thumbBox.appendChild(img);
       a.appendChild(thumbBox);
 
@@ -675,13 +697,13 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
       const priceVal = Number(item.sale_price || item.base_price) || 0;
       const priceSpan = document.createElement('span');
       priceSpan.className = 'text-xs font-black text-vamos-red font-mono';
-      priceSpan.textContent = formatVND(priceVal);
+      priceSpan.textContent = formatSafePrice(priceVal);
       priceDiv.appendChild(priceSpan);
 
       if (item.sale_price) {
         const oldPriceSpan = document.createElement('span');
         oldPriceSpan.className = 'text-[10px] text-gray-400 line-through';
-        oldPriceSpan.textContent = formatVND(item.base_price);
+        oldPriceSpan.textContent = formatSafePrice(item.base_price);
         priceDiv.appendChild(oldPriceSpan);
       }
       infoBox.appendChild(priceDiv);
@@ -712,6 +734,9 @@ function initRealtimeLiveSearch(inputId, dropdownId, clearBtnId, formId) {
     footerLink.className = 'block text-center py-2.5 px-4 text-xs font-bold text-vamos-red bg-red-50 hover:bg-red-100 transition-colors border-t border-red-100';
     footerLink.textContent = `Xem tất cả kết quả cho "${query}" ➔`;
     dropdown.appendChild(footerLink);
+
+    dropdown.classList.remove('hidden');
+  }
 
     dropdown.classList.remove('hidden');
   }
@@ -1005,45 +1030,83 @@ function initGlobalRealtimeValidators() {
 // SECTION E: AUTOMATIC CATALOG INSTANT FILTERING (STITCH SPEC)
 // ══════════════════════════════════════════════════════════
 function initAutomaticCatalogFiltering() {
+  const container = document.getElementById('catalog-pjax-container');
   const filterForm = document.getElementById('filterForm');
-  if (!filterForm) return;
+  if (!container && !filterForm) return;
 
-  const minPriceInput = document.getElementById('minPriceInput');
-  const maxPriceInput = document.getElementById('maxPriceInput');
-  let debounceTimer = null;
+  let activeFetchAbort = null;
 
-  const autoSubmit = () => {
-    if (minPriceInput && !minPriceInput.value.trim()) {
-      minPriceInput.disabled = true;
+  async function loadCatalogUrl(url, pushState = true) {
+    if (activeFetchAbort) {
+      activeFetchAbort.abort();
     }
-    if (maxPriceInput && !maxPriceInput.value.trim()) {
-      maxPriceInput.disabled = true;
-    }
-    filterForm.submit();
-  };
+    activeFetchAbort = new AbortController();
 
-  // Price range auto-submit (typing debounced 600ms or on blur/change/Enter)
-  [minPriceInput, maxPriceInput].forEach(inp => {
-    if (!inp) return;
-    inp.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(autoSubmit, 600);
-    });
-    inp.addEventListener('change', () => {
-      clearTimeout(debounceTimer);
-      autoSubmit();
-    });
-    inp.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        clearTimeout(debounceTimer);
-        autoSubmit();
+    const currentContainer = document.getElementById('catalog-pjax-container');
+    if (currentContainer) {
+      currentContainer.classList.add('opacity-50', 'pointer-events-none', 'transition-opacity', 'duration-200');
+    }
+
+    try {
+      const res = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        signal: activeFetchAbort.signal
+      });
+      if (!res.ok) throw new Error('Catalog fetch error: ' + res.status);
+      const htmlText = await res.text();
+
+      const parser = new DOMParser();
+      const newDoc = parser.parseFromString(htmlText, 'text/html');
+      const newContainer = newDoc.getElementById('catalog-pjax-container');
+
+      if (newContainer && currentContainer) {
+        currentContainer.replaceWith(newContainer);
+        if (pushState) {
+          window.history.pushState(null, '', url);
+        }
+        // Re-bind listeners on the new container
+        initAutomaticCatalogFiltering();
+      } else {
+        window.location.href = url;
       }
-    });
-  });
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn('PJAX catalog failed, navigating naturally...', err);
+      window.location.href = url;
+    } finally {
+      const activeEl = document.getElementById('catalog-pjax-container');
+      if (activeEl) {
+        activeEl.classList.remove('opacity-50', 'pointer-events-none');
+      }
+    }
+  }
+
+  function submitFiltersViaPjax() {
+    const activeForm = document.getElementById('filterForm');
+    if (!activeForm) return;
+
+    const formData = new FormData(activeForm);
+    const params = new URLSearchParams();
+
+    // Check sort
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect && sortSelect.value) {
+      params.set('sort', sortSelect.value);
+    }
+
+    for (const [key, val] of formData.entries()) {
+      const trimmed = String(val || '').trim();
+      if (trimmed && key !== 'sort') {
+        params.set(key, trimmed);
+      }
+    }
+
+    const newUrl = `/products?${params.toString()}`;
+    loadCatalogUrl(newUrl, true);
+  }
 
   // Radio button click handling (Gender, Size)
-  const radios = filterForm.querySelectorAll('input[type="radio"]');
+  const radios = (container || document).querySelectorAll('input[type="radio"]');
   radios.forEach(radio => {
     if (radio.checked && radio.value !== '') {
       radio.dataset.waschecked = 'true';
@@ -1053,15 +1116,80 @@ function initAutomaticCatalogFiltering() {
         this.checked = false;
         this.dataset.waschecked = 'false';
         if (this.name === 'gender') {
-          const allRadio = filterForm.querySelector('input[name="gender"][value=""]');
+          const allRadio = (container || document).querySelector('input[name="gender"][value=""]');
           if (allRadio) allRadio.checked = true;
         }
-        autoSubmit();
       } else {
-        filterForm.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.dataset.waschecked = 'false');
+        (container || document).querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.dataset.waschecked = 'false');
         this.dataset.waschecked = 'true';
-        autoSubmit();
+      }
+      submitFiltersViaPjax();
+    });
+  });
+
+  // Preset Price Buttons
+  const presetBtns = (container || document).querySelectorAll('.preset-price-btn');
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const minInp = document.getElementById('minPriceInput');
+      const maxInp = document.getElementById('maxPriceInput');
+      if (minInp) minInp.value = btn.dataset.min || '';
+      if (maxInp) maxInp.value = btn.dataset.max || '';
+      submitFiltersViaPjax();
+    });
+  });
+
+  // Price range auto-submit (typing debounced 500ms or on blur/change/Enter)
+  const minPriceInput = document.getElementById('minPriceInput');
+  const maxPriceInput = document.getElementById('maxPriceInput');
+  let debounceTimer = null;
+  [minPriceInput, maxPriceInput].forEach(inp => {
+    if (!inp) return;
+    inp.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(submitFiltersViaPjax, 500);
+    });
+    inp.addEventListener('change', () => {
+      clearTimeout(debounceTimer);
+      submitFiltersViaPjax();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        clearTimeout(debounceTimer);
+        submitFiltersViaPjax();
       }
     });
   });
+
+  // Category links and Active Filter tags PJAX
+  const filterLinks = (container || document).querySelectorAll('.catalog-filter-link, .flex-wrap a[href^="/products"]');
+  filterLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('/products')) {
+        e.preventDefault();
+        loadCatalogUrl(href, true);
+      }
+    });
+  });
+
+  // Sort dropdown
+  const sortSelect = document.getElementById('sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      submitFiltersViaPjax();
+    });
+  }
+
+  // Handle browser Back / Forward
+  if (!window._pjaxPopstateBound) {
+    window._pjaxPopstateBound = true;
+    window.addEventListener('popstate', () => {
+      if (window.location.pathname === '/products') {
+        loadCatalogUrl(window.location.href, false);
+      }
+    });
+  }
 }

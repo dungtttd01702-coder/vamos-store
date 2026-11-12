@@ -2,7 +2,7 @@ extends ../../layouts/main
 
 block content
   //- 1. BREADCRUMBS & TIÊU ĐỀ
-  .bg-slate-50.border-b.border-slate-200.py-4
+  .bg-slate-50.border-b.border-slate-200.py-3
     .max-w-7xl.mx-auto.px-4(class="sm:px-6 lg:px-8")
       nav.flex.items-center.gap-2.text-xs.font-medium.text-slate-500
         a.transition-colors(class="hover:text-slate-900" href="/") Trang chủ
@@ -15,7 +15,7 @@ block content
           span.text-slate-900.font-semibold Tất cả sản phẩm
 
   //- 2. KHU VỰC CHÍNH (SIDEBAR + GRID SẢN PHẨM)
-  .max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-8")
+  #catalog-pjax-container.max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-8")
     .flex.flex-col.gap-8(class="lg:flex-row")
 
       //- SIDEBAR BỘ LỌC TÌM KIẾM (Cột Trái - 280px)
@@ -23,10 +23,10 @@ block content
         .bg-white.p-5.rounded-xl.border.border-slate-200.shadow-sm.sticky.top-24
           .flex.items-center.justify-between.pb-4.border-b.border-slate-100
             .flex.items-center.gap-2
-              svg.w-5.h-5.text-slate-700(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+              svg.w-5.h-5.text-red-600(fill="none" stroke="currentColor" viewBox="0 0 24 24")
                 path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4")
               h3.text-sm.font-bold.text-slate-900.uppercase.tracking-wide(style="font-family:'Space Grotesk',sans-serif") Bộ Lọc Tìm Kiếm
-            a.text-xs.font-semibold.text-red-600.transition-colors(class="hover:text-red-700" href="/products") Đặt lại
+            a.catalog-filter-link.text-xs.font-semibold.text-red-600.transition-colors(class="hover:text-red-700" href="/products") Đặt lại
 
           form#filterForm(method="GET" action="/products")
             if selectedFilters.sort
@@ -36,16 +36,16 @@ block content
             .py-4.border-b.border-slate-100
               h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Danh mục
               div(class="space-y-1.5")
-                a.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
-                  class=selectedFilters.cat === '' ? 'font-bold bg-red-50 text-red-600 px-2 py-1.5' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2 py-1.5'
+                a.catalog-filter-link.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
+                  class=selectedFilters.cat === '' ? 'font-bold bg-red-50 text-red-600 px-2.5 py-2' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2.5 py-2'
                   href="/products"
                 )
                   span Tất cả sản phẩm
                   span(class=selectedFilters.cat === '' ? 'text-red-600 text-xxs font-bold' : 'text-slate-400 text-xxs')= `(${total})`
 
                 each c in categories
-                  a.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
-                    class=selectedFilters.cat === c.slug ? 'font-bold bg-red-50 text-red-600 px-2 py-1.5' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2 py-1.5'
+                  a.catalog-filter-link.flex.items-center.justify-between.text-xs.rounded-lg.transition-colors(
+                    class=selectedFilters.cat === c.slug ? 'font-bold bg-red-50 text-red-600 px-2.5 py-2' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-2.5 py-2'
                     href=`/products?cat=${c.slug}${selectedFilters.gender ? `&gender=${selectedFilters.gender}` : ''}${selectedFilters.minPrice ? `&minPrice=${selectedFilters.minPrice}` : ''}${selectedFilters.maxPrice ? `&maxPrice=${selectedFilters.maxPrice}` : ''}`
                   )
                     span= c.name
@@ -59,19 +59,19 @@ block content
               h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider.mb-3 Dành Cho
               .grid.grid-cols-2(class="gap-1.5")
                 label.cursor-pointer
-                  input.sr-only.peer(type="radio" name="gender" value="" checked=selectedFilters.gender === '' onchange="this.form.submit()")
+                  input.sr-only.peer(type="radio" name="gender" value="" checked=selectedFilters.gender === '')
                   .px-2.text-center.text-xs.font-semibold.rounded-lg.border.border-slate-200.transition-all(class="py-1.5 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-600 hover:border-slate-300 text-slate-700")
                     | Tất cả
                 label.cursor-pointer
-                  input.sr-only.peer(type="radio" name="gender" value="MEN" checked=selectedFilters.gender === 'MEN' onchange="this.form.submit()")
+                  input.sr-only.peer(type="radio" name="gender" value="MEN" checked=selectedFilters.gender === 'MEN')
                   .px-2.text-center.text-xs.font-semibold.rounded-lg.border.border-slate-200.transition-all(class="py-1.5 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-600 hover:border-slate-300 text-slate-700")
                     | Nam
                 label.cursor-pointer
-                  input.sr-only.peer(type="radio" name="gender" value="WOMEN" checked=selectedFilters.gender === 'WOMEN' onchange="this.form.submit()")
+                  input.sr-only.peer(type="radio" name="gender" value="WOMEN" checked=selectedFilters.gender === 'WOMEN')
                   .px-2.text-center.text-xs.font-semibold.rounded-lg.border.border-slate-200.transition-all(class="py-1.5 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-600 hover:border-slate-300 text-slate-700")
                     | Nữ
                 label.cursor-pointer
-                  input.sr-only.peer(type="radio" name="gender" value="UNISEX" checked=selectedFilters.gender === 'UNISEX' onchange="this.form.submit()")
+                  input.sr-only.peer(type="radio" name="gender" value="UNISEX" checked=selectedFilters.gender === 'UNISEX')
                   .px-2.text-center.text-xs.font-semibold.rounded-lg.border.border-slate-200.transition-all(class="py-1.5 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-600 hover:border-slate-300 text-slate-700")
                     | Unisex
 
@@ -83,7 +83,7 @@ block content
               .grid.grid-cols-4(class="gap-1.5")
                 each sz in ['38', '39', '40', '41', '42', '43']
                   label.cursor-pointer
-                    input.sr-only.peer(type="radio" name="size" value=sz checked=selectedFilters.size === sz onchange="this.form.submit()")
+                    input.sr-only.peer(type="radio" name="size" value=sz checked=selectedFilters.size === sz)
                     .w-full.text-center.text-xs.font-bold.rounded-lg.border.border-slate-200.transition-all(class="py-1.5 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white hover:border-slate-400 text-slate-800")
                       = sz
                 //- Size 44 Hết hàng (Q1 Ràng buộc: Disabled, nét đứt, gạch chéo)
@@ -95,7 +95,7 @@ block content
               .flex.items-center.justify-between.mb-3
                 h4.text-xs.font-bold.text-slate-900.uppercase.tracking-wider Khoảng giá (VNĐ)
                 span.text-2xs.text-slate-400 Tự động lọc
-              .grid.grid-cols-2.gap-2.mb-1
+              .grid.grid-cols-2.gap-2.mb-3
                 input#minPriceInput.w-full.px-3.py-2.text-xs.rounded-lg.border.border-slate-200.transition-colors(
                   class="focus:outline-none focus:border-red-600"
                   type="number"
@@ -110,6 +110,32 @@ block content
                   placeholder="Đến..."
                   value=selectedFilters.maxPrice
                 )
+              //- Gợi ý mức giá chọn nhanh
+              .flex.flex-col(class="space-y-1.5")
+                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
+                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                  type="button"
+                  data-min=""
+                  data-max="500000"
+                )
+                  span Dưới 500k
+                  span.text-slate-300 →
+                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
+                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                  type="button"
+                  data-min="500000"
+                  data-max="1000000"
+                )
+                  span 500k - 1.000.000 ₫
+                  span.text-slate-300 →
+                button.preset-price-btn.text-left.text-xs.text-slate-600.rounded-md.transition-colors(
+                  class="py-1 px-1.5 hover:bg-slate-50 hover:text-red-600 flex items-center justify-between"
+                  type="button"
+                  data-min="1000000"
+                  data-max=""
+                )
+                  span Trên 1.000.000 ₫
+                  span.text-slate-300 →
 
             - const hasPriceVal = (selectedFilters.minPrice && Number(selectedFilters.minPrice) > 0) || (selectedFilters.maxPrice && Number(selectedFilters.maxPrice) > 0)
             - const isFiltered = Boolean(selectedFilters.cat || selectedFilters.gender || hasPriceVal || selectedFilters.size)
@@ -125,9 +151,11 @@ block content
         //- Toolbar Tiêu Đề & Sắp Xếp
         .flex.flex-col.gap-4.pb-6.border-b.border-slate-200(class="sm:flex-row sm:items-center sm:justify-between")
           div
-            h1.text-2xl.font-black.text-slate-900.uppercase.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
-              = currentCategory ? currentCategory.name : 'Tất Cả Giày Thể Thao'
-            p.text-xs.text-slate-500.mt-1= `Hiển thị ${products.length} trong tổng số ${total} mẫu giày chất lượng cao`
+            .flex.items-center.gap-3
+              h1.text-2xl.font-black.text-slate-900.uppercase.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
+                = currentCategory ? currentCategory.name : 'Tất Cả Giày Thể Thao'
+              span.bg-slate-100.text-slate-700.text-xs.font-bold.px-3.py-1.rounded-full= `${total} SẢN PHẨM`
+            p.text-xs.text-slate-500.mt-1 Đột phá công nghệ đệm trợ lực thế hệ mới cùng phong cách đường phố năng động.
 
           //- Sắp xếp dropdown
           form.flex.items-center.gap-3(action="/products" method="GET")
@@ -144,7 +172,6 @@ block content
             select#sort-select.px-3.py-2.text-xs.font-bold.rounded-lg.border.border-slate-200.bg-white.text-slate-700.transition-colors(
               class="focus:outline-none focus:border-red-600"
               name="sort"
-              onchange="this.form.submit()"
             )
               option(value="" selected=selectedFilters.sort === '') Mới nhất
               option(value="price_asc" selected=selectedFilters.sort === 'price_asc') Giá: Thấp đến Cao
@@ -243,6 +270,12 @@ block content
                       else
                         span.text-base.font-extrabold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                           = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(prod.base_price)
+
+                    //- Color Dots Swatch Preview (Stitch Spec)
+                    .flex.items-center.mt-2(class="gap-1.5")
+                      span.rounded-full.bg-slate-900.ring-1.ring-slate-300(class="w-2.5 h-2.5")
+                      span.rounded-full.bg-red-600(class="w-2.5 h-2.5")
+                      span.rounded-full.bg-slate-200.border.border-slate-300(class="w-2.5 h-2.5")
 
                 //- NÚT HÀNH ĐỘNG
                 .mt-4.pt-3.border-t.border-slate-100
