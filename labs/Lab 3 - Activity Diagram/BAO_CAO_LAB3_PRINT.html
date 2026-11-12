@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>BÁO CÁO LAB 3 - SƠ ĐỒ HOẠT ĐỘNG (ACTIVITY DIAGRAM) - VAMOS STORE</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 20mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.5;
+      color: #111827;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 20px 0;
+    }
+    .print-bar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .print-btn {
+      background: #e11b22;
+      color: #ffffff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(225, 27, 34, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30mm 20mm 25mm 25mm;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+    }
+    .cover-page {
+      border: 3px double #1e3a8a;
+      padding: 30px;
+      min-height: 980px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .fpt-header {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fpt-sub {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #ea580c;
+      margin-top: 5px;
+    }
+    .report-title {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #e11b22;
+      text-transform: uppercase;
+      margin-top: 40px;
+      letter-spacing: 1px;
+    }
+    .report-subject {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #1f2937;
+      margin-top: 15px;
+    }
+    .meta-box {
+      margin: 40px auto 0;
+      width: 80%;
+      text-align: left;
+      font-size: 13pt;
+      line-height: 2;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 20px;
+    }
+    h1, h2, h3, h4 {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 18pt;
+      border-bottom: 2px solid #e11b22;
+      padding-bottom: 6px;
+      margin-top: 30px;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1e3a8a;
+      margin-top: 25px;
+    }
+    p, li {
+      text-align: justify;
+    }
+    .diagram-container {
+      text-align: center;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    .diagram-container img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .diagram-caption {
+      font-size: 11pt;
+      font-style: italic;
+      color: #475569;
+      margin-top: 8px;
+    }
+    code {
+      font-family: Consolas, monospace;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 10pt;
+      color: #e11b22;
+    }
+    @media print {
+      body {
+        background: transparent;
+        padding: 0;
+      }
+      .print-bar {
+        display: none;
+      }
+      .page-container {
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .cover-page {
+        min-height: 98vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+      In Báo Cáo / Xuất PDF (Ctrl + P)
+    </button>
+  </div>
+
+  <div class="page-container">
+    
+    <!-- TRANG BÌA -->
+    <div class="cover-page">
+      <div>
+        <div class="fpt-header">TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC</div>
+        <div class="fpt-sub">BỘ MÔN CÔNG NGHỆ THÔNG TIN</div>
+        <div style="margin: 30px auto;">
+          <img src="images/fpt_polytechnic_logo.jpg" alt="Logo FPT" style="max-height: 80px;">
+        </div>
+      </div>
+
+      <div>
+        <div class="report-title">BÁO CÁO LAB 3</div>
+        <div class="report-subject">THIẾT KẾ SƠ ĐỒ HOẠT ĐỘNG (ACTIVITY DIAGRAM)</div>
+        <div style="font-size: 14pt; font-weight: bold; color: #475569; margin-top: 15px;">DỰ ÁN WEBSITE BÁN GIÀY THỂ THAO VAMOS STORE</div>
+        <div style="font-size: 12pt; color: #64748b; font-style: italic; margin-top: 5px;">"MOVE YOUR WAY"</div>
+      </div>
+
+      <div class="meta-box">
+        <div><strong>Giảng viên hướng dẫn:</strong> [Họ và tên giảng viên]</div>
+        <div><strong>Sinh viên thực hiện:</strong> Trần Trung Dũng</div>
+        <div><strong>Mã số sinh viên:</strong> [MSSV của bạn]</div>
+        <div><strong>Lớp:</strong> JAV102 / Dự án 1</div>
+        <div><strong>Phạm vi sơ đồ:</strong> 5 Quy trình hoạt động cốt lõi đa làn bơi (Swimlanes)</div>
+      </div>
+
+      <div style="font-size: 12pt; font-weight: bold; color: #64748b; margin-top: 30px;">
+        ĐÀ NẴNG - 2026
+      </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <h1>1. MỤC TIÊU & PHƯƠNG PHÁP XÂY DỰNG SƠ ĐỒ HOẠT ĐỘNG</h1>
+    <p>
+      Sơ đồ hoạt động (Activity Diagram) trong Lab 3 trực quan hóa luồng công việc (Workflow) và luồng điều khiển nghiệp vụ giữa các tác nhân và hệ thống máy chủ VAMOS STORE. Mỗi sơ đồ đều sử dụng kỹ thuật <strong>Swimlanes (Làn bơi)</strong> để phân định ranh giới trách nhiệm rõ ràng:
+    </p>
+    <ul>
+      <li><strong>Client (Người dùng):</strong> Thao tác nhập liệu trên trình duyệt, gửi yêu cầu qua giao thức HTTP.</li>
+      <li><strong>Server (Hệ thống backend Express):</strong> Tiếp nhận request, kiểm tra validation, mã hóa dữ liệu, áp dụng Business Logic.</li>
+      <li><strong>Database (Cơ sở dữ liệu):</strong> Thực thi truy vấn, khóa bi quan, quản lý giao dịch an toàn (Transaction).</li>
+    </ul>
+
+    <h1>2. CHI TIẾT 5 SƠ ĐỒ HOẠT ĐỘNG CỐT LÕI</h1>
+
+    <h2>2.1. Quy trình Đăng ký & Đăng nhập (AD-01: Auth Flow)</h2>
+    <p>
+      Quy trình tiếp nhận thông tin người dùng, kiểm tra định dạng email bằng regex, đối soát trùng email trong CSDL, băm mật khẩu bảo mật bằng thư viện <code>bcrypt</code> (10 rounds) và tái tạo session máy chủ chống lỗi Session Fixation:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/ad-01-auth.png" alt="Sơ đồ hoạt động Đăng ký Đăng nhập">
+      <div class="diagram-caption">Hình 3.1: Sơ đồ hoạt động quy trình Đăng ký, Đăng nhập và Cấp Session bảo mật</div>
+    </div>
+
+    <h2>2.2. Quy trình Mua hàng & Đặt hàng COD (AD-02: Checkout COD Flow)</h2>
+    <p>
+      Mô tả toàn bộ chuỗi hành động đặt hàng thanh toán khi nhận hàng. Hệ thống áp dụng cơ chế khóa bi quan <code>SELECT ... WITH (UPDLOCK, ROWLOCK)</code> bên trong một Transaction cô lập để trừ số lượng tồn kho của từng biến thể giày, triệt tiêu lỗi bán vượt tồn kho (Overselling):
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/ad-02-checkout-cod.png" alt="Sơ đồ hoạt động Đặt hàng COD">
+      <div class="diagram-caption">Hình 3.2: Sơ đồ hoạt động quy trình Đặt hàng COD và Khóa bi quan trừ kho</div>
+    </div>
+
+    <h2>2.3. Quy trình Máy trạng thái xử lý Đơn hàng (AD-03: Order State Machine)</h2>
+    <p>
+      Vận hành đơn hàng tuần tự 5 bước theo ma trận trạng thái nghiêm ngặt: <code>PENDING</code> $\rightarrow$ <code>CONFIRMED</code> $\rightarrow$ <code>PROCESSING</code> $\rightarrow$ <code>SHIPPING</code> $\rightarrow$ <code>COMPLETED</code>. Đơn hàng COD chỉ được chuyển sang <code>payment_status = 'PAID'</code> khi đơn hàng đã hoàn tất giao thành công:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/ad-03-order-processing.png" alt="Sơ đồ hoạt động Xử lý Đơn hàng">
+      <div class="diagram-caption">Hình 3.3: Sơ đồ hoạt động quy trình Máy trạng thái đơn hàng (Order State Machine)</div>
+    </div>
+
+    <h2>2.4. Quy trình Hủy đơn hàng và Hoàn kho tự động (AD-04: Order Cancellation)</h2>
+    <p>
+      Khách hàng chỉ được hủy đơn khi đơn còn ở trạng thái <code>PENDING</code>. Hệ thống thực hiện hoàn kho tự động trong Transaction và khôi phục lượt sử dụng mã giảm giá:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/ad-04-order-cancellation.png" alt="Sơ đồ hoạt động Hủy đơn và Hoàn kho">
+      <div class="diagram-caption">Hình 3.4: Sơ đồ hoạt động quy trình Hủy đơn hàng và Tự động hoàn kho</div>
+    </div>
+
+    <h2>2.5. Quy trình Kiểm kê & Điều chỉnh kho Admin (AD-05: Inventory Adjustment)</h2>
+    <p>
+      Quản trị viên kiểm kê kho hàng định kỳ, cập nhật số lượng tồn kho mới và bắt buộc ghi rõ nguyên nhân kiểm toán vào bảng <code>inventory_transactions</code>:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/ad-05-inventory-adjustment.png" alt="Sơ đồ hoạt động Kiểm kê Tồn kho">
+      <div class="diagram-caption">Hình 3.5: Sơ đồ hoạt động quy trình Kiểm kê và Điều chỉnh tồn kho có lưu vết</div>
+    </div>
+
+    <h1>3. KẾT LUẬN</h1>
+    <p>
+      Toàn bộ 5 quy trình nghiệp vụ đã được mô hình hóa chính xác, thể hiện rõ trách nhiệm của từng bộ phận, các điểm rẽ nhánh và cơ chế đảm bảo tính toàn vẹn dữ liệu cho website VAMOS STORE.
+    </p>
+
+  </div>
+
+</body>
+</html>

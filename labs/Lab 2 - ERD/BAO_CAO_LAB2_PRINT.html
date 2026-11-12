@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>BÁO CÁO LAB 2 - MÔ HÌNH THỰC THỂ QUAN HỆ (ERD) - VAMOS STORE</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 20mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.5;
+      color: #111827;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 20px 0;
+    }
+    .print-bar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .print-btn {
+      background: #e11b22;
+      color: #ffffff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(225, 27, 34, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30mm 20mm 25mm 25mm;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+    }
+    .cover-page {
+      border: 3px double #1e3a8a;
+      padding: 30px;
+      min-height: 980px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .fpt-header {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fpt-sub {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #ea580c;
+      margin-top: 5px;
+    }
+    .report-title {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #e11b22;
+      text-transform: uppercase;
+      margin-top: 40px;
+      letter-spacing: 1px;
+    }
+    .report-subject {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #1f2937;
+      margin-top: 15px;
+    }
+    .meta-box {
+      margin: 40px auto 0;
+      width: 80%;
+      text-align: left;
+      font-size: 13pt;
+      line-height: 2;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 20px;
+    }
+    h1, h2, h3, h4 {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 18pt;
+      border-bottom: 2px solid #e11b22;
+      padding-bottom: 6px;
+      margin-top: 30px;
+    }
+    h2 {
+      font-size: 15pt;
+      color: #1e3a8a;
+      margin-top: 25px;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #334155;
+      margin-top: 20px;
+    }
+    p, li {
+      text-align: justify;
+    }
+    .diagram-container {
+      text-align: center;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    .diagram-container img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .diagram-caption {
+      font-size: 11pt;
+      font-style: italic;
+      color: #475569;
+      margin-top: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 11pt;
+      page-break-inside: avoid;
+    }
+    table th, table td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: bold;
+    }
+    code {
+      font-family: Consolas, monospace;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 10pt;
+      color: #e11b22;
+    }
+    @media print {
+      body {
+        background: transparent;
+        padding: 0;
+      }
+      .print-bar {
+        display: none;
+      }
+      .page-container {
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .cover-page {
+        min-height: 98vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+      In Báo Cáo / Xuất PDF (Ctrl + P)
+    </button>
+  </div>
+
+  <div class="page-container">
+    
+    <!-- TRANG BÌA -->
+    <div class="cover-page">
+      <div>
+        <div class="fpt-header">TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC</div>
+        <div class="fpt-sub">BỘ MÔN CÔNG NGHỆ THÔNG TIN</div>
+        <div style="margin: 30px auto;">
+          <img src="images/fpt_polytechnic_logo.jpg" alt="Logo FPT" style="max-height: 80px;">
+        </div>
+      </div>
+
+      <div>
+        <div class="report-title">BÁO CÁO LAB 2</div>
+        <div class="report-subject">MÔ HÌNH THỰC THỂ QUAN HỆ (ERD) & THIẾT KẾ DATABASE</div>
+        <div style="font-size: 14pt; font-weight: bold; color: #475569; margin-top: 15px;">DỰ ÁN WEBSITE BÁN GIÀY THỂ THAO VAMOS STORE</div>
+        <div style="font-size: 12pt; color: #64748b; font-style: italic; margin-top: 5px;">"MOVE YOUR WAY"</div>
+      </div>
+
+      <div class="meta-box">
+        <div><strong>Giảng viên hướng dẫn:</strong> [Họ và tên giảng viên]</div>
+        <div><strong>Sinh viên thực hiện:</strong> Trần Trung Dũng</div>
+        <div><strong>Mã số sinh viên:</strong> [MSSV của bạn]</div>
+        <div><strong>Lớp:</strong> JAV102 / Dự án 1</div>
+        <div><strong>Quy mô CSDL:</strong> 18 Bảng dữ liệu quan hệ chuẩn 3NF (MySQL 8 / MSSQL)</div>
+      </div>
+
+      <div style="font-size: 12pt; font-weight: bold; color: #64748b; margin-top: 30px;">
+        ĐÀ NẴNG - 2026
+      </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <h1>1. NGUYÊN TẮC THIẾT KẾ CƠ SỞ DỮ LIỆU THƯƠNG MẠI ĐIỆN TỬ</h1>
+    <p>
+      Cơ sở dữ liệu của <strong>VAMOS STORE</strong> được thiết kế theo chuẩn dạng chuẩn 3 (3NF) với 18 thực thể, giải quyết triệt để các bài toán hóc búa của hệ thống bán lẻ giày dép trực tuyến:
+    </p>
+    <ul>
+      <li><strong>Nguyên tắc Snapshot Đơn hàng (Order Item Snapshot):</strong> Bảng <code>order_items</code> bắt buộc lưu cứng các trường <code>product_name</code>, <code>sku</code>, <code>size_name</code>, <code>color_name</code>, <code>unit_price</code> tại thời điểm thanh toán. Bảng <code>orders</code> lưu snapshot thông tin giao nhận và mã voucher. Mọi sự thay đổi về giá hoặc việc xóa sản phẩm sau này không làm ảnh hưởng đến tính trung thực của sổ sách kế toán.</li>
+      <li><strong>Mô hình Ma trận Biến thể Giày (Variant Matrix):</strong> Mỗi đôi giày trong <code>products</code> có nhiều biến thể trong <code>product_variants</code> tương ứng với cặp <code>(size_id, color_id)</code> độc nhất, gắn với một mã <code>sku</code> riêng biệt để quản lý tồn kho chính xác theo từng kích cỡ.</li>
+      <li><strong>Kiểm soát tồn kho & Chống Overselling:</strong> Ràng buộc <code>stock_quantity &gt;= 0</code> và ghi vết toàn bộ lịch sử xuất/nhập/điều chỉnh kho vào bảng kiểm toán <code>inventory_transactions</code>.</li>
+      <li><strong>Ràng buộc Quota Voucher (Q8):</strong> Bảng <code>voucher_usages</code> ghi nhận cặp <code>(voucher_id, user_id)</code> để bảo đảm mỗi tài khoản khách hàng chỉ áp dụng mã giảm giá đúng 1 lần duy nhất.</li>
+    </ul>
+
+    <h1>2. SƠ ĐỒ THỰC THỂ QUAN HỆ (ERD 18 BẢNG)</h1>
+    <p>
+      Sơ đồ ERD dưới đây được mô hình hóa theo ký hiệu Crow's Foot chuẩn mực, thể hiện đầy đủ các trường dữ liệu, kiểu dữ liệu, khóa chính (PK), khóa ngoại (FK) và liên kết giữa các bảng:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/vamos_store_erd.png" alt="Sơ đồ ERD 18 bảng VAMOS STORE">
+      <div class="diagram-caption">Hình 2.1: Sơ đồ Thực thể Quan hệ (ERD) toàn diện 18 bảng - VAMOS STORE</div>
+    </div>
+
+    <h1>3. BẢNG DANH MỤC 18 THỰC THỂ THEO PHÂN HỆ</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên bảng</th>
+          <th>Khóa chính (PK)</th>
+          <th>Khóa ngoại (FK)</th>
+          <th>Mục đích nghiệp vụ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><code>users</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Tài khoản người dùng, email unique, password bcrypt, role</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><code>user_profiles</code></td>
+          <td><code>user_id</code></td>
+          <td><code>user_id</code> $\rightarrow$ users</td>
+          <td>Thông tin cá nhân (họ tên, sđt, ngày sinh, giới tính)</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><code>addresses</code></td>
+          <td><code>id</code></td>
+          <td><code>user_id</code> $\rightarrow$ users</td>
+          <td>Sổ địa chỉ nhận hàng của khách, cờ is_default</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><code>password_resets</code></td>
+          <td><code>id</code></td>
+          <td><code>email</code></td>
+          <td>Lưu token bảo mật đặt lại mật khẩu trong 15 phút</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><code>categories</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Danh mục sản phẩm (Sneaker Nam, Nữ, Thể thao, Sandal)</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><code>brands</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Thương hiệu giày dép chính hãng đối tác</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><code>sizes</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Bảng chuẩn size giày EU (38, 39, 40, 41, 42, 43, 44)</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><code>colors</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Bảng màu sắc và mã Hex code hiển thị trực quan</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><code>products</code></td>
+          <td><code>id</code></td>
+          <td><code>category_id, brand_id</code></td>
+          <td>Thông tin chung sản phẩm giày dép, giá niêm yết, slug</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><code>product_variants</code></td>
+          <td><code>id</code></td>
+          <td><code>product_id, size_id, color_id</code></td>
+          <td>Tồn kho từng cỡ giày, mã SKU duy nhất, giá phụ thu</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><code>product_images</code></td>
+          <td><code>id</code></td>
+          <td><code>product_id</code></td>
+          <td>Thư viện ảnh sản phẩm, cờ is_primary</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td><code>carts</code></td>
+          <td><code>id</code></td>
+          <td><code>user_id</code></td>
+          <td>Giỏ hàng liên kết với từng tài khoản</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td><code>cart_items</code></td>
+          <td><code>id</code></td>
+          <td><code>cart_id, variant_id</code></td>
+          <td>Chi tiết món hàng trong giỏ, giới hạn bán lẻ 1-10 đôi</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td><code>orders</code></td>
+          <td><code>id</code></td>
+          <td><code>user_id, voucher_id</code></td>
+          <td>Đơn hàng COD, tổng tiền, trạng thái 5 bước, snapshot người nhận</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td><code>order_items</code></td>
+          <td><code>id</code></td>
+          <td><code>order_id, variant_id</code></td>
+          <td>Snapshot cứng sản phẩm, SKU, size, màu, đơn giá khi mua</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td><code>order_status_history</code></td>
+          <td><code>id</code></td>
+          <td><code>order_id, changed_by</code></td>
+          <td>Nhật ký kiểm toán thay đổi trạng thái đơn hàng</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td><code>vouchers</code></td>
+          <td><code>id</code></td>
+          <td>-</td>
+          <td>Mã giảm giá, hạn mức, số tiền giảm, đơn tối thiểu</td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td><code>voucher_usages</code></td>
+          <td><code>id</code></td>
+          <td><code>voucher_id, user_id, order_id</code></td>
+          <td>Ràng buộc mỗi khách hàng chỉ dùng voucher đúng 1 lần (Q8)</td>
+        </tr>
+        <tr>
+          <td>19</td>
+          <td><code>inventory_transactions</code></td>
+          <td><code>id</code></td>
+          <td><code>variant_id, created_by</code></td>
+          <td>Nhật ký xuất nhập tồn và kiểm kê điều chỉnh kho có lý do</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h1>4. RÀNG BUỘC TOÀN VẸN VÀ BẢO TOÀN DỮ LIỆU</h1>
+    <ul>
+      <li><strong>Hành vi khóa ngoại <code>ON DELETE RESTRICT</code>:</strong> Áp dụng trên <code>orders(user_id)</code> và <code>order_items(variant_id)</code> nhằm bảo vệ tính toàn vẹn của lịch sử giao dịch và kế toán.</li>
+      <li><strong>Khóa bi quan (Pessimistic Locking):</strong> Khi khách hàng đặt đơn hoặc hủy đơn, hệ thống kích hoạt câu lệnh <code>SELECT ... FOR UPDATE</code> (hoặc <code>WITH (UPDLOCK, ROWLOCK)</code> trên MSSQL) để khóa chính xác dòng biến thể, triệt tiêu hoàn toàn lỗi bán âm kho khi có nhiều người cùng mua đôi giày cuối cùng.</li>
+    </ul>
+
+  </div>
+
+</body>
+</html>

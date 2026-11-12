@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>BÁO CÁO LAB 1 - THIẾT KẾ USE CASE DIAGRAM - VAMOS STORE</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 20mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.5;
+      color: #111827;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 20px 0;
+    }
+    .print-bar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .print-btn {
+      background: #e11b22;
+      color: #ffffff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(225, 27, 34, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30mm 20mm 25mm 25mm;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+    }
+    .cover-page {
+      border: 3px double #1e3a8a;
+      padding: 30px;
+      min-height: 980px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .fpt-header {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fpt-sub {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #ea580c;
+      margin-top: 5px;
+    }
+    .report-title {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #e11b22;
+      text-transform: uppercase;
+      margin-top: 40px;
+      letter-spacing: 1px;
+    }
+    .report-subject {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #1f2937;
+      margin-top: 15px;
+    }
+    .meta-box {
+      margin: 40px auto 0;
+      width: 80%;
+      text-align: left;
+      font-size: 13pt;
+      line-height: 2;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 20px;
+    }
+    h1, h2, h3, h4 {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 18pt;
+      border-bottom: 2px solid #e11b22;
+      padding-bottom: 6px;
+      margin-top: 30px;
+    }
+    h2 {
+      font-size: 15pt;
+      color: #1e3a8a;
+      margin-top: 25px;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #334155;
+      margin-top: 20px;
+    }
+    p, li {
+      text-align: justify;
+    }
+    .diagram-container {
+      text-align: center;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    .diagram-container img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .diagram-caption {
+      font-size: 11pt;
+      font-style: italic;
+      color: #475569;
+      margin-top: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 11pt;
+      page-break-inside: avoid;
+    }
+    table th, table td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: bold;
+    }
+    .badge-high {
+      background: #fee2e2;
+      color: #dc2626;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge-med {
+      background: #fef3c7;
+      color: #d97706;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    @media print {
+      body {
+        background: transparent;
+        padding: 0;
+      }
+      .print-bar {
+        display: none;
+      }
+      .page-container {
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .cover-page {
+        min-height: 98vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+      In Báo Cáo / Xuất PDF (Ctrl + P)
+    </button>
+  </div>
+
+  <div class="page-container">
+    
+    <!-- TRANG BÌA -->
+    <div class="cover-page">
+      <div>
+        <div class="fpt-header">TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC</div>
+        <div class="fpt-sub">BỘ MÔN CÔNG NGHỆ THÔNG TIN</div>
+        <div style="margin: 30px auto;">
+          <img src="images/fpt_polytechnic_logo.jpg" alt="Logo FPT" style="max-height: 80px;">
+        </div>
+      </div>
+
+      <div>
+        <div class="report-title">BÁO CÁO LAB 1</div>
+        <div class="report-subject">THIẾT KẾ USE CASE DIAGRAM & ĐẶC TẢ HỆ THỐNG</div>
+        <div style="font-size: 14pt; font-weight: bold; color: #475569; margin-top: 15px;">DỰ ÁN WEBSITE BÁN GIÀY THỂ THAO VAMOS STORE</div>
+        <div style="font-size: 12pt; color: #64748b; font-style: italic; margin-top: 5px;">"MOVE YOUR WAY"</div>
+      </div>
+
+      <div class="meta-box">
+        <div><strong>Giảng viên hướng dẫn:</strong> [Họ và tên giảng viên]</div>
+        <div><strong>Sinh viên thực hiện:</strong> Trần Trung Dũng</div>
+        <div><strong>Mã số sinh viên:</strong> [MSSV của bạn]</div>
+        <div><strong>Lớp:</strong> JAV102 / Dự án 1</div>
+        <div><strong>Hệ thống chuẩn hóa:</strong> 3 Actors (Guest, Customer, Admin) · 14 Use Cases</div>
+      </div>
+
+      <div style="font-size: 12pt; font-weight: bold; color: #64748b; margin-top: 30px;">
+        ĐÀ NẴNG - 2026
+      </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <h1>1. TỔNG QUAN VỀ HỆ THỐNG & CÁC TÁC NHÂN (ACTORS)</h1>
+    <p>
+      Hệ thống thương mại điện tử <strong>VAMOS STORE</strong> là website bán lẻ chuyên biệt về giày sneaker, giày thể thao và sandal hiện đại. Trong Lab 1, phạm vi bài toán được chuẩn hóa thành 3 tác nhân chính (Primary Actors) và 1 tác nhân phụ (Secondary Actor) theo đúng thực hành phân tích nghiệp vụ chuẩn mực:
+    </p>
+    <ul>
+      <li><strong>Khách vãng lai (Guest):</strong> Người dùng chưa đăng nhập; có quyền xem trang chủ, tra cứu sản phẩm, xem chi tiết giày, đăng ký tài khoản và yêu cầu cấp lại mật khẩu.</li>
+      <li><strong>Khách hàng (Customer):</strong> Người dùng đã đăng nhập; kế thừa toàn bộ quyền của Khách vãng lai, có thêm quyền quản lý giỏ hàng, đặt hàng thanh toán COD, theo dõi lịch sử đơn hàng và hủy đơn khi còn ở trạng thái Chờ xác nhận (<code>PENDING</code>).</li>
+      <li><strong>Quản trị viên (Admin):</strong> Người điều hành toàn diện hệ thống: quản lý sản phẩm đa biến thể (Size/Màu), kiểm kê điều chỉnh tồn kho, vận hành chuyển trạng thái đơn hàng và theo dõi báo cáo doanh thu thực tế.</li>
+      <li><strong>Email Service (Tác nhân hệ thống phụ):</strong> Cung cấp dịch vụ gửi email tự động chứa token khôi phục mật khẩu.</li>
+    </ul>
+
+    <h1>2. SƠ ĐỒ USE CASE TỔNG QUÁT (SYSTEM OVERVIEW)</h1>
+    <p>
+      Sơ đồ Use Case tổng quát dưới đây phân định ranh giới hệ thống rõ ràng, bao gồm toàn bộ 14 Use Cases được sắp xếp thành 4 phân hệ chính, liên kết với 3 tác nhân mà không xảy ra tình trạng cắt chéo đường nối.
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/uc-00-overview.png" alt="Sơ đồ Use Case tổng quát VAMOS STORE">
+      <div class="diagram-caption">Hình 1.1: Sơ đồ Use Case tổng quát hệ thống VAMOS STORE (14 Use Cases)</div>
+    </div>
+
+    <h3>Bảng danh mục chi tiết 14 Use Cases cốt lõi:</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Mã UC</th>
+          <th>Tên Use Case</th>
+          <th>Tác nhân (Actor)</th>
+          <th>Phân hệ</th>
+          <th>Mô tả tóm tắt</th>
+          <th>Ưu tiên</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>UC-01</strong></td>
+          <td>Đăng ký tài khoản</td>
+          <td>Guest</td>
+          <td>Tài khoản</td>
+          <td>Tạo tài khoản mới, email độc nhất, băm bcrypt</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-02</strong></td>
+          <td>Đăng nhập</td>
+          <td>Guest, Customer, Admin</td>
+          <td>Tài khoản</td>
+          <td>Xác thực thông tin, cấp Session bảo mật</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-03</strong></td>
+          <td>Khôi phục mật khẩu</td>
+          <td>Guest (phụ: Email Svc)</td>
+          <td>Tài khoản</td>
+          <td>Gửi token bảo mật qua email đặt lại mật khẩu</td>
+          <td><span class="badge-med">Med</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-04</strong></td>
+          <td>Quản lý hồ sơ & địa chỉ</td>
+          <td>Customer</td>
+          <td>Tài khoản</td>
+          <td>Cập nhật hồ sơ cá nhân và sổ địa chỉ nhận hàng</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-05</strong></td>
+          <td>Tìm kiếm & xem sản phẩm</td>
+          <td>Guest, Customer</td>
+          <td>Mua sắm</td>
+          <td>Lọc đa tiêu chí (size, màu, giá) và xem chi tiết giày</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-06</strong></td>
+          <td>Quản lý giỏ hàng</td>
+          <td>Customer, Guest</td>
+          <td>Mua sắm</td>
+          <td>Thêm biến thể giày, chỉnh số lượng 1-10 đôi</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-07</strong></td>
+          <td>Đặt hàng COD</td>
+          <td>Customer</td>
+          <td>Mua sắm</td>
+          <td>Chọn địa chỉ, áp voucher, chốt đơn trong Transaction</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-08</strong></td>
+          <td>Tra cứu & theo dõi đơn</td>
+          <td>Customer</td>
+          <td>Đơn hàng cá nhân</td>
+          <td>Xem dòng thời gian đơn hàng và snapshot sản phẩm</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-09</strong></td>
+          <td>Hủy đơn hàng</td>
+          <td>Customer</td>
+          <td>Đơn hàng cá nhân</td>
+          <td>Khách hủy đơn khi ở PENDING, tự động hoàn kho</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-10</strong></td>
+          <td>Xử lý & cập nhật đơn hàng</td>
+          <td>Admin</td>
+          <td>Quản trị</td>
+          <td>Chuyển 5 bước trạng thái đơn, hủy đơn nội bộ</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-11</strong></td>
+          <td>Quản lý tồn kho</td>
+          <td>Admin</td>
+          <td>Quản trị</td>
+          <td>Theo dõi tồn kho theo SKU, cảnh báo, điều chỉnh kho</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-12</strong></td>
+          <td>Quản lý sản phẩm & danh mục</td>
+          <td>Admin</td>
+          <td>Quản trị</td>
+          <td>Quản lý danh mục, biến thể Size/Color/SKU và ảnh</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-13</strong></td>
+          <td>Quản lý mã giảm giá</td>
+          <td>Admin</td>
+          <td>Quản trị</td>
+          <td>Tạo voucher, thiết lập hạn mức và quota 1 lần/khách</td>
+          <td><span class="badge-med">Med</span></td>
+        </tr>
+        <tr>
+          <td><strong>UC-14</strong></td>
+          <td>Xem báo cáo doanh thu</td>
+          <td>Admin</td>
+          <td>Quản trị</td>
+          <td>Thống kê doanh thu thực tế từ đơn COMPLETED</td>
+          <td><span class="badge-high">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h1>3. CÁC SƠ ĐỒ USE CASE CHI TIẾT THEO PHÂN HỆ</h1>
+
+    <h2>3.1. Phân hệ Mua sắm & Đặt hàng COD (UC-07)</h2>
+    <p>
+      Phân rã chi tiết quy trình đặt hàng thanh toán khi nhận hàng. Áp dụng chuẩn xác quan hệ <code>&lt;&lt;include&gt;&gt;</code> cho các hành vi bắt buộc (chọn địa chỉ, khóa kiểm tra kho, xác nhận COD) và quan hệ <code>&lt;&lt;extend&gt;&gt;</code> cho hành vi áp dụng mã giảm giá tùy chọn:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/uc-01-checkout-detail.png" alt="Sơ đồ Use Case Đặt hàng COD">
+      <div class="diagram-caption">Hình 1.2: Sơ đồ Use Case chi tiết Đặt hàng COD & Giỏ hàng</div>
+    </div>
+
+    <h2>3.2. Phân hệ Đơn hàng cá nhân (UC-08 & UC-09)</h2>
+    <p>
+      Khách hàng theo dõi chi tiết từng đơn hàng đã đặt. Quan hệ mở rộng <code>&lt;&lt;extend&gt;&gt;</code> quy định rõ: Nút hủy đơn hàng chỉ xuất hiện và cho phép thực thi khi đơn hàng đang ở trạng thái <code>PENDING</code>.
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/uc-02-customer-orders-detail.png" alt="Sơ đồ Use Case Đơn hàng cá nhân">
+      <div class="diagram-caption">Hình 1.3: Sơ đồ Use Case chi tiết Đơn hàng cá nhân & Hủy đơn PENDING</div>
+    </div>
+
+    <h2>3.3. Phân hệ Vận hành Đơn hàng Admin (UC-10)</h2>
+    <p>
+      Quản trị viên tiếp nhận và chuyển tiếp đơn hàng theo máy trạng thái tuần tự. Chức năng Hủy đơn hàng nội bộ là một nhánh <code>&lt;&lt;extend&gt;&gt;</code> khi không thể liên hệ người nhận.
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/uc-03-order-operations-detail.png" alt="Sơ đồ Use Case Vận hành đơn hàng Admin">
+      <div class="diagram-caption">Hình 1.4: Sơ đồ Use Case chi tiết Vận hành đơn hàng của Admin</div>
+    </div>
+
+    <h2>3.4. Phân hệ Quản trị Sản phẩm & Tồn kho (UC-11 & UC-12)</h2>
+    <p>
+      Thể hiện đặc thù ngành giày dép: Quản lý sản phẩm bắt buộc bao gồm (<code>&lt;&lt;include&gt;&gt;</code>) quản lý ma trận biến thể Kích cỡ (Size) x Màu sắc (Color) và thư viện hình ảnh thực tế. Hành động Điều chỉnh tồn kho mở rộng (<code>&lt;&lt;extend&gt;&gt;</code>) khi kiểm kê phát hiện lệch kho thực tế.
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/uc-04-catalog-inventory-detail.png" alt="Sơ đồ Use Case Sản phẩm & Kho">
+      <div class="diagram-caption">Hình 1.5: Sơ đồ Use Case chi tiết Quản lý Sản phẩm, Biến thể và Tồn kho</div>
+    </div>
+
+    <h1>4. KẾT LUẬN & ĐÁNH GIÁ</h1>
+    <p>
+      Lab 1 đã hoàn thành đầy đủ 100% mục tiêu học thuật môn Phân tích Thiết kế Hệ thống:
+    </p>
+    <ul>
+      <li>Xác định chính xác 3 tác nhân không chồng chéo quyền hạn.</li>
+      <li>Hoàn thiện 14 Use Cases thực tế, không có use case phân rã vụn vặt.</li>
+      <li>Thể hiện chính xác quan hệ <code>&lt;&lt;include&gt;&gt;</code> và <code>&lt;&lt;extend&gt;&gt;</code> đúng chuẩn UML 2.5.</li>
+      <li>Đầy đủ 5 bản vẽ sơ đồ PlantUML và hình ảnh minh họa sắc nét đi kèm tài liệu đặc tả kịch bản chi tiết.</li>
+    </ul>
+
+  </div>
+
+</body>
+</html>

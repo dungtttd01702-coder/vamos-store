@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>BÁO CÁO LAB 4 - THIẾT KẾ GIAO DIỆN & WIREFRAME - VAMOS STORE</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 20mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.5;
+      color: #111827;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 20px 0;
+    }
+    .print-bar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .print-btn {
+      background: #e11b22;
+      color: #ffffff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(225, 27, 34, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30mm 20mm 25mm 25mm;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+    }
+    .cover-page {
+      border: 3px double #1e3a8a;
+      padding: 30px;
+      min-height: 980px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .fpt-header {
+      font-size: 15pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fpt-sub {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #ea580c;
+      margin-top: 5px;
+    }
+    .report-title {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #e11b22;
+      text-transform: uppercase;
+      margin-top: 40px;
+      letter-spacing: 1px;
+    }
+    .report-subject {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #1f2937;
+      margin-top: 15px;
+    }
+    .meta-box {
+      margin: 40px auto 0;
+      width: 80%;
+      text-align: left;
+      font-size: 13pt;
+      line-height: 2;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 20px;
+    }
+    h1, h2, h3, h4 {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 18pt;
+      border-bottom: 2px solid #e11b22;
+      padding-bottom: 6px;
+      margin-top: 30px;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1e3a8a;
+      margin-top: 25px;
+    }
+    p, li {
+      text-align: justify;
+    }
+    .diagram-container {
+      text-align: center;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    .diagram-container img {
+      max-width: 100%;
+      max-height: 650px;
+      object-fit: contain;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .diagram-caption {
+      font-size: 11pt;
+      font-style: italic;
+      color: #475569;
+      margin-top: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 11pt;
+      page-break-inside: avoid;
+    }
+    table th, table td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: bold;
+    }
+    @media print {
+      body {
+        background: transparent;
+        padding: 0;
+      }
+      .print-bar {
+        display: none;
+      }
+      .page-container {
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .cover-page {
+        min-height: 98vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+      In Báo Cáo / Xuất PDF (Ctrl + P)
+    </button>
+  </div>
+
+  <div class="page-container">
+    
+    <!-- TRANG BÌA -->
+    <div class="cover-page">
+      <div>
+        <div class="fpt-header">TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC</div>
+        <div class="fpt-sub">BỘ MÔN CÔNG NGHỆ THÔNG TIN</div>
+        <div style="margin: 30px auto;">
+          <img src="images/fpt_polytechnic_logo.jpg" alt="Logo FPT" style="max-height: 80px;">
+        </div>
+      </div>
+
+      <div>
+        <div class="report-title">BÁO CÁO LAB 4</div>
+        <div class="report-subject">THIẾT KẾ GIAO DIỆN & ĐẶC TẢ MÀN HÌNH (WIREFRAME & UI)</div>
+        <div style="font-size: 14pt; font-weight: bold; color: #475569; margin-top: 15px;">DỰ ÁN WEBSITE BÁN GIÀY THỂ THAO VAMOS STORE</div>
+        <div style="font-size: 12pt; color: #64748b; font-style: italic; margin-top: 5px;">"MOVE YOUR WAY"</div>
+      </div>
+
+      <div class="meta-box">
+        <div><strong>Giảng viên hướng dẫn:</strong> [Họ và tên giảng viên]</div>
+        <div><strong>Sinh viên thực hiện:</strong> Trần Trung Dũng</div>
+        <div><strong>Mã số sinh viên:</strong> [MSSV của bạn]</div>
+        <div><strong>Lớp:</strong> JAV102 / Dự án 1</div>
+        <div><strong>Quy mô thiết kế:</strong> Sitemap phân tầng & 10 Màn hình Wireframe chuẩn Kinetic UI</div>
+      </div>
+
+      <div style="font-size: 12pt; font-weight: bold; color: #64748b; margin-top: 30px;">
+        ĐÀ NẴNG - 2026
+      </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <h1>1. ĐỊNH HƯỚNG THIẾT KẾ GIAO DIỆN VÀ NHẬN DIỆN THƯƠNG HIỆU</h1>
+    <p>
+      Giao diện <strong>VAMOS STORE</strong> được xây dựng theo phong cách Modern Kinetic UI, hướng tới đối tượng khách hàng trẻ trung, năng động yêu thích thể thao và sneaker thời thượng.
+    </p>
+    <ul>
+      <li><strong>Quy chuẩn bảng màu (60-30-10):</strong> 60% Nền trắng tinh khiết (<code>#FFFFFF</code>), 30% Chữ than chì đậm (<code>#111827</code>) và 10% Màu đỏ thương hiệu (<code>#E11B22</code>) làm điểm nhấn hành động (CTA, giảm giá, badge nổi bật).</li>
+      <li><strong>Typography:</strong> Tiêu đề chính sử dụng phông chữ thể thao hiện đại <strong>Space Grotesk</strong>, nội dung chi tiết sử dụng Inter / System font dễ đọc trên mọi màn hình.</li>
+      <li><strong>Tối ưu hóa ảnh sản phẩm:</strong> Khung hiển thị tỉ lệ vuông (<code>aspect-square</code>), ảnh giày thể thao bọc nền trắng studio trong suốt tạo cảm giác cao cấp và đồng nhất.</li>
+    </ul>
+
+    <h1>2. SƠ ĐỒ ĐIỀU HƯỚNG MÀN HÌNH (SITEMAP)</h1>
+    <p>
+      Sơ đồ điều hướng thể hiện cấu trúc cây phân tầng logic từ Trang chủ qua các danh mục, trang mua sắm, tài khoản và khu vực quản trị:
+    </p>
+
+    <div class="diagram-container">
+      <img src="images/sitemap.png" alt="Sơ đồ Sitemap VAMOS STORE">
+      <div class="diagram-caption">Hình 4.0: Sơ đồ điều hướng màn hình (Sitemap) toàn hệ thống - VAMOS STORE</div>
+    </div>
+
+    <h1>3. BẢN VẼ WIREFRAME VÀ ĐẶC TẢ 10 MÀN HÌNH CỐT LÕI</h1>
+
+    <h2>3.1. UI-01: Trang chủ (Home Page)</h2>
+    <p>
+      Màn hình trang chủ tiếp cận khách hàng với Hero Banner quảng bá, danh mục nổi bật, danh sách sản phẩm mới nhất và footer chính sách:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-01-home.png" alt="Giao diện Trang chủ">
+      <div class="diagram-caption">Hình 4.1: Bản vẽ thiết kế giao diện Trang chủ (Home Page)</div>
+    </div>
+
+    <h2>3.2. UI-02: Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter)</h2>
+    <p>
+      Thanh lọc bên trái (Sidebar Filter) cho phép lọc nhanh theo Giới tính, Kích cỡ giày, Màu sắc, Khoảng giá và sản phẩm đang giảm giá:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-02-shop.png" alt="Giao diện Cửa hàng và Bộ lọc">
+      <div class="diagram-caption">Hình 4.2: Bản vẽ thiết kế giao diện Cửa hàng và Bộ lọc đa tiêu chí</div>
+    </div>
+
+    <h2>3.3. UI-03: Chi tiết sản phẩm & Biến thể Size/Màu (Product Detail)</h2>
+    <p>
+      Bộ sưu tập ảnh đa góc độ, bộ chọn kích cỡ và màu sắc giày, cảnh báo tồn kho thời gian thực và nút "Thêm vào giỏ" / "Mua ngay":
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-03-product-detail.png" alt="Giao diện Chi tiết sản phẩm">
+      <div class="diagram-caption">Hình 4.3: Bản vẽ thiết kế giao diện Chi tiết sản phẩm</div>
+    </div>
+
+    <h2>3.4. UI-04: Giỏ hàng trực tuyến (Shopping Cart)</h2>
+    <p>
+      Hiển thị danh sách sản phẩm trong giỏ, điều chỉnh số lượng mua (giới hạn 1-10 đôi), tính tạm tính và đồng bộ giỏ vãng lai:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-04-cart.png" alt="Giao diện Giỏ hàng">
+      <div class="diagram-caption">Hình 4.4: Bản vẽ thiết kế giao diện Giỏ hàng trực tuyến</div>
+    </div>
+
+    <h2>3.5. UI-05: Đặt hàng thanh toán COD (Checkout COD)</h2>
+    <p>
+      Chọn địa chỉ nhận hàng, áp dụng mã voucher ưu đãi và chốt đơn thanh toán khi nhận hàng bằng tiền mặt:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-05-checkout-cod.png" alt="Giao diện Đặt hàng COD">
+      <div class="diagram-caption">Hình 4.5: Bản vẽ thiết kế giao diện Đặt hàng thanh toán COD</div>
+    </div>
+
+    <h2>3.6. UI-06: Đăng ký & Đăng nhập tài khoản (Auth Portal)</h2>
+    <p>
+      Modal chuyển đổi mượt mà giữa Đăng nhập và Đăng ký, hỗ trợ kiểm tra định dạng email và bảo mật với CSRF Token:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-06-auth.png" alt="Giao diện Đăng nhập Đăng ký">
+      <div class="diagram-caption">Hình 4.6: Bản vẽ thiết kế giao diện Đăng ký & Đăng nhập tài khoản</div>
+    </div>
+
+    <h2>3.7. UI-07: Lịch sử đơn hàng cá nhân (Order History)</h2>
+    <p>
+      Khách hàng theo dõi dòng thời gian tiến trình đơn hàng (Timeline 5 bước), xem snapshot sản phẩm và hủy đơn khi ở trạng thái <code>PENDING</code>:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-07-order-history.png" alt="Giao diện Lịch sử đơn hàng">
+      <div class="diagram-caption">Hình 4.7: Bản vẽ thiết kế giao diện Lịch sử đơn hàng cá nhân</div>
+    </div>
+
+    <h2>3.8. UI-08: Admin Dashboard tổng quan (Admin Overview)</h2>
+    <p>
+      Bảng điều khiển quản trị thống kê doanh thu thực tế, cảnh báo đơn chờ duyệt và danh sách biến thể sắp hết hàng dưới 5 đôi:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-08-admin-dashboard.png" alt="Giao diện Admin Dashboard">
+      <div class="diagram-caption">Hình 4.8: Bản vẽ thiết kế giao diện Admin Dashboard tổng quan</div>
+    </div>
+
+    <h2>3.9. UI-09: Admin Quản lý sản phẩm & Biến thể (Admin Products)</h2>
+    <p>
+      Giao diện quản lý danh mục, thiết lập ma trận biến thể giày Kích cỡ x Màu sắc x SKU x Tồn kho x Giá phụ thu:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-09-admin-products.png" alt="Giao diện Admin Quản lý sản phẩm">
+      <div class="diagram-caption">Hình 4.9: Bản vẽ thiết kế giao diện Admin Quản lý sản phẩm & Biến thể</div>
+    </div>
+
+    <h2>3.10. UI-10: Admin Vận hành đơn hàng (Admin Orders)</h2>
+    <p>
+      Lọc đơn theo tab trạng thái, xem chi tiết giao nhận, duyệt chuyển trạng thái tuần tự và hủy đơn hàng kèm tự động hoàn kho:
+    </p>
+    <div class="diagram-container">
+      <img src="images/ui-10-admin-orders.png" alt="Giao diện Admin Vận hành đơn hàng">
+      <div class="diagram-caption">Hình 4.10: Bản vẽ thiết kế giao diện Admin Vận hành đơn hàng</div>
+    </div>
+
+    <h1>4. KẾT LUẬN</h1>
+    <p>
+      Bộ thiết kế giao diện Lab 4 đáp ứng đầy đủ yêu cầu nghiệp vụ thực tế, đồng bộ 100% với cấu trúc dữ liệu database và mang lại trải nghiệm mua sắm trực quan, hiện đại cho người dùng VAMOS STORE.
+    </p>
+
+  </div>
+
+</body>
+</html>

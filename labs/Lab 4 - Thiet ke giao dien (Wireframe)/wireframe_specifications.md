@@ -8,6 +8,9 @@
 
 ## 1. SƠ ĐỒ MÀN HÌNH TỔNG QUAN (SITEMAP)
 
+![Sơ đồ điều hướng Sitemap VAMOS STORE](images/sitemap.png)
+*Hình 4.0: Sơ đồ cấu trúc cây điều hướng màn hình (Sitemap) toàn hệ thống*
+
 ```
 [ TRANG CHỦ - VAMOS STORE ]
   ├── Cửa hàng / Danh mục (Shop)
@@ -36,6 +39,11 @@
 
 - **Mô tả:** Màn hình chính đầu tiên tiếp cận người dùng, giới thiệu bộ sưu tập mới, banner khuyến mãi, danh mục nổi bật và sản phẩm bán chạy.
 - **Quyền truy cập:** `Guest`, `Customer`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Trang chủ](images/ui-01-home.png)
+*Hình 4.1: Bản vẽ thiết kế giao diện Trang chủ (Home Page)*
+
 - **Khung Wireframe:**
 
 ```
@@ -73,6 +81,11 @@
 
 - **Mô tả:** Màn hình duyệt toàn bộ sản phẩm, trang bị bộ lọc bên trái (Sidebar Filter) cho phép lọc đa tiêu chí và thanh sắp xếp.
 - **Quyền truy cập:** `Guest`, `Customer`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Cửa hàng và Bộ lọc](images/ui-02-shop.png)
+*Hình 4.2: Bản vẽ thiết kế giao diện Cửa hàng và Bộ lọc đa tiêu chí*
+
 - **Khung Wireframe:**
 
 ```
@@ -113,6 +126,11 @@
 
 - **Mô tả:** Màn hình xem chi tiết thông số giày, bộ sưu tập ảnh, chọn biến thể Size x Màu sắc và thao tác thêm giỏ / mua ngay.
 - **Quyền truy cập:** `Guest`, `Customer`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Chi tiết sản phẩm](images/ui-03-product-detail.png)
+*Hình 4.3: Bản vẽ thiết kế giao diện Chi tiết sản phẩm & Bộ chọn biến thể Size/Màu*
+
 - **Khung Wireframe:**
 
 ```
@@ -156,6 +174,11 @@
 
 - **Mô tả:** Màn hình quản lý các mặt hàng đã chọn mua, cập nhật số lượng, xóa sản phẩm và xem tạm tính tiền hàng.
 - **Quyền truy cập:** `Customer`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Giỏ hàng](images/ui-04-cart.png)
+*Hình 4.4: Bản vẽ thiết kế giao diện Giỏ hàng trực tuyến*
+
 - **Khung Wireframe:**
 
 ```
@@ -191,6 +214,11 @@
 
 - **Mô tả:** Màn hình xác nhận thông tin nhận hàng, nhập mã voucher và hoàn tất tạo đơn thanh toán khi nhận hàng.
 - **Quyền truy cập:** `Customer` (đã đăng nhập và giỏ hàng có sản phẩm).
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Đặt hàng COD](images/ui-05-checkout-cod.png)
+*Hình 4.5: Bản vẽ thiết kế giao diện Đặt hàng thanh toán COD*
+
 - **Khung Wireframe:**
 
 ```
@@ -231,6 +259,11 @@
 
 - **Mô tả:** Màn hình xác thực tài khoản người dùng, băm mật khẩu bảo mật và cấp session đăng nhập.
 - **Quyền truy cập:** `Guest`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Đăng ký & Đăng nhập](images/ui-06-auth.png)
+*Hình 4.6: Bản vẽ thiết kế giao diện Đăng ký & Đăng nhập tài khoản*
+
 - **Khung Wireframe:**
 
 ```
@@ -260,6 +293,11 @@
 
 - **Mô tả:** Khách hàng theo dõi danh sách đơn hàng đã mua, xem trạng thái xử lý theo thời gian thực và thực hiện hủy đơn khi đơn ở trạng thái `PENDING`.
 - **Quyền truy cập:** `Customer`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Lịch sử đơn hàng](images/ui-07-order-history.png)
+*Hình 4.7: Bản vẽ thiết kế giao diện Lịch sử đơn hàng & Tiến trình trạng thái*
+
 - **Khung Wireframe:**
 
 ```
@@ -284,6 +322,11 @@
 
 - **Mô tả:** Màn hình bảng điều khiển trung tâm cho Quản trị viên, thống kê số liệu kinh doanh, đơn hàng mới và cảnh báo sản phẩm sắp hết hàng.
 - **Quyền truy cập:** `Admin`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Admin Dashboard](images/ui-08-admin-dashboard.png)
+*Hình 4.8: Bản vẽ thiết kế giao diện Bảng điều khiển quản trị (Admin Dashboard)*
+
 - **Khung Wireframe:**
 
 ```
@@ -307,6 +350,11 @@
 
 - **Mô tả:** Màn hình Admin thêm, sửa, xem danh sách sản phẩm cha và cấu hình ma trận biến thể Size x Màu sắc x SKU x Tồn kho.
 - **Quyền truy cập:** `Admin`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Admin Quản lý sản phẩm](images/ui-09-admin-products.png)
+*Hình 4.9: Bản vẽ thiết kế giao diện Quản lý sản phẩm & Biến thể của Admin*
+
 - **Khung Wireframe:**
 
 ```
@@ -329,6 +377,11 @@
 
 - **Mô tả:** Quản lý quy trình xử lý đơn hàng, xác nhận đơn, chuyển giao vận, xác nhận giao thành công và ghi chú lý do hủy.
 - **Quyền truy cập:** `Admin`.
+- **Hình ảnh giao diện thiết kế:**
+
+![Giao diện Admin Vận hành đơn hàng](images/ui-10-admin-orders.png)
+*Hình 4.10: Bản vẽ thiết kế giao diện Quản lý và Vận hành đơn hàng của Admin*
+
 - **Khung Wireframe:**
 
 ```
