@@ -49,5 +49,6 @@ router.post('/customers/:id/toggle-status', adminController.postToggleCustomerSt
 router.get('/banners', adminController.getBanners);
 router.post('/banners/create', adminController.postCreateBanner);
 router.post('/banners/:id/toggle', adminController.postToggleBanner);
+router.post('/banners/:id/delete', adminController.postDeleteBanner);
 
 module.exports = router;

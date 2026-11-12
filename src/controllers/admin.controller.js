@@ -1036,6 +1036,16 @@ class AdminController {
       next(error);
     }
   }
+
+  async postDeleteBanner(req, res, next) {
+    try {
+      const { id } = req.params;
+      await query('DELETE FROM banners WHERE id = @id', { id: parseInt(id, 10) });
+      res.redirect('/admin/banners?success=Đã+xóa+banner+thành+công');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AdminController();

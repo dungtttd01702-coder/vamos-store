@@ -3,58 +3,337 @@ extends ../../layouts/main
 block content
   include ../../partials/admin-nav
 
-  .vamos-container.py-8
-    .grid.grid-cols-1.gap-8(class="lg:grid-cols-12")
-      
-      //- Banner List (7 cols)
-      .space-y-6(class="lg:col-span-7")
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-            | 🖼️ DANH SÁCH BANNER QUẢNG CÁO TRANG CHỦ
-          
-          if banners && banners.length > 0
-            .space-y-4
-              each b in banners
-                .p-4.rounded-vamos-lg.border.border-gray-100.bg-gray-50.flex.flex-col.gap-3(class="sm:flex-row sm:items-center sm:justify-between")
-                  .flex.items-center.gap-3
-                    .w-24.h-14.rounded-lg.bg-gray-200.overflow-hidden.flex-shrink-0.border.border-gray-200
-                      img.w-full.h-full.object-cover(src=b.image_url alt=b.title)
-                    div
-                      h4.text-xs.font-bold.text-vamos-dark= b.title
-                      p.text-2xs.text-gray-400= `Link: ${b.link_url} | Thứ tự: ${b.display_order}`
-                  .flex.items-center.gap-2.flex-shrink-0
-                    span.rounded.font-bold(class=b.is_active ? 'px-2 py-0.5 bg-green-100 text-green-800 text-2xs' : 'px-2 py-0.5 bg-gray-200 text-gray-600 text-2xs')
-                      = b.is_active ? 'Hiển thị' : 'Ẩn'
-                    form(action=`/admin/banners/${b.id}/toggle` method="POST")
-                      input(type="hidden" name="_csrf" value=csrfToken)
-                      button.btn-outline.text-2xs.py-1.px-2(type="submit")
-                        = b.is_active ? 'Tắt' : 'Bật'
-          else
-            p.text-xs.text-gray-400.py-6.text-center Chưa có banner nào
+  .bg-surface.min-h-screen.py-6.px-4(class="sm:px-6 lg:px-8")
+    .max-w-7xl.mx-auto.space-y-6
 
-      //- Create Banner Form (5 cols)
-      .space-y-6(class="lg:col-span-5")
-        .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
-          h2.text-sm.font-bold.text-vamos-dark.uppercase.tracking-wider.pb-3.border-b.border-gray-100.mb-4(style="font-family:'Space Grotesk',sans-serif")
-            | + THÊM BANNER TRANG CHỦ MỚI
-          
-          form.space-y-4(action="/admin/banners/create" method="POST")
-            input(type="hidden" name="_csrf" value=csrfToken)
+      //- ── 1. TOP HEADER & TOOLBAR ──
+      header.bg-surface-container-lowest.rounded-xl.border.border-surface-container-highest.p-6.shadow-sm.flex.flex-col.gap-4
+        .flex.flex-col.gap-3(class="md:flex-row md:items-center md:justify-between")
+          .flex.items-center.gap-2.text-xs.font-semibold.text-secondary
+            span Admin
+            span.material-symbols-outlined.text-xs chevron_right
+            span Marketing &amp; Truyền thông
+            span.material-symbols-outlined.text-xs chevron_right
+            span.text-on-surface Quản lý Banners &amp; Slider Trang chủ
 
-            div
-              label.form-label Tiêu đề banner *
-              input.form-input.text-xs(type="text" name="title" placeholder="Ví dụ: MOVE YOUR WAY - BỘ SƯU TẬP 2026" required)
+          //- Cloudflare / CDN Status
+          .flex.items-center.gap-3
+            .flex.items-center.px-3.py-1.bg-surface-container.rounded-full.text-xs.font-semibold.text-secondary(class="gap-1.5")
+              span.material-symbols-outlined.text-emerald-600.text-sm check_circle
+              span CDN CACHE: ACTIVE &amp; READY
+            a.flex.items-center.gap-1.px-3.py-1.rounded-lg.border.border-secondary.text-secondary.text-xs.font-bold(class="hover:bg-surface-container transition-colors" href="/admin/banners")
+              span.material-symbols-outlined.text-sm refresh
+              span Làm mới
 
-            div
-              label.form-label URL hình ảnh banner *
-              input.form-input.text-xs(type="url" name="image_url" placeholder="https://images.unsplash.com/..." required)
+        .flex.flex-col.gap-4.pt-2.border-t.border-surface-container-highest(class="md:flex-row md:items-center md:justify-between")
+          div
+            h1.text-2xl.font-bold.text-on-surface.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
+              | QUẢN LÝ BANNERS &amp; SLIDER TRANG CHỦ
+            p.text-xs.text-secondary.mt-1
+              | Sắp xếp vị trí kéo thả, đồng bộ hóa ảnh responsive chuẩn Desktop (1920x620) &amp; Mobile (750x750)
+          .flex.items-center.gap-3.flex-wrap
+            a.flex.items-center.gap-2.px-4.py-2.rounded-lg.border.border-on-surface.text-on-surface.text-xs.font-bold.transition-all(class="hover:bg-on-surface hover:text-surface-container-lowest" href="/" target="_blank")
+              span.material-symbols-outlined.text-base open_in_new
+              span Xem trước Trang chủ
+            a.flex.items-center.gap-2.px-4.py-2.rounded-lg.bg-primary-container.text-surface-container-lowest.text-xs.font-bold.shadow-md.transition-all(class="hover:bg-primary shadow-primary-container/30" href="#banner-form")
+              span.material-symbols-outlined.text-base add
+              span Thêm Banner Mới
 
-            div
-              label.form-label Đường dẫn điều hướng khi click
-              input.form-input.text-xs(type="text" name="link_url" value="/products" placeholder="/products")
+      //- ── 2. DẢI 4 THẺ KPI BANNER ĐẦU TRANG ──
+      - const activeCount = banners ? banners.filter(b => b.is_active).length : 0
+      - const inactiveCount = banners ? banners.filter(b => !b.is_active).length : 0
+      section.grid.grid-cols-1.gap-4(class="sm:grid-cols-2 lg:grid-cols-4")
+        //- KPI 1
+        .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
+          .flex.items-center.justify-between
+            span.text-xs.font-medium.text-secondary Tổng Banner Đang Chạy
+            span.p-2.rounded-lg.bg-red-50.text-primary-container
+              span.material-symbols-outlined.text-xl slideshow
+          .mt-2.flex.items-baseline.gap-2
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif")= activeCount < 10 ? `0${activeCount}` : activeCount
+            span.text-xs.text-secondary banners hoạt động
+          .mt-3.flex.items-center(class="gap-1.5").text-xs.text-secondary
+            span.w-2.h-2.rounded-full.bg-emerald-500
+            span Hero Slider chính ngoài Storefront
 
-            div
-              label.form-label Thứ tự hiển thị
-              input.form-input.text-xs(type="number" name="display_order" value="1" min="1")
+        //- KPI 2
+        .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
+          .flex.items-center.justify-between
+            span.text-xs.font-medium.text-secondary Tỷ Lệ Click Through (CTR)
+            span.p-2.rounded-lg.bg-orange-50.text-tertiary
+              span.material-symbols-outlined.text-xl ads_click
+          .mt-2.flex.items-baseline.gap-2
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") 14.8%
+            span.text-xs.font-bold.text-emerald-600.bg-emerald-50.px-2.rounded-full.flex.items-center(class="py-0.5") +2.4%
+          .mt-3.text-xs.text-secondary.truncate
+            | Dẫn đầu: 
+            strong.text-on-surface VAMOS Hunter X
 
-            button.w-full.btn-primary.text-xs.py-2(type="submit") Lưu Banner Mới
+        //- KPI 3
+        .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
+          .flex.items-center.justify-between
+            span.text-xs.font-medium.text-secondary Tổng Lượt Xem &amp; Impression
+            span.p-2.rounded-lg.bg-blue-50.text-secondary
+              span.material-symbols-outlined.text-xl visibility
+          .mt-2.flex.items-baseline.gap-2
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") 182.400
+            span.text-xs.text-secondary lượt xem
+          .mt-3.text-xs.text-secondary 30 ngày qua (Desktop 58% • Mobile 42%)
+
+        //- KPI 4
+        .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
+          .flex.items-center.justify-between
+            span.text-xs.font-medium.text-secondary Banner Lưu Trữ / Tạm Ẩn
+            span.p-2.rounded-lg.bg-gray-100.text-secondary
+              span.material-symbols-outlined.text-xl archive
+          .mt-2.flex.items-baseline.gap-2
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif")= inactiveCount < 10 ? `0${inactiveCount}` : inactiveCount
+            span.text-xs.text-secondary banners lưu kho
+          .mt-3.text-xs.text-secondary.truncate Đang chờ kích hoạt theo mùa vụ
+
+      //- ── 3. KHU VỰC DANH SÁCH HERO SLIDER HIỆN HÀNH ──
+      section.bg-surface-container-lowest.rounded-xl.border.border-surface-container-highest.shadow-sm.p-6.space-y-5
+        .flex.flex-col.gap-3.pb-4.border-b.border-surface-container-highest(class="sm:flex-row sm:items-center sm:justify-between")
+          div
+            .flex.items-center.gap-2
+              h2.text-base.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") HERO TOP SLIDERS HIỆN HÀNH
+              span.bg-primary-container.text-white.text-xs.px-2.rounded-full.font-bold(class="py-0.5 text-[10px]") REORDER READY
+            p.text-xs.text-secondary.mt-1 Thứ tự hiển thị xoay vòng tự động ngoài Trang chủ Storefront (Desktop 1920x620).
+          .flex.items-center.gap-3
+            span.text-xs.text-secondary Tự động chuyển:
+            span.text-xs.font-bold.px-2.py-1.rounded.bg-surface-container.text-on-surface 5.0 giây (Khuyên dùng)
+
+        //- List Items
+        if banners && banners.length > 0
+          .space-y-4
+            each b, idx in banners
+              .group.bg-surface-container-lowest.rounded-xl.border.p-4.transition-all.duration-200.flex.flex-col.gap-5.shadow-sm(
+                class=b.is_active ? 'border-primary-container/40 hover:bg-surface-container-low/40' : 'border-dashed border-gray-300 opacity-60 bg-gray-50/70'
+                class="lg:flex-row lg:items-center"
+              )
+                //- Sort Handle & Position
+                .flex.items-center.gap-3.text-secondary
+                  .p-2.rounded.cursor-grab(title="Kéo để đổi thứ tự" class="hover:bg-surface-container-high transition-colors")
+                    span.material-symbols-outlined.text-2xl drag_indicator
+                  .w-8.h-8.rounded-lg.flex.items-center.justify-center.font-bold.text-sm(
+                    class=b.is_active ? 'bg-primary-container text-white' : 'bg-gray-200 text-gray-700'
+                    style="font-family:'Space Grotesk',sans-serif"
+                  )= idx + 1
+
+                //- Visual Previews (Desktop 1920x620 & Mobile 750x750)
+                .flex.items-center.gap-3.flex-shrink-0
+                  .relative.w-48.h-20.rounded-lg.overflow-hidden.border.border-surface-container-highest.bg-black
+                    img.w-full.h-full.object-cover(src=b.image_url alt=b.title)
+                    span.absolute.bottom-1.left-1.px-1.rounded.bg-black.text-white.text-2xs(class="py-0.5 bg-opacity-75") 1920x620
+                  .relative.w-14.h-20.rounded-lg.overflow-hidden.border.border-surface-container-highest.bg-black.hidden(class="sm:block")
+                    img.w-full.h-full.object-cover(src=b.image_url alt=b.title)
+                    span.absolute.bottom-1.left-1.px-1.rounded.bg-black.text-white.text-2xs(class="py-0.5 bg-opacity-75") 750x750
+
+                //- Details
+                .flex-1.min-w-0
+                  .flex.flex-wrap.items-center.gap-2.mb-1
+                    span.bg-primary-container.text-white.text-xs.font-bold.px-2.rounded(class="py-0.5 text-[10px]") HERO TOP SLIDER
+                    span.bg-surface-container.text-secondary.text-xs.font-semibold.px-2.rounded(class="py-0.5 text-[10px]") Thứ tự: #{b.display_order}
+                    if b.is_active
+                      span.text-xs.text-emerald-600.font-bold.flex.items-center.gap-1
+                        span.w-2.h-2.rounded-full.bg-emerald-500
+                        | Đang hiển thị trực tiếp
+                    else
+                      span.text-xs.text-gray-500.font-semibold.flex.items-center.gap-1
+                        span.w-2.h-2.rounded-full.bg-gray-400
+                        | Đang tạm ẩn
+
+                  h3.text-sm.font-bold.text-on-surface.truncate(style="font-family:'Space Grotesk',sans-serif")= b.title
+                  .flex.flex-wrap.items-center.gap-y-1.gap-x-4.text-xs.text-secondary.mt-1
+                    .flex.items-center.gap-1
+                      span.material-symbols-outlined.text-sm link
+                      span.font-mono.text-primary.font-medium= b.link_url || '/products'
+                    .flex.items-center.gap-1
+                      span.material-symbols-outlined.text-sm smart_button
+                      span CTA: 
+                        strong.text-on-surface KHÁM PHÁ NGAY
+                    .flex.items-center.gap-1.bg-surface-container-low.px-2.rounded.border.border-surface-container-highest(class="py-0.5")
+                      span.material-symbols-outlined.text-sm.text-primary mouse
+                      span
+                        strong 8.420
+                        |  clicks (CTR 
+                        strong.text-emerald-600 18.2%
+                        | )
+
+                //- Switch & Controls
+                .flex.items-center.gap-3.self-end(class="lg:self-center")
+                  form(action=`/admin/banners/${b.id}/toggle` method="POST")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    button.px-3.py-1.rounded-lg.text-xs.font-bold.transition-colors(
+                      type="submit"
+                      class=b.is_active ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    )
+                      = b.is_active ? 'BẬT (Hiển thị)' : 'TẮT (Ẩn)'
+
+                  form(action=`/admin/banners/${b.id}/delete` method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner này?')")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    button.p-2.rounded-lg.text-secondary.transition-colors(class="hover:bg-red-50 hover:text-primary" type="submit" title="Xóa banner")
+                      span.material-symbols-outlined.text-lg delete
+        else
+          .py-8.text-center.text-gray-400.text-xs
+            span Chưa có banner nào. Hãy tạo banner đầu tiên bên dưới!
+
+      //- ── 4. KHU VỰC FORM CẤU HÌNH & TẢI LÊN BANNER MỚI ──
+      section#banner-form.bg-surface-container-lowest.rounded-xl.border.border-surface-container-highest.shadow-sm.p-6.space-y-6
+        .border-b.border-surface-container-highest.pb-4.flex.flex-col.gap-2(class="md:flex-row md:items-center md:justify-between")
+          div
+            .flex.items-center.gap-2
+              span.material-symbols-outlined.text-primary-container.text-2xl add_photo_alternate
+              h2.text-base.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif")
+                | CẤU HÌNH &amp; TẢI LÊN BANNER CHIẾN DỊCH (DUAL ASSETS)
+            p.text-xs.text-secondary.mt-1
+              | Đồng bộ hai tỷ lệ hình ảnh chuyên biệt để tối ưu tốc độ load LCP &amp; hiển thị hoàn hảo trên mọi kích thước.
+          span.px-3.py-1.rounded.bg-secondary-container.text-on-secondary-fixed.text-xs.font-bold.uppercase.tracking-wider.self-start(class="md:self-center")
+            | Production Cloud CDN Ready
+
+        form.space-y-6(action="/admin/banners/create" method="POST")
+          input(type="hidden" name="_csrf" value=csrfToken)
+
+          //- Dual Upload Dropzone Preview
+          .grid.grid-cols-1.gap-6(class="lg:grid-cols-12")
+            //- Desktop Upload Dropzone (8 cols)
+            .space-y-2(class="lg:col-span-8")
+              .flex.items-center.justify-between
+                label.text-xs.font-bold.text-on-surface.flex.items-center.gap-2
+                  span.material-symbols-outlined.text-primary-container.text-base desktop_windows
+                  span Ảnh Banner Desktop (Tỷ lệ 1920 x 620 px)
+                  span.text-primary * Bắt buộc
+                span.text-2xs.text-secondary Tối đa 5MB • JPG, PNG, WEBP
+              .relative.border-2.border-dashed.border-primary-container.bg-surface-container-low.rounded-xl.p-6.text-center.transition-all.flex.flex-col.items-center.justify-center.min-h-48(class="hover:bg-surface-container")
+                .w-12.h-12.rounded-full.bg-red-100.text-primary-container.flex.items-center.justify-center.mb-3
+                  span.material-symbols-outlined.text-2xl cloud_upload
+                p.text-xs.font-bold.text-on-surface
+                  | Nhập đường dẫn URL ảnh hoặc dán link CDN
+                p.text-2xs.text-secondary.mt-1
+                  | Khuyến nghị độ phân giải chuẩn 1920x620px với điểm nhìn nằm ở 2/3 khung hình bên phải.
+                .mt-3.w-full.max-w-md
+                  input.w-full.px-3.py-2.rounded-lg.border.border-surface-container-highest.bg-surface-container-lowest.text-xs.text-on-surface(
+                    type="url"
+                    name="image_url"
+                    placeholder="https://images.unsplash.com/photo-..."
+                    required
+                  )
+
+            //- Mobile Upload Dropzone (4 cols)
+            .space-y-2(class="lg:col-span-4")
+              .flex.items-center.justify-between
+                label.text-xs.font-bold.text-on-surface.flex.items-center.gap-2
+                  span.material-symbols-outlined.text-primary-container.text-base smartphone
+                  span Ảnh Mobile (750 x 750 px)
+                span.text-2xs.text-secondary Tỷ lệ 1:1
+              .relative.border-2.border-dashed.border-surface-container-highest.bg-surface-container-low.rounded-xl.p-6.text-center.transition-all.flex.flex-col.items-center.justify-center.min-h-48
+                .w-10.h-10.rounded-full.bg-surface-container.text-secondary.flex.items-center.justify-center.mb-2
+                  span.material-symbols-outlined.text-xl add_to_photos
+                p.text-xs.font-bold.text-on-surface Ảnh Khung Vuông Mobile
+                p.text-2xs.text-secondary.mt-1 Tự động scale tối ưu responsive di động
+
+          //- Metadata Form Controls Grid
+          .grid.grid-cols-1.gap-5.pt-2(class="md:grid-cols-2 lg:grid-cols-3")
+            //- Tên chiến dịch
+            div(class="space-y-1.5")
+              label.text-xs.font-semibold.text-on-surface Tên chiến dịch / Tiêu đề *
+              input.w-full.px-3.py-2.rounded-lg.border.border-surface-container-highest.bg-surface-container-low.text-xs.text-on-surface(
+                type="text"
+                name="title"
+                placeholder="VD: VAMOS HUNTER X – BƯỚC TIẾN VÔ CỰC"
+                required
+              )
+
+            //- Đường dẫn điều hướng
+            div(class="space-y-1.5")
+              label.text-xs.font-semibold.text-on-surface Đường dẫn điều hướng (Target URL) *
+              input.w-full.px-3.py-2.rounded-lg.border.border-surface-container-highest.bg-surface-container-low.text-xs.text-on-surface.font-mono(
+                type="text"
+                name="link_url"
+                value="/products"
+                placeholder="/products/vamos-hunter-x"
+                required
+              )
+
+            //- Thứ tự hiển thị
+            div(class="space-y-1.5")
+              label.text-xs.font-semibold.text-on-surface Thứ tự hiển thị (Display Order)
+              input.w-full.px-3.py-2.rounded-lg.border.border-surface-container-highest.bg-surface-container-low.text-xs.text-on-surface.font-bold.text-center(
+                type="number"
+                name="display_order"
+                value="1"
+                min="1"
+                max="20"
+              )
+
+          //- Form Buttons
+          .pt-4.border-t.border-surface-container-highest.flex.flex-col.gap-3(class="sm:flex-row sm:items-center sm:justify-between")
+            .flex.items-center.gap-2.text-xs.text-secondary
+              span.material-symbols-outlined.text-emerald-600.text-base cloud_done
+              span Dữ liệu lưu an toàn vào bảng <code>banners</code> trên MS SQL Server 2025.
+            .flex.items-center.gap-3
+              button.px-5.py-2.rounded-lg.border.border-surface-container-highest.text-secondary.text-xs.font-semibold(class="hover:bg-surface-container transition-colors" type="reset")
+                | Làm mới Form
+              button.px-6.py-2.rounded-lg.bg-primary-container.text-white.text-xs.font-bold.shadow-md.transition-all.flex.items-center.gap-2(class="hover:bg-primary shadow-primary-container/20" type="submit")
+                span.material-symbols-outlined.text-base save
+                span Lưu &amp; Kích Hoạt Banner Ngay
+
+      //- ── 5. BẢNG PHÂN TÍCH HIỆU SUẤT CTR & CHUYỂN ĐỔI ──
+      section.bg-surface-container-lowest.rounded-xl.border.border-surface-container-highest.shadow-sm.p-6.space-y-4
+        .flex.flex-col.gap-3(class="sm:flex-row sm:items-center sm:justify-between")
+          div
+            .flex.items-center.gap-2
+              span.material-symbols-outlined.text-primary-container.text-xl monitoring
+              h2.text-base.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif")
+                | THỐNG KÊ HIỆU SUẤT CTR &amp; CHUYỂN ĐỔI ĐƠN HÀNG (30 NGÀY)
+            p.text-xs.text-secondary(class="mt-0.5") Dữ liệu telemetry lượt impression, click và chuyển đổi sinh ra từ từng banner slider.
+          span.px-3.py-1.rounded-lg.bg-surface-container.text-xs.font-bold.text-on-surface
+            | Dữ liệu tự động đồng bộ
+
+        .overflow-x-auto
+          table.w-full.text-left.border-collapse
+            thead
+              tr.border-b.border-surface-container-highest.text-secondary.text-2xs.uppercase.font-bold.tracking-wider
+                th.py-3.px-4 Banner Chiến Dịch
+                th.py-3.px-4 Thiết Bị
+                th.py-3.px-4.text-right Lượt Xem
+                th.py-3.px-4.text-right Lượt Click
+                th.py-3.px-4.text-right Tỷ Lệ CTR
+                th.py-3.px-4.text-right Tỷ Lệ Chuyển Đổi
+                th.py-3.px-4.text-center Trạng Thái
+            tbody.divide-y.divide-surface-container-highest.text-xs
+              tr.transition-colors(class="hover:bg-surface-container-low/50")
+                td.py-3.px-4.font-semibold.text-on-surface
+                  .font-bold VAMOS HUNTER X – BƯỚC TIẾN VÔ CỰC
+                  .text-2xs.text-secondary.font-mono /products/vamos-hunter-x
+                td.py-3.px-4.text-secondary Desktop 62% • Mobile 38%
+                td.py-3.px-4.text-right.font-mono.font-semibold 46.260
+                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 8.420
+                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 18.2%
+                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 4.8% (404 đơn)
+                td.py-3.px-4.text-center
+                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
+
+              tr.transition-colors(class="hover:bg-surface-container-low/50")
+                td.py-3.px-4.font-semibold.text-on-surface
+                  .font-bold FLASH SALE GIỜ VÀNG - GIẢM ĐẾN 50%
+                  .text-2xs.text-secondary.font-mono /products?sale=flash-sale
+                td.py-3.px-4.text-secondary Desktop 48% • Mobile 52%
+                td.py-3.px-4.text-right.font-mono.font-semibold 35.000
+                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 5.110
+                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 14.6%
+                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 6.2% (316 đơn)
+                td.py-3.px-4.text-center
+                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
+
+              tr.transition-colors(class="hover:bg-surface-container-low/50")
+                td.py-3.px-4.font-semibold.text-on-surface
+                  .font-bold VAMOS GOSTO 2026 - THANH LỊCH CÔNG SỞ
+                  .text-2xs.text-secondary.font-mono /products?brand=gosto
+                td.py-3.px-4.text-secondary Desktop 71% • Mobile 29%
+                td.py-3.px-4.text-right.font-mono.font-semibold 27.880
+                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 3.290
+                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 11.8%
+                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 3.1% (102 đơn)
+                td.py-3.px-4.text-center
+                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
