@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAMOS STORE - Quản lý Tồn kho &amp; Kiểm toán Biến động</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {outline: "#926e6b", "error-container": "#ffdad6", error: "#ba1a1a", "tertiary-container": "#bd5200", "on-primary-fixed-variant": "#93000d", "on-secondary-fixed": "#001849", "tertiary-fixed-dim": "#ffb690", "secondary-container": "#8eabff", tertiary: "#964000", "surface-container-highest": "#d3e4fe", "secondary-fixed-dim": "#b2c5ff", "surface-dim": "#cbdbf5", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-variant": "#d3e4fe", "on-tertiary-container": "#fff7f4", surface: "#f8f9ff", "primary-fixed-dim": "#ffb4ab", "surface-container": "#e5eeff", "on-primary-fixed": "#410002", "on-tertiary-fixed": "#341100", "inverse-primary": "#ffb4ab", "on-surface-variant": "#5d3f3c", "on-tertiary": "#ffffff", "tertiary-fixed": "#ffdbca", primary: "#b70013", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#783200", "on-surface": "#0b1c30", "on-primary-container": "#fff7f6", "surface-bright": "#f8f9ff", "outline-variant": "#e7bdb8", "inverse-surface": "#213145", "surface-tint": "#c00014", "on-background": "#0b1c30", "surface-container-lowest": "#ffffff", "secondary-fixed": "#dae2ff", "primary-container": "#e11b22", "on-secondary-fixed-variant": "#20428f", "on-secondary-container": "#193d8a", secondary: "#3c5ba9", "on-error": "#ffffff", background: "#f8f9ff", "inverse-on-surface": "#eaf1ff", "primary-fixed": "#ffdad6", "on-primary": "#ffffff", "surface-container-low": "#eff4ff"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"space-lg": "1.5rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-lg": "2rem", "gutter-sm": "1rem", gutter: "1.5rem", "margin-sm": "1rem", "space-sm": "0.5rem", "space-xl": "2.5rem", "margin-lg": "4rem", margin: "1.5rem"}, fontFamily: {"body-md": ["Be Vietnam Pro"], "headline-sm": ["Space Grotesk"], "label-md": ["Be Vietnam Pro"], "headline-lg": ["Space Grotesk"], "label-lg": ["Be Vietnam Pro"], "label-badge": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "price-md": ["Space Grotesk"], "price-lg": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "headline-xl-mobile": ["Space Grotesk"], "body-sm": ["Be Vietnam Pro"], "headline-xl": ["Space Grotesk"], "body-lg": ["Be Vietnam Pro"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}]}}}}
+  </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex antialiased selection:bg-primary selection:text-white">
+<!-- ==================== SIDEBAR (DARK CARBON #111111) ==================== -->
+<aside class="w-64 bg-[#111111] text-white flex-shrink-0 flex flex-col justify-between hidden md:flex border-r border-[#222222] z-30">
+<div>
+<!-- Brand Logo Area -->
+<div class="h-20 flex items-center px-6 border-b border-[#222222]">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-white font-headline-md font-bold tracking-tight shadow-md">
+            V
+          </div>
+<div>
+<span class="font-headline-sm text-headline-sm font-bold tracking-wider text-white">VAMOS STORE</span>
+<span class="block text-[10px] tracking-widest text-neutral-400 uppercase font-headline-sm">Performance Ops</span>
+</div>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav class="p-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span>Đơn hàng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+<span>Sản phẩm &amp; Biến thể</span>
+</a>
+<!-- Active Menu Item: Tồn kho & Kiểm toán -->
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-neutral-900 text-white font-label-lg text-label-lg border-l-4 border-primary-container shadow-sm" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-bold">Tồn kho &amp; Kiểm toán</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">category</span>
+<span>Danh mục</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+<span>Vouchers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span>Khách hàng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">view_carousel</span>
+<span>Banners</span>
+</a>
+</nav>
+</div>
+<!-- Bottom Action: Logout -->
+<div class="p-4 border-t border-[#222222]">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-400 hover:text-error-container hover:bg-neutral-900 transition-colors font-label-lg text-label-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Đăng xuất</span>
+</a>
+</div>
+</aside>
+<!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+<!-- TOP BAR -->
+<header class="h-20 bg-surface-container-lowest/90 backdrop-blur-md sticky top-0 z-20 border-b border-surface-container-highest px-6 lg:px-10 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<!-- Quick SKU Search Input -->
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant/60 rounded-lg text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-secondary/70 transition-all" placeholder="Tìm nhanh mã SKU (VD: VMS-HTX01, 8935...)" type="text"/>
+</div>
+</div>
+<!-- Right Meta Status & Master Profile -->
+<div class="flex items-center gap-4">
+<!-- Concurrency Safe DB Status Indicator -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="w-2 h-2 rounded-full bg-emerald-600 -ml-3"></span>
+<div class="text-[11px] leading-tight text-emerald-900 font-label-md font-semibold flex items-center gap-1.5">
+<span>MS SQL Concurrency Safe:</span>
+<code class="px-1.5 py-0.5 rounded bg-white text-emerald-800 border border-emerald-200 font-mono text-[10px]">WITH (UPDLOCK, ROWLOCK)</code>
+</div>
+</div>
+<!-- Sync Trigger Mini Button -->
+<button class="p-2 rounded-lg text-secondary hover:text-on-surface hover:bg-surface-container transition-colors" title="Đồng bộ thủ công">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</button>
+<!-- Divider -->
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<!-- Profile Master Admin -->
+<div class="flex items-center gap-3 pl-1">
+<div class="w-10 h-10 rounded-full bg-inverse-surface text-inverse-on-surface font-headline-sm font-bold flex items-center justify-center text-sm shadow-inner">
+            AD
+          </div>
+<div class="hidden sm:block leading-tight text-left">
+<span class="font-headline-sm text-body-sm font-semibold text-on-surface flex items-center gap-1">
+              Admin Master
+              <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</span>
+<span class="text-[11px] text-secondary font-body-sm">admin@vamos.vn</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN BODY CANVAS -->
+<main class="p-6 lg:p-10 max-w-7xl w-full mx-auto space-y-8">
+<!-- SECTION TITLE -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 text-primary font-headline-sm text-label-badge tracking-wider uppercase mb-1">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Real-time Inventory &amp; Audit Ledger</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">
+            QUẢN LÝ TỒN KHO &amp; NHẬT KÝ KIỂM TOÁN BIẾN ĐỘNG
+          </h1>
+<p class="font-body-md text-body-md text-secondary mt-1">
+            Theo dõi lượng tồn kho thực tế, bảo vệ chống overselling và lưu vết mọi biến động tự động theo giao dịch đơn hàng.
+          </p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2.5 rounded-lg border border-outline-variant font-label-lg text-label-lg text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Xuất Excel</span>
+</button>
+<button class="px-4 py-2.5 rounded-lg bg-primary-container text-white font-label-lg text-label-lg hover:bg-primary transition-all shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_box</span>
+<span>Tạo Phiếu Nhập Kho</span>
+</button>
+</div>
+</div>
+<!-- KPI METRIC STRIP (4 CARDS) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1: Tổng số lượng giày -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-md text-label-md text-secondary font-semibold">TỔNG SỐ LƯỢNG GIÀY TRONG KHO</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">shelves</span>
+</div>
+</div>
+<div class="font-price-lg text-headline-xl text-on-surface font-bold">
+            1.840 <span class="font-body-md text-body-sm font-normal text-secondary">đôi</span>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-xs text-emerald-600 font-label-md">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>Ổn định trên 128 SKU sản phẩm</span>
+</div>
+</div>
+<!-- Card 2: Đang giữ tạm Reserved -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-md text-label-md text-secondary font-semibold">ĐANG GIỮ TẠM (RESERVED)</span>
+<div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700">
+<span class="material-symbols-outlined text-[18px]">lock_clock</span>
+</div>
+</div>
+<div class="font-price-lg text-headline-xl text-amber-600 font-bold">
+            46 <span class="font-body-md text-body-sm font-normal text-secondary">đôi</span>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-700 font-label-md">
+<span class="material-symbols-outlined text-[16px]">hourglass_top</span>
+<span>Khóa hàng cho đơn PENDING/PROCESSING</span>
+</div>
+</div>
+<!-- Card 3: Biến thể sắp hết hàng -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-rose-200 bg-gradient-to-br from-rose-50/40 to-white shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-md text-label-md text-primary font-semibold">SẮP HẾT HÀNG (TỒN ≤ 5 ĐÔI)</span>
+<div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+</div>
+<div class="font-price-lg text-headline-xl text-primary font-bold">
+            08 <span class="font-body-md text-body-sm font-normal text-secondary">biến thể</span>
+</div>
+<div class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary-container text-white text-[11px] font-label-badge">
+<span class="material-symbols-outlined text-[13px]">local_fire_department</span>
+<span>CẢNH BÁO NGUY CƠ OVERSELLING</span>
+</div>
+</div>
+<!-- Card 4: Biến thể đã hết hàng -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-md text-label-md text-secondary font-semibold">ĐÃ HẾT HÀNG (TỒN = 0)</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">remove_shopping_cart</span>
+</div>
+</div>
+<div class="font-price-lg text-headline-xl text-secondary font-bold">
+            03 <span class="font-body-md text-body-sm font-normal text-secondary">biến thể</span>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-xs text-error font-label-md">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+<span>Cần tạo lệnh nhập kho bù đắp ngay</span>
+</div>
+</div>
+</div>
+<!-- ==================== KHỐI 1: BẢNG TỒN KHO THỜI GIAN THỰC ==================== -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-sm overflow-hidden">
+<!-- Table Toolbar -->
+<div class="p-5 border-b border-surface-container-highest flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
+<span>Bảng Tồn Kho Thời Gian Thực &amp; Điều Chỉnh Nhanh</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-label-badge bg-surface-container text-on-surface-variant font-mono">LIVE MATRIX</span>
+</h2>
+<p class="font-body-sm text-body-sm text-secondary">Cập nhật trực tiếp số liệu thực tế tại kho và quota bán khả dụng trên website.</p>
+</div>
+<!-- Controls: Search + Filter Tabs -->
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 bg-surface-container-low border border-outline-variant/60 rounded-lg text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Lọc SKU, tên giày..." type="text"/>
+</div>
+<!-- Segmented Status Filter Tabs -->
+<div class="inline-flex rounded-lg bg-surface-container-low p-1 border border-surface-container-highest">
+<button class="px-3 py-1 text-xs font-label-md rounded-md bg-white text-on-surface font-semibold shadow-xs">Tất cả</button>
+<button class="px-3 py-1 text-xs font-label-md rounded-md text-secondary hover:text-on-surface transition-colors">Còn hàng (&gt;5)</button>
+<button class="px-3 py-1 text-xs font-label-md rounded-md text-primary font-semibold hover:text-primary transition-colors flex items-center gap-1">
+<span>Sắp hết (1-5)</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+</button>
+<button class="px-3 py-1 text-xs font-label-md rounded-md text-secondary hover:text-on-surface transition-colors">Hết hàng (0)</button>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-secondary font-label-md text-label-md border-b border-surface-container-highest uppercase tracking-wider">
+<th class="py-3.5 px-4 font-semibold">Mã SKU</th>
+<th class="py-3.5 px-4 font-semibold">Sản phẩm &amp; Biến thể</th>
+<th class="py-3.5 px-4 font-semibold text-center">Ảnh 1:1</th>
+<th class="py-3.5 px-4 font-semibold text-right">Thực tế (Actual)</th>
+<th class="py-3.5 px-4 font-semibold text-right">Đang giữ (Reserved)</th>
+<th class="py-3.5 px-4 font-semibold text-right">Khả dụng (Available)</th>
+<th class="py-3.5 px-4 font-semibold">Cảnh báo trạng thái</th>
+<th class="py-3.5 px-4 font-semibold text-center">Thao tác điều chỉnh nhanh</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest font-body-sm text-body-sm">
+<!-- ROW 1: SẮP HẾT HÀNG -->
+<tr class="hover:bg-rose-50/30 transition-colors">
+<td class="py-4 px-4 font-mono font-bold text-on-surface">
+                  VMS-HTX01-XAM-40
+                </td>
+<td class="py-4 px-4">
+<div class="font-semibold text-on-surface">VAMOS Hunter X</div>
+<div class="text-xs text-secondary flex items-center gap-2 mt-0.5">
+<span>Màu: Xám Tiêu</span>
+<span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Size: 40 EU</span>
+</div>
+</td>
+<td class="py-4 px-4 text-center">
+<div class="w-14 h-14 rounded-lg bg-surface-container-low border border-surface-container-highest overflow-hidden mx-auto flex items-center justify-center p-1">
+<img class="w-full h-full object-contain" data-alt="A clean product studio photograph of a modern gray street-performance sneaker on a pristine solid white background. The athletic shoe features textured knit mesh in heather gray, aerodynamic dynamic soles, and subtle kinetic red accents. Professional studio softbox lighting highlighting the footwear angles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlIcZO90IyrR4l5YxPpY7X9Lko52k4Cb8229BxoAKfYsFlTWnyVHx44w9KHs4X8SMw_1YJJIN8lVUnSY3T9m2cqKHTaNUhZXq_Tu8zrtUv8wd_BAR12Fgt51BDzZoyIw3ik70w_c_yROrY5O_Y0ySLzdwq4KD24Pt6IDwH6-4FkvS41pFAslFqclwK5jm8VWw6DQzLrvfiWqmMynen-8WdF4jbLVEfdRCU2F7whiY"/>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-on-surface">
+                  2 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-semibold text-amber-600">
+                  1 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-primary">
+                  1 đôi
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-label-badge bg-rose-100 text-primary border border-rose-200">
+<span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+<span>Sắp hết (Nguy cơ overselling)</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center">
+<div class="inline-flex items-center gap-2">
+<div class="inline-flex items-center border border-outline-variant rounded-lg overflow-hidden bg-white shadow-xs">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:bg-surface-container text-base font-bold transition-colors">-</button>
+<input class="w-10 h-8 text-center border-x border-outline-variant p-0 font-headline-sm text-sm font-bold focus:outline-none bg-surface-container-low" type="text" value="2"/>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:bg-surface-container text-base font-bold transition-colors">+</button>
+</div>
+<button class="px-2.5 py-1.5 bg-primary-container text-white rounded-lg text-xs font-label-lg font-semibold hover:bg-primary transition-colors shadow-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">save</span>
+<span>Lưu điều chỉnh</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 2: AN TOÀN -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-4 px-4 font-mono font-bold text-on-surface">
+                  VMS-STV02-DEN-41
+                </td>
+<td class="py-4 px-4">
+<div class="font-semibold text-on-surface">VAMOS Street Vintage</div>
+<div class="text-xs text-secondary flex items-center gap-2 mt-0.5">
+<span>Màu: Đen Đỏ</span>
+<span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Size: 41 EU</span>
+</div>
+</td>
+<td class="py-4 px-4 text-center">
+<div class="w-14 h-14 rounded-lg bg-surface-container-low border border-surface-container-highest overflow-hidden mx-auto flex items-center justify-center p-1">
+<img class="w-full h-full object-contain" data-alt="A premium commercial shoe photograph of a black and bold red urban street sneaker displayed isolated on an absolute white background. The footwear showcases rich matte black leather overlays, vibrant crimson red swooping heel counters, and off-white vintage midsoles. Even commercial catalog lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnAC_iv3nBkt24CKlH3iSpAXEQ1WNHOVwI7Rdlg_nMqhL9B9XFTh5dONGhl3zqR4viIUxegZe2P8atMdLZ7ke64jFUSYS83NtPcOwS2GaOcPuyCQ0YJoJMXpxc2P8dWK2zPx6VriBb4kNXHZYZM_gcrIvSqWDg3y5fooZVqt_HGuMpTomje6l4U3yhavOLXhUL69gNAQyAZ2ConXiOp0CgdamEoH9QSc2xsbmTrfY"/>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-on-surface">
+                  18 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-semibold text-amber-600">
+                  3 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-emerald-600">
+                  15 đôi
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-label-badge bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>An toàn</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center">
+<div class="inline-flex items-center border border-outline-variant rounded-lg overflow-hidden bg-white shadow-xs">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:bg-surface-container text-base font-bold transition-colors">-</button>
+<input class="w-10 h-8 text-center border-x border-outline-variant p-0 font-headline-sm text-sm font-bold focus:outline-none bg-surface-container-low" type="text" value="18"/>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface hover:bg-surface-container text-base font-bold transition-colors">+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 3: HẾT HÀNG -->
+<tr class="hover:bg-slate-100/60 transition-colors bg-slate-50/30">
+<td class="py-4 px-4 font-mono font-bold text-secondary">
+                  VMS-AIR01-DO-39
+                </td>
+<td class="py-4 px-4">
+<div class="font-semibold text-on-surface">VAMOS Air Wave V1</div>
+<div class="text-xs text-secondary flex items-center gap-2 mt-0.5">
+<span>Màu: Đỏ Kinetic</span>
+<span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Size: 39 EU</span>
+</div>
+</td>
+<td class="py-4 px-4 text-center">
+<div class="w-14 h-14 rounded-lg bg-surface-container-low border border-surface-container-highest overflow-hidden mx-auto flex items-center justify-center p-1 opacity-70">
+<img class="w-full h-full object-contain" data-alt="An eye-level product shot of a futuristic athletic running shoe in pure kinetic red with translucent air bubble sole modules, isolated on an immaculate stark white backdrop. Dynamic athletic silhouette with reflective silver detailing and aerodynamic performance mesh. Balanced crisp catalog lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGUEoI79bjO95lpwKOvDovtYXvLBJCzmN1KP4viGmADLU1NH0_9wGT1nnQbwIMsnjIgj5_E2aG4GiJv_lQkFoaQ0uy8DZW0cbYQdMKqEJhJQK21NeEwSryU3aaExtlICjMG4XH38Xu34219g-qjarM7IEW0TtNvbkim_H3uyubajE5dAXveINTqr4w-j7zPisqrGIiGemsJE4ZEmaclXdrl8pYrgPpLO9f_QAx7k0"/>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-secondary">
+                  0 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-semibold text-secondary">
+                  0 đôi
+                </td>
+<td class="py-4 px-4 text-right font-headline-sm font-bold text-secondary">
+                  0 đôi
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-label-badge bg-neutral-200 text-neutral-800 border border-neutral-300">
+<span class="material-symbols-outlined text-[14px]">block</span>
+<span>Hết hàng</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center">
+<button class="px-3 py-1.5 bg-[#0F172A] text-white rounded-lg text-xs font-label-lg font-semibold hover:bg-neutral-800 transition-colors shadow-xs inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">add_shopping_cart</span>
+<span>Nhập kho gấp</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination Notice -->
+<div class="p-4 bg-surface-container-low border-t border-surface-container-highest flex items-center justify-between text-xs text-secondary font-label-md">
+<span>Hiển thị 3 / 128 biến thể SKU</span>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-white border border-outline-variant disabled:opacity-50" disabled="">Trước</button>
+<span class="px-2 font-bold text-on-surface">1</span>
+<button class="px-2.5 py-1 rounded bg-white border border-outline-variant hover:bg-surface-container">Sau</button>
+</div>
+</div>
+</section>
+<!-- ==================== KHỐI 2: BẢNG NHẬT KÝ KIỂM TOÁN TỒN KHO BẤT BIẾN ==================== -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-sm overflow-hidden">
+<!-- Header Audit Log -->
+<div class="p-5 border-b border-surface-container-highest flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-surface-container-low via-surface-container-lowest to-surface-container-low">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">history_edu</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">
+                Nhật Ký Kiểm Toán Biến Động Kho Bất Biến (Audit Trail Log)
+              </h2>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-1">
+              Ghi vết mọi thao tác tăng giảm kho tự động qua Đặt hàng, Hủy đơn hoặc Điều chỉnh thủ công. Dữ liệu ghi sổ Append-Only chống thất thoát và phục vụ tra soát.
+            </p>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 text-[11px] font-label-badge">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span>IMMUTABLE LEDGER ACTIVE</span>
+</span>
+</div>
+</div>
+<!-- Audit Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-secondary font-label-md text-label-md border-b border-surface-container-highest uppercase tracking-wider">
+<th class="py-3.5 px-4 font-semibold">Thời gian</th>
+<th class="py-3.5 px-4 font-semibold">Mã SKU</th>
+<th class="py-3.5 px-4 font-semibold">Thao tác</th>
+<th class="py-3.5 px-4 font-semibold text-center">Tồn cũ</th>
+<th class="py-3.5 px-4 font-semibold text-center">Tồn mới</th>
+<th class="py-3.5 px-4 font-semibold text-center">Chênh lệch</th>
+<th class="py-3.5 px-4 font-semibold">Lý do &amp; Tham chiếu đơn</th>
+<th class="py-3.5 px-4 font-semibold">Thực hiện bởi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest font-body-sm text-body-sm">
+<!-- AUDIT ROW 1 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-4 px-4 font-mono text-xs text-on-surface">
+<div class="font-bold">10:14:22</div>
+<div class="text-[11px] text-secondary">Hôm nay</div>
+</td>
+<td class="py-4 px-4 font-mono font-bold text-on-surface">
+                  VMS-HTX01-XAM-40
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-label-md font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+<span>Giữ kho đặt hàng</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-secondary">
+                  3 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-on-surface">
+                  2 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-bold text-primary">
+                  -1 đôi
+                </td>
+<td class="py-4 px-4">
+<div class="text-on-surface">Khách Dũng Trần đặt đơn <span class="font-mono font-bold text-primary">#VMS-89241</span> (COD)</div>
+<div class="text-[11px] text-secondary">Tự động giữ quota tránh trùng lặp giỏ hàng</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 font-label-md text-xs font-semibold text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-primary">smart_toy</span>
+<span>Hệ thống (Auto-Lock)</span>
+</div>
+</td>
+</tr>
+<!-- AUDIT ROW 2 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-4 px-4 font-mono text-xs text-on-surface">
+<div class="font-bold">09:45:10</div>
+<div class="text-[11px] text-secondary">Hôm nay</div>
+</td>
+<td class="py-4 px-4 font-mono font-bold text-on-surface">
+                  VMS-STV02-DEN-41
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-label-md font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+<span class="material-symbols-outlined text-[13px]">replay</span>
+<span>Hoàn tồn kho hủy đơn</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-secondary">
+                  17 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-on-surface">
+                  18 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-bold text-emerald-600">
+                  +1 đôi
+                </td>
+<td class="py-4 px-4">
+<div class="text-on-surface">Khách hủy đơn <span class="font-mono font-bold text-on-surface">#VMS-89230</span> (Hoàn quota voucher)</div>
+<div class="text-[11px] text-secondary">Kích hoạt hoàn trả tồn kho tự động trong 200ms</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 font-label-md text-xs font-semibold text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-emerald-600">published_with_changes</span>
+<span>Hệ thống (Auto-Restock)</span>
+</div>
+</td>
+</tr>
+<!-- AUDIT ROW 3 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-4 px-4 font-mono text-xs text-on-surface">
+<div class="font-bold">08:30:00</div>
+<div class="text-[11px] text-secondary">Hôm nay</div>
+</td>
+<td class="py-4 px-4 font-mono font-bold text-on-surface">
+                  VMS-AIR01-DO-39
+                </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-label-md font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+<span class="material-symbols-outlined text-[13px]">inventory</span>
+<span>Kiểm kho định kỳ</span>
+</span>
+</td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-secondary">
+                  5 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-semibold text-on-surface">
+                  0 đôi
+                </td>
+<td class="py-4 px-4 text-center font-headline-sm font-bold text-primary">
+                  -5 đôi
+                </td>
+<td class="py-4 px-4">
+<div class="text-on-surface font-semibold text-error">Xuất trả lỗi nhà máy sản xuất</div>
+<div class="text-[11px] text-secondary">Biên bản kiểm hàng QA định kỳ số #BB-QA-089</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 font-label-md text-xs font-semibold text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">badge</span>
+<span>admin@vamos.vn (Admin Master)</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-surface-container-low border-t border-surface-container-highest flex items-center justify-between text-xs text-secondary font-label-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">info</span>
+<span>Khóa ghi chú mã hóa SHA-256 bảo vệ tính toàn vẹn kiểm toán tài chính</span>
+</div>
+<a class="text-primary hover:underline font-semibold flex items-center gap-1" href="#">
+<span>Tải toàn bộ log kiểm toán hôm nay</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</section>
+</main>
+<!-- ==================== FOOTER ==================== -->
+<footer class="mt-auto bg-on-surface text-surface py-10 px-6 lg:px-10 border-t border-surface-variant/20">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-white font-headline-sm font-bold">V</div>
+<div>
+<div class="font-headline-sm text-body-sm font-bold tracking-wider">VAMOS STORE INVENTORY PLATFORM</div>
+<div class="text-xs text-neutral-400">© 2024 VAMOS STORE. Kinetic Performance Retail System. All rights reserved.</div>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-6 text-xs text-neutral-300 font-label-md">
+<span class="flex items-center gap-1.5 text-emerald-400">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            Database Cluster: Hoạt động bình thường
+          </span>
+<span class="text-neutral-500">|</span>
+<span>Phiên bản v4.8.2-Kinetic</span>
+<span class="text-neutral-500">|</span>
+<a class="hover:text-white transition-colors" href="#">Chính sách kiểm kê &amp; bảo mật</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

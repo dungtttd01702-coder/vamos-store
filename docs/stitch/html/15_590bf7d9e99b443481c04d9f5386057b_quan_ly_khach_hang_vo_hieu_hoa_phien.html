@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAMOS STORE - Quản trị Khách hàng &amp; Vô hiệu hóa Phiên tức thì (/admin/customers)</title>
+<!-- Google Fonts: Space Grotesk & Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration matching Brand Tokens -->
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-primary-fixed-variant": "#93000d", "inverse-primary": "#ffb4ab", "on-tertiary-fixed": "#341100", "tertiary-container": "#bd5200", "on-surface": "#0b1c30", tertiary: "#964000", "surface-container-low": "#eff4ff", "on-background": "#0b1c30", "on-secondary-container": "#193d8a", "surface-container-highest": "#d3e4fe", "surface-dim": "#cbdbf5", "on-secondary-fixed-variant": "#20428f", "surface-variant": "#d3e4fe", outline: "#926e6b", error: "#ba1a1a", "primary-fixed-dim": "#ffb4ab", "on-tertiary-container": "#fff7f4", "surface-container-high": "#dce9ff", "outline-variant": "#e7bdb8", "on-error": "#ffffff", secondary: "#3c5ba9", "secondary-fixed": "#dae2ff", "on-secondary-fixed": "#001849", "secondary-fixed-dim": "#b2c5ff", "surface-container": "#e5eeff", "surface-bright": "#f8f9ff", "tertiary-fixed-dim": "#ffb690", "primary-fixed": "#ffdad6", "on-primary-container": "#fff7f6", "on-surface-variant": "#5d3f3c", "primary-container": "#e11b22", "secondary-container": "#8eabff", "on-primary-fixed": "#410002", "on-error-container": "#93000a", "surface-tint": "#c00014", "on-primary": "#ffffff", background: "#f8f9ff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed-variant": "#783200", surface: "#f8f9ff", primary: "#b70013", "tertiary-fixed": "#ffdbca", "inverse-surface": "#213145", "on-secondary": "#ffffff", "error-container": "#ffdad6", "on-tertiary": "#ffffff", "inverse-on-surface": "#eaf1ff"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {gutter: "1.5rem", "space-md": "1rem", "gutter-lg": "2rem", margin: "1.5rem", "space-sm": "0.5rem", "margin-lg": "4rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "margin-sm": "1rem", "gutter-sm": "1rem", "space-lg": "1.5rem"}, fontFamily: {"label-md": ["Be Vietnam Pro", "sans-serif"], "body-sm": ["Be Vietnam Pro", "sans-serif"], "price-lg": ["Space Grotesk", "sans-serif"], "price-md": ["Space Grotesk", "sans-serif"], "headline-sm": ["Space Grotesk", "sans-serif"], "headline-xl-mobile": ["Space Grotesk", "sans-serif"], "headline-lg": ["Space Grotesk", "sans-serif"], "headline-xl": ["Space Grotesk", "sans-serif"], "display-hero-mobile": ["Space Grotesk", "sans-serif"], "label-badge": ["Space Grotesk", "sans-serif"], "label-lg": ["Be Vietnam Pro", "sans-serif"], "body-lg": ["Be Vietnam Pro", "sans-serif"], "body-md": ["Be Vietnam Pro", "sans-serif"], "headline-md": ["Space Grotesk", "sans-serif"], "display-hero": ["Space Grotesk", "sans-serif"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}]}}}}
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .pulse-dot {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse-ring 1.8s infinite;
+    }
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex selection:bg-primary selection:text-white">
+<!-- ==================== 1. SIDEBAR TRÁI (Dark Carbon #111111) ==================== -->
+<aside class="w-72 bg-[#111111] text-slate-300 flex flex-col flex-shrink-0 min-h-screen shadow-2xl relative z-40 border-r border-[#222222]">
+<!-- Logo Brand Vamos Kinetic -->
+<div class="h-20 flex items-center px-6 border-b border-[#222222] justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-white shadow-lg shadow-red-900/40">
+<span class="material-symbols-outlined text-2xl font-bold">keyboard_double_arrow_right</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-white font-bold tracking-tight block leading-tight">VAMOS STORE</span>
+<span class="font-label-badge text-[10px] tracking-widest text-[#E11B22] font-bold block uppercase">MOVE YOUR WAY.</span>
+</div>
+</div>
+</div>
+<!-- Navigation Menu Items -->
+<div class="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+<div class="px-3 pb-2 text-[11px] font-label-badge text-slate-500 uppercase tracking-wider font-semibold">Hệ Thống Bán Lẻ</div>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span>Dashboard Tổng quan</span>
+</a>
+<a class="flex items-center justify-between px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl">shopping_cart</span>
+<span>Đơn hàng</span>
+</div>
+<span class="bg-[#222] text-[#E11B22] font-headline-sm text-xs px-2 py-0.5 rounded-full font-bold">28</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">inventory_2</span>
+<span>Sản phẩm &amp; Biến thể</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">warehouse</span>
+<span>Tồn kho &amp; Kiểm toán</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">category</span>
+<span>Danh mục &amp; Dòng giày</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">confirmation_number</span>
+<span>Vouchers</span>
+</a>
+<div class="pt-4 px-3 pb-2 text-[11px] font-label-badge text-slate-500 uppercase tracking-wider font-semibold">Bảo Mật &amp; Thành Viên</div>
+<!-- ACTIVE ITEM: Khách hàng & Tài khoản -->
+<a class="flex items-center justify-between px-3.5 py-3 rounded-lg bg-primary-container text-white font-medium shadow-md shadow-red-900/40 transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl">group</span>
+<span class="font-semibold text-sm">Khách hàng &amp; Tài khoản</span>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">image</span>
+<span>Banners</span>
+</a>
+</div>
+<!-- Chân Sidebar: MS SQL Live & Logout -->
+<div class="p-4 border-t border-[#222222] bg-[#0d0d0d] space-y-3">
+<div class="p-2.5 bg-[#171717] rounded-lg border border-[#272727] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+<div>
+<div class="text-[11px] font-headline-sm text-slate-200 font-bold">MS SQL Server 2025</div>
+<div class="text-[10px] text-emerald-400">Live Session Sync • OK</div>
+</div>
+</div>
+<span class="text-[10px] font-label-badge text-slate-400 px-1.5 py-0.5 bg-[#252525] rounded font-bold">Q9</span>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#1c1c1c] rounded-lg border border-[#2a2a2a] transition-colors">
+<span class="material-symbols-outlined text-base">logout</span>
+<span>Đăng xuất Quản trị</span>
+</button>
+</div>
+</aside>
+<!-- ==================== KHUNG NỘI DUNG CHÍNH (Canvas) ==================== -->
+<div class="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
+<!-- ==================== 2. TOP HEADER NAVBAR ==================== -->
+<header class="h-20 bg-surface-container-lowest/90 backdrop-blur-md border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+<!-- Breadcrumb & Search -->
+<div class="flex items-center gap-8 flex-1 max-w-3xl">
+<div>
+<div class="flex items-center gap-1.5 text-xs text-slate-400">
+<span>Admin</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Người dùng &amp; Phân quyền</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface font-semibold">Quản lý Khách hàng &amp; Bảo mật Phiên</span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-bold">Danh Sách Khách Hàng &amp; Phiên Hoạt Động</h1>
+</div>
+<!-- Search Input -->
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-body-sm focus:outline-none focus:ring-2 focus:ring-[#0F172A] focus:border-transparent transition-all" placeholder="Tìm kiếm theo Họ tên, Email, SĐT, Mã khách hàng VMS..." type="text"/>
+</div>
+</div>
+<!-- Header Right Utilities & CTAs -->
+<div class="flex items-center gap-4">
+<!-- Security Shield Status Badge -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold">
+<span class="material-symbols-outlined text-base">verified_user</span>
+<span>OWASP Session Guard • ACTIVE</span>
+</div>
+<!-- Notification Bell -->
+<button class="relative p-2 text-slate-600 hover:text-on-surface hover:bg-slate-100 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary-container rounded-full"></span>
+</button>
+<!-- Admin Profile -->
+<div class="flex items-center gap-3 pl-2 border-l border-slate-200">
+<div class="w-9 h-9 rounded-full bg-[#0F172A] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+            AD
+          </div>
+<div class="hidden 2xl:block text-left">
+<div class="text-xs font-bold text-on-surface leading-tight">Admin Master</div>
+<div class="text-[11px] text-slate-400">admin.master@vamos.vn</div>
+</div>
+</div>
+<!-- CTAs -->
+<div class="flex items-center gap-2.5">
+<button class="flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded-lg shadow-sm transition-all">
+<span class="material-symbols-outlined text-base">file_download</span>
+<span>Xuất Danh Sách</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-2 bg-primary-container hover:bg-[#C8141A] text-white text-xs font-bold rounded-lg shadow-md shadow-red-600/20 transition-all">
+<span class="material-symbols-outlined text-base">person_add</span>
+<span>Thêm Tài Khoản</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Workspace -->
+<main class="flex-1 p-8 space-y-6 max-w-[1600px] w-full mx-auto">
+<!-- ==================== 3. DẢI 4 THẺ KPI KHÁCH HÀNG & PHIÊN LÀM VIỆC ==================== -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+<!-- Card 1 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-label-badge text-xs uppercase tracking-wider text-slate-500 font-bold">TỔNG KHÁCH HÀNG</p>
+<h3 class="font-price-lg text-2xl font-bold text-on-surface mt-1">4.820 <span class="text-sm font-normal text-slate-500">tài khoản</span></h3>
+</div>
+<div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">group</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-xs">
+<span class="inline-flex items-center text-emerald-600 font-bold font-price-md">
+<span class="material-symbols-outlined text-sm">trending_up</span> +18%
+            </span>
+<span class="text-slate-500">tháng này • 3.950 kích hoạt email</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform"></div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-label-badge text-xs uppercase tracking-wider text-slate-500 font-bold">KHÁCH HÀNG MUA NHIỀU (VIP)</p>
+<h3 class="font-price-lg text-2xl font-bold text-on-surface mt-1">318 <span class="text-sm font-normal text-slate-500">hội viên VIP</span></h3>
+</div>
+<div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">workspace_premium</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-xs">
+<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[11px]">LTV &gt; 5.000.000 ₫</span>
+<span class="text-slate-500">Tích lũy điểm thưởng cao</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500 scale-x-0 group-hover:scale-x-100 transition-transform"></div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-label-badge text-xs uppercase tracking-wider text-slate-500 font-bold">PHIÊN HOẠT ĐỘNG (REALTIME)</p>
+<h3 class="font-price-lg text-2xl font-bold text-emerald-600 mt-1 flex items-center gap-2">
+                84 <span class="text-sm font-normal text-slate-500">phiên live</span>
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+</h3>
+</div>
+<div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-xs text-slate-500">
+<span class="material-symbols-outlined text-sm text-emerald-500">shopping_cart</span>
+<span>Đang duyệt giỏ hàng &amp; thanh toán trực tiếp</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform"></div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-xl p-5 border border-red-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow bg-gradient-to-br from-white to-red-50/30">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-label-badge text-xs uppercase tracking-wider text-red-600 font-bold">BỊ KHÓA / CẢNH BÁO (Q9)</p>
+<h3 class="font-price-lg text-2xl font-bold text-[#E11B22] mt-1">12 <span class="text-sm font-normal text-slate-500">tài khoản</span></h3>
+</div>
+<div class="w-10 h-10 rounded-lg bg-red-100 text-[#E11B22] flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">lock_person</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-1.5 text-xs text-red-700">
+<span class="material-symbols-outlined text-sm">gavel</span>
+<span class="font-semibold">Thu hồi Session Cookie tức thời</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-[#E11B22]"></div>
+</div>
+</section>
+<!-- ==================== 4. BANNER THÔNG BÁO BẢO MẬT PHIÊN TỨC THÌ ==================== -->
+<section class="bg-[#0F172A] text-white rounded-xl p-5 shadow-lg border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
+<div class="flex items-start gap-4 z-10">
+<div class="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 text-[#E11B22] flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-2xl">shield_lock</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h2 class="font-headline-sm text-sm md:text-base font-bold text-white tracking-wide">
+                Cơ chế Vô hiệu hóa Phiên tức thì (Real-time Session Invalidation) &amp; Bảo mật OWASP
+              </h2>
+<span class="bg-[#E11B22] text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-wider uppercase font-label-badge">Security Guard</span>
+</div>
+<p class="text-slate-300 text-xs mt-1.5 leading-relaxed max-w-4xl">
+              Khi thực hiện thao tác <strong class="text-white">Khóa tài khoản</strong>, máy chủ SQL Server lập tức cập nhật cờ trạng thái <code class="bg-slate-800 text-amber-400 px-1 py-0.5 rounded text-[11px]">IsActive = 0</code>, đồng thời cưỡng chế hủy bản ghi trong <span class="text-sky-300 font-mono">MS_SQL_SessionStore</span>. Mọi request tiếp theo từ trình duyệt khách hàng sẽ nhận mã lỗi <strong>401 Unauthorized</strong> và tự động xóa Cookie xác thực.
+              <span class="text-red-400 font-semibold block mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">block</span> Chặn tuyệt đối tài khoản Quản trị viên (Master Admin) tự khóa chính mình để bảo toàn tính sẵn sàng hệ thống.
+              </span>
+</p>
+</div>
+</div>
+<div class="flex-shrink-0 z-10">
+<button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-base">history_toggle_off</span>
+<span>Nhật ký Thu hồi Phiên</span>
+</button>
+</div>
+<!-- Subtle Background Glow -->
+<div class="absolute -right-10 -bottom-10 w-60 h-60 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+</section>
+<!-- ==================== 5. BẢNG DANH SÁCH KHÁCH HÀNG & THAO TÁC ==================== -->
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+<!-- Toolbar & Filter Tabs -->
+<div class="p-5 border-b border-slate-200 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+<!-- Filter Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
+<button class="px-4 py-2 rounded-lg bg-[#0F172A] text-white text-xs font-bold flex items-center gap-2 shadow-sm">
+<span>Tất cả</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-700 text-[10px]">4.820</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors">
+<span>Đang hoạt động</span>
+<span class="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">4.708</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors">
+<span>Bị khóa</span>
+<span class="px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">12</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors">
+<span>Khách vãng lai (Guest Cart)</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[10px]">96</span>
+</button>
+</div>
+<!-- Secondary Filters: LTV & Tỉnh/Thành -->
+<div class="flex items-center gap-3">
+<select class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
+<option>Mức chi tiêu (LTV): Tất cả</option>
+<option>VIP (&gt; 10.000.000 ₫)</option>
+<option>Thân thiết (3M - 10M ₫)</option>
+<option>Mới mua (&lt; 3.000.000 ₫)</option>
+</select>
+<select class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
+<option>Tỉnh/Thành: Toàn quốc</option>
+<option>TP. Hồ Chí Minh</option>
+<option>Hà Nội</option>
+<option>Đà Nẵng</option>
+<option>Cần Thơ</option>
+</select>
+<button class="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50" title="Tải lại bảng">
+<span class="material-symbols-outlined text-lg">refresh</span>
+</button>
+</div>
+</div>
+<!-- Table Responsive Wrapper -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-label-badge uppercase tracking-wider text-slate-500">
+<th class="py-3.5 px-6 font-bold">Khách hàng &amp; Avatar</th>
+<th class="py-3.5 px-6 font-bold">Thông tin liên hệ</th>
+<th class="py-3.5 px-6 font-bold text-center">Đơn hàng (OK / Hủy)</th>
+<th class="py-3.5 px-6 font-bold text-right">Tổng chi tiêu (LTV)</th>
+<th class="py-3.5 px-6 font-bold">Phiên hoạt động</th>
+<th class="py-3.5 px-6 font-bold text-center">Trạng thái</th>
+<th class="py-3.5 px-6 font-bold text-right">Thao tác Quản trị</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-xs">
+<!-- ROW 1: Active Member (Trần Đình Khang - Sẽ chọn demo khóa) -->
+<tr class="hover:bg-slate-50/80 transition-colors bg-red-50/20">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm font-headline-sm border border-slate-700">
+                      TK
+                    </div>
+<div>
+<div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        Trần Đình Khang
+                        <span class="bg-amber-100 text-amber-800 font-label-badge text-[10px] px-1.5 py-0.5 rounded font-bold">VIP GOLD</span>
+</div>
+<span class="font-mono text-[11px] text-slate-500">#VMS-CUS042</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 space-y-0.5">
+<div class="font-medium text-slate-800">khang.tran@gmail.com</div>
+<div class="text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-emerald-600">verified</span>
+<span>0903.882.119</span>
+</div>
+<div class="text-[11px] text-slate-400 truncate max-w-xs">240 Nguyễn Thị Minh Khai, Q.3, TP.HCM</div>
+</td>
+<td class="py-4 px-6 text-center">
+<div class="font-price-md font-bold text-slate-800">14 đơn</div>
+<div class="text-[11px] text-red-500 font-medium">3 đơn boom COD</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="font-price-md font-bold text-[#E11B22] text-sm">8.450.000 ₫</div>
+<span class="text-[10px] text-slate-400">845 Điểm Vamos</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-emerald-600 font-semibold">
+<span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+<span>Live Online (Session Active)</span>
+</div>
+<div class="text-[11px] text-slate-400 font-mono mt-0.5">IP: 118.69.182.12 • Chrome/macOS</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> ĐANG HOẠT ĐỘNG
+                  </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md" title="Xem chi tiết">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<!-- Trigger Open Dialog -->
+<button class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#E11B22] border border-red-200 rounded-md font-bold text-xs flex items-center gap-1 transition-all" title="Khóa ngay &amp; thu hồi Cookie">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span>Khóa &amp; Hủy Phiên</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 2: Active Loyal Member -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm font-headline-sm">
+                      NL
+                    </div>
+<div>
+<div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        Nguyễn Thảo Linh
+                        <span class="bg-blue-100 text-blue-800 font-label-badge text-[10px] px-1.5 py-0.5 rounded font-bold">MEMBER</span>
+</div>
+<span class="font-mono text-[11px] text-slate-500">#VMS-CUS091</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 space-y-0.5">
+<div class="font-medium text-slate-800">thaolinh.sneakers@outlook.com</div>
+<div class="text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-emerald-600">verified</span>
+<span>0987.412.093</span>
+</div>
+<div class="text-[11px] text-slate-400 truncate max-w-xs">15 Liễu Giai, Ba Đình, Hà Nội</div>
+</td>
+<td class="py-4 px-6 text-center">
+<div class="font-price-md font-bold text-slate-800">6 đơn</div>
+<div class="text-[11px] text-emerald-600 font-medium">0 đơn hủy</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="font-price-md font-bold text-slate-900 text-sm">4.120.000 ₫</div>
+<span class="text-[10px] text-slate-400">412 Điểm Vamos</span>
+</td>
+<td class="py-4 px-6">
+<div class="text-slate-500 font-medium">Offline 2h trước</div>
+<div class="text-[11px] text-slate-400 font-mono mt-0.5">App iOS • iPhone 15 Pro</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> ĐANG HOẠT ĐỘNG
+                  </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md" title="Xem chi tiết">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<button class="px-2.5 py-1.5 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-md font-semibold text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span>Khóa</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 3: Locked Customer (Bị khóa bởi Q9 Session Invalidation) -->
+<tr class="bg-red-50/40 hover:bg-red-50/60 transition-colors">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm font-headline-sm border border-red-200">
+                      PH
+                    </div>
+<div>
+<div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        Phạm Minh Hoàng
+                        <span class="bg-red-200 text-red-900 font-label-badge text-[10px] px-1.5 py-0.5 rounded font-bold">SPAM BLACKLIST</span>
+</div>
+<span class="font-mono text-[11px] text-slate-500">#VMS-CUS018</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 space-y-0.5">
+<div class="font-medium text-slate-800">hoang.dev.bot@yahoo.com</div>
+<div class="text-slate-500">0912.009.441</div>
+<div class="text-[11px] text-red-600 font-medium">Lý do: Spam 12 đơn ảo COD &amp; gian lận Voucher</div>
+</td>
+<td class="py-4 px-6 text-center">
+<div class="font-price-md font-bold text-slate-800">1 đơn</div>
+<div class="text-[11px] text-red-600 font-bold">12 đơn hủy / bom</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="font-price-md font-bold text-slate-400 text-sm">790.000 ₫</div>
+<span class="text-[10px] text-red-600 font-semibold">Tài khoản bị đóng băng</span>
+</td>
+<td class="py-4 px-6">
+<div class="text-red-700 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">link_off</span>
+<span>Session Thu Hồi (HTTP 401)</span>
+</div>
+<div class="text-[11px] text-slate-400 font-mono mt-0.5">SQL Token Revoked lúc 09:14</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-300">
+<span class="material-symbols-outlined text-xs">lock</span> ĐÃ KHÓA
+                  </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md" title="Xem lịch sử">
+<span class="material-symbols-outlined text-lg">history</span>
+</button>
+<button class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-md font-bold text-xs flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-sm">lock_open</span>
+<span>Mở Khóa</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 4: ADMIN MASTER (Tự vệ: Không thể tự khóa) -->
+<tr class="bg-slate-100/70 border-l-4 border-l-[#0F172A]">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-[#0F172A] text-white flex items-center justify-center font-bold text-sm font-headline-sm">
+<span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+</div>
+<div>
+<div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        Admin Master (System)
+                        <span class="bg-[#0F172A] text-white font-label-badge text-[10px] px-1.5 py-0.5 rounded font-bold">HỆ THỐNG / ROOT</span>
+</div>
+<span class="font-mono text-[11px] text-slate-500">#VMS-ADM001</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 space-y-0.5">
+<div class="font-medium text-slate-800">admin.master@vamos.vn</div>
+<div class="text-slate-500">Nội bộ Vamos Store HQ</div>
+<div class="text-[11px] text-emerald-700 font-medium">Bảo vệ quyền tối cao (Root Bypass)</div>
+</td>
+<td class="py-4 px-6 text-center">
+<div class="font-price-md font-bold text-slate-500">--</div>
+<div class="text-[11px] text-slate-400">Admin Portal</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="font-price-md font-bold text-slate-500 text-sm">--</div>
+<span class="text-[10px] text-slate-400">Không tính LTV</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-emerald-700 font-bold">
+<span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+<span>Active Session (Current User)</span>
+</div>
+<div class="text-[11px] text-slate-500 font-mono mt-0.5">Server Console IP • 127.0.0.1</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-200 text-slate-800 border border-slate-300">
+<span class="material-symbols-outlined text-xs">shield</span> ĐƯỢC BẢO VỆ
+                  </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end">
+<button class="px-3 py-1.5 bg-slate-200 text-slate-400 border border-slate-300 rounded-md font-semibold text-xs flex items-center gap-1 cursor-not-allowed" disabled="" title="OWASP Rule: Không thể tự khóa chính mình">
+<span class="material-symbols-outlined text-sm">block</span>
+<span>Không thể tự khóa</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 5: Regular Member -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm font-headline-sm">
+                      VT
+                    </div>
+<div>
+<div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        Vũ Tuấn Anh
+                        <span class="bg-slate-100 text-slate-700 font-label-badge text-[10px] px-1.5 py-0.5 rounded font-bold">RUNNER CLUB</span>
+</div>
+<span class="font-mono text-[11px] text-slate-500">#VMS-CUS104</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 space-y-0.5">
+<div class="font-medium text-slate-800">tuananh.runner@gmail.com</div>
+<div class="text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-emerald-600">verified</span>
+<span>0933.221.789</span>
+</div>
+<div class="text-[11px] text-slate-400 truncate max-w-xs">88 Lê Lợi, Hải Châu, Đà Nẵng</div>
+</td>
+<td class="py-4 px-6 text-center">
+<div class="font-price-md font-bold text-slate-800">4 đơn</div>
+<div class="text-[11px] text-slate-400">0 đơn hủy</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="font-price-md font-bold text-slate-900 text-sm">3.650.000 ₫</div>
+<span class="text-[10px] text-slate-400">365 Điểm Vamos</span>
+</td>
+<td class="py-4 px-6">
+<div class="text-slate-500 font-medium">Offline 1 ngày trước</div>
+<div class="text-[11px] text-slate-400 font-mono mt-0.5">Edge/Windows 11</div>
+</td>
+<td class="py-4 px-6 text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> ĐANG HOẠT ĐỘNG
+                  </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md" title="Xem chi tiết">
+<span class="material-symbols-outlined text-lg">visibility</span>
+</button>
+<button class="px-2.5 py-1.5 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-md font-semibold text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span>Khóa</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination & Bulk Details -->
+<div class="p-4 border-t border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+<div class="flex items-center gap-2">
+<span>Hiển thị <strong>1 - 5</strong> trên <strong>4.820</strong> khách hàng</span>
+<span class="text-slate-300">|</span>
+<span>Tự động đồng bộ MS SQL: <strong class="text-emerald-600">0.04s</strong></span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1.5 border border-slate-200 rounded-md bg-white hover:bg-slate-100 disabled:opacity-40" disabled="">
+<span class="material-symbols-outlined text-xs">arrow_back_ios</span>
+</button>
+<button class="px-3 py-1.5 border border-[#0F172A] bg-[#0F172A] text-white font-bold rounded-md">1</button>
+<button class="px-3 py-1.5 border border-slate-200 bg-white hover:bg-slate-100 font-semibold rounded-md">2</button>
+<button class="px-3 py-1.5 border border-slate-200 bg-white hover:bg-slate-100 font-semibold rounded-md">3</button>
+<span class="px-2">...</span>
+<button class="px-3 py-1.5 border border-slate-200 bg-white hover:bg-slate-100 font-semibold rounded-md">964</button>
+<button class="px-2.5 py-1.5 border border-slate-200 rounded-md bg-white hover:bg-slate-100">
+<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ==================== 6. MODAL/DRAWER MINH HỌA XÁC NHẬN KHÓA & THU HỒI PHIÊN ==================== -->
+<section class="mt-8 border-2 border-dashed border-red-300 rounded-2xl p-6 bg-gradient-to-r from-red-50/60 via-white to-slate-50">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2.5">
+<span class="w-3 h-3 rounded-full bg-[#E11B22] animate-ping"></span>
+<h3 class="font-headline-sm text-sm font-bold uppercase tracking-wider text-slate-800">
+              UI Showcase: Hộp Thoại Thực Thi Vô Hiệu Hóa Phiên Tức Thì (Dialog Enforcement)
+            </h3>
+</div>
+<span class="text-xs bg-red-100 text-red-800 font-bold px-2.5 py-1 rounded-full">OWASP ASVS 3.3 Strict Session Invalidation</span>
+</div>
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-xl border border-red-200 overflow-hidden">
+<!-- Modal Header -->
+<div class="bg-[#0F172A] text-white p-5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-[#E11B22] text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">gavel</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-sm font-bold">Xác nhận Khóa Tài Khoản &amp; Ngắt Phiên Làm Việc</h4>
+<p class="text-xs text-slate-300">Target: <strong class="text-white">#VMS-CUS042</strong> (Trần Đình Khang - khang.tran@gmail.com)</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-white">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-6 space-y-4">
+<div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded text-xs text-amber-900 leading-relaxed">
+<strong class="font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span> Cảnh báo hành vi:
+              </strong>
+              Hành động này sẽ ngắt kết nối ngay lập tức mọi giỏ hàng đang active. Nếu khách hàng đang thực hiện thanh toán qua cổng VNPay/MoMo, giao dịch dở dang sẽ bị hủy để ngăn ngừa gian lận.
+            </div>
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase font-label-badge">
+                Lý do khóa tài khoản <span class="text-red-500">*</span>
+</label>
+<select class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-red-500 focus:outline-none">
+<option selected="">Đặt nhiều đơn COD nhưng không nhận (Boom hàng &gt; 3 lần)</option>
+<option>Spam request giỏ hàng / Dò quét API Voucher</option>
+<option>Phát hiện sử dụng thẻ tín dụng nghi vấn gian lận</option>
+<option>Yêu cầu từ Cơ quan chức năng hoặc Khách hàng yêu cầu khóa</option>
+<option>Khác (Nhập lý do chi tiết vào nhật ký kiểm toán)</option>
+</select>
+</div>
+<!-- Mandatory Checkbox for OWASP Invalidation -->
+<div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+<label class="flex items-start gap-3 cursor-pointer">
+<input checked="" class="mt-0.5 rounded border-slate-300 text-red-600 focus:ring-red-500 w-4 h-4" type="checkbox"/>
+<div class="text-xs">
+<span class="font-bold text-slate-900 block">Ngắt kết nối phiên làm việc ngay lập tức (Xóa Session Cookie)</span>
+<span class="text-slate-500 leading-normal block mt-0.5">
+                    Gửi tín hiệu SQL Server Invalidation: Xóa token trong bảng <code class="bg-slate-200 px-1 py-0.2 rounded font-mono">Sessions_Active</code>. Khách hàng sẽ bị đá văng ra màn hình đăng nhập ngay ở click tiếp theo.
+                  </span>
+</div>
+</label>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+<span class="text-[11px] text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">lock_clock</span> Ghi nhận Audit Log bởi: Admin Master
+            </span>
+<div class="flex items-center gap-2.5">
+<button class="px-4 py-2 border border-slate-300 text-slate-700 bg-white hover:bg-slate-100 text-xs font-semibold rounded-lg transition-colors">
+                HỦY BỎ
+              </button>
+<button class="px-5 py-2 bg-primary-container hover:bg-[#C8141A] text-white text-xs font-bold rounded-lg shadow-md shadow-red-700/30 flex items-center gap-1.5 transition-all">
+<span class="material-symbols-outlined text-sm">phonelink_erase</span>
+<span>XÁC NHẬN KHÓA &amp; THU HỒI PHIÊN</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- ==================== 7. FOOTER QUẢN TRỊ CHUẨN VAMOS ==================== -->
+<footer class="w-full bg-on-surface text-surface py-6 px-8 border-t border-slate-800 text-xs mt-auto">
+<div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 font-bold font-headline-sm text-white">
+<span class="text-[#E11B22] font-black tracking-tighter">VAMOS</span> STORE ADMIN
+          </div>
+<span class="text-slate-500">•</span>
+<span class="text-slate-400">Move Forward Kinetic Design System</span>
+</div>
+<div class="flex flex-wrap items-center gap-6 text-[11px] text-slate-400">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span>Engine: <strong>MS SQL Server 2025 Standard</strong></span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-sky-400">sync_saved_locally</span>
+<span>Session Store: <strong>SQL Session Provider with Zero Delay Invalidation</strong></span>
+</div>
+<div>Latency: <strong class="text-slate-200">12ms</strong></div>
+</div>
+<div class="text-[11px] text-slate-500">
+          © 2025 VAMOS VIETNAM. Bản quyền thuộc Bộ phận An toàn Thông tin &amp; Vận hành Bán lẻ.
+        </div>
+</div>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Thanh toán COD An toàn | VAMOS STORE</title>
+<!-- Google Fonts: Space Grotesk & Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {tertiary: "#964000", "on-secondary-container": "#193d8a", "surface-container-high": "#dce9ff", outline: "#926e6b", "surface-tint": "#c00014", "inverse-surface": "#213145", "surface-dim": "#cbdbf5", "on-tertiary-fixed": "#341100", "on-tertiary": "#ffffff", "primary-fixed": "#ffdad6", "on-tertiary-fixed-variant": "#783200", "on-surface": "#0b1c30", "surface-container-low": "#eff4ff", "on-primary-fixed-variant": "#93000d", error: "#ba1a1a", "secondary-fixed": "#dae2ff", "primary-container": "#e11b22", "on-error": "#ffffff", "on-primary-fixed": "#410002", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "outline-variant": "#e7bdb8", "tertiary-fixed-dim": "#ffb690", "on-primary": "#ffffff", "primary-fixed-dim": "#ffb4ab", secondary: "#3c5ba9", surface: "#f8f9ff", background: "#f8f9ff", "tertiary-container": "#bd5200", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#001849", "on-secondary": "#ffffff", "on-error-container": "#93000a", "inverse-on-surface": "#eaf1ff", "secondary-container": "#8eabff", "inverse-primary": "#ffb4ab", "surface-container-highest": "#d3e4fe", primary: "#b70013", "on-tertiary-container": "#fff7f4", "on-primary-container": "#fff7f6", "surface-container": "#e5eeff", "surface-variant": "#d3e4fe", "secondary-fixed-dim": "#b2c5ff", "on-surface-variant": "#5d3f3c", "on-background": "#0b1c30", "tertiary-fixed": "#ffdbca", "on-secondary-fixed-variant": "#20428f"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {margin: "1.5rem", "space-xs": "0.25rem", "gutter-sm": "1rem", "space-xl": "2.5rem", "margin-sm": "1rem", "space-lg": "1.5rem", "margin-lg": "4rem", "space-md": "1rem", "gutter-lg": "2rem", "space-sm": "0.5rem", gutter: "1.5rem"}, fontFamily: {"headline-xl-mobile": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "price-lg": ["Space Grotesk"], "headline-xl": ["Space Grotesk"], "label-badge": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "headline-sm": ["Space Grotesk"], "price-md": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "body-lg": ["Be Vietnam Pro"], "headline-lg": ["Space Grotesk"], "label-md": ["Be Vietnam Pro"], "label-lg": ["Be Vietnam Pro"], "body-sm": ["Be Vietnam Pro"], "body-md": ["Be Vietnam Pro"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}]}}}}
+  </script>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-on-surface bg-[#F8FAFC]">
+<!-- Top Announcement Notification (Micro-bar) -->
+<aside class="bg-[#0F172A] text-white px-4 py-2 text-center text-xs font-label-md flex items-center justify-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span>TRẢI NGHIỆM ĐỒNG KIỂM COD 100%: NHẬN HÀNG HÀI LÒNG MỚI THANH TOÁN • ĐỔI TRẢ MIỄN PHÍ 7 NGÀY TẬN NƠI</span>
+</aside>
+<!-- 1. Distraction-Free Checkout Header -->
+<header class="sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-sm border-b border-slate-200">
+<div class="max-w-7xl mx-auto px-4 lg:px-12 h-20 flex items-center justify-between">
+<!-- Brand Logo with Kinetic Arrow Accent -->
+<a class="flex items-center gap-2 group transition-transform active:scale-95" href="#">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white shadow-md shadow-red-500/20">
+<span class="material-symbols-outlined text-2xl font-bold" data-icon="double_arrow">double_arrow</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg font-bold tracking-tight text-[#0F172A] leading-tight">VAMOS</span>
+<span class="font-label-badge text-label-badge text-primary-container tracking-widest font-bold -mt-1">MOVE YOUR WAY.</span>
+</div>
+</a>
+<!-- 3-Step Checkout Breadcrumb Progress -->
+<nav aria-label="Tiến trình thanh toán" class="hidden md:flex items-center gap-3">
+<!-- Step 1: Giỏ hàng (Đã hoàn thành) -->
+<div class="flex items-center gap-2 text-slate-500">
+<span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</span>
+<span class="font-label-md text-label-md font-semibold text-slate-600">1. Giỏ hàng</span>
+</div>
+<span class="w-6 h-px bg-slate-300"></span>
+<!-- Step 2: Thông tin & Thanh toán (Active) -->
+<div class="flex items-center gap-2 text-primary-container">
+<span class="w-6 h-6 rounded-full bg-primary-container text-white flex items-center justify-center text-xs font-bold shadow-sm shadow-red-500/30">2</span>
+<span class="font-label-md text-label-md font-bold text-primary-container">Thông tin &amp; Thanh toán</span>
+</div>
+<span class="w-6 h-px bg-slate-300"></span>
+<!-- Step 3: Hoàn tất đơn hàng -->
+<div class="flex items-center gap-2 text-slate-400">
+<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs font-bold">3</span>
+<span class="font-label-md text-label-md font-medium text-slate-400">Hoàn tất</span>
+</div>
+</nav>
+<!-- Support & Security Badge -->
+<div class="flex items-center gap-4 text-right">
+<div class="hidden sm:flex flex-col items-end">
+<span class="text-xs text-slate-500 font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary-container" data-icon="support_agent">support_agent</span>
+            Hỗ trợ 24/7 (Miễn phí)
+          </span>
+<a class="font-headline-sm text-headline-sm font-bold text-[#0F172A] hover:text-primary-container transition-colors" href="tel:19002126">1900 2126</a>
+</div>
+<div class="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 shadow-xs">
+<span class="material-symbols-outlined text-emerald-600 text-sm font-bold" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="text-xs font-bold tracking-tight font-label-badge">SSL 256-BIT</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Layout (1440px Wrapper, 2-Column: 65% / 35%) -->
+<main class="flex-grow max-w-7xl mx-auto w-full px-4 lg:px-12 py-8 lg:py-12">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- CỘT TRÁI (65% ~ 8 Cols Desktop) -->
+<section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-8">
+<!-- a. Banner Đăng nhập / Khách vãng lai -->
+<div class="p-4 bg-gradient-to-r from-red-50/70 to-slate-50 border border-primary-container/20 rounded-xl flex items-center justify-between gap-4 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl" data-icon="loyalty">loyalty</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">Thành viên VAMOS Club</p>
+<p class="font-body-sm text-body-sm text-slate-600">Đăng nhập tài khoản VAMOS để tích điểm 3% và dùng địa chỉ đã lưu.</p>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 bg-white text-[#0F172A] border border-slate-300 hover:border-primary-container hover:text-primary-container rounded-lg font-label-md text-label-md font-bold shadow-xs transition-all" type="button">
+            Đăng nhập ngay
+          </button>
+</div>
+<!-- b. Sổ địa chỉ & Thông tin giao nhận hàng -->
+<div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between border-b border-slate-100 pb-4">
+<h2 class="font-headline-md text-headline-md text-[#0F172A] flex items-center gap-2 font-bold">
+<span class="material-symbols-outlined text-primary-container" data-icon="pin_drop">pin_drop</span>
+              Thông tin nhận hàng
+            </h2>
+<span class="text-xs font-label-md text-slate-500">* Bắt buộc điền</span>
+</div>
+<!-- Form Fields Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Họ và tên -->
+<div class="md:col-span-1">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="full_name">Họ và tên *</label>
+<div class="relative">
+<input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="full_name" name="full_name" placeholder="Nhập tên người nhận" required="" type="text" value="Nguyễn Văn An"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg" data-icon="person">person</span>
+</div>
+</div>
+<!-- Số điện thoại -->
+<div class="md:col-span-1">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="phone">Số điện thoại (10 số) *</label>
+<div class="relative">
+<input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="phone" name="phone" placeholder="VD: 0918xxxxxx" required="" type="tel" value="0918 888 234"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg" data-icon="call">call</span>
+</div>
+</div>
+<!-- Email nhận hóa đơn điện tử -->
+<div class="md:col-span-2">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="email">Email nhận hóa đơn VAT &amp; mã tra cứu *</label>
+<div class="relative">
+<input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="email" name="email" placeholder="email@domain.com" required="" type="email" value="an.nguyen@vamos.vn"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg" data-icon="mail">mail</span>
+</div>
+</div>
+<!-- Tỉnh / Thành phố -->
+<div>
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="province">Tỉnh / Thành phố *</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="province">
+<option selected="">TP. Hồ Chí Minh</option>
+<option>Hà Nội</option>
+<option>Đà Nẵng</option>
+<option>Cần Thơ</option>
+<option>Hải Phòng</option>
+</select>
+</div>
+<!-- Quận / Huyện -->
+<div>
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="district">Quận / Huyện *</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="district">
+<option selected="">Quận 1</option>
+<option>Quận 3</option>
+<option>Quận 7</option>
+<option>TP. Thủ Đức</option>
+<option>Quận Bình Thạnh</option>
+</select>
+</div>
+<!-- Phường / Xã -->
+<div class="md:col-span-2">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="ward">Phường / Xã *</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="ward">
+<option selected="">Phường Bến Nghé</option>
+<option>Phường Bến Thành</option>
+<option>Phường Đa Kao</option>
+<option>Phường Tân Định</option>
+</select>
+</div>
+<!-- Địa chỉ cụ thể -->
+<div class="md:col-span-2">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="address_detail">Địa chỉ cụ thể (Số nhà, tòa nhà, tên đường) *</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="address_detail" placeholder="Số nhà, tên đường, khu căn hộ..." required="" type="text" value="Số 68 Đường Lê Duẩn, Tòa nhà Deutsches Haus"/>
+</div>
+<!-- Ghi chú giao hàng -->
+<div class="md:col-span-2">
+<label class="block font-label-lg text-label-lg font-semibold text-slate-800 mb-1.5" for="order_notes">Ghi chú giao hàng (Không bắt buộc)</label>
+<textarea class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0F172A] font-body-md text-body-md focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" id="order_notes" placeholder="Ví dụ: Giao giờ hành chính, gọi trước 15 phút, gửi lễ tân..." rows="2">Giao giờ hành chính, gọi trước 15 phút khi đến nơi.</textarea>
+</div>
+</div>
+</div>
+<!-- c. Phương thức vận chuyển -->
+<div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+<h2 class="font-headline-md text-headline-md text-[#0F172A] flex items-center gap-2 font-bold border-b border-slate-100 pb-4">
+<span class="material-symbols-outlined text-primary-container" data-icon="local_shipping">local_shipping</span>
+            Phương thức vận chuyển
+          </h2>
+<div class="space-y-3">
+<!-- Option 1: Standard (Default) -->
+<label class="flex items-center justify-between p-4 rounded-xl border-2 border-primary-container bg-red-50/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary-container focus:ring-primary-container" name="shipping_method" type="radio" value="standard"/>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">Giao hàng tiêu chuẩn</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 font-label-badge">TIẾT KIỆM</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500">Dự kiến giao: 2 - 3 ngày làm việc (Đơn hàng &gt; 500.000 ₫)</p>
+</div>
+</div>
+<span class="font-price-md text-price-md font-bold text-emerald-700">Miễn phí (0 ₫)</span>
+</label>
+<!-- Option 2: Express 2H -->
+<label class="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary-container focus:ring-primary-container" name="shipping_method" type="radio" value="express"/>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">Giao hỏa tốc 2H (Nội thành)</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 font-label-badge">SIÊU TỐC</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500">Nhận hàng trong vòng 120 phút tại nội thành TP.HCM</p>
+</div>
+</div>
+<span class="font-price-md text-price-md font-bold text-[#0F172A]">45.000 ₫</span>
+</label>
+</div>
+</div>
+<!-- d. Phương thức thanh toán (COD Ưu tiên số 1) -->
+<div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+<h2 class="font-headline-md text-headline-md text-[#0F172A] flex items-center gap-2 font-bold border-b border-slate-100 pb-4">
+<span class="material-symbols-outlined text-primary-container" data-icon="verified_user">verified_user</span>
+            Phương thức thanh toán an toàn
+          </h2>
+<div class="space-y-4">
+<!-- Option 1: COD (Thanh toán khi nhận hàng - Selected) -->
+<div class="rounded-xl border-2 border-primary-container bg-red-50/30 overflow-hidden transition-all shadow-xs">
+<label class="flex items-center justify-between p-4 cursor-pointer">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary-container focus:ring-primary-container" name="payment_method" type="radio" value="cod"/>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-2xl" data-icon="payments">payments</span>
+<div>
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">Thanh toán khi nhận hàng (COD)</span>
+<span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-container text-white font-label-badge">KHUYÊN DÙNG</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary-container" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</label>
+<!-- COD Security Callout -->
+<div class="px-5 py-3.5 bg-red-100/50 border-t border-red-200/60 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-container text-xl shrink-0 mt-0.5" data-icon="policy">policy</span>
+<div class="space-y-1">
+<p class="font-label-lg text-label-lg font-bold text-slate-900">100% Yên tâm với chính sách Đồng kiểm VAMOS:</p>
+<p class="font-body-sm text-body-sm text-slate-700">Kiểm tra giày đúng mẫu, đúng size, thử form vừa chân trước khi thanh toán cho shipper. Không vừa ý được trả lại ngay, miễn phí đổi size trong 7 ngày.</p>
+</div>
+</div>
+</div>
+<!-- Option 2: VietQR / Chuyển khoản Napas 247 -->
+<label class="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary-container focus:ring-primary-container" name="payment_method" type="radio" value="qr"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-700 text-2xl" data-icon="qr_code_scanner">qr_code_scanner</span>
+<div>
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">Quét mã VietQR / Chuyển khoản tức thì (Napas 247)</span>
+<p class="font-body-sm text-body-sm text-slate-500">Tự động xác nhận giao dịch qua App Ngân hàng trong 3 giây</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 opacity-80">
+<span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600 font-label-badge">VietQR</span>
+</div>
+</label>
+<!-- Option 3: Thẻ Visa / Mastercard / ATM -->
+<label class="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary-container focus:ring-primary-container" name="payment_method" type="radio" value="card"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-700 text-2xl" data-icon="credit_card">credit_card</span>
+<div>
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">Thẻ Quốc tế (Visa / Mastercard / JCB) &amp; ATM</span>
+<p class="font-body-sm text-body-sm text-slate-500">Cổng thanh toán bảo mật OnePay chuẩn quốc tế</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[11px] font-bold font-label-badge">VISA</span>
+<span class="px-2 py-0.5 bg-orange-50 text-orange-700 border border-orange-200 rounded text-[11px] font-bold font-label-badge">MC</span>
+</div>
+</label>
+</div>
+</div>
+</section>
+<!-- CỘT PHẢI (35% ~ 4 Cols Desktop - Sticky Box Khóa Giá) -->
+<aside class="lg:col-span-5 xl:col-span-4 sticky top-28 space-y-6">
+<div class="bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-md p-6 flex flex-col gap-6">
+<!-- Tiêu đề Header Giỏ hàng -->
+<div class="flex items-center justify-between border-b border-slate-100 pb-4">
+<h3 class="font-headline-md text-headline-md text-[#0F172A] font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" data-icon="shopping_bag">shopping_bag</span>
+              ĐƠN HÀNG CỦA BẠN
+            </h3>
+<span class="px-2.5 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-700 font-label-badge">3 món</span>
+</div>
+<!-- Danh sách snapshot sản phẩm (Thumbnails 70x70) -->
+<div class="divide-y divide-slate-100 space-y-4">
+<!-- Item 1: Giày VAMOS Hunter X Multi-Layer -->
+<div class="pt-3 flex gap-3 items-center">
+<div class="w-[70px] h-[70px] rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A clean studio product photograph of a modern gray and metallic running sneaker with dynamic kinetic lines, placed on an immaculate pure white background. Soft diffused commercial lighting accents the high-performance midsole textures and aerodynamic mesh upper. The palette is high contrast minimal with subtle crimson accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj6Q-4rAlf-nbCVo6Fd65vPvgPUxmVL-ap3kFE2gpJpNGvwTWtSzX3BzSV4D0dILzAjEGfPZhiFgmZY3O62-6Oqr3XNb6nAlJj_weihqyN7dKuIeiWZHd0hYAXG2fQU13E4rgGAPRf2wDkhI_7e9IVTaTS2-Bq27QmsVlTwDToUYHWZCcncUhWEUPQb5ClCYkSia0N21NDifnhPV5wrCHvaCgrXNPHq86-GZfduQU"/>
+</div>
+<div class="flex-grow min-w-0">
+<h4 class="font-headline-sm text-headline-sm text-[#0F172A] truncate font-semibold">Giày VAMOS Hunter X Multi-Layer 2025</h4>
+<p class="font-body-sm text-body-sm text-slate-500">Màu: Xám Tiêu | Size: 40</p>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-md text-label-md text-slate-500">Số lượng: 2</span>
+<span class="font-price-md text-price-md font-bold text-[#0F172A]">1.978.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Item 2: Giày VAMOS Hunter Street Vintage -->
+<div class="pt-4 flex gap-3 items-center">
+<div class="w-[70px] h-[70px] rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Studio footwear product shot of an urban retro streetwear sneaker in black suede with bold red leather accents, captured against a clean pristine white backdrop. Sharp studio strobe lighting emphasizes the vulcanized outsole and intricate street-style stitching. High quality minimalist fashion product photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnvYbUrbFljP6NKIt6ea2gPEvNPVsPXHUIP-jcXOCzQ4VSGWrM8BSn1F4pGsOQBQy0xPRsOMadCRb29d1ZpdqyzifD7GJ06tgxFTr2mkt27jIs0pXdJwuBVg9pSEuAQxnqcwdO0rkweKWvMbynSKmHKC5OBpkQjs7IVCrEApyic3PRXwKfnaiBIgBAtEzdp3a55HlVikWjb7akLOhYbl2pD-TMaEqiLz4hoKIZbsw"/>
+</div>
+<div class="flex-grow min-w-0">
+<h4 class="font-headline-sm text-headline-sm text-[#0F172A] truncate font-semibold">Giày VAMOS Hunter Street Vintage</h4>
+<p class="font-body-sm text-body-sm text-slate-500">Màu: Đen Đỏ | Size: 41</p>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-md text-label-md text-slate-500">Số lượng: 1</span>
+<span class="font-price-md text-price-md font-bold text-[#0F172A]">689.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Item 3: Vớ thể thao dệt Nano Bạc -->
+<div class="pt-4 flex gap-3 items-center">
+<div class="w-[70px] h-[70px] rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A pack of three crisp white athletic low-cut socks with engineered arch support and small red kinetic logo, shot against a seamless pure white studio surface. High key lighting highlights the breathable mesh zones and premium technical weave texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7fjnEWejKyc5aSQ-m8PisjuUNZTBX9BOWt_-_LaaIXwTOYnw7f1rJ4PZDGgnZjW8ui5NW6aaQiUqDjy9d-gV72LnKQ9I4hW4QoEv1xvpVfOdyVpJZwJTAEcWSa4u3sLWojG5RPMXpxDUJyObMlve5GCj688dKGydNDDP5yJ-XHYK8hElQFNOcZabxTkbfuQijExW0-UOaOui7vcGINE6QNJmpQOK-X_1Uck1mGF8"/>
+</div>
+<div class="flex-grow min-w-0">
+<h4 class="font-headline-sm text-headline-sm text-[#0F172A] truncate font-semibold">Vớ thể thao dệt kháng khuẩn Nano (3 đôi)</h4>
+<p class="font-body-sm text-body-sm text-slate-500">Màu: Trắng Cổ Ngắn | One Size</p>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-md text-label-md text-slate-500">Số lượng: 1</span>
+<span class="font-price-md text-price-md font-bold text-[#0F172A]">120.000 ₫</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Khung Voucher Khuyến mãi (Đã áp dụng VAMOS100) -->
+<div class="p-3 bg-red-50/60 rounded-xl border border-red-200 flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-xl" data-icon="confirmation_number">confirmation_number</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-primary-container font-mono">VAMOS100</span>
+<span class="text-xs bg-primary-container text-white px-1.5 py-0.5 rounded font-label-badge">-100k</span>
+</div>
+<p class="text-xs text-slate-600 font-label-md">Đã giảm 100.000 ₫ vào đơn hàng</p>
+</div>
+</div>
+<button class="text-xs font-semibold text-slate-500 hover:text-red-700 underline font-label-md" type="button">Tháo mã</button>
+</div>
+<!-- Chi tiết bảng giá -->
+<div class="space-y-2.5 border-t border-slate-100 pt-4 text-sm">
+<div class="flex justify-between text-slate-600 font-body-md text-body-md">
+<span>Tạm tính (3 sản phẩm)</span>
+<span class="font-price-md text-price-md text-[#0F172A]">2.787.000 ₫</span>
+</div>
+<div class="flex justify-between text-emerald-700 font-body-md text-body-md">
+<span class="flex items-center gap-1">
+<span>Voucher giảm giá</span>
+<span class="text-xs font-label-badge bg-emerald-100 px-1 rounded">VAMOS100</span>
+</span>
+<span class="font-price-md text-price-md font-bold">-100.000 ₫</span>
+</div>
+<div class="flex justify-between text-slate-600 font-body-md text-body-md">
+<span>Phí vận chuyển toàn quốc</span>
+<span class="font-price-md text-price-md text-emerald-700 font-bold">Miễn phí (0 ₫)</span>
+</div>
+<!-- Tổng cộng thanh toán -->
+<div class="border-t border-slate-200 pt-4 mt-2 flex items-baseline justify-between">
+<div>
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A] block">TỔNG CỘNG COD</span>
+<span class="text-xs text-slate-500 font-label-md block">Đã bao gồm thuế VAT &amp; phí đồng kiểm</span>
+</div>
+<span class="font-headline-xl text-headline-xl font-bold text-primary-container tracking-tight">2.687.000 ₫</span>
+</div>
+</div>
+<!-- Nút Chốt Đơn lớn COD -->
+<div class="space-y-3 pt-2">
+<button class="w-full py-4 px-6 bg-primary-container hover:bg-[#C8141A] text-white rounded-lg font-headline-sm text-headline-sm font-bold uppercase tracking-wide shadow-lg shadow-red-600/30 hover:shadow-red-600/40 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group" type="button">
+<span>XÁC NHẬN ĐẶT HÀNG (COD)</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-[11px] text-center text-slate-500 leading-relaxed font-label-md">
+              Nhấn xác nhận đồng nghĩa với việc bạn đồng ý với <a class="underline hover:text-slate-800" href="#">Điều khoản dịch vụ</a> và <a class="underline hover:text-slate-800" href="#">Chính sách xử lý dữ liệu</a> của VAMOS STORE.
+            </p>
+</div>
+<!-- Huy hiệu 3 cam kết vàng -->
+<div class="border-t border-slate-100 pt-4 grid grid-cols-3 gap-2 text-center text-slate-600">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary-container text-xl" data-icon="verified">verified</span>
+<span class="text-[11px] font-bold font-label-badge mt-1 text-[#0F172A]">100% CHÍNH HÃNG</span>
+<span class="text-[10px] text-slate-500">Bồi hoàn 200%</span>
+</div>
+<div class="flex flex-col items-center border-x border-slate-200">
+<span class="material-symbols-outlined text-primary-container text-xl" data-icon="published_with_changes">published_with_changes</span>
+<span class="text-[11px] font-bold font-label-badge mt-1 text-[#0F172A]">ĐỔI SIZE 7 NGÀY</span>
+<span class="text-[10px] text-slate-500">Tận nhà miễn phí</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary-container text-xl" data-icon="handyman">handyman</span>
+<span class="text-[11px] font-bold font-label-badge mt-1 text-[#0F172A]">BẢO HÀNH KEO</span>
+<span class="text-[10px] text-slate-500">Trọn đời sản phẩm</span>
+</div>
+</div>
+</div>
+<!-- Box An Tâm Mua Sắm Hotline Mini -->
+<div class="p-4 bg-slate-100/70 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs font-label-md text-slate-600">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-700" data-icon="lock_clock">lock_clock</span>
+<span>Khóa giữ giỏ hàng trong 15:00</span>
+</div>
+<span class="font-bold text-[#0F172A] font-mono">14:52</span>
+</div>
+</aside>
+</div>
+</main>
+<!-- 3. Minimalist Distraction-Free Footer -->
+<footer class="w-full bg-white border-t border-slate-200 py-8 mt-12 text-slate-500 text-xs font-body-sm">
+<div class="max-w-7xl mx-auto px-4 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<span class="font-headline-sm text-headline-sm font-bold text-[#0F172A]">VAMOS</span>
+<span>•</span>
+<span>© 2026 VAMOS STORE. All Rights Reserved. Hệ thống phân phối giày thể thao chính hãng.</span>
+</div>
+<div class="flex items-center gap-6 font-label-md text-label-md">
+<a class="hover:text-primary-container transition-colors" href="#">Chính sách bảo mật</a>
+<a class="hover:text-primary-container transition-colors" href="#">Chính sách đổi trả &amp; đồng kiểm</a>
+<a class="hover:text-primary-container transition-colors" href="#">Trung tâm trợ giúp 1900 2126</a>
+</div>
+</div>
+</footer>
+</body></html>

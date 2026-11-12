@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAMOS STORE | Quản lý Banners &amp; Slider</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms & Container Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-container-low": "#eff4ff", "secondary-fixed": "#dae2ff", "on-error-container": "#93000a", "primary-fixed-dim": "#ffb4ab", "surface-tint": "#c00014", "inverse-primary": "#ffb4ab", "on-background": "#0b1c30", "error-container": "#ffdad6", "surface-container": "#e5eeff", "on-tertiary-container": "#fff7f4", "on-tertiary-fixed-variant": "#783200", "surface-container-lowest": "#ffffff", "surface-container-high": "#dce9ff", "tertiary-fixed-dim": "#ffb690", "on-surface-variant": "#5d3f3c", "outline-variant": "#e7bdb8", secondary: "#3c5ba9", "on-primary-container": "#fff7f6", "on-secondary-fixed-variant": "#20428f", "on-primary": "#ffffff", "on-secondary-fixed": "#001849", background: "#f8f9ff", "on-secondary-container": "#193d8a", "surface-dim": "#cbdbf5", "tertiary-fixed": "#ffdbca", "surface-container-highest": "#d3e4fe", surface: "#f8f9ff", "on-tertiary-fixed": "#341100", "on-primary-fixed": "#410002", "tertiary-container": "#bd5200", "secondary-container": "#8eabff", primary: "#b70013", "on-secondary": "#ffffff", "surface-bright": "#f8f9ff", "on-error": "#ffffff", "surface-variant": "#d3e4fe", "secondary-fixed-dim": "#b2c5ff", "primary-fixed": "#ffdad6", tertiary: "#964000", "inverse-surface": "#213145", outline: "#926e6b", "on-tertiary": "#ffffff", error: "#ba1a1a", "primary-container": "#e11b22", "inverse-on-surface": "#eaf1ff", "on-primary-fixed-variant": "#93000d", "on-surface": "#0b1c30"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"gutter-sm": "1rem", gutter: "1.5rem", "gutter-lg": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "margin-sm": "1rem", "margin-lg": "4rem", "space-xs": "0.25rem", "space-xl": "2.5rem", margin: "1.5rem", "space-md": "1rem"}, fontFamily: {"headline-xl": ["Space Grotesk"], "body-lg": ["Be Vietnam Pro"], "headline-xl-mobile": ["Space Grotesk"], "price-md": ["Space Grotesk"], "headline-sm": ["Space Grotesk"], "label-badge": ["Space Grotesk"], "body-sm": ["Be Vietnam Pro"], "body-md": ["Be Vietnam Pro"], "headline-lg": ["Space Grotesk"], "label-lg": ["Be Vietnam Pro"], "headline-md": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "price-lg": ["Space Grotesk"], "label-md": ["Be Vietnam Pro"], "display-hero-mobile": ["Space Grotesk"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}]}}}}
+  </script>
+</head>
+<body class="h-full font-body-md text-body-md text-on-surface bg-surface flex overflow-hidden antialiased">
+<!-- ========================================================================= -->
+<!-- 1. SIDEBAR QUẢN TRỊ CỐ ĐỊNH BÊN TRÁI (Dark Carbon #111111)                -->
+<!-- ========================================================================= -->
+<aside class="w-72 bg-[#111111] text-surface-container-lowest flex flex-col flex-shrink-0 z-30 select-none border-r border-[#222222]">
+<!-- Brand / Logo Area -->
+<div class="px-6 py-6 border-b border-[#222222] flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-headline-lg font-bold tracking-tight text-primary-container">VAMOS</span>
+<span class="text-xs px-2 py-0.5 rounded bg-primary-container text-surface-container-lowest font-label-badge text-label-badge tracking-widest">STORE</span>
+</div>
+<p class="font-headline-sm text-[11px] tracking-widest text-[#888888] font-bold mt-1">MOVE YOUR WAY.</p>
+</div>
+<span class="material-symbols-outlined text-[#666666] hover:text-surface-container-lowest cursor-pointer transition-colors" data-icon="dashboard_customize">dashboard_customize</span>
+</div>
+<!-- Navigation Menu Items -->
+<nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+<div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#666666]">Hệ Thống &amp; Bán Hàng</div>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#dashboard">
+<span class="material-symbols-outlined text-lg" data-icon="grid_view">grid_view</span>
+<span>Dashboard Tổng quan</span>
+</a>
+<a class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#orders">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="receipt_long">receipt_long</span>
+<span>Đơn hàng</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary-container text-surface-container-lowest text-[10px] font-bold">28</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#products">
+<span class="material-symbols-outlined text-lg" data-icon="sports_handball">sports_handball</span>
+<span>Sản phẩm &amp; Biến thể</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#inventory">
+<span class="material-symbols-outlined text-lg" data-icon="inventory_2">inventory_2</span>
+<span>Tồn kho &amp; Kiểm toán</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#categories">
+<span class="material-symbols-outlined text-lg" data-icon="category">category</span>
+<span>Danh mục &amp; Dòng giày</span>
+</a>
+<div class="pt-4 px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#666666]">Marketing &amp; Khách Hàng</div>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#vouchers">
+<span class="material-symbols-outlined text-lg" data-icon="confirmation_number">confirmation_number</span>
+<span>Vouchers</span>
+</a>
+<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[#A0A0A0] hover:text-surface-container-lowest hover:bg-[#1C1C1C] transition-colors font-label-md text-label-md" href="#customers">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+<span>Khách hàng &amp; Tài khoản</span>
+</a>
+<!-- ACTIVE ITEM: Banners & Quảng cáo (Kinetic Red #E11B22 bo góc 8px) -->
+<a class="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-primary-container text-surface-container-lowest shadow-md shadow-primary-container/20 font-label-md text-label-md" href="#banners">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="view_carousel" data-weight="fill" style="font-variation-settings: 'FILL' 1;">view_carousel</span>
+<span class="font-bold">Banners &amp; Quảng cáo</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-surface-container-lowest animate-pulse"></span>
+</a>
+</nav>
+<!-- Sidebar Bottom / Database Status & Signout -->
+<div class="p-4 border-t border-[#222222] bg-[#0C0C0C] space-y-3">
+<div class="flex items-center justify-between bg-[#161616] p-2.5 rounded-lg border border-[#262626]">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="font-headline-sm text-[11px] font-bold text-gray-200">MS SQL Server 2025</span>
+</div>
+<span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded">ONLINE</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-fixed flex items-center justify-center font-bold text-xs">
+            VA
+          </div>
+<div>
+<div class="font-label-md text-label-md text-surface-container-lowest font-medium leading-none">Admin VAMOS</div>
+<div class="text-[11px] text-[#777777] mt-0.5">superadmin@vamos.vn</div>
+</div>
+</div>
+<button class="p-2 rounded hover:bg-[#1E1E1E] text-[#888888] hover:text-primary-container transition-colors" title="Đăng xuất hệ thống">
+<span class="material-symbols-outlined text-lg" data-icon="logout">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- ========================================================================= -->
+<!-- MAIN WORKSPACE CONTAINER                                                  -->
+<!-- ========================================================================= -->
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
+<!-- ========================================================================= -->
+<!-- 2. TOP HEADER QUẢN TRỊ                                                    -->
+<!-- ========================================================================= -->
+<header class="bg-surface-container-lowest/90 backdrop-blur-md sticky top-0 z-20 px-8 py-4 border-b border-surface-container-highest flex flex-col gap-3">
+<!-- Breadcrumbs & Status Toolbar -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 font-label-md text-label-md text-secondary">
+<span class="hover:text-primary transition-colors cursor-pointer">Admin</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Marketing &amp; Truyền thông</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface font-semibold">Quản lý Banners &amp; Slider Trang chủ</span>
+</div>
+<!-- Cloudflare Status indicator -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container rounded-full text-xs font-label-md font-semibold text-secondary">
+<span class="material-symbols-outlined text-emerald-600 text-sm" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>CDN CACHE: CLOUDFLARE PURGE READY</span>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-secondary/30 text-secondary hover:text-on-surface hover:border-secondary transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-base" data-icon="refresh">refresh</span>
+<span>Purge All</span>
+</button>
+</div>
+</div>
+<!-- Main Action Header Row -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold uppercase tracking-tight text-on-surface">
+            Quản Lý Banners &amp; Slider Trang Chủ
+          </h1>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">
+            Sắp xếp vị trí kéo thả, đồng bộ hóa ảnh responsive chuẩn Desktop (1920x620) &amp; Mobile (750x750)
+          </p>
+</div>
+<div class="flex items-center gap-3">
+<!-- Search input -->
+<div class="relative w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg" data-icon="search">search</span>
+<input class="w-full pl-9 pr-4 py-2 bg-surface-container rounded-lg border border-surface-container-highest text-sm text-on-surface placeholder-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest" placeholder="Tìm tên chiến dịch, link điều hướng..." type="text"/>
+</div>
+<!-- Preview Storefront Button -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-on-surface text-on-surface hover:bg-on-surface hover:text-surface-container-lowest transition-all font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-lg" data-icon="open_in_new">open_in_new</span>
+<span>Xem trước Trang chủ</span>
+</button>
+<!-- Primary Add Campaign Button -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-container text-surface-container-lowest hover:bg-[#c8141a] transition-all shadow-md shadow-primary-container/30 font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+<span>Thêm Banner Chiến Dịch Mới</span>
+</button>
+</div>
+</div>
+</header>
+<!-- ========================================================================= -->
+<!-- SCROLLABLE CANVAS CONTENT                                                 -->
+<!-- ========================================================================= -->
+<main class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+<!-- ========================================================================= -->
+<!-- 3. DẢI 4 THẺ KPI BANNER ĐẦU TRANG                                        -->
+<!-- ========================================================================= -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-secondary font-medium">Tổng Banner Đang Chạy</span>
+<span class="p-2 rounded-lg bg-red-50 text-primary-container">
+<span class="material-symbols-outlined text-xl" data-icon="slideshow">slideshow</span>
+</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">04</span>
+<span class="font-label-md text-label-md text-secondary">banners hoạt động</span>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-xs text-secondary">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Hero Slider chính ngoài Storefront</span>
+</div>
+<div class="absolute -right-4 -bottom-4 w-20 h-20 bg-primary-container/5 rounded-full pointer-events-none"></div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-secondary font-medium">Tỷ Lệ Click Through (CTR)</span>
+<span class="p-2 rounded-lg bg-orange-50 text-tertiary">
+<span class="material-symbols-outlined text-xl" data-icon="ads_click">ads_click</span>
+</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">14.8%</span>
+<span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span> +2.4%
+            </span>
+</div>
+<div class="mt-3 text-xs text-secondary truncate">
+            Dẫn đầu bởi: <strong class="text-on-surface">Hunter X Festive</strong>
+</div>
+<div class="absolute -right-4 -bottom-4 w-20 h-20 bg-tertiary/5 rounded-full pointer-events-none"></div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-secondary font-medium">Tổng Lượt Xem &amp; Impression</span>
+<span class="p-2 rounded-lg bg-blue-50 text-[#1E40AF]">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">182.400</span>
+<span class="font-label-md text-label-md text-secondary">views</span>
+</div>
+<div class="mt-3 text-xs text-secondary">
+            30 ngày qua (Desktop 58% • Mobile 42%)
+          </div>
+<div class="absolute -right-4 -bottom-4 w-20 h-20 bg-[#1E40AF]/5 rounded-full pointer-events-none"></div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-surface-container-highest shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-secondary font-medium">Banner Hết Hạn / Tạm Ẩn</span>
+<span class="p-2 rounded-lg bg-gray-100 text-secondary">
+<span class="material-symbols-outlined text-xl" data-icon="archive">archive</span>
+</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl font-bold text-on-surface">02</span>
+<span class="font-label-md text-label-md text-secondary">banners lưu trữ</span>
+</div>
+<div class="mt-3 text-xs text-secondary truncate">
+            Tết 2024 &amp; Black Friday đã lưu kho
+          </div>
+<div class="absolute -right-4 -bottom-4 w-20 h-20 bg-gray-500/5 rounded-full pointer-events-none"></div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- 4. KHU VỰC DANH SÁCH HERO SLIDER (Kéo Thả Sắp Xếp Thứ Tự 1, 2, 3, 4)      -->
+<!-- ========================================================================= -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-sm p-6 space-y-5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-surface-container-highest gap-3">
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">HERO TOP SLIDERS HIỆN HÀNH</h2>
+<span class="bg-primary-container/10 text-primary-container font-label-badge text-[11px] px-2.5 py-0.5 rounded-full font-bold">DRAG &amp; DROP REORDER</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-1">Kéo các thanh trượt bằng biểu tượng dấu 6 chấm để hoán đổi vị trí hiển thị tức thì trên Storefront.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs text-secondary">Tự động chuyển slide:</span>
+<select class="text-xs font-semibold py-1.5 px-3 rounded-lg border border-surface-container-highest bg-surface-container-low text-on-surface focus:ring-1 focus:ring-primary-container">
+<option>5.0 giây (Khuyên dùng)</option>
+<option>3.5 giây (Nhanh)</option>
+<option>7.0 giây (Chậm)</option>
+<option>Tắt tự động (Manual)</option>
+</select>
+<button class="px-3 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg text-xs font-bold transition-colors">
+              Lưu Thứ Tự
+            </button>
+</div>
+</div>
+<!-- Banner Items Grid / Draggable List -->
+<div class="space-y-4">
+<!-- BANNER 1 (Vị trí 1 - ACTIVE) -->
+<div class="group bg-surface-container-lowest hover:bg-surface-container-low/40 rounded-xl border-2 border-primary-container/40 p-4 transition-all duration-200 flex flex-col lg:flex-row items-start lg:items-center gap-5 shadow-sm">
+<!-- Drag Handle & Sort Badge -->
+<div class="flex items-center gap-3 text-secondary">
+<div class="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-surface-container-high transition-colors" title="Kéo để đổi thứ tự">
+<span class="material-symbols-outlined text-2xl text-secondary group-hover:text-primary-container transition-colors" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-primary-container text-surface-container-lowest font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                1
+              </div>
+</div>
+<!-- Banner Visual Previews (Desktop 1920x620 & Mobile 750x750) -->
+<div class="flex items-center gap-3 flex-shrink-0">
+<!-- Desktop preview -->
+<div class="relative w-48 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111] group-hover:border-primary-container transition-colors">
+<img class="w-full h-full object-cover" data-alt="A cinematic widescreen banner showcasing athletic high-performance running sneakers floating dynamically with motion blur and kinetic red lighting. Modern clean studio setup, volumetric red neon fog, high-contrast dark urban background, sleek performance gear in crisp focus, bold athletic aesthetic matching VAMOS store." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoYtjKDDsYdRr0O-tNmnoTfc-kKL4gtzDwTJGPWqdPmwF8wSh3JrF-rFjW8C86daBddo4JNOlXcdEFdTbYY-IOFiucVUswnHLq5-qAetEkCSx9NUzWvzq8qrunPF02R2EopkeWgDuWlep3Mwro1vkes0NR8Se1UMnflh3YPeR12Ik8p7ai5tKq0H4kQtqP8Zmv5cueKNvVSPHMu14aihETEAcqu6Sji4SYX7LxzJs"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-label-badge">1920x620</span>
+</div>
+<!-- Mobile preview -->
+<div class="relative w-14 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111] hidden sm:block">
+<img class="w-full h-full object-cover" data-alt="A vertical mobile oriented product shot of a high-tech athletic sneaker, showing dynamic sole cushioning and red speed accents against dark studio ambiance, high resolution, dramatic sports advertising lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9MbPo9k9b0ITXiPCK2RkHOngfz3klhOmdCGRd5ZovB3srAamxwjDdxkpg2_qvL1uGvNLtHDq5eEtzTuobIpjBvkEaBF_YVjqtio_wN8iWDWuw0nWxs2EPBKWxtBr76hTfbrqDAZa02pbGzredOIuvkgSXAuJ2w_6Oqnq2XUMFP_KIOtlyQPsR6XG37mi0sC6kZTxiePIKFrFiNWwxv7DrMM4WDbY2XDgnixj5K0I"/>
+<span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-black/75 text-white text-[8px] font-label-badge">750x750</span>
+</div>
+</div>
+<!-- Details -->
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-1">
+<span class="bg-primary-container text-surface-container-lowest font-label-badge text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">HERO TOP SLIDER</span>
+<span class="bg-surface-container text-secondary font-label-badge text-[10px] px-2 py-0.5 rounded font-semibold uppercase">Hiệu ứng: Kinetic Zoom</span>
+<span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đang hiển thị trực tiếp
+                </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">VAMOS HUNTER X – BƯỚC TIẾN VÔ CỰC</h3>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-secondary mt-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="link">link</span>
+<span class="font-mono text-primary font-medium hover:underline">/products/vamos-hunter-x</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="smart_button">smart_button</span>
+<span>CTA: <strong class="text-on-surface">MUA NGAY (1.099.000₫)</strong></span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded border border-surface-container-highest">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="mouse">mouse</span>
+<span><strong>8.420</strong> clicks (CTR <strong class="text-emerald-600">18.2%</strong>)</span>
+</div>
+</div>
+</div>
+<!-- Switch & Controls -->
+<div class="flex items-center gap-4 self-end lg:self-center">
+<label class="relative inline-flex items-center cursor-pointer" title="Bật / Tắt hiển thị">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-lg hover:bg-surface-container text-secondary hover:text-on-surface transition-colors" title="Chỉnh sửa Banner">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-red-50 text-secondary hover:text-primary transition-colors" title="Xóa vào thùng rác">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BANNER 2 (Vị trí 2 - ACTIVE) -->
+<div class="group bg-surface-container-lowest hover:bg-surface-container-low/40 rounded-xl border border-surface-container-highest p-4 transition-all duration-200 flex flex-col lg:flex-row items-start lg:items-center gap-5 shadow-sm">
+<div class="flex items-center gap-3 text-secondary">
+<div class="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-2xl text-secondary group-hover:text-primary-container transition-colors" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest text-on-surface font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                2
+              </div>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0">
+<div class="relative w-48 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111]">
+<img class="w-full h-full object-cover" data-alt="High energy commercial banner advertising a flash sale for athletic running shoes with fiery neon light trails, dynamic speed motion typography with 50 percent off discount tag, glowing red and electric orange accents on charcoal textured ground." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANrKWV4BLyxdDS3b4z5kUZ_9yWIWI8hXmLGLS6nA8jQSNVfYA68rgcTyVVL3x0tQs2uDZGPWfMTkaN_9m-zVU4noZldzRuijvhvaiFjMD6zR_ukSOgeiVq2_We7xthIbESRsCuu2LMfr6NVyNYlQN00GxoXJ062luetyGAGfmWNz9py6FT4zNxP8IAJJsfqPFCKWvo-WPo6Ru21aD2QB9hDRXVystxQDu9DBxYedo"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-label-badge">1920x620</span>
+</div>
+<div class="relative w-14 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111] hidden sm:block">
+<img class="w-full h-full object-cover" data-alt="Square crop version of running shoe flash sale banner featuring glowing neon red and amber light lines with bold 50 percent discount typography against deep dark graphite background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaqLbuY0-PpO9MKVhz-i4lOZp-6MmVmQ3CYqc6aKhrpShmA_w1J0S7x7s1dIuOSlGIZ4mM-4APP4pA60WZT6WzpAyIEGg5fcCz3WP19WeIb14U1oIaCs9aTcZRxHS8V_XTMaGl8IY_wuIHZEzindIGCyXbY5oIsWJPFS4V9FZRPE8a04S-YWyA9tk_gXo09t97-5doX6XrL5GrgwpyDpYbc9iiqj4Ai-SWZrdciTg"/>
+<span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-black/75 text-white text-[8px] font-label-badge">750x750</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-1">
+<span class="bg-tertiary-container text-surface-container-lowest font-label-badge text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">FLASH SALE BANNER</span>
+<span class="bg-amber-100 text-amber-900 font-label-badge text-[10px] px-2 py-0.5 rounded font-semibold">Đến 23:59 15/03/2025</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">FLASH SALE GIỜ VÀNG - GIẢM ĐẾN 50% TẤT CẢ DÒNG RUNNING</h3>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-secondary mt-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="link">link</span>
+<span class="font-mono text-primary font-medium hover:underline">/products?sale=flash-sale</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="smart_button">smart_button</span>
+<span>CTA: <strong class="text-on-surface">SĂN DEAL NGAY</strong></span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded border border-surface-container-highest">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="mouse">mouse</span>
+<span><strong>5.110</strong> clicks (CTR <strong class="text-emerald-600">14.6%</strong>)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end lg:self-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-lg hover:bg-surface-container text-secondary hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-red-50 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BANNER 3 (Vị trí 3 - ACTIVE) -->
+<div class="group bg-surface-container-lowest hover:bg-surface-container-low/40 rounded-xl border border-surface-container-highest p-4 transition-all duration-200 flex flex-col lg:flex-row items-start lg:items-center gap-5 shadow-sm">
+<div class="flex items-center gap-3 text-secondary">
+<div class="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-2xl text-secondary group-hover:text-primary-container transition-colors" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest text-on-surface font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                3
+              </div>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0">
+<div class="relative w-48 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111]">
+<img class="w-full h-full object-cover" data-alt="Sophisticated premium editorial banner for leather dress footwear and high-end formal sneakers. Warm directional gallery lighting, minimalist stone pedestal with architectural shadow lines, understated elegance in champagne and rich obsidian tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlLTDlIrDpy8Ixbju1zrBfSd_7BjPBobH2oCTckMDhZgL7fqefTcd8X5bKO8oPUdAX5OGFNrE19PU30GZSa5yvxjDbTWbnhfQzc4ylpCV0wWwdkGfXsOHGkECXT-WGhykZC6ZLYtNrIP1bHkg54T1-42ioXYVMLjBdetSIM3wwXErgWaVPAJ4iiwwRm0TO_94Z4JQpgvl_MvxaU5kANvYs68N3M0lAPcPlf8fTJbk"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-label-badge">1920x620</span>
+</div>
+<div class="relative w-14 h-20 rounded-lg overflow-hidden border border-surface-container-highest bg-[#111111] hidden sm:block">
+<img class="w-full h-full object-cover" data-alt="Vertical luxury product photography of a premium leather sneaker resting on an architectural beige pedestal with dramatic high fashion soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5-NCpF72NpuxWv2F4inMNtDMrbdx86Bd5-knURGlJ_tixHKvEXhVONLjwivo6xEkIYq4FpuJQYFoHKa705ByemtQJ8lBF9ZxFQj7GhqaGnQb_SgFBV7l9Gnr6eZsUamnswZbOtFNknFtKW66buUpiSFMzhgN65HQ0v9rAXi4QnLT2A80sT8OKw16amnd9x6jPbz94vK38QsXVbFOle-wLJYpRQ3oE6LOmSAi4Y2Y"/>
+<span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-black/75 text-white text-[8px] font-label-badge">750x750</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-1">
+<span class="bg-[#111111] text-surface-container-lowest font-label-badge text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">COLLECTION SHOWCASE</span>
+<span class="bg-surface-container text-secondary font-label-badge text-[10px] px-2 py-0.5 rounded font-semibold">Tông màu: Sand &amp; Noir</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">VAMOS GOSTO 2025 - SỰ THANH LỊCH NƠI CÔNG SỞ</h3>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-secondary mt-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="link">link</span>
+<span class="font-mono text-primary font-medium hover:underline">/products?brand=gosto</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="smart_button">smart_button</span>
+<span>CTA: <strong class="text-on-surface">KHÁM PHÁ BỘ SƯU TẬP</strong></span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-0.5 rounded border border-surface-container-highest">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="mouse">mouse</span>
+<span><strong>3.290</strong> clicks (CTR <strong class="text-emerald-600">11.8%</strong>)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end lg:self-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-lg hover:bg-surface-container text-secondary hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-red-50 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BANNER 4 (Vị trí 4 - TẠM TẮT) -->
+<div class="group bg-gray-50/70 hover:bg-gray-100/60 rounded-xl border border-dashed border-gray-300 p-4 transition-all duration-200 flex flex-col lg:flex-row items-start lg:items-center gap-5 opacity-70">
+<div class="flex items-center gap-3 text-secondary">
+<div class="cursor-grab active:cursor-grabbing p-1.5 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-2xl text-secondary" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-gray-200 text-gray-600 font-headline-sm text-headline-sm flex items-center justify-center font-bold">
+                4
+              </div>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0 grayscale">
+<div class="relative w-48 h-20 rounded-lg overflow-hidden border border-gray-300 bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Vibrant outdoor summer adventure advertising banner with sporty trail sandals placed near crystal blue waterfall splashes and sunny tropical boulders, energetic outdoor lifestyle mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC84kQfBtIaGbkVr99jjx2AKFwPXGtUeRo39mL0gUOO03CV7Z4cBCu5FMbRwu_3GRronQVjCpTteG4CVA_tfMsh1J0Qp5BNlT_QPcHJ6f5hbiuPMv2r9njuklwylpIB7n-XGxryV4LkcUojOYeU85TtjPswoDhDjtK5u9hLqDDwyrRCoAszzFbpOP_Coh5BRE3ZelrBGe2xFyLFHDt2y-k-DEjOAeJV6VSBnUYDx6s"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-label-badge">1920x620</span>
+</div>
+<div class="relative w-14 h-20 rounded-lg overflow-hidden border border-gray-300 bg-gray-200 hidden sm:block">
+<img class="w-full h-full object-cover" data-alt="Vertical shot of outdoor adventure sandal resting on rock surface surrounded by fresh water splash droplets, vivid sunlit daylight atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcAEW0NjR-95eOvX3mhqS5ZfTYiDPIMg3ZoRqwn7h_7lre2C3FY1X5o2aAlm7jMZM3EqLY84a8p_VfE3eaVfWUNDHK5Oz7bdExoljWjow3_NEdwQZnDU1tecQUqx43zZc3tbzOefC0P1WPkc6dQ1DMX-KwZIQh8364RLq-VAe7LBwtkR6WSECNs1cPodlzv0-CSsQxLhVe7m8eYU0ysaf2UNmPgv4JV7NriH5m2gI"/>
+<span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-black/75 text-white text-[8px] font-label-badge">750x750</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-1">
+<span class="bg-gray-300 text-gray-700 font-label-badge text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">SEASONAL</span>
+<span class="bg-gray-200 text-gray-700 font-label-badge text-[10px] px-2 py-0.5 rounded font-semibold">TẠM TẮT: Chờ kích hoạt Tháng 5/2025</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-gray-700 truncate">SUMMER ADVENTURE - BỘ SƯU TẬP SANDAL MÙA HÈ</h3>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-gray-500 mt-1.5">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="link">link</span>
+<span class="font-mono text-gray-600">/products?cat=sandal</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span>Lịch: 01/05/2025 - 31/07/2025</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end lg:self-center">
+<label class="relative inline-flex items-center cursor-pointer" title="Đang tạm tắt">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-red-50 text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- 5. KHU VỰC FORM TẢI LÊN & CẤU HÌNH KÉP (DESKTOP 1920x620 + MOBILE 750x750)-->
+<!-- ========================================================================= -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-sm p-6 space-y-6">
+<div class="border-b border-surface-container-highest pb-4 flex flex-col md:flex-row md:items-center justify-between gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-2xl" data-icon="add_photo_alternate">add_photo_alternate</span>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">CẤU HÌNH &amp; TẢI LÊN BANNER MỚI (DUAL ASSETS)</h2>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-1">Đồng bộ hai tỷ lệ hình ảnh chuyên biệt để tối ưu tốc độ load LCP &amp; hiển thị hoàn hảo trên mọi kích thước màn hình.</p>
+</div>
+<span class="px-3 py-1 rounded bg-secondary-container text-on-secondary-fixed text-xs font-label-badge font-bold uppercase tracking-wider self-start md:self-center">
+            Multer + Object Storage Ready
+          </span>
+</div>
+<form class="space-y-6">
+<!-- Dual Upload Drag & Drop Dropzones -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Desktop Upload Dropzone (8 cols) -->
+<div class="lg:col-span-8 space-y-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-base" data-icon="desktop_windows">desktop_windows</span>
+<span>Ảnh Banner Desktop (Tỷ lệ 1920 x 620 px)</span>
+<span class="text-primary">* Bắt buộc</span>
+</label>
+<span class="text-xs text-secondary">Tối đa 5MB • JPG, PNG, WEBP</span>
+</div>
+<div class="relative border-2 border-dashed border-primary-container/40 hover:border-primary-container bg-surface-container-low/50 hover:bg-surface-container-low transition-all rounded-xl p-6 text-center cursor-pointer group flex flex-col items-center justify-center min-h-[220px]">
+<div class="w-14 h-14 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<p class="font-label-lg text-label-lg font-bold text-on-surface">
+                  Kéo thả file ảnh hoặc <span class="text-primary-container underline">Duyệt từ máy tính</span>
+</p>
+<p class="text-xs text-secondary mt-1 max-w-md">Khuyến nghị độ phân giải chuẩn 1920x620px với focal point nằm ở 2/3 khung hình bên phải để tránh che văn bản tiêu đề.</p>
+<div class="mt-4 flex items-center gap-2 text-xs font-mono text-secondary bg-surface-container-lowest px-3 py-1 rounded-md border border-surface-container-highest">
+<span>hunter-x-boost-2025-desktop.webp</span>
+<span class="text-emerald-600 font-bold">1.2 MB</span>
+<span class="material-symbols-outlined text-emerald-600 text-sm" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Mobile Upload Dropzone (4 cols) -->
+<div class="lg:col-span-4 space-y-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-base" data-icon="smartphone">smartphone</span>
+<span>Ảnh Mobile (750 x 750 px)</span>
+<span class="text-primary">* Bắt buộc</span>
+</label>
+<span class="text-xs text-secondary">Tối đa 3MB • 1:1</span>
+</div>
+<div class="relative border-2 border-dashed border-surface-container-highest hover:border-primary-container bg-surface-container-low/50 hover:bg-surface-container-low transition-all rounded-xl p-6 text-center cursor-pointer group flex flex-col items-center justify-center min-h-[220px]">
+<div class="w-12 h-12 rounded-full bg-surface-container text-secondary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="add_to_photos">add_to_photos</span>
+</div>
+<p class="font-label-md text-label-md font-bold text-on-surface">Tải ảnh Mobile (1:1)</p>
+<p class="text-xs text-secondary mt-1">Khung ảnh vuông tối ưu dọc trên iOS &amp; Android</p>
+<button class="mt-3 px-3 py-1.5 rounded-lg border border-surface-container-highest bg-surface-container-lowest text-xs font-semibold hover:border-primary-container transition-colors" type="button">
+                  Chọn ảnh vuông
+                </button>
+</div>
+</div>
+</div>
+<!-- Metadata & Form Controls Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-2">
+<!-- Tên chiến dịch nội bộ -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Tên chiến dịch nội bộ <span class="text-primary">*</span></label>
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest" placeholder="VD: Ra Mắt Hunter Foam+ Xuân Hè 2025" type="text" value="VAMOS HUNTER X - BƯỚC TIẾN VÔ CỰC"/>
+</div>
+<!-- Tiêu đề chính hiển thị (Heading) -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Tiêu đề chính trên Banner (Heading)</label>
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest font-headline-sm" placeholder="VD: BỨT PHÁ MỌI GIỚI HẠN" type="text" value="VĂN HÓA ĐƯỜNG PHỐ • NĂNG LƯỢNG MỚI"/>
+</div>
+<!-- Tiêu đề phụ (Subheading) -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Mô tả ngắn / Phụ đề (Subheading)</label>
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest" placeholder="VD: Giảm ngay 150K khi thanh toán qua VNPay" type="text" value="Đệm bọt Foam+ thế hệ mới đàn hồi êm ái hơn 45%"/>
+</div>
+<!-- Nhãn nút bấm (Button Text) -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Nhãn nút CTA (Button Text)</label>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest font-bold" placeholder="VD: MUA NGAY" type="text" value="MUA NGAY (1.099.000₫)"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary text-sm" data-icon="ads_click">ads_click</span>
+</div>
+</div>
+<!-- Đường dẫn điều hướng (Target URL) -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Đường dẫn điều hướng (Target URL) <span class="text-primary">*</span></label>
+<div class="relative">
+<input class="w-full pl-8 pr-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface font-mono focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest" placeholder="/collections/hunter-x" type="text" value="/products/vamos-hunter-x"/>
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-secondary text-sm" data-icon="link">link</span>
+</div>
+</div>
+<!-- Thứ tự hiển thị & Hiệu ứng -->
+<div class="grid grid-cols-2 gap-3">
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Thứ tự (Index)</label>
+<input class="w-full px-3 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface text-center font-bold focus:ring-2 focus:ring-primary-container" max="10" min="1" type="number" value="1"/>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Hiệu ứng Animation</label>
+<select class="w-full px-3 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface font-medium focus:ring-2 focus:ring-primary-container">
+<option selected="">Kinetic Zoom (Động)</option>
+<option>Fade in (Mờ dần)</option>
+<option>Slide Left (Trượt ngang)</option>
+<option>Cross Dissolve</option>
+</select>
+</div>
+</div>
+<!-- Lịch phát hành tự động -->
+<div class="space-y-1.5 md:col-span-2 lg:col-span-2">
+<label class="font-label-md text-label-md font-semibold text-on-surface flex items-center justify-between">
+<span>Lịch phát hành tự động (Start &amp; Expire Time)</span>
+<span class="text-xs text-secondary font-normal">Hệ thống tự động kích hoạt/tắt theo giờ MS SQL</span>
+</label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div class="relative">
+<input class="w-full px-3 py-2 rounded-lg border border-surface-container-highest bg-surface-container-low text-xs text-on-surface font-mono" type="datetime-local" value="2025-03-01T00:00"/>
+</div>
+<div class="relative">
+<input class="w-full px-3 py-2 rounded-lg border border-surface-container-highest bg-surface-container-low text-xs text-on-surface font-mono" type="datetime-local" value="2025-04-30T23:59"/>
+</div>
+</div>
+</div>
+<!-- Campaign Tag Selector -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface">Phân loại Tag chiến dịch</label>
+<select class="w-full px-3.5 py-2.5 rounded-lg border border-surface-container-highest bg-surface-container-low text-sm text-on-surface font-medium focus:ring-2 focus:ring-primary-container">
+<option selected="">HERO TOP SLIDER (Chính)</option>
+<option>FLASH SALE BANNER (Khẩn cấp)</option>
+<option>COLLECTION SHOWCASE (Bộ sưu tập)</option>
+<option>PROMOTIONAL POPUP (Nổi bật)</option>
+<option>SEASONAL (Theo mùa vụ)</option>
+</select>
+</div>
+</div>
+<!-- Bottom Action Buttons in Form -->
+<div class="pt-4 border-t border-surface-container-highest flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2 text-xs text-secondary">
+<span class="material-symbols-outlined text-base text-emerald-600" data-icon="cloud_done">cloud_done</span>
+<span>Dữ liệu sẽ được lưu vào bảng <code>dbo.MarketingBanners</code> trên MS SQL Server 2025.</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-5 py-2.5 rounded-lg border border-surface-container-highest hover:bg-surface-container text-secondary text-sm font-semibold transition-colors" type="reset">
+                Làm mới Form
+              </button>
+<button class="flex-1 sm:flex-none px-6 py-2.5 rounded-lg bg-primary-container hover:bg-[#c8141a] text-surface-container-lowest text-sm font-bold shadow-md shadow-primary-container/20 transition-all flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="save">save</span>
+<span>Lưu &amp; Kích Hoạt Banner Ngay</span>
+</button>
+</div>
+</div>
+</form>
+</section>
+<!-- ========================================================================= -->
+<!-- 6. BẢNG PHÂN TÍCH HIỆU SUẤT QUẢNG CÁO & CTR TỪNG BANNER                   -->
+<!-- ========================================================================= -->
+<section class="bg-surface-container-lowest rounded-xl border border-surface-container-highest shadow-sm p-6 space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-xl" data-icon="monitoring">monitoring</span>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">THỐNG KÊ HIỆU SUẤT CTR &amp; CHUYỂN ĐỔI ĐƠN HÀNG (30 NGÀY)</h2>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">Dữ liệu telemetry lượt impression, click và doanh thu sinh ra từ từng banner slider.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs font-semibold text-on-surface flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="file_download">file_download</span>
+<span>Xuất Báo Cáo Excel</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-highest text-secondary text-xs uppercase font-label-badge tracking-wider">
+<th class="py-3 px-4">Banner Chiến Dịch</th>
+<th class="py-3 px-4">Thiết Bị</th>
+<th class="py-3 px-4 text-right">Lượt Xem (Imp.)</th>
+<th class="py-3 px-4 text-right">Lượt Click</th>
+<th class="py-3 px-4 text-right">Tỷ Lệ CTR</th>
+<th class="py-3 px-4 text-right">Tỷ Lệ Chuyển Đổi (CR%)</th>
+<th class="py-3 px-4 text-center">Trạng Thái</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest text-sm font-body-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-semibold text-on-surface flex items-center gap-3">
+<div class="w-10 h-7 rounded overflow-hidden border border-surface-container-highest bg-black flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Micro thumbnail of VAMOS Hunter X red sneakers on dark kinetic backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuDkj7rS_Qf9mZV1IA9kFOYHV8kXmyiIFEX7CzTW1dQyd3Rmd2LvkDAjcpBKf97M1CWKam0gVOh__NBreHzaU89b0yzzl0x0jCg-F-ZiApyaPkACTlLepoaNXxowvut1Wj5K5LQuJO0J4yWTfCrrotexeONptsnmFwG_z4S0PO-Bki7i89zXEen0pMqnCndG2nHyUTqMqUyuHLZliosjdfAoBZem38vpw8LZi0hp4"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">VAMOS HUNTER X – BƯỚC TIẾN VÔ CỰC</div>
+<div class="text-xs text-secondary font-mono">/products/vamos-hunter-x</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 text-xs text-secondary">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="desktop_windows">desktop_windows</span> 62%</span>
+<span>•</span>
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="smartphone">smartphone</span> 38%</span>
+</div>
+</td>
+<td class="py-3 px-4 text-right font-mono font-medium">46.260</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface">8.420</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 bg-emerald-50/40">18.2%</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-primary">4.8% (404 đơn)</td>
+<td class="py-3 px-4 text-center">
+<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Hoạt động</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-semibold text-on-surface flex items-center gap-3">
+<div class="w-10 h-7 rounded overflow-hidden border border-surface-container-highest bg-black flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Micro thumbnail of running shoe flash sale glowing neon light stripes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7XJJRRCL-HD08CjAWo2m0LGlZ1RiwC7dUfd1Mi-d3njt2vFyEHI1t3wa1Puie02pNXy6IqZF9S6pDJ9zuKVI_8kuuVXyDA8AhPcvnt65bDBfVrPxTBEqlAJ_jwov9Q-YY4TQQySADYq8ZxBoU2Rym6MZJHGi8w3Ttyh5ZwtAPBiWOwjE6y4FahLYA0jbPiDNHmxsd1NgY6yMuY7th1fG6GAIj4SuXlHJmoAWNTZI"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">FLASH SALE GIỜ VÀNG - GIẢM ĐẾN 50%</div>
+<div class="text-xs text-secondary font-mono">/products?sale=flash-sale</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 text-xs text-secondary">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="desktop_windows">desktop_windows</span> 48%</span>
+<span>•</span>
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="smartphone">smartphone</span> 52%</span>
+</div>
+</td>
+<td class="py-3 px-4 text-right font-mono font-medium">35.000</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface">5.110</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 bg-emerald-50/40">14.6%</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-primary">6.2% (316 đơn)</td>
+<td class="py-3 px-4 text-center">
+<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Hoạt động</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-semibold text-on-surface flex items-center gap-3">
+<div class="w-10 h-7 rounded overflow-hidden border border-surface-container-highest bg-black flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Micro thumbnail of Gosto luxury leather shoe showcase." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkdf7X1KouyG4x7Kbh9gpziEOJV_Td4qoSP0I6Vavt4zA2F4LMKYX-M2nv_hRUzBxJkapN9RRbHnGNHLiIlF7QnTS2dFM4pW3Un9T0nt-ys08PDnjMmR_WwyyWcNGQ5zNgK91Nb5bE7Q9C-Lj9zPfa3K45nHrYX4AJ-pVB1RM4U5rJpT5Ineh_F22XhitJG2Qdgkz7d-gccw--6GV5GsZbM631sMzJgIjOZ2E1MJg"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">VAMOS GOSTO 2025 - THANH LỊCH CÔNG SỞ</div>
+<div class="text-xs text-secondary font-mono">/products?brand=gosto</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 text-xs text-secondary">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="desktop_windows">desktop_windows</span> 71%</span>
+<span>•</span>
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-xs" data-icon="smartphone">smartphone</span> 29%</span>
+</div>
+</td>
+<td class="py-3 px-4 text-right font-mono font-medium">27.880</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-on-surface">3.290</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 bg-emerald-50/40">11.8%</td>
+<td class="py-3 px-4 text-right font-mono font-bold text-primary">3.1% (102 đơn)</td>
+<td class="py-3 px-4 text-center">
+<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Hoạt động</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- 7. FOOTER QUẢN TRỊ HỆ THỐNG                                               -->
+<!-- ========================================================================= -->
+<footer class="pt-6 pb-8 border-t border-surface-container-highest flex flex-col md:flex-row items-center justify-between text-xs text-secondary gap-4">
+<div class="flex flex-wrap items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="font-semibold text-on-surface">MS SQL Server 2025 Standard Edition</span>
+</div>
+<span>•</span>
+<div>Storage: <strong class="text-on-surface">Cloudflare R2 &amp; Multer Middleware</strong></div>
+<span>•</span>
+<div>Runtime: <strong class="text-on-surface">Node.js 22 LTS • Express.js • Pug SSR</strong></div>
+</div>
+<div class="flex items-center gap-4">
+<span>Hệ thống quản trị bán lẻ VAMOS STORE</span>
+<span>© 2025 VAMOS STORE Team. "MOVE YOUR WAY."</span>
+</div>
+</footer>
+</main>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Toggle button visual animation
+      const toggles = document.querySelectorAll('input[type="checkbox"]');
+      toggles.forEach(toggle => {
+        toggle.addEventListener('change', (e) => {
+          const bannerRow = e.target.closest('.group');
+          if (bannerRow) {
+            if (!e.target.checked) {
+              bannerRow.classList.add('opacity-60', 'grayscale');
+            } else {
+              bannerRow.classList.remove('opacity-60', 'grayscale');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</body></html>

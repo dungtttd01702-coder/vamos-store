@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAMOS STORE - Quản lý Sản phẩm &amp; Ma trận Biến thể Đa tầng</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Space Grotesk & Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {outline: "#926e6b", "error-container": "#ffdad6", error: "#ba1a1a", "tertiary-container": "#bd5200", "on-primary-fixed-variant": "#93000d", "on-secondary-fixed": "#001849", "tertiary-fixed-dim": "#ffb690", "secondary-container": "#8eabff", tertiary: "#964000", "surface-container-highest": "#d3e4fe", "secondary-fixed-dim": "#b2c5ff", "surface-dim": "#cbdbf5", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-variant": "#d3e4fe", "on-tertiary-container": "#fff7f4", surface: "#f8f9ff", "primary-fixed-dim": "#ffb4ab", "surface-container": "#e5eeff", "on-primary-fixed": "#410002", "on-tertiary-fixed": "#341100", "inverse-primary": "#ffb4ab", "on-surface-variant": "#5d3f3c", "on-tertiary": "#ffffff", "tertiary-fixed": "#ffdbca", primary: "#b70013", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#783200", "on-surface": "#0b1c30", "on-primary-container": "#fff7f6", "surface-bright": "#f8f9ff", "outline-variant": "#e7bdb8", "inverse-surface": "#213145", "surface-tint": "#c00014", "on-background": "#0b1c30", "surface-container-lowest": "#ffffff", "secondary-fixed": "#dae2ff", "primary-container": "#e11b22", "on-secondary-fixed-variant": "#20428f", "on-secondary-container": "#193d8a", secondary: "#3c5ba9", "on-error": "#ffffff", background: "#f8f9ff", "inverse-on-surface": "#eaf1ff", "primary-fixed": "#ffdad6", "on-primary": "#ffffff", "surface-container-low": "#eff4ff"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"space-lg": "1.5rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-lg": "2rem", "gutter-sm": "1rem", gutter: "1.5rem", "margin-sm": "1rem", "space-sm": "0.5rem", "space-xl": "2.5rem", "margin-lg": "4rem", margin: "1.5rem"}, fontFamily: {"body-md": ["Be Vietnam Pro"], "headline-sm": ["Space Grotesk"], "label-md": ["Be Vietnam Pro"], "headline-lg": ["Space Grotesk"], "label-lg": ["Be Vietnam Pro"], "label-badge": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "price-md": ["Space Grotesk"], "price-lg": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "headline-xl-mobile": ["Space Grotesk"], "body-sm": ["Be Vietnam Pro"], "headline-xl": ["Space Grotesk"], "body-lg": ["Be Vietnam Pro"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}]}}}}
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .shadow-vamos-cta {
+      box-shadow: 0 10px 25px -5px rgba(225, 27, 34, 0.4), 0 8px 10px -6px rgba(225, 27, 34, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden">
+<div class="flex min-h-screen">
+<!-- 1. DARK CARBON SIDEBAR (#111111) -->
+<aside class="w-64 bg-[#111111] text-white flex flex-col flex-shrink-0 z-40 relative select-none">
+<!-- Logo Branding -->
+<div class="h-20 flex flex-col justify-center px-6 border-b border-[#222222]">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-white font-headline-md font-bold tracking-tighter">
+            V
+          </div>
+<span class="font-headline-lg text-headline-sm font-bold tracking-tight text-white">VAMOS STORE</span>
+</div>
+<span class="font-label-badge text-[10px] tracking-widest text-[#E11B22] uppercase mt-0.5 font-bold">MOVE YOUR WAY.</span>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+<div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 font-label-badge">
+          HỆ THỐNG QUẢN TRỊ
+        </div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="shopping_cart">shopping_cart</span>
+<span>Đơn hàng</span>
+<span class="ml-auto bg-[#222222] text-xs px-2 py-0.5 rounded-full text-gray-300 font-price-md text-[11px]">28</span>
+</a>
+<!-- ACTIVE ITEM: Sản phẩm & Biến thể -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#1f1617] text-white border-l-4 border-primary-container text-label-lg font-label-lg font-bold shadow-inner" href="#">
+<span class="material-symbols-outlined text-primary-container" data-icon="inventory_2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="text-white">Sản phẩm &amp; Biến thể</span>
+<span class="ml-auto w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="rule">rule</span>
+<span>Tồn kho &amp; Kiểm toán</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="category">category</span>
+<span>Danh mục</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="confirmation_number">confirmation_number</span>
+<span>Vouchers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="group">group</span>
+<span>Khách hàng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a1a1a] transition-all text-label-lg font-label-lg group" href="#">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors" data-icon="view_carousel">view_carousel</span>
+<span>Banners</span>
+</a>
+</div>
+<!-- Bottom User & Logout -->
+<div class="p-4 border-t border-[#222222] bg-[#0c0c0c]">
+<a class="flex items-center gap-3 px-2 py-2 rounded-lg text-gray-400 hover:text-primary-container hover:bg-[#1a1a1a] transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined text-gray-400" data-icon="logout">logout</span>
+<span>Đăng xuất hệ thống</span>
+</a>
+</div>
+</aside>
+<!-- MAIN CONTENT WRAPPER -->
+<div class="flex-1 flex flex-col min-w-0 bg-background">
+<!-- TOP BAR QUẢN TRỊ -->
+<header class="h-20 bg-surface-container-lowest border-b border-surface-container-highest px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+<!-- Search bar -->
+<div class="w-full max-w-md relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-secondary">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</div>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-surface-container-highest rounded-lg text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-white transition-all placeholder:text-secondary" placeholder="Tìm kiếm mã SKU, tên mẫu sneaker, mã gốc..." type="text"/>
+<span class="absolute right-2.5 top-2.5 px-1.5 py-0.5 text-[10px] font-headline-sm font-semibold text-secondary bg-surface-container-highest rounded border border-outline-variant/30">⌘K</span>
+</div>
+<!-- System Badges & Profile -->
+<div class="flex items-center gap-4">
+<!-- MS SQL Server ACID Badge -->
+<div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-800">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="material-symbols-outlined text-base text-emerald-600" data-icon="database">database</span>
+<span class="font-label-badge text-xs tracking-tight uppercase">MS SQL: ACID LIVE</span>
+</div>
+<!-- Real-time Socket.io Notification Bell -->
+<div class="relative">
+<button class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-container-low border border-surface-container-highest transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-primary-container rounded-full ring-2 ring-white"></span>
+</button>
+</div>
+<!-- Vertical Divider -->
+<div class="h-8 w-px bg-surface-container-highest"></div>
+<!-- Admin Master Profile -->
+<div class="flex items-center gap-3 pl-1">
+<div class="w-9 h-9 rounded-full bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">
+              AD
+            </div>
+<div class="hidden md:block text-left">
+<div class="font-label-lg text-sm text-on-surface leading-tight font-semibold flex items-center gap-1">
+                Admin Master
+                <span class="material-symbols-outlined text-blue-600 text-sm" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="text-[11px] font-body-sm text-secondary">admin.master@vamos.vn</div>
+</div>
+</div>
+</div>
+</header>
+<!-- SUB-HEADER: Tiêu đề & Action Bar -->
+<section class="bg-surface-container-lowest border-b border-surface-container-highest px-6 lg:px-8 py-5">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div>
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-secondary text-body-sm font-body-sm mb-1.5">
+<span>Admin</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span>Sản phẩm</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary-container font-semibold">Thêm mới &amp; Cấu hình biến thể</span>
+</nav>
+<h1 class="font-headline-lg text-2xl lg:text-headline-lg font-bold tracking-tight text-on-surface uppercase flex items-center gap-3">
+              QUẢN LÝ SẢN PHẨM &amp; BIẾN THỂ ĐA TẦNG
+              <span class="text-xs font-label-badge bg-primary-fixed text-primary px-2.5 py-0.5 rounded-full uppercase tracking-wider">SKU Matrix v3.2</span>
+</h1>
+</div>
+<!-- Dual CTA Buttons -->
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 border border-on-surface/20 hover:border-on-surface/60 rounded-lg text-on-surface font-label-lg font-semibold hover:bg-surface-container-low transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="close">close</span>
+              HỦY BỎ
+            </button>
+<button class="px-6 py-2.5 bg-primary-container hover:bg-primary text-white rounded-lg font-label-lg font-bold tracking-wide shadow-vamos-cta transition-all flex items-center gap-2 hover:-translate-y-0.5">
+<span class="material-symbols-outlined text-xl" data-icon="save">save</span>
+              LƯU SẢN PHẨM &amp; TẠO SKU
+            </button>
+</div>
+</div>
+</section>
+<!-- MAIN 2-COLUMN FORM CANVAS -->
+<main class="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- CỘT TRÁI (60% ~ 7 Cols in 12-col grid) -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<!-- KHỐI 1: THÔNG TIN CHUNG -->
+<div class="bg-surface-container-lowest border border-surface-container-highest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-5 border-b border-surface-container-highest">
+<div class="flex items-center gap-2.5">
+<span class="p-2 bg-red-50 text-primary-container rounded-lg material-symbols-outlined text-xl" data-icon="edit_note">edit_note</span>
+<div>
+<h2 class="font-headline-sm text-lg font-bold text-on-surface">Thông tin chung sản phẩm</h2>
+<p class="text-body-sm text-secondary">Định danh thương hiệu, thông số giá niêm yết và phân loại cơ bản</p>
+</div>
+</div>
+<span class="font-label-badge text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded">MASTER DATA</span>
+</div>
+<div class="space-y-4">
+<!-- Tên sản phẩm -->
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">Tên sản phẩm đầy đủ <span class="text-primary-container">*</span></label>
+<input class="w-full px-3.5 py-2.5 bg-surface-container-low border border-slate-300 rounded-lg text-body-md font-body-md font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-white transition-all" type="text" value="Giày Thể Thao Nam VAMOS Hunter X Multi-Layer Festive 2025"/>
+</div>
+<!-- Mã gốc & Thương hiệu -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">Mã sản phẩm gốc (Parent Code)</label>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 bg-surface-container-low border border-slate-300 rounded-lg text-headline-sm text-sm font-semibold tracking-wider text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-white transition-all" type="text" value="VMS-HTX01"/>
+<span class="absolute right-3 top-2.5 text-xs text-emerald-600 font-label-badge flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span> HỢP LỆ
+                      </span>
+</div>
+</div>
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">Thương hiệu phân nhánh</label>
+<select class="w-full px-3.5 py-2.5 bg-surface-container-low border border-slate-300 rounded-lg text-body-md font-body-md font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-white transition-all">
+<option selected="">VAMOS Hunter</option>
+<option>VAMOS Core Streetwear</option>
+<option>VAMOS Performance Pro</option>
+<option>Gosto Leather Luxury</option>
+</select>
+</div>
+</div>
+<!-- Danh mục & Giới tính -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">Danh mục phân bổ</label>
+<select class="w-full px-3.5 py-2.5 bg-surface-container-low border border-slate-300 rounded-lg text-body-md font-body-md font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:bg-white transition-all">
+<option selected="">Sneaker Nam &gt; Running Sport</option>
+<option>Sneaker Nam &gt; Streetstyle Casual</option>
+<option>Sneaker Nam &gt; Training &amp; Gym</option>
+<option>Giày Chạy Bộ &gt; Marathon Series</option>
+</select>
+</div>
+<div>
+<label class="block text-label-lg font-label-lg text-on-surface mb-1.5 font-semibold">Đối tượng giới tính</label>
+<div class="grid grid-cols-4 gap-1.5 bg-surface-container-low p-1 rounded-lg border border-slate-300">
+<button class="py-1.5 text-xs font-label-badge uppercase rounded bg-primary-container text-white font-bold shadow-sm text-center" type="button">Men</button>
+<button class="py-1.5 text-xs font-label-badge uppercase rounded text-secondary hover:text-on-surface text-center" type="button">Women</button>
+<button class="py-1.5 text-xs font-label-badge uppercase rounded text-secondary hover:text-on-surface text-center" type="button">Kids</button>
+<button class="py-1.5 text-xs font-label-badge uppercase rounded text-secondary hover:text-on-surface text-center" type="button">Unisex</button>
+</div>
+</div>
+</div>
+<!-- Giá bán cơ sở & Giá khuyến mãi -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+<div class="p-3.5 rounded-lg bg-surface-container-low border border-surface-container-highest">
+<span class="block text-secondary font-label-md text-xs mb-1">Giá niêm yết cơ sở (VND)</span>
+<div class="flex items-center gap-2">
+<span class="font-price-lg text-xl text-on-surface font-bold">1.250.000</span>
+<span class="text-xs text-secondary font-semibold">₫</span>
+</div>
+</div>
+<div class="p-3.5 rounded-lg bg-red-50/70 border border-primary-fixed">
+<div class="flex justify-between items-center mb-1">
+<span class="text-primary font-label-md text-xs font-bold">Giá khuyến mãi ưu đãi (VND)</span>
+<span class="bg-primary-container text-white text-[11px] font-label-badge px-1.5 py-0.2 rounded font-bold">-21%</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-price-lg text-xl text-primary font-bold">989.000</span>
+<span class="text-xs text-primary font-semibold">₫</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- KHỐI 2: MA TRẬN BIẾN THỂ ĐỘNG (DYNAMIC VARIANTS MATRIX GENERATOR) -->
+<div class="bg-surface-container-lowest border border-surface-container-highest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-5 border-b border-surface-container-highest">
+<div class="flex items-center gap-2.5">
+<span class="p-2 bg-red-50 text-primary-container rounded-lg material-symbols-outlined text-xl" data-icon="grid_view">grid_view</span>
+<div>
+<h2 class="font-headline-sm text-lg font-bold text-on-surface">Dynamic Variants Matrix Generator</h2>
+<p class="text-body-sm text-secondary">Tổ hợp ma trận Màu sắc × Kích cỡ tự động sinh định danh mã SKU</p>
+</div>
+</div>
+<button class="text-xs font-label-badge px-2.5 py-1.5 bg-[#111111] text-white rounded-lg flex items-center gap-1.5 hover:bg-black transition-colors font-bold" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="add">add</span> THÊM TÙY CHỌN
+                </button>
+</div>
+<!-- Tùy chọn 1: Màu sắc (Color Swatches) -->
+<div class="mb-5 pb-5 border-b border-surface-container-highest">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-lg font-label-lg text-on-surface font-semibold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+                    Thuộc tính 1: Màu sắc sản phẩm (3 đã chọn)
+                  </span>
+<span class="text-xs text-secondary hover:text-primary-container cursor-pointer font-medium">+ Thêm màu mới</span>
+</div>
+<div class="flex flex-wrap gap-2.5">
+<!-- Tag Xám Tiêu (#71717A) -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-primary-container bg-surface-container-low shadow-sm">
+<span class="w-4 h-4 rounded-full border border-black/20" style="background-color: #71717A;"></span>
+<span class="text-sm font-label-lg font-semibold text-on-surface">Xám Tiêu</span>
+<span class="material-symbols-outlined text-base text-secondary cursor-pointer hover:text-primary" data-icon="close">close</span>
+</div>
+<!-- Tag Xanh Navy (#1E3A8A) -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-primary-container bg-surface-container-low shadow-sm">
+<span class="w-4 h-4 rounded-full border border-black/20" style="background-color: #1E3A8A;"></span>
+<span class="text-sm font-label-lg font-semibold text-on-surface">Xanh Navy</span>
+<span class="material-symbols-outlined text-base text-secondary cursor-pointer hover:text-primary" data-icon="close">close</span>
+</div>
+<!-- Tag Đen Đỏ (#111111) -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 border-primary-container bg-surface-container-low shadow-sm">
+<div class="w-4 h-4 rounded-full overflow-hidden flex border border-black/20">
+<div class="w-1/2 h-full bg-[#111111]"></div>
+<div class="w-1/2 h-full bg-[#E11B22]"></div>
+</div>
+<span class="text-sm font-label-lg font-semibold text-on-surface">Đen Đỏ</span>
+<span class="material-symbols-outlined text-base text-secondary cursor-pointer hover:text-primary" data-icon="close">close</span>
+</div>
+<!-- Thêm ô nhập chọn nhanh -->
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-slate-300 text-secondary hover:border-slate-400 cursor-pointer">
+<span class="material-symbols-outlined text-base" data-icon="palette">palette</span>
+<span class="text-xs font-label-md">Chọn mã màu khác...</span>
+</div>
+</div>
+</div>
+<!-- Tùy chọn 2: Kích cỡ Size EU -->
+<div class="mb-6">
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-lg font-label-lg text-on-surface font-semibold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+                    Thuộc tính 2: Kích cỡ Size EU (7 cỡ kích hoạt)
+                  </span>
+<span class="text-xs text-secondary font-medium">Bảng size chuẩn VAMOS Footwear</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">39</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">40</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">41</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">42</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">43</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">44</span>
+<span class="w-10 h-10 rounded-md bg-[#111111] text-white flex items-center justify-center font-headline-sm text-sm font-bold shadow-sm">45</span>
+<button class="px-3 h-10 rounded-md border border-dashed border-slate-300 text-secondary hover:text-on-surface hover:border-slate-400 flex items-center justify-center gap-1 text-xs font-label-md" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span> Size 46
+                  </button>
+</div>
+</div>
+<!-- BẢNG TỔ HỢP MA TRẬN BIẾN THỂ TỰ ĐỘNG SINH -->
+<div>
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-sm font-bold uppercase text-on-surface">Danh sách tổ hợp SKU tự động sinh</span>
+<span class="bg-surface-container-highest text-secondary text-xs px-2 py-0.5 rounded-full font-price-md font-bold">21 Biến thể</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-xs text-primary font-label-md font-semibold hover:underline">Sửa giá hàng loạt</button>
+<span class="text-slate-300">•</span>
+<button class="text-xs text-secondary font-label-md hover:underline">Nhập tồn kho nhanh</button>
+</div>
+</div>
+<div class="overflow-x-auto rounded-lg border border-surface-container-highest shadow-sm">
+<table class="w-full text-left text-sm border-collapse bg-white">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-container-highest text-secondary text-[11px] font-label-badge uppercase tracking-wider">
+<th class="py-3 px-3.5">Màu &amp; Size</th>
+<th class="py-3 px-3">Mã SKU Phân Nhánh</th>
+<th class="py-3 px-3">Giá Bán</th>
+<th class="py-3 px-3">Tồn Ban Đầu</th>
+<th class="py-3 px-3">Trạng Thái</th>
+<th class="py-3 px-3 text-right">Kích Hoạt</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest">
+<!-- DÒNG 1: Xám Tiêu - 40 -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-3 px-3.5 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full" style="background-color: #71717A;"></span>
+<span class="font-label-lg font-semibold text-on-surface">Xám Tiêu</span>
+<span class="text-xs px-1.5 py-0.5 bg-slate-100 rounded font-headline-sm font-bold">40</span>
+</div>
+</td>
+<td class="py-3 px-3 font-headline-sm text-xs font-semibold text-slate-800">
+<code class="bg-surface-container-low px-1.5 py-0.5 rounded text-primary font-bold">VMS-HTX01-XAM-40</code>
+</td>
+<td class="py-3 px-3 font-price-md font-bold text-on-surface whitespace-nowrap">
+                          989.000 ₫
+                        </td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-headline-sm font-bold bg-blue-50 text-blue-700">
+                            15 đôi
+                          </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-label-badge bg-emerald-100 text-emerald-800 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> SẴN SÀNG
+                          </span>
+</td>
+<td class="py-3 px-3 text-right">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+</tr>
+<!-- DÒNG 2: Xám Tiêu - 41 (Cảnh báo tồn ít) -->
+<tr class="hover:bg-slate-50 transition-colors bg-amber-50/20">
+<td class="py-3 px-3.5 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full" style="background-color: #71717A;"></span>
+<span class="font-label-lg font-semibold text-on-surface">Xám Tiêu</span>
+<span class="text-xs px-1.5 py-0.5 bg-slate-100 rounded font-headline-sm font-bold">41</span>
+</div>
+</td>
+<td class="py-3 px-3 font-headline-sm text-xs font-semibold text-slate-800">
+<code class="bg-surface-container-low px-1.5 py-0.5 rounded text-primary font-bold">VMS-HTX01-XAM-41</code>
+</td>
+<td class="py-3 px-3 font-price-md font-bold text-on-surface whitespace-nowrap">
+                          989.000 ₫
+                        </td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-headline-sm font-bold bg-amber-100 text-amber-800">
+<span class="material-symbols-outlined text-xs" data-icon="warning">warning</span> 2 đôi
+                          </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-label-badge bg-amber-100 text-amber-800 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> SẮP HẾT
+                          </span>
+</td>
+<td class="py-3 px-3 text-right">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+</tr>
+<!-- DÒNG 3: Xám Tiêu - 42 -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-3 px-3.5 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full" style="background-color: #71717A;"></span>
+<span class="font-label-lg font-semibold text-on-surface">Xám Tiêu</span>
+<span class="text-xs px-1.5 py-0.5 bg-slate-100 rounded font-headline-sm font-bold">42</span>
+</div>
+</td>
+<td class="py-3 px-3 font-headline-sm text-xs font-semibold text-slate-800">
+<code class="bg-surface-container-low px-1.5 py-0.5 rounded text-primary font-bold">VMS-HTX01-XAM-42</code>
+</td>
+<td class="py-3 px-3 font-price-md font-bold text-on-surface whitespace-nowrap">
+                          989.000 ₫
+                        </td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-headline-sm font-bold bg-blue-50 text-blue-700">
+                            30 đôi
+                          </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-label-badge bg-emerald-100 text-emerald-800 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> SẴN SÀNG
+                          </span>
+</td>
+<td class="py-3 px-3 text-right">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+</tr>
+<!-- DÒNG 4: Đen Đỏ - 40 (Hết hàng - Switch Tắt) -->
+<tr class="hover:bg-slate-50 transition-colors opacity-75 bg-slate-50/50">
+<td class="py-3 px-3.5 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-full overflow-hidden flex border border-black/20">
+<div class="w-1/2 h-full bg-[#111111]"></div>
+<div class="w-1/2 h-full bg-[#E11B22]"></div>
+</div>
+<span class="font-label-lg font-semibold text-on-surface">Đen Đỏ</span>
+<span class="text-xs px-1.5 py-0.5 bg-slate-100 rounded font-headline-sm font-bold">40</span>
+</div>
+</td>
+<td class="py-3 px-3 font-headline-sm text-xs font-semibold text-slate-800">
+<code class="bg-surface-container-low px-1.5 py-0.5 rounded text-slate-600 font-bold">VMS-HTX01-DEN-40</code>
+</td>
+<td class="py-3 px-3 font-price-md font-bold text-on-surface whitespace-nowrap">
+                          989.000 ₫
+                        </td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-headline-sm font-bold bg-rose-50 text-rose-700">
+                            0 đôi
+                          </span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-label-badge bg-rose-100 text-rose-800 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> TẠM HẾT
+                          </span>
+</td>
+<td class="py-3 px-3 text-right">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-3 flex items-center justify-between text-xs text-secondary px-1">
+<span>Hiển thị 4 trong tổng số 21 cấu hình biến thể đã kích hoạt</span>
+<a class="text-primary-container font-label-md font-semibold hover:underline flex items-center gap-1" href="#">
+                    Xem toàn bộ 21 biến thể <span class="material-symbols-outlined text-xs" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- CỘT PHẢI (40% ~ 5 Cols in 12-col grid) -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- KHỐI 3: THƯ VIỆN ẢNH (MULTER UPLOAD & COLOR TAGGING) -->
+<div class="bg-surface-container-lowest border border-surface-container-highest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-5 border-b border-surface-container-highest">
+<div class="flex items-center gap-2.5">
+<span class="p-2 bg-red-50 text-primary-container rounded-lg material-symbols-outlined text-xl" data-icon="photo_library">photo_library</span>
+<div>
+<h2 class="font-headline-sm text-lg font-bold text-on-surface">Thư viện ảnh sản phẩm</h2>
+<p class="text-body-sm text-secondary">Multer Service Upload &amp; Color Tagging đa chiều</p>
+</div>
+</div>
+<span class="font-label-badge text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded">4/8 ẢNH</span>
+</div>
+<!-- Drag & Drop Upload Zone -->
+<div class="border-2 border-dashed border-primary-container/40 hover:border-primary-container bg-surface-container-low/50 hover:bg-red-50/30 rounded-xl p-6 text-center cursor-pointer transition-all mb-5 group">
+<div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto mb-3 text-primary-container group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h4 class="font-headline-sm text-sm font-bold text-on-surface">Kéo thả ảnh sản phẩm vào đây</h4>
+<p class="text-body-sm text-secondary text-xs mt-1">Hỗ trợ định dạng JPG, PNG, WEBP tối ưu tỉ lệ 1:1 (Tối đa 3MB/file)</p>
+<div class="mt-3">
+<span class="inline-block px-3 py-1 bg-white border border-slate-300 rounded-md text-xs font-label-badge text-on-surface font-semibold group-hover:border-primary-container">
+                    HOẶC CHỌN TỪ MÁY TÍNH
+                  </span>
+</div>
+</div>
+<!-- Danh sách 4 ảnh thumbnail đã tải lên (chuẩn 1:1) -->
+<div class="grid grid-cols-2 gap-3.5">
+<!-- Ảnh 1: Xám Tiêu - Ảnh đại diện -->
+<div class="relative group rounded-lg overflow-hidden border border-surface-container-highest bg-[#F1F5F9] p-2 flex flex-col items-center">
+<div class="w-full aspect-square rounded bg-white relative overflow-hidden flex items-center justify-center mb-2">
+<img class="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform" data-alt="A dynamic studio catalog photograph of a modern high-performance grey athletic sneaker isolated on a pristine clean white background. High-key commercial lighting illuminates the breathable knit textures, layered TPU accents, and sculpted aerodynamic sole. The sneaker is angled aggressively forward to display kinetic energy, maintaining sharp clarity in a minimalist sportswear aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP10OofhJCogfQyK8jb6514bdF_CpmLA0-HUqbnTgwZAV-SNlpkSBGquuUJz0EJy9pG2mYYMt0UyuvJ6auLbqetXbYSqlDI4OMci87myFmp1Uc9pABqQgk353HOAvyLMzWPqVjXwem-YoAHyy6iCoC3lk26bqTynaQaR9TJ8DtRJIU0aOQmMhQvniNEfvB4oZr5sZP1SWGUadNaWkHefzKELcQPFFgWi7uo6rfrUc"/>
+<span class="absolute top-1.5 left-1.5 bg-primary-container text-white text-[10px] font-label-badge px-1.5 py-0.5 rounded font-bold">
+                      MAIN
+                    </span>
+<button class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="w-full">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-label-badge font-bold w-full truncate">
+<span class="w-2 h-2 rounded-full bg-[#71717A]"></span>
+                      Xám Tiêu - Đại diện
+                    </span>
+</div>
+</div>
+<!-- Ảnh 2: Đen Đỏ -->
+<div class="relative group rounded-lg overflow-hidden border border-surface-container-highest bg-[#F1F5F9] p-2 flex flex-col items-center">
+<div class="w-full aspect-square rounded bg-white relative overflow-hidden flex items-center justify-center mb-2">
+<img class="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform" data-alt="A high-contrast side-profile product shot of a sleek black and kinetic red athletic running sneaker set against an ultra-clean white backdrop. Soft diffused lighting emphasizes the premium matte black upper paired with bright crimson speed streaks along the midsole. Modern urban streetwear and performance aesthetic with deep dark tones and bold red highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5CXgDS4p6XPO-Mt0I8nON5QlqUDtYTJTayi8vg7Y3PurMBE9W3jBjb6AtQp7zaetdvMfQ1EVZ0GSTEyCJuJ23PL5YaCCrosmfmgRoYw1UaPO8kTyTuaETDDVQrqbck4dvyWuiPnWoAXQxiQ_7IbtIgSad1gOREhK71FKFbVOgkx7MSA5k0vrxC8QnkulIkHbL3ySQN_gYNi2jwb-RCguulNt02YMpUfDcxS-ZsX0"/>
+<button class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="w-full">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-label-badge font-bold w-full truncate">
+<span class="w-2 h-2 rounded-full bg-[#E11B22]"></span>
+                      Đen Đỏ - Phối màu 2
+                    </span>
+</div>
+</div>
+<!-- Ảnh 3: Góc nghiêng 45 độ -->
+<div class="relative group rounded-lg overflow-hidden border border-surface-container-highest bg-[#F1F5F9] p-2 flex flex-col items-center">
+<div class="w-full aspect-square rounded bg-white relative overflow-hidden flex items-center justify-center mb-2">
+<img class="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform" data-alt="A 45-degree angled perspective photograph of a modern technical running sneaker on a neutral pure light grey canvas. Soft overhead lighting creates crisp shadow lines defining the lacing cage system and reflective heel counter. Sleek contemporary sports retail presentation focusing on precision craftsmanship and agile geometry." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfyosWwPto3Xi16HY0_1ihkX_-1aD85BeZHZfWLScA4JvE6S_qr1PKJ6Q4BsSV8XbVylo5tiUhgn9q73y1TFXjRM1t_zfz5snBguIsKyYD8kBW-59huV0bX6J-Yc6ocOAh8S7wgeNgR9VDMfYXxUDir4paUqF1ckBJlm7VrqgKD8JzKlcuyqhZUnlopCbnHWROagTk_zfLpA_Q7RtHprhmCbSSRUjqeMG1UniKrqA"/>
+<button class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="w-full">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-label-badge font-bold w-full truncate">
+<span class="material-symbols-outlined text-[11px]" data-icon="view_in_ar">view_in_ar</span>
+                      Góc nghiêng 45°
+                    </span>
+</div>
+</div>
+<!-- Ảnh 4: Chi tiết đế Phylon -->
+<div class="relative group rounded-lg overflow-hidden border border-surface-container-highest bg-[#F1F5F9] p-2 flex flex-col items-center">
+<div class="w-full aspect-square rounded bg-white relative overflow-hidden flex items-center justify-center mb-2">
+<img class="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform" data-alt="An extreme macro product photograph capturing the bottom tread and dual-density Phylon foam midsole of an athletic sneaker. Studio lighting outlines the multi-directional traction lugs and energy-return cushioning pods in bold red and charcoal rubber. Minimalist light backdrop focusing entirely on footwear engineering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzj6ZNLbUJGFJTMHxeAVMKcfEilLXfMJonaWM-hBXzvui-CkUjDJ065QO6PGMsKPf9kmrA8cU92w895MrCDSCHDDks5OuyUGrzmAB_Kcoy9tyuCrJ52r0JD2IZM24zYjxEaBwzkqRGSTsM4Lx66qKA0qf7XJIWH3Gmc8Aiaa8xK4tVsgO8tdkT2zJxgX5uqYSxhgT_P7OIxn0IpjT95wWtNRRkT4icfXz5vn-2mrQ"/>
+<button class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="w-full">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-label-badge font-bold w-full truncate">
+<span class="material-symbols-outlined text-[11px]" data-icon="texture">texture</span>
+                      Chi tiết đế Phylon
+                    </span>
+</div>
+</div>
+</div>
+</div>
+<!-- KHỐI 4: TRẠNG THÁI HIỂN THỊ & CẤU HÌNH SEO SERP -->
+<div class="bg-surface-container-lowest border border-surface-container-highest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-5 border-b border-surface-container-highest">
+<div class="flex items-center gap-2.5">
+<span class="p-2 bg-red-50 text-primary-container rounded-lg material-symbols-outlined text-xl" data-icon="travel_explore">travel_explore</span>
+<div>
+<h2 class="font-headline-sm text-lg font-bold text-on-surface">Trạng thái bán &amp; Cấu hình SEO</h2>
+<p class="text-body-sm text-secondary">Khả năng hiển thị trực tuyến &amp; Snippet công cụ tìm kiếm</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="toggle_on">toggle_on</span>
+</div>
+<!-- Switches Toggles -->
+<div class="space-y-4 mb-6">
+<!-- Switch 1: Mở bán -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border border-slate-200">
+<div>
+<div class="font-label-lg font-semibold text-on-surface text-sm">Kích hoạt mở bán ngay trên Website</div>
+<div class="text-xs text-secondary font-body-sm">Hiển thị tức thì trong danh mục và tìm kiếm người dùng</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Switch 2: Gắn huy hiệu Best Seller / Flash Sale -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low border border-slate-200">
+<div>
+<div class="font-label-lg font-semibold text-on-surface text-sm flex items-center gap-1.5">
+                      Gắn huy hiệu Best Seller / Flash Sale
+                      <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded font-label-badge">HOT</span>
+</div>
+<div class="text-xs text-secondary font-body-sm">Gắn ribbon nổi bật trên card sản phẩm ngoài Storefront</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</div>
+<!-- Google SERP Snippet Preview -->
+<div class="border border-slate-200 rounded-lg p-4 bg-slate-50/70">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-1.5 text-xs text-secondary font-label-md font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+                    XEM TRƯỚC GOOGLE SERP SNIPPET
+                  </div>
+<span class="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-slate-200 text-emerald-700 font-bold">SEO SCORE: 96/100</span>
+</div>
+<div class="bg-white p-3.5 rounded border border-slate-200 shadow-xs space-y-1">
+<div class="flex items-center gap-2 text-xs text-[#202124]">
+<div class="w-4 h-4 rounded-full bg-primary-container text-white flex items-center justify-center text-[10px] font-bold">V</div>
+<span class="text-xs text-[#202124] font-medium">https://vamos.vn › products › vamos-hunter-x-multi-layer-2025</span>
+</div>
+<a class="block text-[#1a0dab] hover:underline font-medium text-base leading-snug" href="#">
+                    Giày Thể Thao Nam VAMOS Hunter X Multi-Layer Festive 2025 - Chính Hãng VAMOS STORE
+                  </a>
+<p class="text-xs text-[#4d5156] leading-relaxed line-clamp-2">
+                    Mua ngay Giày Thể Thao Nam VAMOS Hunter X Multi-Layer Festive 2025 với công nghệ đế Phylon siêu nhẹ êm ái, phối màu Xám Tiêu, Đen Đỏ đậm chất đường phố. Ưu đãi 21% độc quyền tại VAMOS STORE...
+                  </p>
+</div>
+<!-- Slug input -->
+<div class="mt-3">
+<label class="block text-[11px] font-label-badge text-secondary mb-1 uppercase font-bold">Tùy biến URL Slug</label>
+<div class="flex rounded-md shadow-xs">
+<span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-300 bg-slate-100 text-slate-500 text-xs font-mono">
+                      /products/
+                    </span>
+<input class="flex-1 block w-full rounded-none rounded-r-md border border-slate-300 px-3 py-1.5 text-xs font-mono text-on-surface focus:ring-1 focus:ring-primary-container focus:outline-none" type="text" value="vamos-hunter-x-multi-layer-2025"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- 4. FOOTER & QUY CHUẨN DESIGN SYSTEM -->
+<footer class="mt-auto border-t border-surface-container-highest bg-surface-container-lowest px-6 lg:px-8 py-5">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-secondary">
+<div class="flex items-center gap-3">
+<span class="font-headline-sm font-bold tracking-tight text-on-surface">VAMOS STORE ADMIN</span>
+<span>•</span>
+<span>Move Forward Kinetic Design System</span>
+<span>•</span>
+<span class="font-mono text-[11px] bg-surface-container-low px-2 py-0.5 rounded border border-surface-container-highest">BUILD 2025.02.18-RELEASE</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="hover:text-primary-container transition-colors" href="#">Tài liệu API SKU</a>
+<a class="hover:text-primary-container transition-colors" href="#">Hướng dẫn ma trận biến thể</a>
+<a class="hover:text-primary-container transition-colors" href="#">Trợ giúp kỹ thuật</a>
+<span class="font-semibold text-on-surface">© 2025 VAMOS INC. All rights reserved.</span>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

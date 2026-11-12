@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Giỏ Hàng | VAMOS STORE - Nâng niu bàn chân Việt</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {"inverse-on-surface": "#eaf1ff", "tertiary-container": "#bd5200", "on-secondary-fixed-variant": "#20428f", "secondary-fixed": "#dae2ff", "on-error": "#ffffff", "on-primary-container": "#fff7f6", "on-surface": "#0b1c30", "on-tertiary-container": "#fff7f4", "tertiary-fixed": "#ffdbca", "on-surface-variant": "#5d3f3c", "inverse-surface": "#213145", tertiary: "#964000", "secondary-fixed-dim": "#b2c5ff", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "on-background": "#0b1c30", "primary-fixed-dim": "#ffb4ab", "on-tertiary": "#ffffff", "secondary-container": "#8eabff", "on-secondary-fixed": "#001849", "primary-container": "#e11b22", primary: "#b70013", "on-tertiary-fixed": "#341100", surface: "#f8f9ff", "surface-container-lowest": "#ffffff", background: "#f8f9ff", "outline-variant": "#e7bdb8", "surface-container-highest": "#d3e4fe", "surface-tint": "#c00014", "surface-container-high": "#dce9ff", "on-secondary-container": "#193d8a", "on-tertiary-fixed-variant": "#783200", "on-error-container": "#93000a", "surface-container-low": "#eff4ff", error: "#ba1a1a", "primary-fixed": "#ffdad6", "on-primary-fixed-variant": "#93000d", "tertiary-fixed-dim": "#ffb690", secondary: "#3c5ba9", "surface-container": "#e5eeff", "surface-variant": "#d3e4fe", "on-primary": "#ffffff", "on-secondary": "#ffffff", "inverse-primary": "#ffb4ab", "on-primary-fixed": "#410002", "surface-dim": "#cbdbf5", outline: "#926e6b"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-sm": "1rem", "space-xs": "0.25rem", "gutter-lg": "2rem", "gutter-sm": "1rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "margin-lg": "4rem", margin: "1.5rem", gutter: "1.5rem", "space-md": "1rem"}, fontFamily: {"headline-lg": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "label-badge": ["Space Grotesk"], "body-sm": ["Be Vietnam Pro"], "body-lg": ["Be Vietnam Pro"], "body-md": ["Be Vietnam Pro"], "headline-md": ["Space Grotesk"], "label-md": ["Be Vietnam Pro"], "headline-xl-mobile": ["Space Grotesk"], "price-md": ["Space Grotesk"], "headline-xl": ["Space Grotesk"], "label-lg": ["Be Vietnam Pro"], "price-lg": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "headline-sm": ["Space Grotesk"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}]}}}}
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .shadow-vamos-cta {
+      box-shadow: 0 10px 25px -5px rgba(225, 27, 34, 0.4), 0 8px 10px -6px rgba(225, 27, 34, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+<!-- Top Announcement Bar -->
+<div class="bg-inverse-surface text-inverse-on-surface py-2 px-4 text-xs font-medium">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="bg-primary-container text-white text-[10px] font-bold px-2 py-0.5 rounded">HOT DEAL</span>
+<span class="font-headline-sm text-xs">MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC ĐƠN HÀNG TỪ 500K</span>
+</div>
+<div class="hidden md:flex items-center gap-6 text-slate-300">
+<span class="hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Hệ thống 150+ Cửa hàng
+        </span>
+<span class="hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">support_agent</span> Hotline: 1900 2126
+        </span>
+<span class="text-white font-semibold flex items-center gap-1">VN / VND</span>
+</div>
+</div>
+</div>
+<!-- Shared TopNavBar Component -->
+<header class="bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-md sticky top-0 w-full z-50 shadow-sm border-b border-surface-container-highest dark:border-outline-variant">
+<div class="flex justify-between items-center w-full px-6 lg:px-16 max-w-7xl mx-auto h-20">
+<!-- Brand Logo & Sub-tag -->
+<div class="flex items-center gap-8">
+<a class="text-headline-lg font-headline-lg font-bold tracking-tight text-primary dark:text-inverse-primary flex items-center gap-1" href="#">
+<span class="bg-primary-container text-white px-2 py-0.5 rounded tracking-tighter mr-1">V</span>BITI'S
+        </a>
+<!-- Navigation Links -->
+<nav class="hidden lg:flex items-center gap-8">
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Nam</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Nữ</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Trẻ Em</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Hunter Collection</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Gosto</a>
+<a class="text-primary-container font-headline-sm text-sm font-bold flex items-center gap-1" href="#">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-ping"></span> Sale
+          </a>
+</nav>
+</div>
+<!-- Trailing Action Icons & Quick Search -->
+<div class="flex items-center gap-4 lg:gap-6">
+<div class="relative hidden sm:block w-48 lg:w-64">
+<input class="w-full bg-surface-container-low border-0 text-xs rounded-full pl-9 pr-4 py-2 focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-secondary" placeholder="Tìm kiếm mẫu Hunter, Sandal..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2 text-[18px] text-secondary">search</span>
+</div>
+<button aria-label="Yêu thích" class="text-on-surface hover:text-primary transition-colors duration-200 p-1.5 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined text-[24px]">favorite</span>
+</button>
+<!-- Cart Icon with Flyout trigger -->
+<button aria-label="Giỏ hàng" class="relative text-primary font-bold border-b-2 border-primary pb-1 p-1.5 transition-all" id="toggleDrawerBtn">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="absolute -top-1 -right-1 bg-primary-container text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">3</span>
+</button>
+<button aria-label="Tài khoản" class="text-on-surface hover:text-primary transition-colors duration-200 p-1.5 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined text-[24px]">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Breadcrumbs & Quick State Header -->
+<section class="w-full bg-surface border-b border-slate-200">
+<div class="max-w-7xl mx-auto px-4 lg:px-16 py-4 flex items-center justify-between text-xs">
+<nav class="flex items-center gap-2 text-secondary font-label-md">
+<a class="hover:text-primary transition-colors" href="#">Trang chủ</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-semibold">Giỏ hàng của bạn</span>
+</nav>
+<div class="hidden sm:flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full font-medium">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Cam kết hàng chính hãng Biti's 100%</span>
+</div>
+</div>
+</section>
+<!-- Main Content Canvas -->
+<main class="flex-grow max-w-7xl mx-auto w-full px-4 lg:px-16 py-8">
+<!-- Banner Giỏ hàng Khách Vãng Lai (Q2) -->
+<div class="mb-8 rounded-xl bg-amber-50 border-2 border-amber-300 p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-amber-100 text-amber-800 rounded-lg shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[24px]">lightbulb</span>
+</div>
+<div>
+<p class="font-body-md text-slate-900 font-medium">
+            Bạn đang mua sắm với tư cách <span class="font-bold text-amber-900">Khách vãng lai</span>. Đăng nhập ngay để lưu giỏ hàng vĩnh viễn và nhận mã giảm giá <span class="px-2 py-0.5 bg-amber-200 text-amber-900 font-headline-sm text-xs rounded font-bold tracking-wider">VAMOS100</span> (giảm ngay 100K)!
+          </p>
+<p class="text-xs text-slate-500 mt-1">Đồng bộ tự động vào hồ sơ cá nhân và nhận tích điểm VIP 3% mỗi đơn hàng.</p>
+</div>
+</div>
+<button class="shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-label-lg px-5 py-2.5 rounded-lg font-semibold transition-all shadow-sm flex items-center gap-2 whitespace-nowrap">
+<span>Đăng nhập ngay</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- 2 Column Layout (Left 70%, Right 30%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- CỘT TRÁI (Khoảng 70% ~ 8/12 hoặc 7/12 tuỳ màn hình) -->
+<section class="lg:col-span-8 flex flex-col gap-6">
+<!-- Cart Headline & Count -->
+<div class="flex items-center justify-between border-b pb-4 border-slate-200">
+<div class="flex items-baseline gap-3">
+<h1 class="font-headline-lg text-headline-lg font-bold text-slate-900 tracking-tight">
+              GIỎ HÀNG CỦA BẠN
+            </h1>
+<span class="text-slate-500 font-medium text-sm">(3 đôi giày)</span>
+</div>
+<button class="text-xs font-semibold text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+<span>Xóa toàn bộ giỏ hàng</span>
+</button>
+</div>
+<!-- Thanh Tiến Độ Freeship 100% -->
+<div class="bg-surface-container-lowest border border-emerald-200 p-4 rounded-xl shadow-sm">
+<div class="flex items-center justify-between text-xs font-semibold text-emerald-800 mb-2">
+<span class="flex items-center gap-1.5">
+<span class="text-base">🎉</span> Đơn hàng của bạn đã đủ điều kiện <strong>MIỄN PHÍ VẬN CHUYỂN</strong> toàn quốc!
+            </span>
+<span class="bg-emerald-100 text-emerald-800 text-[11px] px-2 py-0.5 rounded-full font-bold">100%</span>
+</div>
+<div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Danh sách Sản Phẩm (Bảng Sản Phẩm) -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl divide-y divide-slate-100 shadow-sm overflow-hidden">
+<!-- ITEM 1: Giày VAMOS Hunter X Multi-Layer 2025 -->
+<article class="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
+<div class="flex items-start gap-4">
+<div class="relative w-24 h-24 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+<img class="w-full h-full object-cover" data-alt="A modern lifestyle sneaker showcasing athletic urban design in high-key lighting, centered on a light gray background with red accents matching Biti's Hunter aesthetic. Clean contemporary photography with soft shadows and refined studio finish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU4I8qXDAs6UTR9pGmS8abID5jPXCNH_TK1oUjlRa2GcEgmMcvr8o3dVHN3temYiqpe3wsLmjVgclQvxk5uRHof13oTm2DAGSutlLzHVJkiX7hVH_62QbydFlzvz1X74FwRo8ar0lrUtIwovJuMm_lXESczrWaMOtSs1qgRwFQ4GmfuOVC7u3qVSMI4yyeEYpq9yDN7zSvykDzm681pl47SUZE23BII4ue4aclA5k"/>
+<span class="absolute top-1 left-1 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">HUNTER FOAM+</span>
+</div>
+<div class="space-y-1">
+<span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">BITI'S HUNTER</span>
+<h3 class="font-headline-sm text-base text-slate-900 font-bold hover:text-primary cursor-pointer transition-colors line-clamp-1">
+                  Giày VAMOS Hunter X Multi-Layer 2025
+                </h3>
+<div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Phân loại: <strong class="text-slate-900">Xám Tiêu</strong>
+</span>
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Size: <strong class="text-slate-900 font-headline-sm">40</strong>
+</span>
+</div>
+<div class="text-xs text-slate-500 pt-1">
+                  Đơn giá: <span class="font-price-md font-semibold text-slate-800">989.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Actions & Pricing Column -->
+<div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
+<div class="text-right">
+<div class="text-xs text-slate-400 hidden sm:block">Thành tiền</div>
+<div class="font-price-lg text-lg font-bold text-slate-900 tracking-tight">1.978.000 ₫</div>
+</div>
+<!-- Quantity Selector with Tooltip -->
+<div class="flex items-center gap-2">
+<div class="relative group">
+<div class="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shadow-inner">
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-10 text-center font-headline-sm text-sm font-semibold text-slate-800">2</span>
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<!-- Tooltip: Tối đa 10 đôi / sản phẩm - Q7 -->
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[11px] py-1 px-2.5 rounded whitespace-nowrap z-20 shadow-lg">
+                    Tối đa 10 đôi / sản phẩm - Q7
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+</div>
+</div>
+<!-- Trash Delete Button -->
+<button aria-label="Xóa sản phẩm" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-error hover:bg-rose-50 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ITEM 2: Giày VAMOS Hunter Street Vintage -->
+<article class="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
+<div class="flex items-start gap-4">
+<div class="relative w-24 h-24 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+<img class="w-full h-full object-cover" data-alt="Classic low-top street sneaker in crisp studio lighting, showcasing black and bold red textile accents on a clean light floor with urban athletic vibes. Premium composition emphasizing Biti's style durability and youth street style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv9k702ndznzdejMQTbFWt3zdsELuGTFpfJtwOQc-dxCck_oT8KdOinYUjLWQGxZGfMxYoNU4hHXFG932kYAb8XJP7Bs1dhJBzAYH7NwPcxKeqWoQj9CXNifXow78I5L9sJHTw5XihbHt35BJkKoNPkaRhexpC7-PNLhws1PyZtKKJobqNAI6IZ1LuLFOPBet7yRH4j_qC5St45JTl8r5z7dmLfRndJZtLGA03Vc4"/>
+<span class="absolute top-1 left-1 bg-primary-container text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">NEW</span>
+</div>
+<div class="space-y-1">
+<span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">BITI'S CORE</span>
+<h3 class="font-headline-sm text-base text-slate-900 font-bold hover:text-primary cursor-pointer transition-colors line-clamp-1">
+                  Giày VAMOS Hunter Street Vintage
+                </h3>
+<div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Phân loại: <strong class="text-slate-900">Đen Đỏ</strong>
+</span>
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Size: <strong class="text-slate-900 font-headline-sm">41</strong>
+</span>
+</div>
+<div class="text-xs text-slate-500 pt-1">
+                  Đơn giá: <span class="font-price-md font-semibold text-slate-800">689.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Actions & Pricing Column -->
+<div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
+<div class="text-right">
+<div class="text-xs text-slate-400 hidden sm:block">Thành tiền</div>
+<div class="font-price-lg text-lg font-bold text-slate-900 tracking-tight">689.000 ₫</div>
+</div>
+<!-- Quantity Selector -->
+<div class="flex items-center gap-2">
+<div class="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shadow-inner">
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-10 text-center font-headline-sm text-sm font-semibold text-slate-800">1</span>
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<button aria-label="Xóa sản phẩm" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-error hover:bg-rose-50 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ITEM 3: Vớ thể thao dệt kháng khuẩn Nano Bạc VAMOS -->
+<article class="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
+<div class="flex items-start gap-4">
+<div class="relative w-24 h-24 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+<img class="w-full h-full object-cover" data-alt="Close up athletic white sports socks with clean minimal packaging, bright daylight studio setup highlighting breathable weave structure and performance threads. Modern high-contrast commercial lifestyle aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2f3le26Mg7REI1qG3IuFwa6__QIx5xjc6ItsvSwaPp5qv0d7DY1psnzOxbOVsUjksp6sVmiBDcqtdBFxFSJWK3SMR57GMQiKyKwAVdJPMtgno0EGm8d5A-Wp8bJfImoW1YZQEUajV117qf1HgSQmhuZEMVxR07eSiTyqj8kP-R1GZ21Sy8cgIlY2oleUmISbhb7AAdHnetUHf-xC9D-xPcJ-Uner3T26gKzC1jXM"/>
+<span class="absolute top-1 left-1 bg-slate-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">SET 3 ĐÔI</span>
+</div>
+<div class="space-y-1">
+<span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">PHỤ KIỆN VAMOS</span>
+<h3 class="font-headline-sm text-base text-slate-900 font-bold hover:text-primary cursor-pointer transition-colors line-clamp-1">
+                  Vớ thể thao dệt kháng khuẩn Nano Bạc VAMOS (3 đôi)
+                </h3>
+<div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Phân loại: <strong class="text-slate-900">Trắng Cổ Ngắn</strong>
+</span>
+<span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded">
+                    Size: <strong class="text-slate-900 font-headline-sm">Free size</strong>
+</span>
+</div>
+<div class="text-xs text-slate-500 pt-1">
+                  Đơn giá: <span class="font-price-md font-semibold text-slate-800">120.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Actions & Pricing Column -->
+<div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
+<div class="text-right">
+<div class="text-xs text-slate-400 hidden sm:block">Thành tiền</div>
+<div class="font-price-lg text-lg font-bold text-slate-900 tracking-tight">120.000 ₫</div>
+</div>
+<!-- Quantity Selector -->
+<div class="flex items-center gap-2">
+<div class="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden shadow-inner">
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-10 text-center font-headline-sm text-sm font-semibold text-slate-800">1</span>
+<button class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<button aria-label="Xóa sản phẩm" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-error hover:bg-rose-50 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Navigation Buttons Bottom -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+<a class="inline-flex items-center gap-2 text-slate-700 font-label-lg font-semibold hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">keyboard_backspace</span>
+<span>Tiếp tục mua sắm</span>
+</a>
+<button class="text-xs font-semibold text-slate-400 hover:text-error transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">remove_shopping_cart</span>
+<span>Xóa toàn bộ giỏ hàng</span>
+</button>
+</div>
+</section>
+<!-- CỘT PHẢI (Khoảng 30% ~ 4/12 Hộp Tóm Tắt Chi Phí) -->
+<aside class="lg:col-span-4 flex flex-col gap-6 sticky top-28">
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-md space-y-6">
+<h2 class="font-headline-md text-slate-900 border-b pb-3 border-slate-100">
+            Tóm tắt đơn hàng
+          </h2>
+<!-- Khung Nhập Mã Ưu Đãi Voucher -->
+<div class="space-y-2">
+<label class="font-label-md text-xs text-slate-500 font-medium block">
+              Mã giảm giá / Voucher ưu đãi
+            </label>
+<div class="flex gap-2">
+<div class="relative flex-grow">
+<input class="w-full bg-slate-50 border border-slate-300 font-headline-sm uppercase text-slate-900 text-sm rounded-lg px-3 py-2.5 focus:border-slate-900 focus:ring-1 focus:ring-slate-900" placeholder="Nhập mã ưu đãi" type="text" value="VAMOS100"/>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 text-emerald-600 text-[18px]">check_circle</span>
+</div>
+<button class="bg-slate-900 hover:bg-slate-800 text-white font-label-lg px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors shrink-0">
+                ÁP DỤNG
+              </button>
+</div>
+<!-- Tag mã đã áp dụng thành công -->
+<div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs text-emerald-800 mt-2">
+<span class="flex items-center gap-1.5 font-medium">
+<span class="material-symbols-outlined text-[16px]">sell</span>
+                Đã áp dụng: <strong>VAMOS100</strong> (-100.000 ₫)
+              </span>
+<button class="text-emerald-700 hover:text-emerald-900">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+<!-- Bảng Tính Chi Phí -->
+<div class="space-y-3 pt-4 border-t border-slate-100 text-sm">
+<div class="flex justify-between items-center text-slate-600">
+<span>Tạm tính</span>
+<span class="font-price-md text-slate-800 font-semibold">2.787.000 ₫</span>
+</div>
+<div class="flex justify-between items-center text-emerald-600 font-medium">
+<span>Giảm giá Voucher (VAMOS100)</span>
+<span class="font-price-md">-100.000 ₫</span>
+</div>
+<div class="flex justify-between items-center text-slate-600">
+<span class="flex items-center gap-1">
+                Phí vận chuyển
+                <span class="material-symbols-outlined text-[14px] text-slate-400">help</span>
+</span>
+<span class="text-emerald-700 font-bold text-xs bg-emerald-100 px-2 py-0.5 rounded">0 ₫ (Miễn phí từ 500k)</span>
+</div>
+<!-- TỔNG CỘNG THANH TOÁN -->
+<div class="pt-4 border-t border-slate-200 flex justify-between items-baseline">
+<div>
+<span class="font-headline-sm text-slate-900 font-bold block">TỔNG CỘNG</span>
+<span class="text-[11px] text-slate-400 font-normal">(Đã bao gồm VAT nếu có)</span>
+</div>
+<div class="text-right">
+<span class="font-display-hero text-2xl lg:text-[28px] font-bold text-primary-container tracking-tight block">
+                  2.687.000 ₫
+                </span>
+<span class="text-[11px] text-emerald-600 font-medium">Tiết kiệm 100.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Nút CTA Chính Nổi Bật -->
+<button class="w-full bg-primary-container hover:bg-primary text-white font-headline-sm py-4 px-6 rounded-lg font-bold tracking-wider uppercase transition-all transform active:scale-[0.98] shadow-vamos-cta flex items-center justify-center gap-2">
+<span>TIẾN HÀNH THANH TOÁN (COD / QR)</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Phương thức thanh toán được hỗ trợ -->
+<div class="flex items-center justify-center gap-3 pt-2 text-slate-400 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">qr_code_2</span> VietQR</span>
+<span>•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">local_shipping</span> COD toàn quốc</span>
+<span>•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">credit_card</span> ATM / Visa</span>
+</div>
+<!-- 3 Cam kết An Tâm -->
+<div class="bg-surface-container-low p-4 rounded-xl space-y-3 border border-slate-100 text-xs text-slate-700">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary-container text-[18px] shrink-0 mt-0.5">published_with_changes</span>
+<span><strong>Đổi trả tận nơi 7 ngày</strong> hoàn toàn miễn phí nếu không vừa size hoặc lỗi sản xuất.</span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary-container text-[18px] shrink-0 mt-0.5">verified</span>
+<span><strong>Bảo hành trọn đời keo chỉ</strong> chính hãng tại tất cả 150+ chi nhánh Biti's trên toàn quốc.</span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary-container text-[18px] shrink-0 mt-0.5">inventory</span>
+<span><strong>Kiểm tra hàng trước khi nhận (COD)</strong>, hài lòng đúng mẫu mới thanh toán.</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- SLIDE-OVER MINI CART DRAWER (Trực quan minh họa) -->
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 transition-opacity duration-300 hidden" id="cartDrawerBackdrop">
+<div class="fixed inset-y-0 right-0 max-w-full flex pl-10" id="cartDrawerPanel">
+<div class="w-screen max-w-md bg-surface-container-lowest shadow-2xl flex flex-col">
+<!-- Drawer Header -->
+<div class="p-5 border-b border-slate-100 flex items-center justify-between bg-white">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">shopping_bag</span>
+<h2 class="font-headline-sm text-base font-bold text-slate-900">Giỏ hàng mini (3)</h2>
+</div>
+<button class="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors" id="closeDrawerBtn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Drawer Content List -->
+<div class="flex-1 overflow-y-auto p-5 space-y-4 divide-y divide-slate-100">
+<div class="flex gap-3 pt-3 first:pt-0">
+<div class="w-16 h-16 rounded bg-slate-100 shrink-0 border border-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Miniature studio sneaker product photo with red and neutral styling for quick thumbnail view on an e-commerce shopping bag." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFiPaeHTVS_8vQZENoFMgpZNZOWMHnjjJqxyBlkD4MuPSTvK9X6s6B1740Th4vrPRL2bdrGo30XTUGysZCSou0qTh7SE49v-xUiM0tMzlIPj4curypHAfDz84QCJ8nkPvjPAwFMeZw8sVQX_PycSDA3Z6VdrMb901I-QGh3gEF6YI-GNxo0fJ4MdeR247Pswp9_NsZ9itMV8OgxMr3iBpwUnC8vuWIRz96g5pmZN4"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-xs font-bold text-slate-900 truncate">Giày VAMOS Hunter X Multi-Layer</h4>
+<p class="text-[11px] text-slate-500">Xám Tiêu / Size 40</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs font-bold text-slate-800">2 × 989.000 ₫</span>
+<span class="font-price-md text-xs font-bold text-primary">1.978.000 ₫</span>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-3">
+<div class="w-16 h-16 rounded bg-slate-100 shrink-0 border border-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Compact athletic sneaker side view displaying dark and red modern styling for a minimal cart preview element." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaWjR1W03y1pXHVSPIm1yMhTbDZnilT_o611-B3vjrF5TDvjqkgxwdjIj7TJsCWM69gs1s0pKkgJNeNAFQZCtLBzbDjjabFg4VwkPweuvX3DCf5tzZE3xMCWU0MU_MeeCtFyEkQzKr_0GNIZT04S02DPOkYcL_-TyxYciPovDvQAPzbiN0pyTNLtXIEb3iNHz_qiAgwjVNVL6F0BHe4B2jzuU1UFgP6cjASs5R21k"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-xs font-bold text-slate-900 truncate">Giày VAMOS Hunter Street Vintage</h4>
+<p class="text-[11px] text-slate-500">Đen Đỏ / Size 41</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs font-bold text-slate-800">1 × 689.000 ₫</span>
+<span class="font-price-md text-xs font-bold text-primary">689.000 ₫</span>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-3">
+<div class="w-16 h-16 rounded bg-slate-100 shrink-0 border border-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up view of breathable athletic socks white fabric texture suitable for cart thumbnail item in modern sportswear catalog." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6MKVsHlhLyHZRbxYKEmGlsL4Sw02a6x5pzq04HDhpJOCjnbbqc3Avcn5ugiryjCeBrLz8KQkyimgm2YmaiaqCIWhc4KoNYCo-qO5mcswA8kOnkD0LPBkONGsl04-oh1r9YgspVms47cT8TKSD-ChvClGR6iVGmPsSL8of1K95S354KHt4I6PGhJibbTYuPMhf7-F5OSGUo3SRD1QG-MWvfJJ6OT_u_TC4iX2Kw9E"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-xs font-bold text-slate-900 truncate">Vớ thể thao dệt kháng khuẩn (3 đôi)</h4>
+<p class="text-[11px] text-slate-500">Trắng Cổ Ngắn / Free</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs font-bold text-slate-800">1 × 120.000 ₫</span>
+<span class="font-price-md text-xs font-bold text-primary">120.000 ₫</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Drawer Footer Summary -->
+<div class="p-5 border-t border-slate-200 bg-slate-50 space-y-4">
+<div class="flex justify-between items-baseline">
+<span class="text-xs text-slate-500">TỔNG THANH TOÁN:</span>
+<span class="font-price-lg text-xl font-bold text-primary-container">2.687.000 ₫</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="w-full bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-bold py-3 rounded-lg transition-colors" id="closeDrawerInnerBtn">
+              XEM CHI TIẾT
+            </button>
+<button class="w-full bg-primary-container hover:bg-primary text-white text-xs font-bold py-3 rounded-lg shadow-sm transition-colors uppercase">
+              THANH TOÁN
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Shared Footer Component -->
+<footer class="bg-on-surface dark:bg-surface-container-lowest w-full border-t border-surface-variant/20 dark:border-outline-variant mt-16">
+<div class="w-full py-16 px-6 lg:px-16 max-w-7xl mx-auto flex flex-col gap-12">
+<!-- Top Brand Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="space-y-4 md:col-span-1">
+<div class="text-headline-md font-headline-md font-bold text-surface dark:text-on-surface flex items-center gap-1.5">
+<span class="bg-primary-container text-white px-2 py-0.5 rounded text-sm tracking-tighter">V</span>BITI'S
+          </div>
+<p class="text-slate-400 text-xs leading-relaxed">
+            Hơn 40 năm đồng hành và nâng niu từng bước chân thế hệ trẻ Việt Nam vươn ra thế giới với tinh thần dấn thân, tự hào và đột phá.
+          </p>
+<div class="flex items-center gap-3 text-slate-400">
+<span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer text-sm">f</span>
+<span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer text-sm">yt</span>
+<span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer text-sm">tt</span>
+</div>
+</div>
+<div class="space-y-3">
+<h4 class="text-surface font-headline-sm text-sm font-semibold tracking-wider uppercase">Về Biti's &amp; Vamos</h4>
+<ul class="space-y-2 text-xs">
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Về Biti's</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Hệ thống 150+ Cửa hàng</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Liên hệ &amp; Tuyển dụng</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Hành trình Xanh Biti's</a></li>
+</ul>
+</div>
+<div class="space-y-3">
+<h4 class="text-surface font-headline-sm text-sm font-semibold tracking-wider uppercase">Chính Sách &amp; Hỗ Trợ</h4>
+<ul class="space-y-2 text-xs">
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Chính sách đổi trả</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Chính sách bảo hành trọn đời</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Tra cứu đơn hàng</a></li>
+<li><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors" href="#">Bảng đo kích thước chuẩn</a></li>
+</ul>
+</div>
+<div class="space-y-3">
+<h4 class="text-surface font-headline-sm text-sm font-semibold tracking-wider uppercase">Bản Tin Hunter Zone</h4>
+<p class="text-slate-400 text-xs">Đăng ký để nhận thông báo BST giới hạn và voucher 10% cho thành viên mới.</p>
+<div class="flex gap-2">
+<input class="bg-slate-800 border-0 rounded text-xs px-3 py-2 text-white placeholder-slate-500 w-full focus:ring-1 focus:ring-primary" placeholder="Email của bạn..." type="email"/>
+<button class="bg-primary hover:bg-primary-container text-white px-3 py-2 rounded text-xs font-bold">GỬI</button>
+</div>
+</div>
+</div>
+<!-- Bottom Copyright Rule -->
+<div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+        © 2024 CÔNG TY TNHH SẢN XUẤT HÀNG TIÊU DÙNG BÌNH TIÊN (BITI'S). Nâng niu bàn chân Việt.
+      </div>
+</div>
+</footer>
+<!-- Micro-interactions Script for Mini Drawer & Counter -->
+<script>
+    const toggleBtn = document.getElementById('toggleDrawerBtn');
+    const closeBtn = document.getElementById('closeDrawerBtn');
+    const closeInnerBtn = document.getElementById('closeDrawerInnerBtn');
+    const backdrop = document.getElementById('cartDrawerBackdrop');
+
+    function openDrawer() {
+      backdrop.classList.remove('hidden');
+    }
+
+    function closeDrawer() {
+      backdrop.classList.add('hidden');
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (closeInnerBtn) closeInnerBtn.addEventListener('click', closeDrawer);
+
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeDrawer();
+      });
+    }
+  </script>
+</body></html>

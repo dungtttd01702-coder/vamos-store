@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAMOS Official Store - Nâng Niu Bàn Chân Việt</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {darkMode: "class", theme: {extend: {colors: {"error-container": "#ffdad6", "primary-container": "#e11b22", "on-primary-container": "#fff7f6", "surface-tint": "#c00014", "on-surface-variant": "#5d3f3c", "primary-fixed": "#ffdad6", "on-secondary-fixed-variant": "#20428f", "on-error": "#ffffff", "secondary-fixed": "#dae2ff", "outline-variant": "#e7bdb8", "secondary-container": "#8eabff", "on-background": "#0b1c30", tertiary: "#964000", surface: "#f8f9ff", "on-tertiary-fixed-variant": "#783200", "primary-fixed-dim": "#ffb4ab", "tertiary-container": "#bd5200", "on-surface": "#0b1c30", "secondary-fixed-dim": "#b2c5ff", "inverse-on-surface": "#eaf1ff", primary: "#b70013", "surface-container-highest": "#d3e4fe", "on-primary": "#ffffff", error: "#ba1a1a", background: "#f8f9ff", "on-error-container": "#93000a", "on-primary-fixed-variant": "#93000d", "on-primary-fixed": "#410002", "inverse-primary": "#ffb4ab", "surface-container": "#e5eeff", "on-secondary-fixed": "#001849", "on-tertiary-container": "#fff7f4", "surface-variant": "#d3e4fe", secondary: "#3c5ba9", "on-tertiary-fixed": "#341100", "tertiary-fixed-dim": "#ffb690", "on-secondary": "#ffffff", outline: "#926e6b", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "surface-container-low": "#eff4ff", "inverse-surface": "#213145", "tertiary-fixed": "#ffdbca", "surface-dim": "#cbdbf5", "surface-container-high": "#dce9ff", "on-secondary-container": "#193d8a", "surface-container-lowest": "#ffffff"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-lg": "4rem", "gutter-sm": "1rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "gutter-lg": "2rem", "margin-sm": "1rem", "space-xl": "2.5rem", "space-sm": "0.5rem", margin: "1.5rem", gutter: "1.5rem", "space-md": "1rem"}, fontFamily: {"headline-sm": ["Space Grotesk"], "price-lg": ["Space Grotesk"], "label-lg": ["Be Vietnam Pro"], "body-lg": ["Be Vietnam Pro"], "price-md": ["Space Grotesk"], "body-md": ["Be Vietnam Pro"], "display-hero-mobile": ["Space Grotesk"], "headline-xl": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "label-badge": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "headline-xl-mobile": ["Space Grotesk"], "body-sm": ["Be Vietnam Pro"], "label-md": ["Be Vietnam Pro"], headline: ["Space Grotesk"], display: ["Space Grotesk"], body: ["Be Vietnam Pro"], label: ["Be Vietnam Pro"]}, fontSize: {"headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "600"}], "price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "700"}], "label-lg": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "price-md": ["16px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "body-md": ["15px", {lineHeight: "22px", fontWeight: "400"}], "display-hero-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-xl": ["40px", {lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600"}], "display-hero": ["56px", {lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "700"}], "headline-lg": ["28px", {lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "600"}], "headline-xl-mobile": ["28px", {lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700"}], "body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600"}]}}}}
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary selection:text-on-primary min-h-screen flex flex-col font-body-md">
+<!-- 1. TOP ANNOUNCEMENT BAR -->
+<aside class="bg-primary text-on-primary py-2 px-4 text-center select-none shadow-sm relative z-50">
+<div class="max-w-7xl mx-auto flex justify-between items-center text-label-md font-label-md">
+<div class="hidden lg:flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="local_shipping">local_shipping</span>
+<span class="">MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC CHO ĐƠN TỪ 500K</span>
+</div>
+<div class="flex-1 text-center font-bold tracking-wide">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+          BẢO HÀNH TRỌN ĐỜI CHO TẤT CẢ DÒNG GIÀY | BST HUNTER 2025 MỚI RA MẮT
+        </span>
+</div>
+<div class="hidden md:flex items-center gap-4 text-xs font-semibold">
+<a class="hover:underline flex items-center gap-1" href="#store-locator">
+<span class="material-symbols-outlined text-xs" data-icon="store">store</span> 150+ Cửa Hàng
+        </a>
+<span class="opacity-50">|</span>
+<a class="hover:underline flex items-center gap-1" href="tel:19002126">
+<span class="material-symbols-outlined text-xs" data-icon="call">call</span> 1900 2126
+        </a>
+</div>
+</div>
+</aside>
+<!-- 2. HEADER & MEGA NAVIGATION -->
+<header class="sticky top-0 w-full z-50 bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-md shadow-sm border-b border-surface-container-highest dark:border-outline-variant">
+<div class="flex justify-between items-center w-full px-6 lg:px-16 max-w-7xl mx-auto h-20 gap-8">
+<!-- Brand Logo Anchor -->
+<div class="flex items-center gap-6">
+<a class="flex flex-col group focus:outline-none" href="#">
+<span class="text-headline-lg font-headline-lg font-bold tracking-tight text-primary dark:text-inverse-primary group-hover:opacity-90 transition-opacity">VAMOS</span>
+<span class="text-label-badge font-label-badge text-secondary uppercase tracking-widest -mt-1 font-bold">VAMOS STUDIO</span>
+</a>
+<!-- Segmented Quick Brand Filter Tabs -->
+<nav aria-label="Brand switcher" class="hidden xl:flex items-center bg-surface-container-low p-1 rounded-lg text-label-badge font-label-badge">
+<button class="px-2.5 py-1 bg-surface-container-lowest text-primary rounded font-bold shadow-xs">ALL</button>
+<button class="px-2.5 py-1 text-secondary hover:text-on-surface transition-colors">HUNTER</button>
+<button class="px-2.5 py-1 text-secondary hover:text-on-surface transition-colors">GOSTO</button>
+</nav>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-7">
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors py-2" href="#nam">Nam</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors py-2" href="#nu">Nữ</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors py-2" href="#tre-em">Trẻ Em</a>
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary dark:border-inverse-primary pb-1 font-label-lg py-2" href="#hunter">Hunter Collection</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-label-lg hover:text-primary dark:hover:text-inverse-primary transition-colors py-2" href="#gosto">Gosto</a>
+<a class="text-primary-container font-bold font-label-lg hover:opacity-80 transition-opacity flex items-center gap-1 py-2" href="#sale">
+<span class="">Sale</span>
+<span class="bg-error-container text-on-error-container text-[10px] px-1.5 py-0.5 rounded-full font-bold">HOT</span>
+</a>
+</nav>
+<!-- Search Bar & Actions -->
+<div class="flex items-center gap-4 flex-1 max-w-sm justify-end">
+<!-- Search bar container -->
+<div class="relative w-full hidden sm:block">
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-surface-container-high rounded-full text-body-sm font-body-sm text-on-surface placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" placeholder="Tìm giày chạy bộ, hunter x..." type="search"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-secondary text-lg" data-icon="search">search</span>
+</div>
+<!-- Trailing Icon Actions -->
+<div class="flex items-center gap-2">
+<!-- Wishlist -->
+<a class="relative p-2 text-on-surface hover:text-primary transition-colors rounded-full hover:bg-surface-container-low" href="#wishlist" title="Danh sách yêu thích">
+<span class="material-symbols-outlined text-2xl" data-icon="favorite">favorite</span>
+<span class="absolute top-1 right-1 bg-primary text-on-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
+</a>
+<!-- Cart with Flyout preview -->
+<div class="relative group">
+<button class="relative p-2 text-on-surface hover:text-primary transition-colors rounded-full hover:bg-surface-container-low focus:outline-none" title="Giỏ hàng">
+<span class="material-symbols-outlined text-2xl" data-icon="shopping_bag">shopping_bag</span>
+<span class="absolute top-1 right-1 bg-primary text-on-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">2</span>
+</button>
+<!-- Cart Flyout Drawer Preview -->
+<div class="absolute right-0 top-full mt-2 w-80 bg-surface-container-lowest rounded-xl shadow-2xl border border-surface-container-highest p-4 hidden group-hover:block z-50 transition-all">
+<div class="flex justify-between items-center pb-2 border-b border-surface-container-high mb-3">
+<span class="text-label-lg font-label-lg text-on-surface">Giỏ hàng (2)</span>
+<a class="text-primary text-label-md font-label-md hover:underline" href="#cart">Xem tất cả</a>
+</div>
+<div class="space-y-3 max-h-56 overflow-y-auto custom-scrollbar">
+<div class="flex items-center gap-3">
+<div class="w-14 h-14 bg-surface-container-low rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up studio shot of the Biti's Hunter X high performance street sneaker in deep carbon gray with vibrant crimson red accents, placed on a pure white podium with subtle atmospheric lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCicI7DjZkvNWVeOx_Tur0Y845H5N_rwyjngFQRGPWNlicnnbFhAfuEbYCC0w5_vuwysyPcM8zGKr4bdUnmh12d4F_mxDoy5cbqjMYQV7135Jvk4U-toKts2P-WaD-6uCXxac-NcA4eRCJlfPFk1t54mpKCE5MNzem-VlZFCk-tjJEjOrhoJ_6ihVD5hYEIO9jxeiVaavqWcGVIdjc6s28tL7L3uWN9eT4p2BpG2to"/>
+</div>
+<div class="flex-1 min-w-0">
+<h5 class="text-body-sm font-semibold truncate text-on-surface">VAMOS Hunter X Storm</h5>
+<p class="text-label-md text-secondary">Size: 42 | Đen Đỏ</p>
+<p class="text-price-md text-primary font-bold">1.099.000₫</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-14 h-14 bg-surface-container-low rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Studio footwear product shot of Biti's Hunter Jogging lightweight sports running shoe in sleek titanium white with neon orange dynamic accents, presented in a crisp modern ecommerce light setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwOZxsx7Czpy-SXNEe-Jhbs5cCdEOF0-B9A-gfBAPX4afZm3NR7ioSA4FylFU7-t_mlWeawuXQIHdsoqimnnECWMuK4sn9I2vFFg9PJawk-FD-Pl3r39jJbBVMoZRal9DSCd3hlxRvYcIKg1-_Uw1ChzSP77D-olpycNq9bZP6RGNtzaadNMWVhbJuJHBnT-Aj7BwaM-jQMkHmeXNjmL0k4rcLrAwELGW2Z_z_Wsg"/>
+</div>
+<div class="flex-1 min-w-0">
+<h5 class="text-body-sm font-semibold truncate text-on-surface">Hunter Jogging Active</h5>
+<p class="text-label-md text-secondary">Size: 41 | Trắng Cam</p>
+<p class="text-price-md text-primary font-bold">899.000₫</p>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container-high mt-3">
+<div class="flex justify-between text-body-sm font-semibold mb-3">
+<span class="">Tổng tạm tính:</span>
+<span class="text-primary text-price-md">1.998.000₫</span>
+</div>
+<button class="w-full py-2.5 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
+<span class="">THANH TOÁN NGAY</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Account -->
+<a class="p-2 text-on-surface hover:text-primary transition-colors rounded-full hover:bg-surface-container-low" href="#account" title="Tài khoản">
+<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
+</a>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CONTENT CANVAS -->
+<main class="flex-grow">
+<!-- 3. HERO BANNER SLIDER (Asymmetric & Kinetic) -->
+<section class="relative bg-gradient-to-br from-surface-container-low via-surface to-surface-container-high overflow-hidden py-12 lg:py-20 border-b border-surface-container-highest">
+<!-- Kinetic Geometric Background Shapes -->
+<div class="absolute -right-20 -top-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute left-1/3 bottom-0 w-80 h-80 bg-secondary-container/40 rounded-full blur-2xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+<!-- Hero Text & CTAs -->
+<div class="lg:col-span-6 space-y-6">
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-full shadow-sm border border-surface-container-highest">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-label-badge font-label-badge uppercase tracking-wider text-primary">CHIẾN DỊCH XUÂN HÈ 2025</span>
+</div>
+<h1 class="text-display-hero-mobile md:text-display-hero font-display-hero text-on-surface leading-tight font-extrabold uppercase">VAMOS HUNTER X<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-tertiary-container">BƯỚC CHÂN KHÔNG MỎI</span></h1>
+<p class="text-body-lg font-body-lg text-secondary max-w-xl">
+            Đột phá cùng cấu trúc đệm trợ lực thế hệ mới LiteFlex 3.0 kết hợp vải dệt Primeknit thoáng khí. Tối ưu từng sải bước di chuyển đô thị đầy phong cách và tốc độ.
+          </p>
+<div class="flex flex-wrap items-center gap-4 pt-2">
+<a class="px-8 py-3.5 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint shadow-lg shadow-primary/20 transition-all flex items-center gap-2 group" href="#explore">
+<span class="">KHÁM PHÁ NGAY</span>
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="px-8 py-3.5 bg-surface-container-lowest text-on-surface border border-outline-variant/60 rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-container-low transition-all flex items-center gap-2" href="#lookbook">
+<span class="material-symbols-outlined text-lg" data-icon="auto_stories">auto_stories</span>
+<span class="">XEM BỘ SƯU TẬP</span>
+</a>
+</div>
+<!-- Quick Spec Counter Chips -->
+<div class="grid grid-cols-3 gap-4 pt-6 border-t border-surface-container-highest max-w-md">
+<div>
+<div class="text-headline-md font-headline-md font-bold text-on-surface">280g</div>
+<div class="text-label-md text-secondary">Trọng lượng siêu nhẹ</div>
+</div>
+<div>
+<div class="text-headline-md font-headline-md font-bold text-primary">+65%</div>
+<div class="text-label-md text-secondary">Độ đàn hồi phản hồi lực</div>
+</div>
+<div>
+<div class="text-headline-md font-headline-md font-bold text-on-surface">100%</div>
+<div class="text-label-md text-secondary">Đế đệm cao su bám dính</div>
+</div>
+</div>
+</div>
+<!-- Hero Footwear Kinetic Showcase -->
+<div class="lg:col-span-6 relative">
+<div class="relative w-full aspect-square max-w-lg mx-auto flex items-center justify-center">
+<!-- Background Graphic Ring -->
+<div class="absolute inset-4 rounded-full border border-dashed border-primary/25 animate-[spin_40s_linear_infinite]"></div>
+<div class="absolute inset-12 rounded-full bg-gradient-to-tr from-surface-container-highest to-surface-container-lowest shadow-inner"></div>
+<!-- Shoe Floating Visual -->
+<div class="relative z-10 w-full h-full flex items-center justify-center p-6 transform hover:scale-105 transition-transform duration-500">
+<img class="w-full h-full object-contain filter drop-shadow-[0_25px_30px_rgba(15,23,42,0.22)]" data-alt="Dynamic studio hero photography of the Biti's Hunter X high-top athletic sneaker suspended in mid-air at an aggressive 45-degree angle, showing aerodynamic sole treads, textured premium mesh fabric, deep obsidian black body with electric crimson accents in modern light studio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVrfVCEqz9tp7rytnKSYT1p1p4rcR2C6fGdMlGXQ7obTFba57PRTPXErWbnIV4H6jNxmNK8p5FqDsjyjxP5hbXyeBwBWhj9gaHpQ2e7UoxJysWjFvXZb6peELeh5Z233-H8I-4-juU4AbFRBou0rlzuUflKrguJ9220gdnAyOah8hVJZ4WBbu0ryZUPX9VKXVb0IdwVjaEaNLLHbHk5N15g4sT0FT5g-7GOYeN2Cc"/>
+</div>
+<!-- Floating Badge Card -->
+<div class="absolute bottom-6 left-2 bg-surface-container-lowest/90 backdrop-blur-md p-3.5 rounded-xl border border-surface-container-highest shadow-xl flex items-center gap-3 z-20">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+<div>
+<p class="text-label-badge font-label-badge text-secondary uppercase">Công Nghệ Mới</p>
+<p class="text-label-lg font-label-lg text-on-surface font-bold">LITEFLEX 3.0 FOAM</p>
+</div>
+</div>
+<!-- Price Tag Pill -->
+<div class="absolute top-8 right-2 bg-primary text-on-primary px-4 py-2 rounded-full shadow-lg font-headline-sm text-price-lg z-20 flex items-center gap-1.5">
+<span class="text-label-md font-normal opacity-80">Giá chỉ:</span>
+<span class="">1.099.000₫</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. QUICK CATEGORY ICONS & CARDS -->
+<section class="py-12 bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto px-6 lg:px-16">
+<div class="flex justify-between items-end mb-8">
+<div>
+<span class="text-label-badge font-label-badge uppercase text-primary tracking-wider font-bold">DANH MỤC NỔI BẬT</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface font-bold mt-1">Khám Phá Theo Nhu Cầu</h2>
+</div>
+<a class="text-label-lg font-label-lg text-secondary hover:text-primary transition-colors flex items-center gap-1" href="#categories">
+<span class="">Xem tất cả danh mục</span>
+<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+<!-- Item 1: Nam -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center" href="#nam">
+<div class="w-16 h-16 rounded-full bg-secondary-fixed/50 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="man">man</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">Giày Nam</h3>
+<span class="text-body-sm text-secondary">240+ Mẫu</span>
+</a>
+<!-- Item 2: Nữ -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center" href="#nu">
+<div class="w-16 h-16 rounded-full bg-primary-fixed/50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="woman">woman</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">Giày Nữ</h3>
+<span class="text-body-sm text-secondary">190+ Mẫu</span>
+</a>
+<!-- Item 3: Bé Trai -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center" href="#be-trai">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="boy">boy</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">Bé Trai</h3>
+<span class="text-body-sm text-secondary">110+ Mẫu</span>
+</a>
+<!-- Item 4: Bé Gái -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center" href="#be-gai">
+<div class="w-16 h-16 rounded-full bg-outline-variant/30 flex items-center justify-center text-tertiary-container group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="girl">girl</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">Bé Gái</h3>
+<span class="text-body-sm text-secondary">95+ Mẫu</span>
+</a>
+<!-- Item 5: Hunter -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center relative overflow-hidden" href="#hunter">
+<div class="absolute -top-1 right-2 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.5 rounded-full">HOT</div>
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="sports_score">sports_score</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">VAMOS Hunter</h3>
+<span class="text-body-sm text-secondary">Tech &amp; Sport</span>
+</a>
+<!-- Item 6: Gosto -->
+<a class="group bg-surface rounded-xl p-5 border border-surface-container-highest hover:border-primary hover:shadow-lg transition-all text-center flex flex-col items-center" href="#gosto">
+<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface group-hover:bg-primary group-hover:text-on-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl" data-icon="styler">styler</span>
+</div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold group-hover:text-primary transition-colors">Gosto Cao Cấp</h3>
+<span class="text-body-sm text-secondary">Công Sở &amp; Dạ Tiệc</span>
+</a>
+</div>
+</div>
+</section>
+<!-- 5. FLASH SALE SECTION WITH COUNTDOWN & PROGRESS BAR -->
+<section class="py-14 bg-gradient-to-r from-on-background via-inverse-surface to-on-background text-on-primary relative overflow-hidden">
+<!-- Decorative background glow -->
+<div class="absolute top-0 right-1/4 w-72 h-72 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6 lg:px-16">
+<!-- Flash Sale Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-surface-container-highest/20">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/40 animate-bounce">
+<span class="material-symbols-outlined text-2xl text-on-primary" data-icon="flash_on">flash_on</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl font-bold tracking-tight text-white uppercase">GIỜ VÀNG GIÁ SỐC</h2>
+<span class="bg-primary text-white text-label-badge font-label-badge px-2.5 py-0.5 rounded-full">GIẢM ĐẾN 50%</span>
+</div>
+<p class="text-body-sm text-secondary-fixed">Cơ hội sở hữu giày VAMOS chính hãng với mức giá độc quyền duy nhất hôm nay.</p>
+</div>
+</div>
+<!-- Countdown Timer Box -->
+<div class="flex items-center gap-3">
+<span class="text-label-md font-label-md text-surface-dim uppercase tracking-wider hidden sm:inline">KẾT THÚC SAU:</span>
+<div class="flex items-center gap-2 font-headline-sm font-bold">
+<div class="bg-inverse-surface/80 border border-surface-container-highest/30 px-3 py-2 rounded-lg text-center min-w-[48px]">
+<span class="text-price-lg text-white">05</span>
+<span class="block text-[10px] font-normal text-secondary-fixed">GIỜ</span>
+</div>
+<span class="text-primary text-xl font-bold">:</span>
+<div class="bg-inverse-surface/80 border border-surface-container-highest/30 px-3 py-2 rounded-lg text-center min-w-[48px]">
+<span class="text-price-lg text-white">42</span>
+<span class="block text-[10px] font-normal text-secondary-fixed">PHÚT</span>
+</div>
+<span class="text-primary text-xl font-bold">:</span>
+<div class="bg-inverse-surface/80 border border-surface-container-highest/30 px-3 py-2 rounded-lg text-center min-w-[48px]">
+<span class="text-price-lg text-primary">19</span>
+<span class="block text-[10px] font-normal text-secondary-fixed">GIÂY</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Flash Sale 3-Card Bento Shelf -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8">
+<!-- Flash Item 1 -->
+<div class="bg-surface-container-lowest text-on-surface rounded-xl p-5 border border-surface-container-highest relative flex flex-col justify-between group shadow-lg">
+<div class="relative w-full aspect-square bg-surface-container-low rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+<span class="absolute top-2 left-2 z-10 bg-primary text-on-primary text-label-badge font-label-badge font-bold px-2.5 py-1 rounded-md">-35%</span>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Sharp angled footwear product photography of Biti's Hunter Street vintage collection sneaker with suede overlays and gum rubber sole, photographed on a neutral gray platform in clean bright daylight studio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkxpNRhlUiwzIywSYjytTmoaKmF4O-XkxYTGMjIkNwyGfKy6NO1D_qiBFnPUtxwXif9R4Ph034sVHOf0REjbbXWMmQwy3uG9QdOK9I599ArGwzcScmkuY7kcMLPD1Po_RS0N-gjO7UOLT4GZk7_aJruTGgvdlUbrviRIb0wW1Q5phSvIsXfNhFq2U9iniSzCjkJHbK7UeNZEm3-Rjqk8BpScjI_dqdKymZw69mn3E"/>
+</div>
+<div>
+<span class="text-label-badge font-label-badge text-secondary uppercase font-bold">VAMOS HUNTER STREET</span>
+<h4 class="text-headline-sm font-headline-sm text-on-surface mt-1 truncate">Hunter Street Vintage Low-Top</h4>
+<div class="flex items-baseline gap-2.5 my-2">
+<span class="text-price-lg font-price-lg text-primary font-bold">649.000₫</span>
+<span class="text-body-sm text-secondary line-through">999.000₫</span>
+</div>
+<!-- Progress Bar -->
+<div class="space-y-1.5 mt-3">
+<div class="flex justify-between text-label-md font-semibold text-secondary">
+<span class="">Đã bán 78%</span>
+<span class="text-primary">Còn 12 đôi</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary-container to-primary rounded-full w-[78%]"></div>
+</div>
+</div>
+<button class="w-full mt-4 py-2.5 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-lg" data-icon="shopping_cart">shopping_cart</span>
+<span class="">MUA NGAY KẺO LỠ</span>
+</button>
+</div>
+</div>
+<!-- Flash Item 2 -->
+<div class="bg-surface-container-lowest text-on-surface rounded-xl p-5 border border-surface-container-highest relative flex flex-col justify-between group shadow-lg">
+<div class="relative w-full aspect-square bg-surface-container-low rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+<span class="absolute top-2 left-2 z-10 bg-primary text-on-primary text-label-badge font-label-badge font-bold px-2.5 py-1 rounded-md">-40%</span>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Modern athletic footwear photograph of Biti's Hunter Jogging active running sneaker in electric cyan and carbon black, showcasing specialized high-grip outsole in an ultra clean minimalist studio setup." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKUOUXOxfFe_AhclIxJoedDE9P_FWKhM1J61_DYzTvZwqLMiwNY4GcPDZDfO574ESiWQBgWnS1cuXxvyw6R19GjkLjfB4pdBzdoWplB2zdyvlN_wNwpiKVnhxU9AoP5QAxbxulLOT4SywGbUHHZgpKhrf4X6Z0S-jMGuUT0QZJMIvWKLszxMx3sARUPCobxOlTVHy7vO-H7uKdfNkxir6vauzcGq8WcBCu5V5q2zk"/>
+</div>
+<div>
+<span class="text-label-badge font-label-badge text-secondary uppercase font-bold">VAMOS RUNNING</span>
+<h4 class="text-headline-sm font-headline-sm text-on-surface mt-1 truncate">Hunter Jogging Marathon Lite</h4>
+<div class="flex items-baseline gap-2.5 my-2">
+<span class="text-price-lg font-price-lg text-primary font-bold">599.000₫</span>
+<span class="text-body-sm text-secondary line-through">999.000₫</span>
+</div>
+<!-- Progress Bar -->
+<div class="space-y-1.5 mt-3">
+<div class="flex justify-between text-label-md font-semibold text-secondary">
+<span class="">Đã bán 91%</span>
+<span class="text-primary">Còn 5 đôi</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary-container to-primary rounded-full w-[91%]"></div>
+</div>
+</div>
+<button class="w-full mt-4 py-2.5 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-lg" data-icon="shopping_cart">shopping_cart</span>
+<span class="">MUA NGAY KẺO LỠ</span>
+</button>
+</div>
+</div>
+<!-- Flash Item 3 -->
+<div class="bg-surface-container-lowest text-on-surface rounded-xl p-5 border border-surface-container-highest relative flex flex-col justify-between group shadow-lg">
+<div class="relative w-full aspect-square bg-surface-container-low rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+<span class="absolute top-2 left-2 z-10 bg-primary text-on-primary text-label-badge font-label-badge font-bold px-2.5 py-1 rounded-md">-25%</span>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Lifestyle studio footwear product image of Biti's Gosto premium women's block heel leather sandals in ivory cream with rose gold buckle details, shot against soft diffuse light setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmXVhUFUiJ_e1k25cPeN6CvTCvGXkre2IaeQna9nTo7-CwrF0z3m3dfpECfTrgSrT4HjGNoH_TcJyeur6ceWuvR8906osPpOhscyiDBrTYzn0jodEsnDILyLsHanz-cZE2ogqwX6A8dSENxqoVd37myMs9YQz3ffdrJJRnx7ht3FeMRGp3_Mq8e6OSkCxrLvxRUKQyRiUjStDFJ7yK0FLPBys9t_w8-2fsvmCl7fk"/>
+</div>
+<div>
+<span class="text-label-badge font-label-badge text-secondary uppercase font-bold">VAMOS WOMEN</span>
+<h4 class="text-headline-sm font-headline-sm text-on-surface mt-1 truncate">Sandal Cao Gót Gosto Elegance</h4>
+<div class="flex items-baseline gap-2.5 my-2">
+<span class="text-price-lg font-price-lg text-primary font-bold">675.000₫</span>
+<span class="text-body-sm text-secondary line-through">899.000₫</span>
+</div>
+<!-- Progress Bar -->
+<div class="space-y-1.5 mt-3">
+<div class="flex justify-between text-label-md font-semibold text-secondary">
+<span class="">Đã bán 64%</span>
+<span class="text-primary">Còn 18 đôi</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary-container to-primary rounded-full w-[64%]"></div>
+</div>
+</div>
+<button class="w-full mt-4 py-2.5 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-lg" data-icon="shopping_cart">shopping_cart</span>
+<span class="">MUA NGAY KẺO LỠ</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. FEATURED COLLECTION - BITI'S HUNTER TECH & SPORT (Grid 4) -->
+<section class="py-16 bg-surface" id="hunter">
+<div class="max-w-7xl mx-auto px-6 lg:px-16">
+<!-- Section Header with Category Tabs -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div>
+<div class="inline-flex items-center gap-2 mb-1">
+<span class="text-label-badge font-label-badge uppercase text-primary font-bold tracking-wider">BỘ SƯU TẬP TIÊU BIỂU</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="text-label-badge font-label-badge uppercase text-secondary">CÔNG NGHỆ BƯỚC ĐI</span>
+</div>
+<h2 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl font-bold text-on-surface">VAMOS Hunter Tech &amp; Sport</h2>
+</div>
+<!-- Shelf Filter Controls -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2">
+<button class="px-4 py-2 bg-on-surface text-surface rounded-lg text-label-md font-label-md font-bold whitespace-nowrap">TẤT CẢ DÒNG HUNTER</button>
+<button class="px-4 py-2 bg-surface-container-lowest text-secondary hover:text-on-surface border border-surface-container-highest rounded-lg text-label-md font-label-md font-semibold whitespace-nowrap transition-colors">HUNTER X</button>
+<button class="px-4 py-2 bg-surface-container-lowest text-secondary hover:text-on-surface border border-surface-container-highest rounded-lg text-label-md font-label-md font-semibold whitespace-nowrap transition-colors">HUNTER JOGGING</button>
+<button class="px-4 py-2 bg-surface-container-lowest text-secondary hover:text-on-surface border border-surface-container-highest rounded-lg text-label-md font-label-md font-semibold whitespace-nowrap transition-colors">HUNTER STREET</button>
+</div>
+</div>
+<!-- 4 Product Grid Shelf -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Product Card 1: Biti's Hunter X -->
+<div class="group bg-surface-container-lowest rounded-xl border border-surface-container-highest overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between">
+<div class="relative aspect-square bg-surface-container-low p-4 flex items-center justify-center overflow-hidden">
+<!-- Badges Stack -->
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+<span class="bg-primary text-on-primary text-label-badge font-label-badge font-bold px-2 py-0.5 rounded">NEW ARRIVAL</span>
+<span class="bg-inverse-surface text-inverse-on-surface text-label-badge font-label-badge font-bold px-2 py-0.5 rounded">FOAM+</span>
+</div>
+<button class="absolute top-3 right-3 p-1.5 rounded-full bg-surface-container-lowest/80 text-secondary hover:text-primary transition-colors z-10 shadow-sm" title="Thêm vào yêu thích">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Editorial footwear product photo of Biti's Hunter X 2K25 edition performance running shoe, featuring deep jet black woven knit mesh, gradient red heel stabilizer, and sculpted white Phylon sole on a pure light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWt5_qVpzIebOt-eKvGYW7UaVKvs1sbDBPQc46epa3SpmfRnyj8NaxcljkVHIb8LEtdtR3tZ0CvFUT0RtBZ-EzBaGSw0ZR8UnMkvg3Pt94mIo0tv0r8QmCpeeWQklFW1DyJEq8CrJyDpsAlNCkYYhEESjuH0hzunHGw1vbZr6NiSsDnK5-uqyLQlNx-IAx_Fg0iLczCujiIqynoZ6B08rtklrZ4ciHF3xKFOzwmEA"/>
+<!-- Quick Size Selector Overlay on Hover -->
+<div class="absolute inset-x-3 bottom-3 bg-surface-container-lowest/95 backdrop-blur-sm p-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<span class="text-[10px] font-bold text-secondary text-center uppercase">Chọn Size Nhanh</span>
+<div class="flex justify-center gap-1.5">
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">39</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">40</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">41</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold bg-primary text-white">42</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold text-secondary-fixed-dim cursor-not-allowed line-through">43</button>
+</div>
+</div>
+</div>
+<!-- Card Content -->
+<div class="p-5 flex flex-col flex-1 justify-between">
+<div>
+<span class="text-label-badge font-label-badge text-secondary font-bold uppercase tracking-wider">HUNTER PERFORMANCE</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mt-1 line-clamp-2 hover:text-primary transition-colors">Giày Thể Thao Nam VAMOS Hunter X Festive 2K25</h3>
+</div>
+<div class="pt-4 border-t border-surface-container-high mt-4">
+<!-- Color Swatches -->
+<div class="flex items-center gap-2 mb-3">
+<span class="w-4 h-4 rounded-full bg-on-background ring-2 ring-offset-2 ring-primary cursor-pointer" title="Đen Đỏ"></span>
+<span class="w-4 h-4 rounded-full bg-secondary-fixed cursor-pointer hover:scale-110 transition-transform" title="Xám Bạc"></span>
+<span class="w-4 h-4 rounded-full bg-error-container cursor-pointer hover:scale-110 transition-transform" title="Đỏ Đô"></span>
+</div>
+<!-- Price and Quick Add Button -->
+<div class="flex items-center justify-between">
+<div>
+<span class="text-price-lg font-price-lg text-primary font-bold">1.150.000₫</span>
+<span class="text-body-sm text-secondary line-through block -mt-1">1.250.000₫</span>
+</div>
+<button class="p-2.5 bg-surface-container-low text-on-surface hover:bg-primary hover:text-on-primary rounded-lg transition-colors flex items-center justify-center shadow-xs" title="Thêm nhanh vào giỏ">
+<span class="material-symbols-outlined text-lg" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Card 2: Biti's Hunter Jogging -->
+<div class="group bg-surface-container-lowest rounded-xl border border-surface-container-highest overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between">
+<div class="relative aspect-square bg-surface-container-low p-4 flex items-center justify-center overflow-hidden">
+<!-- Badges Stack -->
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+<span class="bg-tertiary-container text-on-tertiary-container text-label-badge font-label-badge font-bold px-2 py-0.5 rounded">BEST SELLER</span>
+</div>
+<button class="absolute top-3 right-3 p-1.5 rounded-full bg-surface-container-lowest/80 text-secondary hover:text-primary transition-colors z-10 shadow-sm" title="Thêm vào yêu thích">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High-resolution footwear studio photo of Biti's Hunter Jogging athletic runner in pristine pure white with vivid solar orange accents, showing side mesh air ventilation and flexible Phylon cushioning in bright daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU4QvpckUtdc9YKzGt3JQ9ygvXFK9fi0cY5xXKhR9ZjPcLGIPwx-Dn4Q-3Lp5BfWdu2c9MfZlVBkhjBtDp6GTwyRYrhwu-0JUrY8433KzQ_z5oGrFlNWcpXmZ05lWliKeLqixsEuVnZXYmmINU1kCGeDvRBY-qQD9G40sqrW2w5M-wI7eQXpPUWZ2_VIq3Pe9_UcrH-Q_Rn3Bm1cHKL30B4o2bUDGcCrIX3jvsPwU"/>
+<!-- Quick Size Selector Overlay on Hover -->
+<div class="absolute inset-x-3 bottom-3 bg-surface-container-lowest/95 backdrop-blur-sm p-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<span class="text-[10px] font-bold text-secondary text-center uppercase">Chọn Size Nhanh</span>
+<div class="flex justify-center gap-1.5">
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">38</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">39</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold bg-primary text-white">40</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">41</button>
+</div>
+</div>
+</div>
+<!-- Card Content -->
+<div class="p-5 flex flex-col flex-1 justify-between">
+<div>
+<span class="text-label-badge font-label-badge text-secondary font-bold uppercase tracking-wider">RUNNING COLLECTION</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mt-1 line-clamp-2 hover:text-primary transition-colors">Giày Chạy Bộ Unisex VAMOS Hunter Jogging Ultra</h3>
+</div>
+<div class="pt-4 border-t border-surface-container-high mt-4">
+<!-- Color Swatches -->
+<div class="flex items-center gap-2 mb-3">
+<span class="w-4 h-4 rounded-full bg-surface-container-lowest border border-surface-container-highest ring-2 ring-offset-2 ring-primary cursor-pointer" title="Trắng Cam"></span>
+<span class="w-4 h-4 rounded-full bg-inverse-surface cursor-pointer hover:scale-110 transition-transform" title="Đen Toàn Phần"></span>
+</div>
+<!-- Price and Quick Add Button -->
+<div class="flex items-center justify-between">
+<div>
+<span class="text-price-lg font-price-lg text-primary font-bold">899.000₫</span>
+<span class="text-body-sm text-secondary line-through block -mt-1">999.000₫</span>
+</div>
+<button class="p-2.5 bg-surface-container-low text-on-surface hover:bg-primary hover:text-on-primary rounded-lg transition-colors flex items-center justify-center shadow-xs" title="Thêm nhanh vào giỏ">
+<span class="material-symbols-outlined text-lg" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Card 3: Biti's Hunter Street -->
+<div class="group bg-surface-container-lowest rounded-xl border border-surface-container-highest overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between">
+<div class="relative aspect-square bg-surface-container-low p-4 flex items-center justify-center overflow-hidden">
+<!-- Badges Stack -->
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+<span class="bg-primary text-on-primary text-label-badge font-label-badge font-bold px-2 py-0.5 rounded">-15%</span>
+</div>
+<button class="absolute top-3 right-3 p-1.5 rounded-full bg-surface-container-lowest/80 text-secondary hover:text-primary transition-colors z-10 shadow-sm" title="Thêm vào yêu thích">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High quality street fashion sneaker photography of Biti's Hunter Street canvas sneaker in natural canvas beige with navy blue accents and vulcanized gum foxing tape, in modern clean product studio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRV6jAcr2_oqxk-TdNj2z9HN1gDAviVMXyCtUZ98QRj3M5Mc9652eJZmPhzFivVbuDz55zKRABP7PvFajFs4koe3o2Qq26VX_rv4r7fXHO9dAfD169aCuIYgkpZMIbb-fkeM8VWC9tPelVuFEzyK8MPb9tJkIFjVxFB3QiO3iRVKwI-MoOZShKdJn8StuYbdAz_cCnHglpIuXQy1sPdha9Ym3Kmvnwy-Oi0r8Zs9Q"/>
+<!-- Quick Size Selector Overlay on Hover -->
+<div class="absolute inset-x-3 bottom-3 bg-surface-container-lowest/95 backdrop-blur-sm p-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<span class="text-[10px] font-bold text-secondary text-center uppercase">Chọn Size Nhanh</span>
+<div class="flex justify-center gap-1.5">
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">39</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold bg-primary text-white">40</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">41</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">42</button>
+</div>
+</div>
+</div>
+<!-- Card Content -->
+<div class="p-5 flex flex-col flex-1 justify-between">
+<div>
+<span class="text-label-badge font-label-badge text-secondary font-bold uppercase tracking-wider">STREETWEAR</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mt-1 line-clamp-2 hover:text-primary transition-colors">Giày Sneaker VAMOS Hunter Street Nam Định Canvas</h3>
+</div>
+<div class="pt-4 border-t border-surface-container-high mt-4">
+<!-- Color Swatches -->
+<div class="flex items-center gap-2 mb-3">
+<span class="w-4 h-4 rounded-full bg-secondary-fixed ring-2 ring-offset-2 ring-primary cursor-pointer" title="Be Canvas"></span>
+<span class="w-4 h-4 rounded-full bg-inverse-surface cursor-pointer hover:scale-110 transition-transform" title="Xanh Navy"></span>
+<span class="w-4 h-4 rounded-full bg-outline cursor-pointer hover:scale-110 transition-transform" title="Nâu Vintage"></span>
+</div>
+<!-- Price and Quick Add Button -->
+<div class="flex items-center justify-between">
+<div>
+<span class="text-price-lg font-price-lg text-primary font-bold">765.000₫</span>
+<span class="text-body-sm text-secondary line-through block -mt-1">899.000₫</span>
+</div>
+<button class="p-2.5 bg-surface-container-low text-on-surface hover:bg-primary hover:text-on-primary rounded-lg transition-colors flex items-center justify-center shadow-xs" title="Thêm nhanh vào giỏ">
+<span class="material-symbols-outlined text-lg" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Card 4: Biti's Hunter Dunas -->
+<div class="group bg-surface-container-lowest rounded-xl border border-surface-container-highest overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between">
+<div class="relative aspect-square bg-surface-container-low p-4 flex items-center justify-center overflow-hidden">
+<!-- Badges Stack -->
+<div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+<span class="bg-surface-tint text-on-primary text-label-badge font-label-badge font-bold px-2 py-0.5 rounded">HOT TREND</span>
+</div>
+<button class="absolute top-3 right-3 p-1.5 rounded-full bg-surface-container-lowest/80 text-secondary hover:text-primary transition-colors z-10 shadow-sm" title="Thêm vào yêu thích">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Modern sports sandal product photography of Biti's Hunter Dunas with adjustable ergonomic straps, anatomical arch support, and rugged trail-ready tread in military olive and dark charcoal in light setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvyQCr8lnxCE5GmTOC5X_wId2DUynCYt207upOXx-UePBGoJwbQOLVmmwKQVt3Z_KVn4YyOeXZdcO9AlUSBTuqlFTnLhMckEDHFpsKbC_lY2zQdl-N_u0t_du1IZI6cfFvJV4B3ENUPx6UaZI4CgkYrNWkdA2Ls4pu9cn-e_KX-fQJnNxk4FuC8nOGCJLfeMxgVwmlSeY2dKAANrjqrn6YE3_5XKsqHBn0EIlYaeY"/>
+<!-- Quick Size Selector Overlay on Hover -->
+<div class="absolute inset-x-3 bottom-3 bg-surface-container-lowest/95 backdrop-blur-sm p-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<span class="text-[10px] font-bold text-secondary text-center uppercase">Chọn Size Nhanh</span>
+<div class="flex justify-center gap-1.5">
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">39</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">40</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold bg-primary text-white">41</button>
+<button class="w-7 h-7 rounded border border-surface-container-highest text-xs font-bold hover:border-primary hover:text-primary transition-colors">42</button>
+</div>
+</div>
+</div>
+<!-- Card Content -->
+<div class="p-5 flex flex-col flex-1 justify-between">
+<div>
+<span class="text-label-badge font-label-badge text-secondary font-bold uppercase tracking-wider">OUTDOOR SANDAL</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mt-1 line-clamp-2 hover:text-primary transition-colors">Sandal Thể Thao Nam Nữ VAMOS Hunter Dunas Pro</h3>
+</div>
+<div class="pt-4 border-t border-surface-container-high mt-4">
+<!-- Color Swatches -->
+<div class="flex items-center gap-2 mb-3">
+<span class="w-4 h-4 rounded-full bg-secondary ring-2 ring-offset-2 ring-primary cursor-pointer" title="Xanh Rêu"></span>
+<span class="w-4 h-4 rounded-full bg-inverse-surface cursor-pointer hover:scale-110 transition-transform" title="Đen Đậm"></span>
+</div>
+<!-- Price and Quick Add Button -->
+<div class="flex items-center justify-between">
+<div>
+<span class="text-price-lg font-price-lg text-primary font-bold">589.000₫</span>
+<span class="text-body-sm text-secondary line-through block -mt-1">650.000₫</span>
+</div>
+<button class="p-2.5 bg-surface-container-low text-on-surface hover:bg-primary hover:text-on-primary rounded-lg transition-colors flex items-center justify-center shadow-xs" title="Thêm nhanh vào giỏ">
+<span class="material-symbols-outlined text-lg" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. STORY & LOOKBOOK BANNER (Brand Heritage & Phylon Tech) -->
+<section class="py-16 bg-surface-container-lowest border-y border-surface-container-highest">
+<div class="max-w-7xl mx-auto px-6 lg:px-16">
+<div class="bg-gradient-to-r from-surface-container-low via-surface to-surface-container-highest rounded-2xl p-8 lg:p-14 border border-surface-container-highest relative overflow-hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+<div class="lg:col-span-7 space-y-5">
+<div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-md text-label-badge font-label-badge font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+<span class="">DI SẢN THƯƠNG HIỆU VIỆT NAM</span>
+</div>
+<h2 class="text-display-hero-mobile md:text-headline-xl font-headline-xl text-on-surface font-extrabold uppercase leading-tight">
+                20+ Năm Nâng Niu<br/>
+<span class="text-primary">Bàn Chân Việt</span>
+</h2>
+<p class="text-body-lg font-body-lg text-secondary leading-relaxed">Từ những đôi sandal gắn liền với tuổi thơ triệu thế hệ học sinh Việt Nam, VAMOS tiếp tục hành trình bứt phá cùng phòng thí nghiệm R&amp;D Hunter Lab. Công nghệ đế đệm Phylon siêu đàn hồi 280g cùng thiết kế công thái học bảo vệ xương khớp chân trong mọi vận động cường độ cao.</p>
+<!-- Feature Bullets -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-primary-fixed text-primary mt-0.5">
+<span class="material-symbols-outlined text-base" data-icon="science">science</span>
+</div>
+<div>
+<h5 class="text-label-lg font-label-lg text-on-surface font-bold">Đế Đệm Phylon Siêu Nhẹ</h5>
+<p class="text-body-sm text-secondary">Phân bổ đều áp lực bước chân</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-secondary-fixed text-on-secondary-fixed mt-0.5">
+<span class="material-symbols-outlined text-base" data-icon="air">air</span>
+</div>
+<div>
+<h5 class="text-label-lg font-label-lg text-on-surface font-bold">Sợi Dệt Kháng Khuẩn</h5>
+<p class="text-body-sm text-secondary">Khô thoáng suốt 24 giờ liên tục</p>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<a class="inline-flex items-center gap-2 px-6 py-3 bg-on-surface text-surface rounded-lg text-label-lg font-label-lg font-bold hover:bg-primary hover:text-on-primary transition-all" href="#heritage"><span class="">TÌM HIỂU CÂU CHUYỆN VAMOS</span><span class="material-symbols-outlined text-base" data-icon="east">east</span></a>
+</div>
+</div>
+<!-- Right Visual Lookbook Mosaic -->
+<div class="lg:col-span-5 relative">
+<div class="relative mx-auto rounded-xl overflow-hidden shadow-2xl border-4 border-surface-container-lowest">
+<img class="w-full h-80 lg:h-96 object-cover" data-alt="Artistic close-up photograph of modern footwear craftsman hand inspecting and stitching the technical sole of a Biti's sneaker in a bright, high-tech design laboratory setting, surrounded by shoe molds and precision tools." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2u5cU8-kjZDWIEZfo5gOgJeI3Gx1eExqMMHchQ1klE-3AotNqcikwj0PucBRF4Um_WoIpd2TVSVn_D57v29zt_TNt0UB5E59n-Z88LJpzb2Vmbt27yT07hcqLeJ-VHv4qiQPLw6AaYXXvPvcJikyS6ysy9dLp9UZcnoA9IuWED0tL6UoXVtNpmiUwGTBSNas0JgSVmiG9qz6Ki6Gng14qhS2frMPftQ5rGD3GLcw"/>
+<!-- Badge floating on corner -->
+<div class="absolute bottom-4 left-4 right-4 bg-surface-container-lowest/90 backdrop-blur-md p-3 rounded-lg border border-surface-container-highest shadow-md text-center">
+<span class="text-label-badge font-label-badge uppercase font-bold text-primary">CAM KẾT CHẤT LƯỢNG VIỆT NAM</span>
+<p class="text-body-sm text-on-surface font-semibold">Tự hào thương hiệu quốc gia vươn tầm thế giới</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 8. KHỐI CAM KẾT DỊCH VỤ (TRUST BADGES) -->
+<section class="py-12 bg-surface">
+<div class="max-w-7xl mx-auto px-6 lg:px-16">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Badge 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-highest flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<h4 class="text-label-lg font-label-lg font-bold text-on-surface">100% Chính Hãng</h4>
+<p class="text-body-sm text-secondary">Trực tiếp từ nhà máy VAMOS</p>
+</div>
+</div>
+<!-- Badge 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-highest flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="handyman">handyman</span>
+</div>
+<div>
+<h4 class="text-label-lg font-label-lg font-bold text-on-surface">Bảo Hành Trọn Đời</h4>
+<p class="text-body-sm text-secondary">Hỗ trợ dán keo, may chỉ miễn phí</p>
+</div>
+</div>
+<!-- Badge 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-highest flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center text-tertiary-container flex-shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="sync_alt">sync_alt</span>
+</div>
+<div>
+<h4 class="text-label-lg font-label-lg font-bold text-on-surface">Đổi Trả Trong 7 Ngày</h4>
+<p class="text-body-sm text-secondary">Đổi size tận nhà hoàn toàn tiện lợi</p>
+</div>
+</div>
+<!-- Badge 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-highest flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="w-14 h-14 rounded-full bg-outline-variant/40 flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-3xl" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<div>
+<h4 class="text-label-lg font-label-lg font-bold text-on-surface">Giao Hàng Siêu Tốc</h4>
+<p class="text-body-sm text-secondary">Nhận hàng trong 2h tại TP.HCM &amp; Hà Nội</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- NEWSLETTER SUBSCRIPTION MINI SECTION -->
+<section class="py-12 bg-surface-container-low border-t border-surface-container-highest">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" data-icon="mail">mail</span>
+<h3 class="text-headline-md font-headline-md font-bold text-on-surface">Đăng Ký Nhận Bản Tin VAMOS Club</h3>
+<p class="text-body-md text-secondary mt-1 mb-6">Nhận ngay voucher <strong class="text-primary">100.000₫</strong> cho đơn hàng đầu tiên cùng thông tin độc quyền các đợt phát hành giày giới hạn.</p>
+<form class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" onsubmit="event.preventDefault();">
+<input class="flex-1 px-4 py-3 rounded-lg border border-surface-container-high bg-surface-container-lowest text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nhập địa chỉ email của bạn..." required="" type="email"/>
+<button class="px-6 py-3 bg-primary text-on-primary rounded-lg text-label-lg font-label-lg font-bold hover:bg-surface-tint transition-colors whitespace-nowrap" type="submit">
+            ĐĂNG KÝ NGAY
+          </button>
+</form>
+</div>
+</section>
+</main>
+<!-- 9. FOOTER (Shared Component Definition Verbatim Execution) -->
+<footer class="w-full bg-on-surface dark:bg-surface-container-lowest border-t border-surface-variant/20 dark:border-outline-variant">
+<div class="w-full py-16 px-6 lg:px-16 max-w-7xl mx-auto flex flex-col gap-12">
+<!-- Top Columns Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 text-surface-variant dark:text-on-surface-variant">
+<!-- Brand Info Column -->
+<div class="lg:col-span-2 space-y-4">
+<div class="text-headline-md font-headline-md font-bold text-surface dark:text-on-surface">VAMOS</div>
+<p class="text-body-sm font-body-sm text-surface-variant dark:text-on-surface-variant max-w-sm">Trải qua hơn 40 năm hình thành và phát triển, VAMOS tự hào là thương hiệu giày dép hàng đầu Việt Nam, không ngừng sáng tạo để mang đến những sản phẩm chất lượng cao vì sức khỏe và phong cách của người Việt.</p>
+<div class="flex items-center gap-4 pt-2">
+<a class="w-9 h-9 rounded-full bg-surface/10 hover:bg-primary flex items-center justify-center text-surface transition-colors" href="#" title="Facebook">
+<span class="text-xs font-bold font-headline-sm">FB</span>
+</a>
+<a class="w-9 h-9 rounded-full bg-surface/10 hover:bg-primary flex items-center justify-center text-surface transition-colors" href="#" title="Instagram">
+<span class="text-xs font-bold font-headline-sm">IG</span>
+</a>
+<a class="w-9 h-9 rounded-full bg-surface/10 hover:bg-primary flex items-center justify-center text-surface transition-colors" href="#" title="TikTok">
+<span class="text-xs font-bold font-headline-sm">TT</span>
+</a>
+<a class="w-9 h-9 rounded-full bg-surface/10 hover:bg-primary flex items-center justify-center text-surface transition-colors" href="#" title="YouTube">
+<span class="text-xs font-bold font-headline-sm">YT</span>
+</a>
+</div>
+</div>
+<!-- Links Column 1: Về Biti's & Hệ thống -->
+<div class="space-y-3">
+<h4 class="text-headline-sm font-headline-sm text-surface dark:text-on-surface">Khám Phá</h4>
+<ul class="space-y-2.5 text-label-md font-label-md">
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Về VAMOS</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Hệ thống 150+ Cửa hàng</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Hunter Collection</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Gosto Thời Trang</a></li>
+</ul>
+</div>
+<!-- Links Column 2: Chính sách & Hỗ trợ -->
+<div class="space-y-3">
+<h4 class="text-headline-sm font-headline-sm text-surface dark:text-on-surface">Chính Sách</h4>
+<ul class="space-y-2.5 text-label-md font-label-md">
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Chính sách đổi trả</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Chính sách bảo hành trọn đời</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Tra cứu đơn hàng</a></li>
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Chính sách bảo mật</a></li>
+</ul>
+</div>
+<!-- Links Column 3: Thông tin liên hệ -->
+<div class="space-y-3">
+<h4 class="text-headline-sm font-headline-sm text-surface dark:text-on-surface">Liên Hệ</h4>
+<ul class="space-y-2.5 text-label-md font-label-md">
+<li class=""><a class="text-surface-variant dark:text-on-surface-variant hover:text-surface dark:hover:text-on-surface transition-colors hover:underline" href="#">Liên hệ &amp; Tuyển dụng</a></li>
+<li class="text-surface-bright dark:text-on-surface">Hotline: <strong class="text-primary-fixed">1900 2126</strong></li>
+<li class="text-surface-bright dark:text-on-surface">Email: chamsockhachhang@vamos.com.vn</li>
+<li class="text-body-sm font-body-sm text-surface-variant">Địa chỉ: 22 Lý Chiêu Hoàng, Phường 10, Quận 6, TP. Hồ Chí Minh</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Bar & Copyright Text from JSON -->
+<div class="pt-8 border-t border-surface/10 flex flex-col md:flex-row justify-between items-center gap-4 text-body-sm font-body-sm text-surface-variant dark:text-on-surface-variant">
+<p class="">© 2024 CÔNG TY TNHH VAMOS VIỆT NAM (VAMOS). Nâng niu bàn chân Việt.</p>
+<div class="flex items-center gap-4 text-label-md">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="lock">lock</span>
+            Thanh toán an toàn SSL
+          </span>
+<span class="">|</span>
+<span class="">Chứng nhận Bộ Công Thương</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
