@@ -31,14 +31,24 @@ class ProductRepository {
       sqlWhere += " AND (p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.base_price)";
     }
 
-    if (minPrice) {
-      sqlWhere += " AND (COALESCE(p.sale_price, p.base_price) >= @minPrice)";
-      params.minPrice = parseFloat(minPrice);
+    let parsedMin = minPrice !== undefined && minPrice !== null && minPrice !== '' ? parseFloat(minPrice) : null;
+    let parsedMax = maxPrice !== undefined && maxPrice !== null && maxPrice !== '' ? parseFloat(maxPrice) : null;
+    if (parsedMin !== null && !isNaN(parsedMin) && parsedMin < 0) parsedMin = 0;
+    if (parsedMax !== null && !isNaN(parsedMax) && parsedMax < 0) parsedMax = null;
+    if (parsedMin !== null && parsedMax !== null && !isNaN(parsedMin) && !isNaN(parsedMax) && parsedMin > parsedMax) {
+      const tmp = parsedMin;
+      parsedMin = parsedMax;
+      parsedMax = tmp;
     }
 
-    if (maxPrice) {
+    if (parsedMin !== null && !isNaN(parsedMin)) {
+      sqlWhere += " AND (COALESCE(p.sale_price, p.base_price) >= @minPrice)";
+      params.minPrice = parsedMin;
+    }
+
+    if (parsedMax !== null && !isNaN(parsedMax)) {
       sqlWhere += " AND (COALESCE(p.sale_price, p.base_price) <= @maxPrice)";
-      params.maxPrice = parseFloat(maxPrice);
+      params.maxPrice = parsedMax;
     }
 
     if (search) {

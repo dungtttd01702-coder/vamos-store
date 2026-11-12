@@ -1,5 +1,6 @@
 const orderService = require('../services/order.service');
 const { query } = require('../config/database');
+const { isValidFullName, isValidPhone } = require('../utils/validator');
 
 class CheckoutController {
   /**
@@ -98,9 +99,15 @@ class CheckoutController {
       }
 
       if (!recipient_name || !recipient_phone || !deliveryAddress) {
-        const err = new Error('Vui lòng điền đầy đủ họ tên, số điện thoại và địa chỉ giao hàng nhận COD.');
-        err.status = 400;
-        return next(err);
+        throw new Error('Vui lòng điền đầy đủ họ tên, số điện thoại và địa chỉ giao hàng nhận COD.');
+      }
+
+      if (!isValidFullName(recipient_name)) {
+        throw new Error('Họ và tên người nhận phải có độ dài từ 2 đến 100 ký tự.');
+      }
+
+      if (!isValidPhone(recipient_phone)) {
+        throw new Error('Số điện thoại người nhận không đúng định dạng di động Việt Nam (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
       }
 
       // Execute transaction

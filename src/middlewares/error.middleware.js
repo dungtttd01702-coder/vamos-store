@@ -49,6 +49,9 @@ function errorHandler(err, req, res, next) {
       } catch (_) {}
     }
     if (req.flash) req.flash('warning', err.message);
+    if (req.originalUrl.startsWith('/checkout')) {
+      return res.redirect('/checkout');
+    }
     return res.redirect('/cart');
   }
 

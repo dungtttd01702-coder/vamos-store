@@ -1,5 +1,6 @@
 const orderService = require('../services/order.service');
 const { query } = require('../config/database');
+const { isValidFullName, isValidPhone } = require('../utils/validator');
 
 class AccountController {
   /**
@@ -97,6 +98,18 @@ class AccountController {
       const user = req.session.user;
       const { full_name, phone } = req.body;
 
+      if (full_name && !isValidFullName(full_name)) {
+        const err = new Error('Họ và tên phải có độ dài từ 2 đến 100 ký tự.');
+        err.status = 400;
+        return next(err);
+      }
+
+      if (phone && !isValidPhone(phone)) {
+        const err = new Error('Số điện thoại không đúng định dạng di động Việt Nam (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
+        err.status = 400;
+        return next(err);
+      }
+
       await query(`
         UPDATE users 
         SET full_name = @fullName, phone = @phone, updated_at = GETDATE()
@@ -108,8 +121,8 @@ class AccountController {
       });
 
       // Update session user
-      req.session.user.full_name = full_name;
-      req.session.user.phone = phone;
+      if (full_name) req.session.user.full_name = full_name.trim();
+      if (phone) req.session.user.phone = phone.trim();
 
       res.redirect('/account/profile?success=true');
     } catch (error) {
@@ -150,6 +163,18 @@ class AccountController {
 
       if (!recipientName || !recipientPhone || !recipientDetail) {
         const err = new Error('Vui lòng điền đầy đủ họ tên, số điện thoại và địa chỉ chi tiết.');
+        err.status = 400;
+        return next(err);
+      }
+
+      if (!isValidFullName(recipientName)) {
+        const err = new Error('Họ và tên người nhận phải có độ dài từ 2 đến 100 ký tự.');
+        err.status = 400;
+        return next(err);
+      }
+
+      if (!isValidPhone(recipientPhone)) {
+        const err = new Error('Số điện thoại người nhận không đúng định dạng di động Việt Nam (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
         err.status = 400;
         return next(err);
       }

@@ -1231,14 +1231,22 @@ function initAutomaticCatalogFiltering() {
 }
 
 // ══════════════════════════════════════════════════════════
-// SECTION F: WISHLIST ENGINE & GUEST AUTHENTICATION MODAL (STITCH SPEC)
+// SECTION F: WISHLIST ENGINE & VAMOS WISHLIST MODAL (MODERN KINETIC UI)
 // ══════════════════════════════════════════════════════════
 function initWishlistEngine() {
-  const WISHLIST_STORAGE_KEY = 'vamos_wishlist_items_v1';
+  const GUEST_KEY = 'vamos_guest_wishlist_v1';
+
+  function getStorageKey() {
+    if (window.IS_AUTHENTICATED && window.CURRENT_USER_ID) {
+      return `vamos_user_wishlist_${window.CURRENT_USER_ID}`;
+    }
+    return GUEST_KEY;
+  }
 
   function getWishlist() {
     try {
-      const raw = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      const key = getStorageKey();
+      const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : [];
     } catch (e) {
       return [];
@@ -1247,8 +1255,38 @@ function initWishlistEngine() {
 
   function saveWishlist(items) {
     try {
-      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
+      const key = getStorageKey();
+      localStorage.setItem(key, JSON.stringify(items));
     } catch (e) {}
+  }
+
+  // Automatic Guest to User Sync upon login
+  function syncGuestWishlistToUser() {
+    if (!window.IS_AUTHENTICATED || !window.CURRENT_USER_ID) return;
+    try {
+      const guestRaw = localStorage.getItem(GUEST_KEY);
+      if (!guestRaw) return;
+      const guestItems = JSON.parse(guestRaw);
+      if (Array.isArray(guestItems) && guestItems.length > 0) {
+        const userItems = getWishlist();
+        const existingIds = new Set(userItems.map(i => String(i.id)));
+        let addedCount = 0;
+        guestItems.forEach(item => {
+          if (!existingIds.has(String(item.id))) {
+            userItems.push(item);
+            existingIds.add(String(item.id));
+            addedCount++;
+          }
+        });
+        saveWishlist(userItems);
+        localStorage.removeItem(GUEST_KEY);
+        if (addedCount > 0 && typeof window.showToast === 'function') {
+          window.showToast(`✨ Đã đồng bộ ${addedCount} sản phẩm yêu thích vào tài khoản!`, 'heart');
+        }
+      }
+    } catch (e) {
+      console.warn('Guest wishlist sync error:', e);
+    }
   }
 
   function updateBadge() {
@@ -1290,35 +1328,94 @@ function initWishlistEngine() {
     updateBadge();
   };
 
-  // Open Guest Login Required Modal
-  window.openGuestWishlistModal = function(productData) {
-    const modal = document.getElementById('guest-wishlist-modal');
-    const card = document.getElementById('guest-wishlist-card');
-    const previewBox = document.getElementById('wishlist-modal-product-preview');
-    const previewImg = document.getElementById('wishlist-modal-product-img');
-    const previewName = document.getElementById('wishlist-modal-product-name');
-    const previewPrice = document.getElementById('wishlist-modal-product-price');
-    const loginBtn = document.getElementById('btn-wishlist-login');
+  // Open Full Wishlist Modal
+  window.openWishlistModal = function() {
+    const modal = document.getElementById('vamos-wishlist-modal');
+    const card = document.getElementById('vamos-wishlist-card');
+    const guestBanner = document.getElementById('wishlist-guest-banner');
+    const itemsContainer = document.getElementById('wishlist-items-container');
+    const emptyState = document.getElementById('wishlist-empty-state');
+    const countBadge = document.getElementById('wishlist-modal-count');
 
     if (!modal) return;
 
-    // Set returnUrl on Login button
-    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-    if (loginBtn) {
-      loginBtn.href = `/auth/login?returnUrl=${returnUrl}`;
+    const items = getWishlist();
+
+    // Guest banner visibility
+    if (guestBanner) {
+      if (!window.IS_AUTHENTICATED) {
+        guestBanner.classList.remove('hidden');
+      } else {
+        guestBanner.classList.add('hidden');
+      }
     }
 
-    // Populate product preview if available
-    if (productData && productData.name) {
-      if (previewImg) previewImg.src = productData.img || '/images/placeholder-shoe.png';
-      if (previewName) previewName.textContent = productData.name;
-      if (previewPrice) {
-        const p = Number(productData.price) || 0;
-        previewPrice.textContent = p.toLocaleString('vi-VN') + ' ₫';
+    // Modal count badge
+    if (countBadge) {
+      countBadge.textContent = `${items.length} món`;
+    }
+
+    // Render items
+    if (itemsContainer && emptyState) {
+      itemsContainer.replaceChildren();
+
+      if (items.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+
+        items.forEach(item => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-white transition-all';
+
+          // Link & thumbnail
+          const thumbLink = document.createElement('a');
+          thumbLink.href = `/products/${encodeURIComponent(item.slug || '')}`;
+          thumbLink.className = 'w-14 h-14 rounded-lg bg-slate-50 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-100';
+          const img = document.createElement('img');
+          img.src = item.img || '/images/placeholder-shoe.png';
+          img.alt = item.name || '';
+          img.className = 'w-full h-full object-contain';
+          img.onerror = () => { img.src = '/images/placeholder-shoe.png'; };
+          thumbLink.appendChild(img);
+
+          // Details
+          const infoBox = document.createElement('div');
+          infoBox.className = 'flex-1 min-w-0';
+
+          const titleLink = document.createElement('a');
+          titleLink.href = `/products/${encodeURIComponent(item.slug || '')}`;
+          titleLink.className = 'text-xs font-bold text-slate-800 hover:text-red-600 truncate block';
+          titleLink.textContent = item.name || 'Sản phẩm VAMOS';
+
+          const priceP = document.createElement('p');
+          priceP.className = 'text-xs font-black text-red-600 mt-0.5';
+          priceP.textContent = formatVND(item.price);
+
+          const ctaLink = document.createElement('a');
+          ctaLink.href = `/products/${encodeURIComponent(item.slug || '')}`;
+          ctaLink.className = 'text-2xs text-slate-400 hover:text-slate-700 font-semibold inline-flex items-center gap-0.5 mt-0.5';
+          ctaLink.textContent = 'Xem chi tiết →';
+
+          infoBox.appendChild(titleLink);
+          infoBox.appendChild(priceP);
+          infoBox.appendChild(ctaLink);
+
+          // Remove Button
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'btn-remove-wishlist-item p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors';
+          removeBtn.dataset.id = String(item.id);
+          removeBtn.title = 'Xóa khỏi danh sách yêu thích';
+          removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+
+          itemEl.appendChild(thumbLink);
+          itemEl.appendChild(infoBox);
+          itemEl.appendChild(removeBtn);
+
+          itemsContainer.appendChild(itemEl);
+        });
       }
-      if (previewBox) previewBox.classList.remove('hidden');
-    } else if (previewBox) {
-      previewBox.classList.add('hidden');
     }
 
     modal.classList.remove('hidden');
@@ -1333,10 +1430,10 @@ function initWishlistEngine() {
     });
   };
 
-  // Close Guest Login Required Modal
-  window.closeGuestWishlistModal = function() {
-    const modal = document.getElementById('guest-wishlist-modal');
-    const card = document.getElementById('guest-wishlist-card');
+  // Close Wishlist Modal
+  window.closeWishlistModal = function() {
+    const modal = document.getElementById('vamos-wishlist-modal');
+    const card = document.getElementById('vamos-wishlist-card');
     if (!modal) return;
 
     if (card) {
@@ -1351,17 +1448,8 @@ function initWishlistEngine() {
     }, 200);
   };
 
-  // Toggle Wishlist for a Product
+  // Toggle Wishlist for a Product (Supports both Guest & Logged In)
   window.toggleWishlist = function(productData, buttonEl) {
-    const isAuth = Boolean(window.IS_AUTHENTICATED);
-
-    // If user is a Guest (khách vãng lai): Open Modal immediately!
-    if (!isAuth) {
-      window.openGuestWishlistModal(productData);
-      return;
-    }
-
-    // Authenticated user: Toggle item in wishlist
     const pid = String(productData.id);
     let items = getWishlist();
     const existingIndex = items.findIndex(i => String(i.id) === pid);
@@ -1372,7 +1460,7 @@ function initWishlistEngine() {
       saveWishlist(items);
       window.syncWishlistUI();
       if (typeof window.showToast === 'function') {
-        window.showToast(`Đã xóa "${productData.name}" khỏi danh sách yêu thích.`, 'info');
+        window.showToast(`Đã bỏ lưu "${productData.name}" khỏi danh sách yêu thích.`, 'info');
       }
     } else {
       // Add
@@ -1394,17 +1482,24 @@ function initWishlistEngine() {
       }
 
       if (typeof window.showToast === 'function') {
-        window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!`, 'heart');
+        const guestNotice = !window.IS_AUTHENTICATED ? ' (Lưu tạm trên trình duyệt)' : '';
+        window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!${guestNotice}`, 'heart');
       }
+    }
+
+    // If modal is currently open, refresh its contents
+    const modal = document.getElementById('vamos-wishlist-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      window.openWishlistModal();
     }
   };
 
-  // Global Event Delegation for Wishlist Buttons
+  // Global Event Delegation for Wishlist
   if (!window._wishlistEventsBound) {
     window._wishlistEventsBound = true;
 
     document.addEventListener('click', (e) => {
-      // Check if clicked button or inside button
+      // 1. Product card heart button click
       const btn = e.target.closest('.btn-wishlist');
       if (btn) {
         e.preventDefault();
@@ -1420,37 +1515,117 @@ function initWishlistEngine() {
         return;
       }
 
-      // Header Wishlist Icon Click
+      // 2. Header Wishlist Icon Click -> Open Modal
       const headerBtn = e.target.closest('#header-wishlist-btn');
       if (headerBtn) {
         e.preventDefault();
-        if (!window.IS_AUTHENTICATED) {
-          window.openGuestWishlistModal();
-        } else {
-          const count = getWishlist().length;
-          if (count === 0) {
-            window.showToast('Danh sách yêu thích của bạn đang trống. Hãy chọn ❤️ trên sản phẩm để lưu lại!', 'info');
-          } else {
-            window.showToast(`Bạn đang có ${count} sản phẩm yêu thích đã lưu.`, 'heart');
-          }
+        window.openWishlistModal();
+        return;
+      }
+
+      // 3. Remove single item inside Wishlist Modal
+      const removeBtn = e.target.closest('.btn-remove-wishlist-item');
+      if (removeBtn) {
+        e.preventDefault();
+        const pid = String(removeBtn.dataset.id || '');
+        let items = getWishlist();
+        items = items.filter(i => String(i.id) !== pid);
+        saveWishlist(items);
+        window.syncWishlistUI();
+        window.openWishlistModal();
+        return;
+      }
+
+      // 4. Clear all button inside Wishlist Modal
+      if (e.target.closest('#btn-clear-all-wishlist')) {
+        e.preventDefault();
+        saveWishlist([]);
+        window.syncWishlistUI();
+        window.openWishlistModal();
+        if (typeof window.showToast === 'function') {
+          window.showToast('Đã xóa tất cả sản phẩm khỏi danh sách yêu thích.', 'info');
         }
         return;
       }
 
-      // Modal Close Triggers
-      if (e.target.closest('#btn-close-wishlist-modal') || e.target.closest('#btn-wishlist-dismiss') || e.target.classList.contains('modal-backdrop')) {
-        window.closeGuestWishlistModal();
+      // 5. Modal Close Triggers
+      if (e.target.closest('#btn-close-wishlist-modal') || e.target.closest('#btn-dismiss-wishlist-modal') || e.target.classList.contains('modal-backdrop')) {
+        window.closeWishlistModal();
+        return;
       }
     });
 
     // ESC key to close modal
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        window.closeGuestWishlistModal();
+        window.closeWishlistModal();
       }
     });
   }
 
-  // Initial sync
+  // Double-Click Submission Protection & Image Fallbacks
+  initFormAndImageHardening();
+
+  // Run Guest to User Sync & Initial UI sync
+  syncGuestWishlistToUser();
   window.syncWishlistUI();
+}
+
+// ══════════════════════════════════════════════════════════
+// SECTION G: FORM HARDENING & DOUBLE-CLICK PREVENTION
+// ══════════════════════════════════════════════════════════
+function initFormAndImageHardening() {
+  if (window._formHardeningBound) return;
+  window._formHardeningBound = true;
+
+  // Checkout Form Double-Click Protection
+  const checkoutForm = document.getElementById('checkout-form');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', (e) => {
+      if (checkoutForm.dataset.submitting === 'true') {
+        e.preventDefault();
+        return;
+      }
+      checkoutForm.dataset.submitting = 'true';
+      const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        const origText = submitBtn.textContent;
+        submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Đang xác nhận đơn hàng COD...';
+        // Reset after 10s if response hung
+        setTimeout(() => {
+          checkoutForm.dataset.submitting = 'false';
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+          submitBtn.textContent = origText;
+        }, 10000);
+      }
+    });
+  }
+
+  // Detail Add To Cart Debounce Protection
+  const addToCartBtn = document.getElementById('btn-add-to-cart');
+  if (addToCartBtn) {
+    let lastClick = 0;
+    addToCartBtn.addEventListener('click', (e) => {
+      const now = Date.now();
+      if (now - lastClick < 600) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      lastClick = now;
+    }, true);
+  }
+
+  // Global Image Error Fallback Handler
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.onerror) {
+      img.onerror = function() {
+        this.onerror = null;
+        this.src = '/images/placeholder-shoe.png';
+      };
+    }
+  });
 }

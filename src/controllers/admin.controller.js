@@ -309,6 +309,21 @@ class AdminController {
         throw new Error('Vui lòng điền đầy đủ thông tin bắt buộc của sản phẩm (Tên, Mã SP, Danh mục, Giá gốc).');
       }
 
+      const numBasePrice = parseFloat(base_price);
+      if (isNaN(numBasePrice) || numBasePrice <= 0) {
+        throw new Error('Giá gốc của sản phẩm phải là số dương lớn hơn 0.');
+      }
+
+      if (sale_price !== undefined && sale_price !== null && String(sale_price).trim() !== '') {
+        const numSalePrice = parseFloat(sale_price);
+        if (isNaN(numSalePrice) || numSalePrice < 0) {
+          throw new Error('Giá khuyến mãi không thể là số âm.');
+        }
+        if (numSalePrice > numBasePrice) {
+          throw new Error('Giá khuyến mãi không thể lớn hơn giá gốc của sản phẩm.');
+        }
+      }
+
       const slug = name
         .toLowerCase()
         .normalize('NFD')
@@ -807,6 +822,24 @@ class AdminController {
 
       if (!code || !discount_value) {
         throw new Error('Mã giảm giá và giá trị chiết khấu là bắt buộc.');
+      }
+
+      const numDiscount = parseFloat(discount_value);
+      if (isNaN(numDiscount) || numDiscount <= 0) {
+        throw new Error('Giá trị chiết khấu phải là số dương lớn hơn 0.');
+      }
+
+      const discType = discount_type || 'fixed_amount';
+      if (discType === 'percentage' && numDiscount > 100) {
+        throw new Error('Chiết khấu phần trăm không được vượt quá 100%.');
+      }
+
+      if (start_date && end_date) {
+        const sDate = new Date(start_date);
+        const eDate = new Date(end_date);
+        if (eDate < sDate) {
+          throw new Error('Ngày kết thúc hiệu lực voucher không thể trước ngày bắt đầu.');
+        }
       }
 
       await query(`

@@ -8,14 +8,36 @@ class ProductController {
     try {
       const { cat, gender, size, sale, minPrice, maxPrice, q, sort, page } = req.query;
 
+      // Whitelist gender to prevent invalid queries
+      let normalizedGender = gender ? String(gender).trim().toUpperCase() : '';
+      if (!['MEN', 'WOMEN', 'UNISEX'].includes(normalizedGender)) {
+        normalizedGender = '';
+      }
+
+      // Sanitize and normalize price range (clamp negatives, auto-swap if min > max)
+      let cleanMinPrice = minPrice !== undefined && minPrice !== '' ? parseFloat(minPrice) : null;
+      let cleanMaxPrice = maxPrice !== undefined && maxPrice !== '' ? parseFloat(maxPrice) : null;
+
+      if (cleanMinPrice !== null && (isNaN(cleanMinPrice) || cleanMinPrice < 0)) {
+        cleanMinPrice = 0;
+      }
+      if (cleanMaxPrice !== null && (isNaN(cleanMaxPrice) || cleanMaxPrice < 0)) {
+        cleanMaxPrice = null;
+      }
+      if (cleanMinPrice !== null && cleanMaxPrice !== null && cleanMinPrice > cleanMaxPrice) {
+        const swap = cleanMinPrice;
+        cleanMinPrice = cleanMaxPrice;
+        cleanMaxPrice = swap;
+      }
+
       const [catalogData, categories] = await Promise.all([
         productService.getCatalog({
           categorySlug: cat,
-          gender,
+          gender: normalizedGender,
           size,
           sale,
-          minPrice,
-          maxPrice,
+          minPrice: cleanMinPrice !== null ? cleanMinPrice : undefined,
+          maxPrice: cleanMaxPrice !== null ? cleanMaxPrice : undefined,
           search: q,
           sort,
           page: parseInt(page, 10) || 1,
@@ -44,11 +66,11 @@ class ProductController {
         currentCategory,
         selectedFilters: {
           cat: cat || '',
-          gender: gender || '',
+          gender: normalizedGender,
           size: size || '',
           sale: sale || '',
-          minPrice: minPrice || '',
-          maxPrice: maxPrice || '',
+          minPrice: cleanMinPrice !== null ? String(cleanMinPrice) : '',
+          maxPrice: cleanMaxPrice !== null ? String(cleanMaxPrice) : '',
           q: q || '',
           sort: sort || '',
         },
