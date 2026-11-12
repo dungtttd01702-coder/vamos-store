@@ -1,30 +1,55 @@
 @startuml ad-04-order-cancellation
 title QUY TRÌNH HỦY ĐƠN HÀNG VÀ HOÀN TỒN KHO - VAMOS STORE
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
-skinparam roundcorner 10
-skinparam ActivityBackgroundColor #FFFFFF
-skinparam ActivityBorderColor #2B2D42
-skinparam ActivityFontColor #2B2D42
-skinparam ArrowColor #2B2D42
 
-|Khách hàng (Customer)|
+<style>
+  activityDiagram {
+    BackgroundColor #FFFFFF
+    LineColor #1E293B
+    FontName "Segoe UI", "Inter", Arial, Sans-Serif
+    FontSize 12
+    RoundCorner 10
+    Diamond {
+      BackgroundColor #FEF3C7
+      LineColor #D97706
+      FontColor #92400E
+      FontSize 11
+    }
+    activity {
+      BackgroundColor #F8FAFC
+      LineColor #334155
+      FontColor #0F172A
+    }
+    arrow {
+      LineColor #2563EB
+      FontColor #1D4ED8
+      FontSize 11
+    }
+    partition {
+      BackgroundColor #F1F5F9
+      LineColor #94A3B8
+      FontColor #0F172A
+      RoundCorner 8
+    }
+  }
+</style>
+
+|#EFF6FF|Khách hàng (Customer)|
 start
 :Mở chi tiết đơn hàng cá nhân;
-|Hệ thống VAMOS STORE|
+|#F8FAFC|Hệ thống VAMOS STORE|
 :Kiểm tra trạng thái đơn hiện tại;
 if (Trạng thái đơn là PENDING?) then (Không - Đơn đã CONFIRMED/PROCESSING/SHIPPING)
     :Ẩn nút Hủy đơn;
-    |Khách hàng (Customer)|
+    |#EFF6FF|Khách hàng (Customer)|
     :Xem thông báo "Đơn đã tiếp nhận xử lý, vui lòng gọi Hotline để hỗ trợ";
     stop
 else (Có - Đơn còn PENDING)
     :Hiển thị nút "Hủy đơn hàng";
-    |Khách hàng (Customer)|
+    |#EFF6FF|Khách hàng (Customer)|
     :Bấm nút "Hủy đơn hàng";
     :Xác nhận đồng ý hủy trong hộp thoại popup;
     
-    |Hệ thống VAMOS STORE|
+    |#FEF2F2|Hệ thống VAMOS STORE|
     :Bắt đầu Database Transaction;
     :Khóa bản ghi đơn hàng (SELECT ... FOR UPDATE);
     if (Trạng thái đơn vẫn là PENDING?) then (Đã bị thay đổi trong lúc thao tác)
@@ -38,11 +63,10 @@ else (Có - Đơn còn PENDING)
         :Ghi log hoàn kho vào inventory_transactions;
         :Ghi log lịch sử trạng thái vào order_status_histories;
         :Commit Transaction (Đảm bảo hoàn kho đúng 1 lần);
-        |Khách hàng (Customer)|
+        |#EFF6FF|Khách hàng (Customer)|
         :Nhận thông báo "Hủy đơn hàng thành công";
         :Giao diện cập nhật sang trạng thái ĐÃ HỦY;
         stop
     endif
 endif
 @enduml
-

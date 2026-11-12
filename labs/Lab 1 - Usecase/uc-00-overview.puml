@@ -5,27 +5,35 @@ skinparam packageStyle rectangle
 skinparam roundcorner 10
 skinparam actorStyle awesome
 skinparam shadowing false
+skinparam defaultFontName Segoe UI
 
 skinparam usecase {
     BackgroundColor #FFFFFF
-    BorderColor #2B2D42
-    FontColor #2B2D42
-    FontSize 13
-    ArrowColor #2B2D42
+    BorderColor #2563EB
+    FontColor #0F172A
+    FontSize 12
+    ArrowColor #2563EB
 }
 
 skinparam actor {
-    BackgroundColor #F8F9FA
-    BorderColor #2B2D42
-    FontColor #2B2D42
-    FontSize 13
+    BackgroundColor #EFF6FF
+    BorderColor #1D4ED8
+    FontColor #1E293B
+    FontSize 12
+}
+
+skinparam package {
+    BackgroundColor #F8FAFC
+    BorderColor #94A3B8
+    FontColor #0F172A
+    FontSize 12
 }
 
 skinparam rectangle {
-    BackgroundColor #FAFAFA
-    BorderColor #E94B35
-    FontColor #E94B35
-    FontSize 14
+    BackgroundColor #FFFFFF
+    BorderColor #DC2626
+    FontColor #DC2626
+    FontSize 13
 }
 
 ' Danh sách 3 Actors chính (Bên trái: Người mua, Bên phải: Quản trị)

@@ -1,20 +1,45 @@
 @startuml ad-01-auth
 title QUY TRÌNH ĐĂNG KÝ VÀ ĐĂNG NHẬP - VAMOS STORE
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
-skinparam roundcorner 10
-skinparam ActivityBackgroundColor #FFFFFF
-skinparam ActivityBorderColor #2B2D42
-skinparam ActivityFontColor #2B2D42
-skinparam ArrowColor #2B2D42
 
-|Người dùng (Guest)|
+<style>
+  activityDiagram {
+    BackgroundColor #FFFFFF
+    LineColor #1E293B
+    FontName "Segoe UI", "Inter", Arial, Sans-Serif
+    FontSize 12
+    RoundCorner 10
+    Diamond {
+      BackgroundColor #FEF3C7
+      LineColor #D97706
+      FontColor #92400E
+      FontSize 11
+    }
+    activity {
+      BackgroundColor #F8FAFC
+      LineColor #334155
+      FontColor #0F172A
+    }
+    arrow {
+      LineColor #2563EB
+      FontColor #1D4ED8
+      FontSize 11
+    }
+    partition {
+      BackgroundColor #F1F5F9
+      LineColor #94A3B8
+      FontColor #0F172A
+      RoundCorner 8
+    }
+  }
+</style>
+
+|#EFF6FF|Người dùng (Guest)|
 start
 :Mở trang web VAMOS STORE;
 if (Đã có tài khoản?) then (Có)
     :Chọn Đăng nhập;
     :Nhập Email và Mật khẩu;
-    |Hệ thống VAMOS STORE|
+    |#F8FAFC|Hệ thống VAMOS STORE|
     :Kiểm tra tài khoản theo Email;
     if (Email tồn tại?) then (Không)
         :Báo lỗi "Email hoặc mật khẩu không chính xác";
@@ -40,10 +65,10 @@ if (Đã có tài khoản?) then (Có)
         endif
     endif
 else (Chưa)
-    |Người dùng (Guest)|
+    |#EFF6FF|Người dùng (Guest)|
     :Chọn Đăng ký;
     :Nhập Họ tên, Email, SĐT, Mật khẩu, Xác nhận MK;
-    |Hệ thống VAMOS STORE|
+    |#F8FAFC|Hệ thống VAMOS STORE|
     :Validate dữ liệu bắt buộc & định dạng;
     :Kiểm tra tính duy nhất của Email;
     if (Email đã tồn tại?) then (Có)
@@ -63,4 +88,3 @@ else (Chưa)
     endif
 endif
 @enduml
-

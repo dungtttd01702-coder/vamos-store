@@ -1,20 +1,45 @@
 @startuml ad-02-checkout-cod
 title QUY TRÌNH ĐẶT HÀNG COD VÀ TRỪ TỒN KHO - VAMOS STORE
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
-skinparam roundcorner 10
-skinparam ActivityBackgroundColor #FFFFFF
-skinparam ActivityBorderColor #2B2D42
-skinparam ActivityFontColor #2B2D42
-skinparam ArrowColor #2B2D42
 
-|Khách hàng (Customer)|
+<style>
+  activityDiagram {
+    BackgroundColor #FFFFFF
+    LineColor #1E293B
+    FontName "Segoe UI", "Inter", Arial, Sans-Serif
+    FontSize 12
+    RoundCorner 10
+    Diamond {
+      BackgroundColor #FEF3C7
+      LineColor #D97706
+      FontColor #92400E
+      FontSize 11
+    }
+    activity {
+      BackgroundColor #F8FAFC
+      LineColor #334155
+      FontColor #0F172A
+    }
+    arrow {
+      LineColor #2563EB
+      FontColor #1D4ED8
+      FontSize 11
+    }
+    partition {
+      BackgroundColor #F1F5F9
+      LineColor #94A3B8
+      FontColor #0F172A
+      RoundCorner 8
+    }
+  }
+</style>
+
+|#EFF6FF|Khách hàng (Customer)|
 start
 :Mở Giỏ hàng và chọn "Tiến hành đặt hàng";
 :Chọn/nhập Địa chỉ nhận hàng;
 if (Có mã giảm giá?) then (Có)
     :Nhập mã Voucher và bấm Áp dụng;
-    |Hệ thống VAMOS STORE|
+    |#F8FAFC|Hệ thống VAMOS STORE|
     :Kiểm tra Voucher (thời hạn, lượt dùng, đơn tối thiểu);
     if (Voucher hợp lệ?) then (Hợp lệ)
         :Tính số tiền giảm giá (discount_amount);
@@ -24,36 +49,35 @@ if (Có mã giảm giá?) then (Có)
     endif
 endif
 
-|Khách hàng (Customer)|
+|#EFF6FF|Khách hàng (Customer)|
 :Xác nhận phương thức thanh toán COD;
 :Nhập ghi chú giao hàng (nếu có);
 :Bấm nút "XÁC NHẬN ĐẶT HÀNG";
 
-|Hệ thống (Database Transaction)|
+|#FEF2F2|Hệ thống (Database Transaction)|
 :Bắt đầu Database Transaction;
-:Khóa dòng kiểm tra tồn kho các biến thể (SELECT ... FOR UPDATE);
-if (Tất cả biến thể đủ số lượng tồn?) then (Không đủ)
+:Khóa dòng kiểm tra tồn kho (SELECT ... FOR UPDATE);
+if (Tất cả biến thể đủ tồn kho?) then (Không đủ)
     :Rollback Transaction;
-    |Khách hàng (Customer)|
-    :Hiển thị lỗi "Biến thể hết hàng/không đủ tồn kho";
+    |#EFF6FF|Khách hàng (Customer)|
+    :Hiển thị lỗi "Biến thể hết hàng";
     stop
 else (Đủ tồn kho)
-    |Hệ thống (Database Transaction)|
-    :Tạo mã đơn hàng ngẫu nhiên (order_code);
-    :Lưu bản ghi orders (order_status = PENDING, COD, UNPAID);
-    :Lưu danh sách order_items (snapshot tên SP, SKU, size, màu, đơn giá);
+    |#FEF2F2|Hệ thống (Database Transaction)|
+    :Tạo mã đơn hàng (order_code);
+    :Lưu orders (PENDING, COD, UNPAID);
+    :Lưu danh sách order_items;
     :Trừ số lượng tồn kho trong product_variants;
-    :Ghi nhật ký biến động kho vào inventory_transactions;
+    :Ghi nhật ký kho vào inventory_transactions;
     if (Có dùng Voucher?) then (Có)
-        :Tăng used_count của Voucher lên 1;
+        :Tăng used_count của Voucher;
     endif
-    :Ghi vết lịch sử vào order_status_histories (PENDING);
+    :Ghi vết lịch sử vào order_status_histories;
     :Xóa các sản phẩm đã đặt khỏi cart_items;
     :Commit Transaction;
-    |Khách hàng (Customer)|
+    |#EFF6FF|Khách hàng (Customer)|
     :Chuyển hướng đến màn hình Kết quả đặt hàng;
-    :Hiển thị Mã đơn hàng và Tổng tiền COD cần chuẩn bị;
+    :Hiển thị Mã đơn hàng và Tổng tiền COD;
     stop
 endif
 @enduml
-
