@@ -4,7 +4,7 @@ class ProductRepository {
   /**
    * Find products with filtering, search, and pagination
    */
-  async findAll({ categorySlug, gender, size, minPrice, maxPrice, search, sort, page = 1, limit = 12 }) {
+  async findAll({ categorySlug, gender, size, sale, minPrice, maxPrice, search, sort, page = 1, limit = 12 }) {
     let sqlWhere = "WHERE p.status = 'active'";
     const params = {};
 
@@ -25,6 +25,10 @@ class ProductRepository {
         WHERE pv.product_id = p.id AND s.size_name = @size AND pv.stock_quantity > 0 AND pv.status = 'active'
       )`;
       params.size = String(size);
+    }
+
+    if (sale === '1' || sale === 'true' || sale === true) {
+      sqlWhere += " AND (p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.base_price)";
     }
 
     if (minPrice) {

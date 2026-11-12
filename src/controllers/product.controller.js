@@ -6,13 +6,14 @@ class ProductController {
    */
   async index(req, res, next) {
     try {
-      const { cat, gender, size, minPrice, maxPrice, q, sort, page } = req.query;
+      const { cat, gender, size, sale, minPrice, maxPrice, q, sort, page } = req.query;
 
       const [catalogData, categories] = await Promise.all([
         productService.getCatalog({
           categorySlug: cat,
           gender,
           size,
+          sale,
           minPrice,
           maxPrice,
           search: q,
@@ -29,8 +30,12 @@ class ProductController {
         currentCategory = categories.find(c => c.slug === cat);
       }
 
+      const pageTitle = sale === '1' || sale === 'true'
+        ? 'Sản Phẩm Khuyến Mãi HOT'
+        : (currentCategory ? currentCategory.name : 'Tất Cả Sản Phẩm');
+
       res.render('pages/products/index', {
-        title: currentCategory ? currentCategory.name : 'Tất Cả Sản Phẩm',
+        title: pageTitle,
         products: catalogData.products,
         total: catalogData.total,
         page: catalogData.page,
@@ -41,6 +46,7 @@ class ProductController {
           cat: cat || '',
           gender: gender || '',
           size: size || '',
+          sale: sale || '',
           minPrice: minPrice || '',
           maxPrice: maxPrice || '',
           q: q || '',

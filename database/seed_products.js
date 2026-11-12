@@ -643,7 +643,7 @@ const productsData = [
     base_price: 250000,
     sale_price: 199000,
     images: [
-      'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1568901578471-a1d5af772617?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '39', color: 'Đen', stock: 30, sku: 'VM-SDL-02-39-BLK' },
@@ -663,7 +663,7 @@ const productsData = [
     base_price: 480000,
     sale_price: 380000,
     images: [
-      'https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1678541302416-ef3d75fd27dd?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '39', color: 'Đen', stock: 20, sku: 'VM-SDL-03-39-BLK' },
@@ -683,7 +683,7 @@ const productsData = [
     base_price: 350000,
     sale_price: 279000,
     images: [
-      'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1585120824848-8a5cd41493d2?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '38', color: 'Đen', stock: 25, sku: 'VM-SDL-04-38-BLK' },
@@ -743,7 +743,7 @@ const productsData = [
     base_price: 560000,
     sale_price: 450000,
     images: [
-      'https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1504659913281-61817e6e2e9b?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       { size: '39', color: 'Đen', stock: 15, sku: 'VM-SDL-07-39-BLK' },

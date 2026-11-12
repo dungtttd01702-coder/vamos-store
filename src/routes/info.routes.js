@@ -16,10 +16,17 @@ router.get('/categories', async (req, res, next) => {
 });
 
 // GET /promotions
-router.get('/promotions', (req, res) => {
-  res.render('pages/info/promotions', {
-    title: 'Chương Trình Khuyến Mãi HOT',
-  });
+router.get('/promotions', async (req, res, next) => {
+  try {
+    const saleCatalog = await productService.getCatalog({ sale: '1', limit: 12 });
+    res.render('pages/info/promotions', {
+      title: 'Chương Trình Khuyến Mãi & Ưu Đãi HOT',
+      products: saleCatalog.products || [],
+      totalSale: saleCatalog.total || 0,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // GET /about
