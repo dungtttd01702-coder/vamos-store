@@ -125,16 +125,17 @@ class ProductController {
    */
   async liveSearch(req, res, next) {
     try {
-      const q = req.query.q || '';
-      if (!q || typeof q !== 'string' || q.trim().length === 0) {
-        return res.json({ success: true, count: 0, results: [] });
+      const rawQ = req.query.q || '';
+      if (!rawQ || typeof rawQ !== 'string' || rawQ.trim().length === 0) {
+        return res.json({ success: true, count: 0, query: '', results: [] });
       }
 
-      const results = await productService.searchLive(q.trim(), 8);
+      const q = rawQ.trim().replace(/[<>]/g, '');
+      const results = await productService.searchLive(q, 8);
       return res.json({
         success: true,
         count: results.length,
-        query: q.trim(),
+        query: q,
         results: results.map(item => ({
           id: item.id,
           name: item.name,

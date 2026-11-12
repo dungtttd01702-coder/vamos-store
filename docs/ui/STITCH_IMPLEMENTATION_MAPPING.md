@@ -1,9 +1,11 @@
 # VAMOS STORE — STITCH IMPLEMENTATION MAPPING
+
 **Mục tiêu:** Ánh xạ chi tiết 16 màn hình Google Stitch với toàn bộ kiến trúc MVC thực tế (Routes, Controllers, Services, Repositories, Database Tables và Pug Templates).
 
 ---
 
 ## 1. MÀN HÌNH 01: QUẢN LÝ BANNERS & SLIDER TRANG CHỦ
+
 - **Mã Screen ID:** `dc21845f3c5749f4b538a05d4687cde3`
 - **Route URL:** `/admin/banners`
 - **Controller:** `src/controllers/admin.controller.js` (`getBanners`, `updateBanner`, `createBanner`, `deleteBanner`)
@@ -20,6 +22,7 @@
 ---
 
 ## 2. MÀN HÌNH 02: QUẢN LÝ ĐƠN HÀNG & STATE MACHINE 6 BƯỚC
+
 - **Mã Screen ID:** `df51e57d544e46b9ae0895bf8bf7e6ae`
 - **Route URL:** `/admin/orders`
 - **Controller:** `src/controllers/admin.controller.js` (`getOrders`, `updateOrderStatus`)
@@ -37,6 +40,7 @@
 ---
 
 ## 3. MÀN HÌNH 03: GIỎ HÀNG & TÓM TẮT ĐƠN HÀNG
+
 - **Mã Screen ID:** `c4b0ed084792494f9bbb658bc29246d7`
 - **Route URL:** `/cart`
 - **Controller:** `src/controllers/cart.controller.js` (`getCart`, `addItem`, `updateQuantity`, `removeItem`, `applyVoucher`, `removeVoucher`)
@@ -54,6 +58,7 @@
 ---
 
 ## 4. MÀN HÌNH 04: THANH TOÁN COD AN TOÀN
+
 - **Mã Screen ID:** `ae23af5701cd43c696a15c4091cdea97`
 - **Route URL:** `/checkout`
 - **Controller:** `src/controllers/checkout.controller.js` (`getCheckout`, `processCheckout`)
@@ -70,6 +75,7 @@
 ---
 
 ## 5. MÀN HÌNH 05: ADMIN DASHBOARD & KPI DOANH THU THỰC TẾ
+
 - **Mã Screen ID:** `0bab041468e54d9f977a2b523c949088`
 - **Route URL:** `/admin`
 - **Controller:** `src/controllers/admin.controller.js` (`getDashboard`)
@@ -86,6 +92,7 @@
 ---
 
 ## 6. MÀN HÌNH 06: DANH MỤC & BỘ LỌC SẢN PHẨM (CATALOG & SHOP)
+
 - **Mã Screen ID:** `e7c4e7cc5f0446eba77b901bcbaeb5f8`
 - **Route URL:** `/products`
 - **Controller:** `src/controllers/product.controller.js` (`getProducts`, `searchProducts`)
@@ -102,6 +109,7 @@
 ---
 
 ## 7. MÀN HÌNH 07: LỊCH SỬ ĐƠN HÀNG KHÁCH HÀNG
+
 - **Mã Screen ID:** `8bc9424e7e4e4877b9758fec6dbba1f4`
 - **Route URL:** `/account/orders`
 - **Controller:** `src/controllers/account.controller.js` (`getOrders`, `getOrderDetail`, `cancelOrder`)
@@ -118,6 +126,7 @@
 ---
 
 ## 8. MÀN HÌNH 08: CHI TIẾT SẢN PHẨM (PRODUCT DETAIL)
+
 - **Mã Screen ID:** `b3e44855d8164c71a634823c05480f61`
 - **Route URL:** `/products/:slug`
 - **Controller:** `src/controllers/product.controller.js` (`getProductDetail`)
@@ -136,6 +145,7 @@
 ---
 
 ## 9. MÀN HÌNH 09: TRANG CHỦ BITI'S STORE (STOREFRONT HOME)
+
 - **Mã Screen ID:** `45cc46eb9d664530a4e1a28cd39c28cc`
 - **Route URL:** `/`
 - **Controller:** `src/controllers/home.controller.js` (`getHomePage`)
@@ -154,6 +164,7 @@
 ---
 
 ## 10. MÀN HÌNH 10: ĐĂNG NHẬP TÀI KHOẢN (AUTH LOGIN)
+
 - **Mã Screen ID:** `5f0cb934b4be4e8eb5a58927abc9f6f0`
 - **Route URL:** `/auth/login`
 - **Controller:** `src/controllers/auth.controller.js` (`getLogin`, `postLogin`)
@@ -170,6 +181,7 @@
 ---
 
 ## 11. MÀN HÌNH 11: QUẢN LÝ SẢN PHẨM & MA TRẬN BIẾN THỂ
+
 - **Mã Screen ID:** `4eb8e956eee940d990933f25e32abce8`
 - **Route URL:** `/admin/products`
 - **Controller:** `src/controllers/admin.controller.js` (`getProducts`, `getProductForm`, `saveProduct`, `deleteProduct`)
@@ -184,6 +196,7 @@
 ---
 
 ## 12. MÀN HÌNH 12: QUẢN LÝ DANH MỤC & THƯƠNG HIỆU
+
 - **Mã Screen ID:** `43935f717f874c82969ec83de4513e63`
 - **Route URL:** `/admin/categories`
 - **Controller:** `src/controllers/admin.controller.js` (`getCategories`, `saveCategory`, `deleteCategory`)
@@ -198,6 +211,7 @@
 ---
 
 ## 13. MÀN HÌNH 13: QUẢN LÝ TỒN KHO & KIỂM TOÁN BIẾN ĐỘNG
+
 - **Mã Screen ID:** `94f0c7c6964a42b4b4b6c17891b9e9bd`
 - **Route URL:** `/admin/inventory`
 - **Controller:** `src/controllers/admin.controller.js` (`getInventory`, `adjustStock`, `getInventoryHistory`)
@@ -213,6 +227,7 @@
 ---
 
 ## 14. MÀN HÌNH 14: QUẢN LÝ VOUCHERS & KHUYẾN MÃI
+
 - **Mã Screen ID:** `a9e215def6fa464e81df4bee6657f7b2`
 - **Route URL:** `/admin/vouchers`
 - **Controller:** `src/controllers/admin.controller.js` (`getVouchers`, `saveVoucher`, `deleteVoucher`)
@@ -227,6 +242,7 @@
 ---
 
 ## 15. MÀN HÌNH 15: QUẢN LÝ KHÁCH HÀNG & VÔ HIỆU HÓA PHIÊN
+
 - **Mã Screen ID:** `590bf7d9e99b443481c04d9f5386057b`
 - **Route URL:** `/admin/customers`
 - **Controller:** `src/controllers/admin.controller.js` (`getCustomers`, `toggleCustomerStatus`, `getCustomerDetail`)
@@ -242,6 +258,7 @@
 ---
 
 ## 16. MÀN HÌNH 16: ĐĂNG KÝ TÀI KHOẢN THÀNH VIÊN
+
 - **Mã Screen ID:** `cdee8cfa0f144a3881596c887d1da2f6`
 - **Route URL:** `/auth/register`
 - **Controller:** `src/controllers/auth.controller.js` (`getRegister`, `postRegister`)

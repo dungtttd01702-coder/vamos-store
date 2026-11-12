@@ -61,3 +61,4 @@ Quá trình đối chiếu chi tiết giữa 16 tệp HTML nguyên mẫu từ Go
 1. **Tách biệt Styling và Logic:** Toàn bộ thuộc tính giao diện (HTML/CSS) lấy từ Stitch; toàn bộ biến hiển thị (`#{product.name}`, `#{order.total_amount}`) và đường dẫn form action lấy từ Backend Express hiện có.
 2. **Không làm hỏng Route và Form submission:** Giữ nguyên các trường input `name="email"`, `name="password"`, `name="quantity"`, `name="size_id"`, `name="color_id"`.
 3. **Responsive toàn diện:** Đảm bảo hiển thị hoàn hảo từ Mobile (390px), Tablet (768px) đến Desktop lớn (1920px).
+

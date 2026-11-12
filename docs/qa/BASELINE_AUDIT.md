@@ -93,3 +93,4 @@ Toàn bộ mã nguồn, logic nghiệp vụ, cơ sở dữ liệu và bộ test 
 1. Giao diện bám sát chuẩn thiết kế Stitch (DOM structure, tokens, colors, layout).
 2. Bảo toàn 100% chức năng thực tế của VAMOS STORE.
 3. Không sử dụng dữ liệu giả, không phá vỡ transaction và database integrity.
+

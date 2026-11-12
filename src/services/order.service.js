@@ -586,6 +586,13 @@ class OrderService {
   }
 
   /**
+   * Alias for getOrdersByUser
+   */
+  async getCustomerOrders(userId) {
+    return this.getOrdersByUser(userId);
+  }
+
+  /**
    * Get Order Details by Numeric ID or Order Code String (User Isolated)
    */
   async getOrderDetails(orderIdentifier, userId = null) {

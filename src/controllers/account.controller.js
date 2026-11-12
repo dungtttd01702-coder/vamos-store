@@ -9,7 +9,7 @@ class AccountController {
   async getOrders(req, res, next) {
     try {
       const user = req.session.user;
-      const orders = await orderService.getCustomerOrders(user.id);
+      const orders = await orderService.getOrdersByUser(user.id);
 
       res.render('pages/account/orders', {
         title: 'Lịch Sử Đơn Hàng | VAMOS STORE',
