@@ -27,10 +27,12 @@ Hệ thống đã cấu hình sẵn 2 kết nối kết nối trực tiếp đ�
 ## 2. CÁCH MỞ VÀ XEM SƠ ĐỒ DIAGRAM TRONG DBEAVER
 
 ### Cách 1: Khởi động 1-Click bằng file Script
+
 - Nhấp đúp chuột vào file `database/dbeaver/open_dbeaver.bat` (hoặc chạy lệnh `.\database\dbeaver\open_dbeaver.ps1` trong PowerShell).
 - DBeaver sẽ tự động mở lên với đường dẫn dự án VAMOS STORE.
 
 ### Cách 2: Mở trực tiếp từ DBeaver
+
 1. Mở phần mềm **DBeaver Community** (đã được cài đặt tại `C:\Users\Admin\AppData\Local\DBeaver\dbeaver.exe`).
 2. Trên thanh menu, chọn **File** → **Open Projects from File System...** (hoặc **Project** → **Import Project**).
 3. Chọn thư mục gốc của dự án: `c:\Users\Admin\Desktop\dự án JAV`.
@@ -41,6 +43,7 @@ Hệ thống đã cấu hình sẵn 2 kết nối kết nối trực tiếp đ�
 ---
 
 ## 3. TÍNH NĂNG CỦA SƠ ĐỒ DBEAVER ERD
+
 - **Hiển thị trực quan toàn bộ 18 bảng:** Khóa chính (PK), Khóa ngoại (FK), các trường dữ liệu và kiểu dữ liệu (NVARCHAR, INT, DECIMAL, BIT, DATETIME2...).
 - **Đường nối quan hệ ràng buộc:** Mối liên kết 1-N giữa Users, Categories, Brands, Products, Variants, Carts, Orders, Vouchers...
 - **Xuất ảnh chất lượng cao:** Có thể nhấp chuột phải vào Diagram trong DBeaver → chọn **Export Diagram** → xuất định dạng PNG, SVG, PDF hoặc in trực tiếp.

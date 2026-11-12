@@ -16,3 +16,4 @@ if exist "%DBEAVER_EXE%" (
     echo Khong tim thay dbeaver.exe tu dong. Dang thu goi lenh 'dbeaver'...
     start "" dbeaver
 )
+

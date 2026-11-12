@@ -2,9 +2,11 @@
 trigger: always_on
 description: "Quy tắc xử lý tuần tự hàng đợi prompt khi người dùng gửi nhiều tin nhắn liên tiếp (FIFO Execution)"
 ---
+
 # Sequential Prompt Execution & FIFO Queue Handling
 
 ## Nguyên tắc hoạt động cốt lõi:
+
 Khi người dùng gửi một yêu cầu (prompt) và tiếp tục gửi thêm các prompt khác trong lúc Agent đang xử lý (User-queued messages):
 
 1. **Tuyệt đối không bỏ dở Task trước (Do not interrupt current task):**

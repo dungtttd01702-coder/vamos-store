@@ -10,3 +10,4 @@ if (Test-Path $dbeaverPath) {
     Write-Host "Goi DBeaver qua path he thong..." -ForegroundColor Yellow
     Start-Process dbeaver
 }
+

@@ -97,3 +97,4 @@
 		<relation name="fk_addresses_users" fq-name="vamos_store_db.dbo.addresses.fk_addresses_users" type="fk" pk-ref="1" fk-ref="17"/>
 	</relations>
 </diagram>
+
