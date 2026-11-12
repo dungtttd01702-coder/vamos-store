@@ -403,9 +403,9 @@ hr {
 </head>
 <body>
 
-<div class="print-toolbar no-print" onclick="window.print()">
+<button type="button" class="print-toolbar no-print" onclick="window.print()">
   🖨️ In Báo Cáo / Xuất PDF (Ctrl + P)
-</div>
+</button>
 
 <div class="page-container">
   
@@ -431,22 +431,30 @@ hr {
   </div>
 
   <table class="cover-info-table">
-    <tr>
-      <td style="width: 36%; font-style: italic; white-space: nowrap;">Giảng viên hướng dẫn:</td>
-      <td><strong>ThS. Hoàng Hà</strong></td>
-    </tr>
-    <tr>
-      <td style="font-style: italic; vertical-align: top; white-space: nowrap;">Sinh viên thực hiện:</td>
-      <td>
-        <strong>1. Trần Trung Dũng</strong> - TD01702 (Trưởng nhóm)<br/>
-        <strong>2. Trần Vĩnh Nhật</strong> - TD01482<br/>
-        <strong>3. Trần Duy Hoàng Sa</strong> - TD01519
-      </td>
-    </tr>
-    <tr>
-      <td style="font-style: italic; white-space: nowrap;">Lớp:</td>
-      <td><strong>SD 22341</strong></td>
-    </tr>
+    <thead>
+      <tr style="display: none;">
+        <th scope="col">Mục</th>
+        <th scope="col">Nội dung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="width: 36%; font-style: italic; white-space: nowrap;">Giảng viên hướng dẫn:</td>
+        <td><strong>ThS. Hoàng Hà</strong></td>
+      </tr>
+      <tr>
+        <td style="font-style: italic; vertical-align: top; white-space: nowrap;">Sinh viên thực hiện:</td>
+        <td>
+          <strong>1. Trần Trung Dũng</strong> - TD01702 (Trưởng nhóm)<br/>
+          <strong>2. Trần Vĩnh Nhật</strong> - TD01482<br/>
+          <strong>3. Trần Duy Hoàng Sa</strong> - TD01519
+        </td>
+      </tr>
+      <tr>
+        <td style="font-style: italic; white-space: nowrap;">Lớp:</td>
+        <td><strong>SD 22341</strong></td>
+      </tr>
+    </tbody>
   </table>
 
   <div class="cover-footer">

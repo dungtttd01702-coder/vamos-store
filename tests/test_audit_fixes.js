@@ -178,14 +178,14 @@ async function runAuditTests() {
   console.log('\n--- 5. ADMIN BUSINESS VALIDATION AUDIT ---');
   test('ADM-PROD-01: Reject negative base_price in product creation', () => {
     const base_price = -100000;
-    const numBase = parseFloat(base_price);
-    assert.ok(isNaN(numBase) || numBase <= 0, 'Negative base_price must be detected');
+    const numBase = Number.parseFloat(base_price);
+    assert.ok(Number.isNaN(numBase) || numBase <= 0, 'Negative base_price must be detected');
   });
 
   test('ADM-PROD-02: Reject sale_price higher than base_price', () => {
     const base_price = 500000;
     const sale_price = 600000;
-    assert.ok(parseFloat(sale_price) > parseFloat(base_price), 'sale_price > base_price must be detected');
+    assert.ok(Number.parseFloat(sale_price) > Number.parseFloat(base_price), 'sale_price > base_price must be detected');
   });
 
   test('ADM-VOUCHER-01: Reject percentage voucher discount > 100%', () => {
