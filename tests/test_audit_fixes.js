@@ -144,7 +144,9 @@ async function runAuditTests() {
       },
       isAuthenticated: false,
       user: null,
-      csrfToken: 'test_csrf'
+      csrfToken: 'test_csrf',
+      t: (key, def) => def || key,
+      currentLocale: 'vi'
     });
 
     // Check pagination link for page 2
@@ -211,4 +213,3 @@ runAuditTests()
     console.error('Test execution failed:', err);
     process.exit(1);
   });
-
