@@ -11,14 +11,14 @@
 
 | Bug ID | Tên chức năng | Vai trò | Mức độ | Trạng thái | File liên quan chính |
 |---|---|---|---|---|---|
-| **BUG-01** | Role Separation / Admin Storefront Leakage | Admin | High | FIXED | `src/views/layouts/main.pug`, `src/views/pages/admin/*.pug` |
-| **BUG-02** | Role-Aware Auth Redirect & Route Guards | Admin, Customer | High | FIXED | `src/controllers/auth.controller.js`, `src/middlewares/auth.middleware.js` |
-| **BUG-03** | Wishlist Event Binding & Cross-Session Storage | Guest, Customer | High | FIXED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
-| **BUG-04** | Dark Mode / Light Mode Missing Implementation | All Roles | Medium | FIXED | `tailwind.config.js`, `src/public/css/input.css`, `header.pug` |
-| **BUG-05** | Internationalization (i18n VI / EN) Missing | All Roles | Medium | FIXED | `src/views/partials/header.pug`, `src/locales/` |
-| **BUG-06** | Admin Dashboard Hardcoded Stats / Fake Metrics | Admin | Medium | FIXED | `src/controllers/admin.controller.js`, `src/views/pages/admin/dashboard.pug` |
-| **BUG-07** | Admin Banners Fake Telemetry (CTR, Clicks, Views) | Admin | Low | FIXED | `src/controllers/admin.controller.js`, `src/views/pages/admin/banners.pug` |
-| **BUG-08** | Catalog PJAX Event Re-binding on Pagination | Guest, Customer | Medium | FIXED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
+| **BUG-01** | Role Separation / Admin Storefront Leakage | Admin | High | VERIFIED | `src/views/layouts/main.pug`, `src/views/pages/admin/*.pug` |
+| **BUG-02** | Role-Aware Auth Redirect & Route Guards | Admin, Customer | High | VERIFIED | `src/controllers/auth.controller.js`, `src/middlewares/auth.middleware.js` |
+| **BUG-03** | Wishlist Event Binding & Cross-Session Storage | Guest, Customer | High | VERIFIED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
+| **BUG-04** | Dark Mode / Light Mode Missing Implementation | All Roles | Medium | VERIFIED | `tailwind.config.js`, `src/public/css/input.css`, `header.pug` |
+| **BUG-05** | Internationalization (i18n VI / EN) Missing | All Roles | Medium | VERIFIED | `src/views/partials/header.pug`, `src/locales/` |
+| **BUG-06** | Admin Dashboard Hardcoded Stats / Fake Metrics | Admin | Medium | VERIFIED | `src/controllers/admin.controller.js`, `src/views/pages/admin/dashboard.pug` |
+| **BUG-07** | Admin Banners Fake Telemetry (CTR, Clicks, Views) | Admin | Low | VERIFIED | `src/controllers/admin.controller.js`, `src/views/pages/admin/banners.pug` |
+| **BUG-08** | Catalog PJAX Event Re-binding on Pagination | Guest, Customer | Medium | VERIFIED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
 
 ---
 

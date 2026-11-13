@@ -206,9 +206,7 @@ async function runWishlistTests() {
   console.log(`   PHASE 2 TEST SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log('===============================================================');
 
-  if (failed > 0) {
-    process.exit(1);
-  }
+  process.exit(failed > 0 ? 1 : 0);
 }
 
 runWishlistTests().catch(err => {
