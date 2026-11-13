@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 13. WISHLIST ENGINE & GUEST AUTHENTICATION (STITCH SPEC) ──
   initWishlistEngine();
+
+  // ── 14. DARK MODE / LIGHT MODE THEME ENGINE ──
+  initThemeEngine();
 });
 
 // ══════════════════════════════════════════════════════════
@@ -1651,4 +1654,63 @@ function initFormAndImageHardening() {
       };
     }
   });
+}
+
+// ══════════════════════════════════════════════════════════
+// SECTION H: DARK MODE / LIGHT MODE THEME ENGINE
+// ══════════════════════════════════════════════════════════
+function initThemeEngine() {
+  const THEME_KEY = 'vamos_theme';
+
+  function getStoredTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function applyTheme(theme) {
+    const isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+
+  function toggleTheme() {
+    const isCurrentlyDark = document.documentElement.classList.contains('dark');
+    const newTheme = isCurrentlyDark ? 'light' : 'dark';
+    try {
+      localStorage.setItem(THEME_KEY, newTheme);
+    } catch (e) {}
+    applyTheme(newTheme);
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(newTheme === 'dark' ? '🌙 Đã chuyển sang giao diện Tối' : '☀️ Đã chuyển sang giao diện Sáng', 'info');
+    }
+  }
+
+  window.toggleTheme = toggleTheme;
+
+  // Bind click on all theme toggle buttons on the page
+  const toggleSelectors = ['#storefront-theme-toggle', '#theme-toggle-btn', '.btn-theme-toggle'];
+  toggleSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleTheme();
+      });
+    });
+  });
+
+  // Listen to OS theme changes if user hasn't set an explicit preference
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!getStoredTheme()) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  } catch (e) {}
 }

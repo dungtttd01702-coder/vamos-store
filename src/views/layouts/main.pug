@@ -13,9 +13,23 @@ html(lang="vi")
     link(href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet")
     //- Compiled Tailwind CSS
     link(rel="stylesheet" href="/css/style.css")
+
+    //- Inline theme initialization script to avoid FOUC
+    script.
+      (function() {
+        try {
+          var theme = localStorage.getItem('vamos_theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+
     block styles
 
-  body.min-h-screen.flex.flex-col.bg-white
+  body.min-h-screen.flex.flex-col.bg-white.text-slate-900.transition-colors(class="dark:bg-slate-950 dark:text-slate-100")
     //- Header
     include ../partials/header
 
