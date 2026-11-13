@@ -10,10 +10,11 @@
     "test:validator": "node tests/test_validator.js",
     "test:auth-flow": "node tests/test_auth_flow.js",
     "test:search": "node tests/test_live_search.js",
+    "test:role": "node tests/test_phase1_role_separation.js",
     "test:audit": "node tests/test_audit_fixes.js",
     "test:pug": "node tests/validate_pug.js",
     "test:db-setup": "node tests/setup_test_db.js",
-    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/regression_suite.js",
+    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_phase1_role_separation.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/regression_suite.js",
     "build:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify",
     "watch:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --watch"
   },
@@ -42,6 +43,7 @@
     "pug": "^3.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "autoprefixer": "^10.4.20",
     "nodemon": "^3.1.9",
     "postcss": "^8.5.1",

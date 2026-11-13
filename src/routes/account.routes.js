@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const accountController = require('../controllers/account.controller');
-const { requireAuth } = require('../middlewares/auth.middleware');
+const { requireCustomer } = require('../middlewares/auth.middleware');
 
-// All account routes require authentication
-router.use(requireAuth);
+// All account routes require Customer role (Admin cannot access)
+router.use(requireCustomer);
 
 router.get('/orders', accountController.getOrders);
 router.get('/orders/:id', accountController.getOrderDetail);

@@ -6,6 +6,7 @@ function sessionContextMiddleware(req, res, next) {
   res.locals.user = req.session?.user || null;
   res.locals.isAuthenticated = !!req.session?.user;
   res.locals.isAdmin = req.session?.user?.role === 'ADMIN';
+  res.locals.isCustomer = req.session?.user?.role === 'CUSTOMER';
   res.locals.cartCount = req.session?.cartCount || 0;
   res.locals.currentPath = req.path;
 
@@ -65,7 +66,7 @@ async function requireAuth(req, res, next) {
 /**
  * Ensure user is a Guest (not logged in)
  * If an active session already exists, prevent re-authentication, preserve current session,
- * flash a clear user-friendly warning message, and safely redirect to home page.
+ * flash a clear user-friendly warning message, and safely redirect to home page or admin portal.
  */
 function requireGuest(req, res, next) {
   if (req.session?.user) {
@@ -75,8 +76,48 @@ function requireGuest(req, res, next) {
         'Bạn đang đăng nhập bằng tài khoản hiện tại. Vui lòng đăng xuất trước khi sử dụng tài khoản khác.'
       );
     }
+    if (req.session.user.role === 'ADMIN') {
+      return res.redirect('/admin/dashboard');
+    }
     return res.redirect('/');
   }
+  next();
+}
+
+/**
+ * Ensure user is a Customer
+ * Strictly blocks Admin from shopping actions, placing orders, or accessing customer account.
+ */
+async function requireCustomer(req, res, next) {
+  if (!req.session?.user) {
+    if (req.xhr || req.headers.accept?.includes('application/json')) {
+      return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để tiếp tục' });
+    }
+    return res.redirect(`/auth/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
+  }
+
+  if (req.session.user.role === 'ADMIN') {
+    if (typeof req.flash === 'function') {
+      req.flash('warning', 'Tài khoản Quản trị viên không thực hiện giao dịch của Khách hàng.');
+    }
+    return res.redirect('/admin/dashboard');
+  }
+
+  // Account lock check
+  try {
+    const { query } = require('../config/database');
+    const uRes = await query('SELECT status FROM users WHERE id = @id', { id: req.session.user.id });
+    if (uRes.recordset.length === 0 || uRes.recordset[0].status === 'locked') {
+      req.session.destroy(() => {
+        res.clearCookie('vamos_sid');
+        return res.redirect('/auth/login?error=account_locked');
+      });
+      return;
+    }
+  } catch (err) {
+    // Proceed if DB transient check
+  }
+
   next();
 }
 
@@ -115,6 +156,7 @@ module.exports = {
   sessionContextMiddleware,
   requireAuth,
   requireGuest,
+  requireCustomer,
   requireAdmin,
 };
 

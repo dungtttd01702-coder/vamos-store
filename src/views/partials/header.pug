@@ -73,20 +73,42 @@ header
           //- Live Search Dropdown
           #desktop-search-dropdown.absolute.left-0.w-80.mt-2.bg-white.rounded-xl.shadow-2xl.border.border-slate-200.overflow-hidden.z-50.hidden(style="top:100%")
 
-        //- Wishlist Heart Action (Stitch Spec)
-        button#header-wishlist-btn.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" type="button" title="Danh sách yêu thích")
-          svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
-          span#header-wishlist-badge.absolute.top-0.right-0.w-4.h-4.bg-red-600.text-white.font-bold.rounded-full.items-center.justify-center.shadow-sm.hidden(style="font-size:9px") 0
+        //- Theme Toggle Button (Desktop Navbar)
+        button#storefront-theme-toggle.p-2.text-slate-600.rounded-full.transition-colors(
+          class="hover:text-amber-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          type="button"
+          title="Chuyển chế độ Sáng / Tối"
+          aria-label="Chuyển đổi giao diện Sáng / Tối"
+        )
+          svg.theme-icon-moon.w-5.h-5.block(class="dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z")
+          svg.theme-icon-sun.w-5.h-5.hidden(class="dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z")
 
-        //- Shopping Cart Action
-        a.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" href="/cart" title="Giỏ hàng")
-          svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
-          if cartCount > 0
-            span.absolute.top-0.right-0.w-5.h-5.bg-red-600.text-white.font-bold.rounded-full.flex.items-center.justify-center.shadow-sm(style="font-size:10px") #{cartCount}
-          else
-            span.absolute.top-0.right-0.w-4.h-4.bg-slate-300.text-slate-700.font-bold.rounded-full.flex.items-center.justify-center(style="font-size:9px") 0
+        if !isAdmin
+          //- Wishlist Heart Action (Customer & Guest only)
+          button#header-wishlist-btn.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" type="button" title="Danh sách yêu thích")
+            svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
+            span#header-wishlist-badge.absolute.top-0.right-0.w-4.h-4.bg-red-600.text-white.font-bold.rounded-full.items-center.justify-center.shadow-sm.hidden(style="font-size:9px") 0
+
+          //- Shopping Cart Action (Customer & Guest only)
+          a.p-2.text-slate-700.rounded-full.transition-colors.relative(class="hover:text-red-600 hover:bg-slate-100" href="/cart" title="Giỏ hàng")
+            svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
+            if cartCount > 0
+              span.absolute.top-0.right-0.w-5.h-5.bg-red-600.text-white.font-bold.rounded-full.flex.items-center.justify-center.shadow-sm(style="font-size:10px") #{cartCount}
+            else
+              span.absolute.top-0.right-0.w-4.h-4.bg-slate-300.text-slate-700.font-bold.rounded-full.flex.items-center.justify-center(style="font-size:9px") 0
+        else
+          //- Admin Mode Portal Pill
+          a.flex.items-center.px-3.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-sm.transition-all(
+            class="gap-1.5 py-1.5 hover:bg-red-700 shadow-red-500/20"
+            href="/admin/dashboard"
+            title="Quay lại Admin Portal"
+          )
+            span ⚙️
+            span Quản trị Admin
 
         //- Account Actions
         if isAuthenticated
@@ -101,18 +123,19 @@ header
               if isAdmin
                 a.flex.items-center.gap-2.px-4.py-2.text-xs.font-bold.text-red-600.bg-red-50(href="/admin/dashboard")
                   span ⚙️
-                  span Quản trị Admin
+                  span Trung Tâm Quản Trị
                 .h-px.bg-slate-100.my-1
-              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/profile")
-                span 👤
-                span Thông tin tài khoản
-              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/orders")
-                span 📦
-                span Lịch sử đơn hàng
-              a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/addresses")
-                span 📍
-                span Sổ địa chỉ
-              .h-px.bg-slate-100.my-1
+              else
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/profile")
+                  span 👤
+                  span Thông tin tài khoản
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/orders")
+                  span 📦
+                  span Lịch sử đơn hàng
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/addresses")
+                  span 📍
+                  span Sổ địa chỉ
+                .h-px.bg-slate-100.my-1
               form(action="/auth/logout" method="POST")
                 input(type="hidden" name="_csrf" value=csrfToken)
                 button.flex.items-center.gap-2.w-full.text-left.px-4.py-2.text-xs.text-red-600.font-semibold.transition-colors(class="hover:bg-red-50" type="submit")

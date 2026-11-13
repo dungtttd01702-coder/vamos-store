@@ -197,25 +197,33 @@ block content
                   })();
 
               //- Action Buttons
-              .flex.flex-col.gap-3.mb-6(class="sm:flex-row")
-                button#btn-add-to-cart.flex-1.btn-outline-red.text-xs(class="py-3.5 transition-all" type="submit")
-                  svg.w-4.h-4.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
-                  | Thêm Vào Giỏ Hàng
-                button#btn-buy-now.flex-1.btn-primary.text-xs(class="py-3.5 transition-all" type="submit" formaction="/cart/buy-now")
-                  | Mua Ngay (COD)
-                button.btn-wishlist.w-full.h-12.rounded-lg.border.border-slate-200.flex.items-center.justify-center.text-slate-400.transition-all(
-                  class="sm:w-12 hover:text-red-600 hover:border-red-200 hover:bg-red-50 hover:scale-105 active:scale-95"
-                  type="button"
-                  title="Thêm vào danh sách yêu thích"
-                  data-product-id=product.id
-                  data-product-name=product.name
-                  data-product-slug=product.slug
-                  data-product-price=(product.sale_price || product.base_price)
-                  data-product-img=(images && images.length ? images[0].image_url : '/images/placeholder-shoe.png')
-                )
-                  svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
+              if isAdmin
+                .p-4.rounded-xl.bg-amber-50.border.border-amber-200.text-amber-900.text-xs.font-bold.flex.flex-col.gap-2.mb-6(class="sm:flex-row sm:items-center sm:justify-between dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-200")
+                  .flex.items-center.gap-2
+                    span 👁️
+                    span Chế độ xem trước sản phẩm dành cho Quản trị viên (Không hỗ trợ mua hàng)
+                  a.px-3.py-2.bg-slate-900.text-white.rounded-lg.transition-colors.text-center(class="hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700" href=`/admin/products`)
+                    | ✏️ Quản lý trong Admin
+              else
+                .flex.flex-col.gap-3.mb-6(class="sm:flex-row")
+                  button#btn-add-to-cart.flex-1.btn-outline-red.text-xs(class="py-3.5 transition-all" type="submit")
+                    svg.w-4.h-4.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
+                    | Thêm Vào Giỏ Hàng
+                  button#btn-buy-now.flex-1.btn-primary.text-xs(class="py-3.5 transition-all" type="submit" formaction="/cart/buy-now")
+                    | Mua Ngay (COD)
+                  button.btn-wishlist.w-full.h-12.rounded-lg.border.border-slate-200.flex.items-center.justify-center.text-slate-400.transition-all(
+                    class="sm:w-12 hover:text-red-600 hover:border-red-200 hover:bg-red-50 hover:scale-105 active:scale-95"
+                    type="button"
+                    title="Thêm vào danh sách yêu thích"
+                    data-product-id=product.id
+                    data-product-name=product.name
+                    data-product-slug=product.slug
+                    data-product-price=(product.sale_price || product.base_price)
+                    data-product-img=(images && images.length ? images[0].image_url : '/images/placeholder-shoe.png')
+                  )
+                    svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
 
           //- COD Guarantees Callout
           .border-t.border-gray-100.pt-5.grid.grid-cols-2.gap-3.text-xs.text-gray-600

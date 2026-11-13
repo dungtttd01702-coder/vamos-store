@@ -31,6 +31,12 @@ class CartController {
   async index(req, res, next) {
     try {
       const user = req.session?.user;
+      if (user && user.role === 'ADMIN') {
+        if (typeof req.flash === 'function') {
+          req.flash('warning', 'Tài khoản Quản trị viên không sử dụng chức năng Giỏ hàng của Khách hàng.');
+        }
+        return res.redirect('/admin/dashboard');
+      }
 
       if (!user) {
         // Guest shopping cart stored in session (Decision Q2)
@@ -163,6 +169,13 @@ class CartController {
   async addItem(req, res, next) {
     try {
       const user = req.session?.user;
+      if (user && user.role === 'ADMIN') {
+        if (req.xhr || req.headers?.accept?.includes('application/json')) {
+          return res.status(403).json({ success: false, message: 'Tài khoản Quản trị viên không thể mua hàng.' });
+        }
+        if (req.flash) req.flash('warning', 'Tài khoản Quản trị viên không thể mua hàng.');
+        return res.redirect('/admin/dashboard');
+      }
       const { productId, size, color, quantity = 1 } = req.body;
 
       // 1. Strict Server-Side Quantity Validation
@@ -359,6 +372,13 @@ class CartController {
   async buyNow(req, res, next) {
     try {
       const user = req.session?.user;
+      if (user && user.role === 'ADMIN') {
+        if (req.xhr || req.headers?.accept?.includes('application/json')) {
+          return res.status(403).json({ success: false, message: 'Tài khoản Quản trị viên không thể mua hàng.' });
+        }
+        if (req.flash) req.flash('warning', 'Tài khoản Quản trị viên không thể mua hàng.');
+        return res.redirect('/admin/dashboard');
+      }
       const { productId, size, color, quantity = 1 } = req.body;
 
       // 1. Strict Server-Side Quantity Validation
