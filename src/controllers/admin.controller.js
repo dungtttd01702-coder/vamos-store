@@ -78,7 +78,7 @@ class AdminController {
           totalOrders: orderRes.recordset[0].total_orders,
           pendingOrders: pendRes.recordset[0].pending_orders,
           totalProducts: prodRes.recordset[0].total_products,
-          totalSKUs: skuRes.recordset[0]?.total_skus || 342,
+          totalSKUs: Number(skuRes.recordset[0]?.total_skus ?? 0),
           statusCounts: statusCountsRes.recordset[0] || {},
         },
         lowStockItems: lowStockRes.recordset,

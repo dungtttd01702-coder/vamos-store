@@ -16,8 +16,8 @@
 | **BUG-03** | Wishlist Event Binding & Cross-Session Storage | Guest, Customer | High | FIXED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
 | **BUG-04** | Dark Mode / Light Mode Missing Implementation | All Roles | Medium | FIXED | `tailwind.config.js`, `src/public/css/input.css`, `header.pug` |
 | **BUG-05** | Internationalization (i18n VI / EN) Missing | All Roles | Medium | FIXED | `src/views/partials/header.pug`, `src/locales/` |
-| **BUG-06** | Admin Dashboard Hardcoded Stats / Fake Metrics | Admin | Medium | OPEN | `src/controllers/admin.controller.js`, `src/views/pages/admin/dashboard.pug` |
-| **BUG-07** | Admin Banners Fake Telemetry (CTR, Clicks, Views) | Admin | Low | OPEN | `src/controllers/admin.controller.js`, `src/views/pages/admin/banners.pug` |
+| **BUG-06** | Admin Dashboard Hardcoded Stats / Fake Metrics | Admin | Medium | FIXED | `src/controllers/admin.controller.js`, `src/views/pages/admin/dashboard.pug` |
+| **BUG-07** | Admin Banners Fake Telemetry (CTR, Clicks, Views) | Admin | Low | FIXED | `src/controllers/admin.controller.js`, `src/views/pages/admin/banners.pug` |
 | **BUG-08** | Catalog PJAX Event Re-binding on Pagination | Guest, Customer | Medium | FIXED | `src/public/js/main.js`, `src/views/pages/products/index.pug` |
 
 ---

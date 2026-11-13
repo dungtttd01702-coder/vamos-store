@@ -62,11 +62,10 @@ block content
             span.p-2.rounded-lg.bg-orange-50.text-tertiary
               span.material-symbols-outlined.text-xl ads_click
           .mt-2.flex.items-baseline.gap-2
-            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") 14.8%
-            span.text-xs.font-bold.text-emerald-600.bg-emerald-50.px-2.rounded-full.flex.items-center(class="py-0.5") +2.4%
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") N/A
+            span.text-xs.font-bold.text-slate-500.bg-slate-100.px-2.rounded-full.flex.items-center(class="py-0.5") Chưa kích hoạt
           .mt-3.text-xs.text-secondary.truncate
-            | Dẫn đầu: 
-            strong.text-on-surface VAMOS Hunter X
+            | Đang chờ tích hợp Module Telemetry Tracker
 
         //- KPI 3
         .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
@@ -75,9 +74,9 @@ block content
             span.p-2.rounded-lg.bg-blue-50.text-secondary
               span.material-symbols-outlined.text-xl visibility
           .mt-2.flex.items-baseline.gap-2
-            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") 182.400
+            span.text-3xl.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif") N/A
             span.text-xs.text-secondary lượt xem
-          .mt-3.text-xs.text-secondary 30 ngày qua (Desktop 58% • Mobile 42%)
+          .mt-3.text-xs.text-secondary Chưa cấu hình theo dõi Impression lượt xem trực tiếp
 
         //- KPI 4
         .bg-surface-container-lowest.p-5.rounded-xl.border.border-surface-container-highest.shadow-sm.relative.overflow-hidden
@@ -152,12 +151,10 @@ block content
                       span CTA: 
                         strong.text-on-surface KHÁM PHÁ NGAY
                     .flex.items-center.gap-1.bg-surface-container-low.px-2.rounded.border.border-surface-container-highest(class="py-0.5")
-                      span.material-symbols-outlined.text-sm.text-primary mouse
-                      span
-                        strong 8.420
-                        |  clicks (CTR 
-                        strong.text-emerald-600 18.2%
-                        | )
+                      span.material-symbols-outlined.text-sm.text-slate-400 monitoring
+                      span.text-secondary.text-2xs
+                        | Telemetry: 
+                        strong.text-slate-600 N/A (Đang nâng cấp)
 
                 //- Switch & Controls
                 .flex.items-center.gap-3.self-end(class="lg:self-center")
@@ -284,55 +281,38 @@ block content
             .flex.items-center.gap-2
               span.material-symbols-outlined.text-primary-container.text-xl monitoring
               h2.text-base.font-bold.text-on-surface(style="font-family:'Space Grotesk',sans-serif")
-                | THỐNG KÊ HIỆU SUẤT CTR &amp; CHUYỂN ĐỔI ĐƠN HÀNG (30 NGÀY)
-            p.text-xs.text-secondary(class="mt-0.5") Dữ liệu telemetry lượt impression, click và chuyển đổi sinh ra từ từng banner slider.
+                | THỐNG KÊ CHIẾN DỊCH BANNER (TỪ CƠ SỞ DỮ LIỆU)
+            p.text-xs.text-secondary(class="mt-0.5") Danh sách banner hoạt động thực tế trong SQL Server. Chỉ số Telemetry CTR hiển thị N/A cho đến khi module theo dõi được cấu hình.
           span.px-3.py-1.rounded-lg.bg-surface-container.text-xs.font-bold.text-on-surface
-            | Dữ liệu tự động đồng bộ
+            | Dữ liệu SQL Server
 
         .overflow-x-auto
           table.w-full.text-left.border-collapse
             thead
               tr.border-b.border-surface-container-highest.text-secondary.text-2xs.uppercase.font-bold.tracking-wider
                 th.py-3.px-4 Banner Chiến Dịch
-                th.py-3.px-4 Thiết Bị
+                th.py-3.px-4 Đường Dẫn (Link URL)
+                th.py-3.px-4.text-center Thứ Tự
                 th.py-3.px-4.text-right Lượt Xem
-                th.py-3.px-4.text-right Lượt Click
                 th.py-3.px-4.text-right Tỷ Lệ CTR
-                th.py-3.px-4.text-right Tỷ Lệ Chuyển Đổi
                 th.py-3.px-4.text-center Trạng Thái
             tbody.divide-y.divide-surface-container-highest.text-xs
-              tr.transition-colors(class="hover:bg-surface-container-low/50")
-                td.py-3.px-4.font-semibold.text-on-surface
-                  .font-bold VAMOS HUNTER X – BƯỚC TIẾN VÔ CỰC
-                  .text-2xs.text-secondary.font-mono /products/vamos-hunter-x
-                td.py-3.px-4.text-secondary Desktop 62% • Mobile 38%
-                td.py-3.px-4.text-right.font-mono.font-semibold 46.260
-                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 8.420
-                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 18.2%
-                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 4.8% (404 đơn)
-                td.py-3.px-4.text-center
-                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
-
-              tr.transition-colors(class="hover:bg-surface-container-low/50")
-                td.py-3.px-4.font-semibold.text-on-surface
-                  .font-bold FLASH SALE GIỜ VÀNG - GIẢM ĐẾN 50%
-                  .text-2xs.text-secondary.font-mono /products?sale=flash-sale
-                td.py-3.px-4.text-secondary Desktop 48% • Mobile 52%
-                td.py-3.px-4.text-right.font-mono.font-semibold 35.000
-                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 5.110
-                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 14.6%
-                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 6.2% (316 đơn)
-                td.py-3.px-4.text-center
-                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
-
-              tr.transition-colors(class="hover:bg-surface-container-low/50")
-                td.py-3.px-4.font-semibold.text-on-surface
-                  .font-bold VAMOS GOSTO 2026 - THANH LỊCH CÔNG SỞ
-                  .text-2xs.text-secondary.font-mono /products?brand=gosto
-                td.py-3.px-4.text-secondary Desktop 71% • Mobile 29%
-                td.py-3.px-4.text-right.font-mono.font-semibold 27.880
-                td.py-3.px-4.text-right.font-mono.font-bold.text-on-surface 3.290
-                td.py-3.px-4.text-right.font-mono.font-bold.text-emerald-600 11.8%
-                td.py-3.px-4.text-right.font-mono.font-bold.text-primary 3.1% (102 đơn)
-                td.py-3.px-4.text-center
-                  span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Hoạt động
+              if banners && banners.length > 0
+                each b in banners
+                  tr.transition-colors(class="hover:bg-surface-container-low/50")
+                    td.py-3.px-4.font-semibold.text-on-surface
+                      .font-bold= b.title
+                      if b.subtitle
+                        .text-2xs.text-secondary.truncate(class="max-w-xs")= b.subtitle
+                    td.py-3.px-4.text-secondary.font-mono.text-2xs= b.link_url || '/'
+                    td.py-3.px-4.text-center.font-mono= b.display_order || 1
+                    td.py-3.px-4.text-right.font-mono.text-slate-400 N/A
+                    td.py-3.px-4.text-right.font-mono.text-slate-400 N/A
+                    td.py-3.px-4.text-center
+                      if b.is_active
+                        span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-emerald-100.text-emerald-800 Đang chạy
+                      else
+                        span.px-2(class="py-0.5").rounded-full.text-2xs.font-bold.bg-slate-100.text-slate-700 Tạm ẩn
+              else
+                tr
+                  td.py-6.text-center.text-secondary(colspan="6") Chưa có banner nào trong cơ sở dữ liệu.

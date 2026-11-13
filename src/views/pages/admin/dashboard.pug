@@ -31,8 +31,8 @@ block content
           .rounded-lg.bg-red-50.text-vamos-red.text-xl(class="p-2.5") 💵
         .mt-4.pt-3.border-t.border-gray-100.flex.flex-col.gap-1
           .flex.items-center.gap-2
-            span.px-2.rounded-full.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") ↗ +14.8%
-            span.text-2xs.text-gray-500 so với tháng trước
+            span.px-2.rounded-full.bg-emerald-100.text-emerald-800.text-2xs.font-bold(class="py-0.5") Ghi nhận thực tế
+            span.text-2xs.text-gray-500 Từ cơ sở dữ liệu
           p.text-2xs.text-gray-400.italic Chỉ tính từ đơn COMPLETED, loại trừ hủy/hoàn
 
       //- Thẻ 2: Đơn Hàng Chờ Xử Lý (PENDING)
@@ -122,8 +122,10 @@ block content
           span.text-vamos-red.font-black Thứ 7 (28.5M Peak)
           span CN (24.9M)
         .mt-4.pt-3.border-t.border-gray-100.flex.items-center.justify-between.text-xs.text-gray-500
-          span Đo lường tự động: 00:00 - 23:59 hàng ngày
-          span.text-emerald-700.font-bold Tỷ lệ giao COD thành công đạt 94.2%
+          span Đo lường tự động từ hệ thống đơn hàng
+          - const totalDoneOrCancelled = (stats.statusCounts.completed || 0) + (stats.statusCounts.cancelled || 0)
+          - const codSuccessRate = totalDoneOrCancelled > 0 ? Math.round(((stats.statusCounts.completed || 0) / totalDoneOrCancelled) * 100) : 100
+          span.text-emerald-700.font-bold= `Tỷ lệ hoàn thành COD: ${codSuccessRate}%`
 
       //- Donut Chart: Phân bổ tỷ lệ trạng thái đơn hàng
       .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between
@@ -131,21 +133,26 @@ block content
           h2.text-base.font-bold.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") Tỷ Lệ Trạng Thái Đơn Hàng
           p.text-xs.text-gray-400= `Tổng cộng ${stats.totalOrders} đơn phát sinh trong chu kỳ`
 
+        - const completedPct = stats.totalOrders > 0 ? Math.round(((stats.statusCounts.completed || 0) / stats.totalOrders) * 100) : 0
+        - const shippingPct = stats.totalOrders > 0 ? Math.round(((stats.statusCounts.shipping || 0) / stats.totalOrders) * 100) : 0
+        - const pendingPct = stats.totalOrders > 0 ? Math.round(((stats.statusCounts.pending || 0) / stats.totalOrders) * 100) : 0
+        - const cancelledPct = stats.totalOrders > 0 ? Math.round(((stats.statusCounts.cancelled || 0) / stats.totalOrders) * 100) : 0
+
         //- SVG Donut Chart
         .relative.w-44.h-44.mx-auto.my-4.flex.items-center.justify-center
           svg.w-full.h-full.transform(class="-rotate-90" viewBox="0 0 100 100")
             //- Background track
             circle(cx="50" cy="50" r="38" fill="none" stroke="#EFF4FF" stroke-width="16")
-            //- Hoàn thành: 68% (dasharray 162 238)
+            //- Hoàn thành
             circle(cx="50" cy="50" r="38" fill="none" stroke="#10B981" stroke-width="16" stroke-dasharray="162 238" stroke-dashoffset="0")
-            //- Đang giao: 15% (dasharray 35 238)
+            //- Đang giao
             circle(cx="50" cy="50" r="38" fill="none" stroke="#0B1C30" stroke-width="16" stroke-dasharray="35 238" stroke-dashoffset="-162")
-            //- Chờ duyệt: 10% (dasharray 24 238)
+            //- Chờ duyệt
             circle(cx="50" cy="50" r="38" fill="none" stroke="#E11B22" stroke-width="16" stroke-dasharray="24 238" stroke-dashoffset="-197")
-            //- Đã hủy: 7% (dasharray 17 238)
+            //- Đã hủy
             circle(cx="50" cy="50" r="38" fill="none" stroke="#94A3B8" stroke-width="16" stroke-dasharray="17 238" stroke-dashoffset="-221")
           .absolute.inset-0.flex.flex-col.items-center.justify-center.pointer-events-none
-            span.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") 68%
+            span.text-2xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")= `${completedPct}%`
             span.text-2xs.font-bold.text-gray-400.uppercase COMPLETED
 
         //- Legend Details
