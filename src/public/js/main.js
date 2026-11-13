@@ -1208,8 +1208,8 @@ function initAutomaticCatalogFiltering() {
     });
   });
 
-  // Category links and Active Filter tags PJAX
-  const filterLinks = (container || document).querySelectorAll('.catalog-filter-link, .flex-wrap a[href^="/products"]');
+  // Category links, Active Filter tags and Pagination links PJAX
+  const filterLinks = (container || document).querySelectorAll('.catalog-filter-link, .catalog-pagination-link, .flex-wrap a[href^="/products"], a[href*="page="]');
   filterLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       const href = link.getAttribute('href');
