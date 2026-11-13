@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── 4. GLOBAL TOAST NOTIFICATION ──
-  window.showToast = function(message, type = 'success') {
+  window.showToast = function(message, type = 'success', action = null) {
     let container = document.getElementById('vamos-toast-container');
     if (!container) {
       container = document.createElement('div');
@@ -73,12 +73,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold transition-all duration-300 transform translate-y-4 opacity-0 ${bgClass}`;
     const iconSpan = document.createElement('span');
-    iconSpan.className = 'text-sm';
+    iconSpan.className = 'text-sm shrink-0';
     iconSpan.textContent = icon;
     const textSpan = document.createElement('span');
     textSpan.textContent = message;
     toast.appendChild(iconSpan);
     toast.appendChild(textSpan);
+
+    if (action && action.url && action.text) {
+      const actionLink = document.createElement('a');
+      actionLink.href = action.url;
+      actionLink.textContent = action.text;
+      actionLink.className = 'ml-1.5 px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-2xs rounded-lg font-black transition-colors shrink-0 shadow-sm';
+      toast.appendChild(actionLink);
+    }
+
     container.appendChild(toast);
 
     requestAnimationFrame(() => {
@@ -88,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       toast.classList.add('translate-y-4', 'opacity-0');
       setTimeout(() => toast.remove(), 300);
-    }, 3500);
+    }, 4500);
   };
 
   // ── 5. ONE-CLICK VOUCHER COPY ──
@@ -1188,7 +1197,7 @@ function initAutomaticCatalogFiltering() {
   });
 
   // Price range manual apply button & Enter key (Chuẩn UX E-commerce không phá hủy focus khi đang gõ)
-  const applyPriceBtn = (container || document).getElementById('btnApplyPrice');
+  const applyPriceBtn = (container || document).querySelector('#btnApplyPrice');
   if (applyPriceBtn) {
     applyPriceBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1240,73 +1249,28 @@ function initAutomaticCatalogFiltering() {
 }
 
 // ══════════════════════════════════════════════════════════
-// SECTION F: WISHLIST ENGINE & VAMOS WISHLIST MODAL (MODERN KINETIC UI)
+// SECTION F: SERVER-SIDE WISHLIST ENGINE (SQL SERVER INTEGRATION)
 // ══════════════════════════════════════════════════════════
 function initWishlistEngine() {
   if (window.IS_ADMIN) {
     return; // Admin layout strictly bypasses wishlist engine
   }
-  const GUEST_KEY = 'vamos_guest_wishlist_v1';
 
-  function getStorageKey() {
-    if (window.IS_AUTHENTICATED && window.CURRENT_USER_ID) {
-      return `vamos_user_wishlist_${window.CURRENT_USER_ID}`;
-    }
-    return GUEST_KEY;
+  // In-memory cache of Customer wishlist items from SQL Server
+  let wishlistCache = [];
+  let isWishlistLoaded = false;
+  let isRequestInFlight = false;
+
+  function getCsrfToken() {
+    return window.CSRF_TOKEN || '';
   }
 
-  function getWishlist() {
-    try {
-      const key = getStorageKey();
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveWishlist(items) {
-    try {
-      const key = getStorageKey();
-      localStorage.setItem(key, JSON.stringify(items));
-    } catch (e) {}
-  }
-
-  // Automatic Guest to User Sync upon login
-  function syncGuestWishlistToUser() {
-    if (!window.IS_AUTHENTICATED || !window.CURRENT_USER_ID) return;
-    try {
-      const guestRaw = localStorage.getItem(GUEST_KEY);
-      if (!guestRaw) return;
-      const guestItems = JSON.parse(guestRaw);
-      if (Array.isArray(guestItems) && guestItems.length > 0) {
-        const userItems = getWishlist();
-        const existingIds = new Set(userItems.map(i => String(i.id)));
-        let addedCount = 0;
-        guestItems.forEach(item => {
-          if (!existingIds.has(String(item.id))) {
-            userItems.push(item);
-            existingIds.add(String(item.id));
-            addedCount++;
-          }
-        });
-        saveWishlist(userItems);
-        localStorage.removeItem(GUEST_KEY);
-        if (addedCount > 0 && typeof window.showToast === 'function') {
-          window.showToast(`✨ Đã đồng bộ ${addedCount} sản phẩm yêu thích vào tài khoản!`, 'heart');
-        }
-      }
-    } catch (e) {
-      console.warn('Guest wishlist sync error:', e);
-    }
-  }
-
-  function updateBadge() {
-    const items = getWishlist();
+  function updateBadge(count) {
     const badge = document.getElementById('header-wishlist-badge');
     if (!badge) return;
-    if (items.length > 0) {
-      badge.textContent = items.length > 99 ? '99+' : items.length;
+    const num = typeof count === 'number' ? count : wishlistCache.length;
+    if (num > 0) {
+      badge.textContent = num > 99 ? '99+' : num;
       badge.classList.remove('hidden');
       badge.classList.add('flex');
     } else {
@@ -1315,10 +1279,22 @@ function initWishlistEngine() {
     }
   }
 
+  // Synchronize heart icons on all product cards with server-side wishlist state
   window.syncWishlistUI = function() {
-    const items = getWishlist();
-    const idSet = new Set(items.map(i => String(i.id)));
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) {
+      // Guest: All heart buttons remain in unselected state
+      document.querySelectorAll('.btn-wishlist').forEach(btn => {
+        const svg = btn.querySelector('svg');
+        btn.classList.remove('text-red-600');
+        btn.classList.add('text-slate-400');
+        if (svg) svg.setAttribute('fill', 'none');
+        btn.setAttribute('title', 'Thêm vào yêu thích (Yêu cầu đăng nhập)');
+      });
+      updateBadge(0);
+      return;
+    }
 
+    const idSet = new Set(wishlistCache.map(i => String(i.id)));
     document.querySelectorAll('.btn-wishlist').forEach(btn => {
       const pid = String(btn.dataset.productId || '');
       const svg = btn.querySelector('svg');
@@ -1337,46 +1313,109 @@ function initWishlistEngine() {
       }
     });
 
-    updateBadge();
+    updateBadge(wishlistCache.length);
   };
 
-  // Open Full Wishlist Modal
-  window.openWishlistModal = function() {
-    const modal = document.getElementById('vamos-wishlist-modal');
-    const card = document.getElementById('vamos-wishlist-card');
+  // Fetch wishlist from SQL Server
+  async function fetchServerWishlist() {
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) {
+      wishlistCache = [];
+      window.syncWishlistUI();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/wishlist', {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        wishlistCache = data.data;
+        isWishlistLoaded = true;
+        window.syncWishlistUI();
+      }
+    } catch (err) {
+      console.warn('[Wishlist] Failed to fetch server wishlist:', err);
+    }
+  }
+
+  // Safe migration of legacy localStorage customer items
+  async function checkAndMigrateLegacyCustomerItems() {
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER || !window.CURRENT_USER_ID) return;
+    const legacyKey = `vamos_user_wishlist_${window.CURRENT_USER_ID}`;
+    try {
+      const raw = localStorage.getItem(legacyKey);
+      if (!raw) return;
+      const legacyItems = JSON.parse(raw);
+      if (Array.isArray(legacyItems) && legacyItems.length > 0) {
+        const productIds = legacyItems.map(i => i.id).filter(id => id && !isNaN(id));
+        if (productIds.length > 0) {
+          const res = await fetch('/api/wishlist/migrate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-Token': getCsrfToken()
+            },
+            body: JSON.stringify({ productIds, _csrf: getCsrfToken() })
+          });
+          const data = await res.json();
+          if (data.success) {
+            // Remove legacy localStorage key only after verified successful migration
+            localStorage.removeItem(legacyKey);
+            await fetchServerWishlist();
+            if (data.migratedCount > 0 && typeof window.showToast === 'function') {
+              window.showToast(`✨ Đã đồng bộ ${data.migratedCount} sản phẩm yêu thích vào tài khoản!`, 'heart');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Wishlist] Legacy migration skipped/failed:', e);
+    }
+  }
+
+  // Render modal content
+  function renderWishlistModalContent() {
     const guestBanner = document.getElementById('wishlist-guest-banner');
     const itemsContainer = document.getElementById('wishlist-items-container');
     const emptyState = document.getElementById('wishlist-empty-state');
     const countBadge = document.getElementById('wishlist-modal-count');
 
-    if (!modal) return;
-
-    const items = getWishlist();
-
     // Guest banner visibility
     if (guestBanner) {
-      if (!window.IS_AUTHENTICATED) {
+      if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) {
         guestBanner.classList.remove('hidden');
       } else {
         guestBanner.classList.add('hidden');
       }
     }
 
-    // Modal count badge
-    if (countBadge) {
-      countBadge.textContent = `${items.length} món`;
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) {
+      if (countBadge) countBadge.textContent = '0 món';
+      if (itemsContainer) itemsContainer.replaceChildren();
+      if (emptyState) emptyState.classList.remove('hidden');
+      return;
     }
 
-    // Render items
+    if (countBadge) {
+      countBadge.textContent = `${wishlistCache.length} món`;
+    }
+
     if (itemsContainer && emptyState) {
       itemsContainer.replaceChildren();
 
-      if (items.length === 0) {
+      if (wishlistCache.length === 0) {
         emptyState.classList.remove('hidden');
       } else {
         emptyState.classList.add('hidden');
 
-        items.forEach(item => {
+        wishlistCache.forEach(item => {
           const itemEl = document.createElement('div');
           itemEl.className = 'flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-white transition-all';
 
@@ -1419,7 +1458,7 @@ function initWishlistEngine() {
           removeBtn.className = 'btn-remove-wishlist-item p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors';
           removeBtn.dataset.id = String(item.id);
           removeBtn.title = 'Xóa khỏi danh sách yêu thích';
-          removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+          removeBtn.innerHTML = '<svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
 
           itemEl.appendChild(thumbLink);
           itemEl.appendChild(infoBox);
@@ -1429,6 +1468,19 @@ function initWishlistEngine() {
         });
       }
     }
+  }
+
+  // Open Full Wishlist Modal
+  window.openWishlistModal = async function() {
+    const modal = document.getElementById('vamos-wishlist-modal');
+    const card = document.getElementById('vamos-wishlist-card');
+    if (!modal) return;
+
+    if (window.IS_AUTHENTICATED && window.IS_CUSTOMER && !isWishlistLoaded) {
+      await fetchServerWishlist();
+    }
+
+    renderWishlistModalContent();
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -1460,11 +1512,25 @@ function initWishlistEngine() {
     }, 200);
   };
 
-  // Toggle Wishlist for a Product (Supports both Guest & Logged In)
-  window.toggleWishlist = function(productData, buttonEl) {
+  // Toggle Wishlist for a Product
+  window.toggleWishlist = async function(productData, buttonEl) {
     if (window.IS_ADMIN) {
       if (typeof window.showToast === 'function') {
         window.showToast('Tài khoản Quản trị viên không sử dụng danh sách yêu thích.', 'info');
+      }
+      return;
+    }
+
+    // 1. Guest Authentication Guard
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) {
+      const currentPath = window.location.pathname + window.location.search;
+      const safeReturnUrl = encodeURIComponent(currentPath.startsWith('/') ? currentPath : '/');
+      if (typeof window.showToast === 'function') {
+        window.showToast(
+          'Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích.',
+          'info',
+          { text: 'Đăng nhập ngay', url: `/auth/login?returnUrl=${safeReturnUrl}` }
+        );
       }
       return;
     }
@@ -1474,30 +1540,42 @@ function initWishlistEngine() {
       return;
     }
 
-    const pid = String(productData.id);
-    let items = getWishlist();
-    const existingIndex = items.findIndex(i => String(i.id) === pid);
+    if (isRequestInFlight) return;
+    isRequestInFlight = true;
 
-    if (existingIndex > -1) {
-      // Remove
-      items.splice(existingIndex, 1);
-      saveWishlist(items);
-      window.syncWishlistUI();
-      if (typeof window.showToast === 'function') {
-        window.showToast(`Đã bỏ lưu "${productData.name}" khỏi danh sách yêu thích.`, 'info');
-      }
-    } else {
-      // Add
-      items.push({
-        id: productData.id,
-        name: productData.name,
-        slug: productData.slug,
-        price: productData.price,
-        img: productData.img,
-        addedAt: Date.now()
+    const pid = Number.parseInt(productData.id, 10);
+    const csrfToken = getCsrfToken();
+
+    try {
+      const res = await fetch('/api/wishlist/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ productId: pid, _csrf: csrfToken })
       });
-      saveWishlist(items);
-      window.syncWishlistUI();
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể cập nhật danh sách yêu thích.');
+      }
+
+      // Update cache
+      if (data.inWishlist) {
+        wishlistCache.unshift({
+          id: pid,
+          name: productData.name,
+          slug: productData.slug,
+          price: productData.price,
+          img: productData.img,
+          added_at: new Date().toISOString()
+        });
+      } else {
+        wishlistCache = wishlistCache.filter(i => String(i.id) !== String(pid));
+      }
 
       // Kinetic bounce animation on button
       if (buttonEl) {
@@ -1505,20 +1583,98 @@ function initWishlistEngine() {
         setTimeout(() => buttonEl.classList.remove('animate-bounce'), 600);
       }
 
-      if (typeof window.showToast === 'function') {
-        const guestNotice = !window.IS_AUTHENTICATED 
-          ? ' (Đã lưu tạm trên thiết bị. Đăng nhập để đồng bộ danh sách vào tài khoản của bạn)' 
-          : '';
-        window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!${guestNotice}`, 'heart');
-      }
-    }
+      window.syncWishlistUI();
 
-    // If modal is currently open, refresh its contents
-    const modal = document.getElementById('vamos-wishlist-modal');
-    if (modal && !modal.classList.contains('hidden')) {
-      window.openWishlistModal();
+      if (typeof window.showToast === 'function') {
+        if (data.inWishlist) {
+          window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!`, 'heart');
+        } else {
+          window.showToast(`Đã bỏ lưu "${productData.name}" khỏi danh sách yêu thích.`, 'info');
+        }
+      }
+
+      // If modal is currently open, refresh its contents
+      const modal = document.getElementById('vamos-wishlist-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        renderWishlistModalContent();
+      }
+    } catch (err) {
+      console.error('[Wishlist Toggle Error]:', err);
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'Lỗi khi cập nhật danh sách yêu thích.', 'error');
+      }
+      window.syncWishlistUI(); // restore UI
+    } finally {
+      isRequestInFlight = false;
     }
   };
+
+  // Remove single item via API
+  async function removeWishlistItem(productId) {
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) return;
+    const pid = Number.parseInt(productId, 10);
+    const csrfToken = getCsrfToken();
+
+    try {
+      const res = await fetch(`/api/wishlist/items/${pid}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể xóa sản phẩm khỏi danh sách.');
+      }
+
+      wishlistCache = wishlistCache.filter(i => String(i.id) !== String(pid));
+      window.syncWishlistUI();
+      renderWishlistModalContent();
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Đã xóa sản phẩm khỏi danh sách yêu thích.', 'info');
+      }
+    } catch (err) {
+      console.error('[Wishlist Remove Error]:', err);
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'Lỗi khi xóa sản phẩm.', 'error');
+      }
+    }
+  }
+
+  // Clear all items via API
+  async function clearAllWishlist() {
+    if (!window.IS_AUTHENTICATED || !window.IS_CUSTOMER) return;
+    const csrfToken = getCsrfToken();
+
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể xóa danh sách yêu thích.');
+      }
+
+      wishlistCache = [];
+      window.syncWishlistUI();
+      renderWishlistModalContent();
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Đã xóa tất cả sản phẩm khỏi danh sách yêu thích.', 'info');
+      }
+    } catch (err) {
+      console.error('[Wishlist Clear Error]:', err);
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'Lỗi khi xóa toàn bộ danh sách.', 'error');
+      }
+    }
+  }
 
   // Global Event Delegation for Wishlist
   if (!window._wishlistEventsBound) {
@@ -1553,24 +1709,15 @@ function initWishlistEngine() {
       const removeBtn = e.target.closest('.btn-remove-wishlist-item');
       if (removeBtn) {
         e.preventDefault();
-        const pid = String(removeBtn.dataset.id || '');
-        let items = getWishlist();
-        items = items.filter(i => String(i.id) !== pid);
-        saveWishlist(items);
-        window.syncWishlistUI();
-        window.openWishlistModal();
+        const pid = removeBtn.dataset.id;
+        removeWishlistItem(pid);
         return;
       }
 
       // 4. Clear all button inside Wishlist Modal
       if (e.target.closest('#btn-clear-all-wishlist')) {
         e.preventDefault();
-        saveWishlist([]);
-        window.syncWishlistUI();
-        window.openWishlistModal();
-        if (typeof window.showToast === 'function') {
-          window.showToast('Đã xóa tất cả sản phẩm khỏi danh sách yêu thích.', 'info');
-        }
+        clearAllWishlist();
         return;
       }
 
@@ -1592,9 +1739,14 @@ function initWishlistEngine() {
   // Double-Click Submission Protection & Image Fallbacks
   initFormAndImageHardening();
 
-  // Run Guest to User Sync & Initial UI sync
-  syncGuestWishlistToUser();
-  window.syncWishlistUI();
+  // Initial Data Load & UI Sync
+  if (window.IS_AUTHENTICATED && window.IS_CUSTOMER) {
+    checkAndMigrateLegacyCustomerItems().then(() => {
+      fetchServerWishlist();
+    });
+  } else {
+    window.syncWishlistUI();
+  }
 }
 
 // ══════════════════════════════════════════════════════════

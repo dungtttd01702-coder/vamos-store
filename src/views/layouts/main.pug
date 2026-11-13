@@ -110,8 +110,11 @@ html(lang="vi")
     //- Global Injected State
     script.
       window.IS_AUTHENTICATED = !{Boolean(isAuthenticated)};
+      window.IS_ADMIN = !{Boolean(isAdmin)};
+      window.IS_CUSTOMER = !{Boolean(isCustomer)};
       window.CURRENT_USER_ID = !{user ? user.id : 'null'};
       window.CURRENT_LOCALE = '#{currentLocale || "vi"}';
+      window.CSRF_TOKEN = '#{csrfToken || ""}';
 
     //- Client Scripts
     script(src="/js/main.js?v=3.3.0")
