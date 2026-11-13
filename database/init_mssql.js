@@ -12,7 +12,6 @@ const appConfig = require('../src/config/app.config');
 
 const baseConfig = appConfig.db;
 const targetDbName = baseConfig.database || 'vamos_store_db';
-const defaultAdminHash = bcrypt.hashSync(process.env.ADMIN_DEFAULT_PASSWORD || '123456', 10);
 
 const initialSeedsSql = `
 -- Seed default Sizes
@@ -54,16 +53,14 @@ BEGIN
     INSERT INTO banners (title, image_url, link_url, display_order, is_active) VALUES
     (N'MOVE YOUR WAY - BỘ SƯU TẬP 2026', 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1600&q=80', '/products', 1, 1);
 END
-
--- Seed default Admin account (Password: 123456 -> bcrypt hash)
-IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@vamos.vn')
-BEGIN
-    INSERT INTO users (full_name, email, password_hash, phone, role, status) VALUES
-    (N'Quản Trị Viên VAMOS', 'admin@vamos.vn', '${defaultAdminHash}', '0905123456', 'ADMIN', 'active');
-END
 `;
 
 async function init(dbNameOverride) {
+  // Production safety guard: prevent accidental database init/mutations in production
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PRODUCTION_INIT !== 'true') {
+    throw new Error('PRODUCTION SAFETY GUARD: Running database init in PRODUCTION is blocked. Set ALLOW_PRODUCTION_INIT=true if explicitly intended.');
+  }
+
   let masterPool = null;
   let targetPool = null;
   const targetDbName = dbNameOverride || baseConfig.database || 'vamos_store_db';
@@ -152,10 +149,34 @@ async function init(dbNameOverride) {
       }
     }
 
-    // 5. Run idempotent seed sql
-    console.log('\n3. Running initial seeds (if not already seeded)...');
+    // 5. Run idempotent seed sql for master reference tables
+    console.log('\n3. Running initial master data seeds (if not already seeded)...');
     await targetPool.request().query(initialSeedsSql);
-    console.log('✅ Initial seeds verified.');
+    console.log('✅ Initial master data seeds verified.');
+
+    // 5b. Secure Admin Account Seeding & Verification
+    console.log('Verifying Admin account...');
+    const adminCheck = await targetPool.request().query("SELECT id, email, role FROM users WHERE email = 'admin@vamos.vn'");
+    if (adminCheck.recordset.length > 0) {
+      console.log('Admin account (admin@vamos.vn) already exists. Preserving existing account and credentials.');
+    } else {
+      const adminPass = process.env.ADMIN_DEFAULT_PASSWORD ? process.env.ADMIN_DEFAULT_PASSWORD.trim() : '';
+      const weakPasswords = ['12345678', 'password', 'admin123', 'admin1234', 'admin12345', 'qwerty123', 'root1234', 'vamos123'];
+      if (!adminPass || adminPass.length < 8) {
+        throw new Error('SECURITY HALT: Seeding a new Admin account requires ADMIN_DEFAULT_PASSWORD environment variable with at least 8 characters. Please configure ADMIN_DEFAULT_PASSWORD before running initial bootstrap.');
+      }
+      if (weakPasswords.includes(adminPass.toLowerCase())) {
+        throw new Error('SECURITY HALT: Provided ADMIN_DEFAULT_PASSWORD is too weak (common dictionary phrase). Please configure a strong, unique administrator password.');
+      }
+      const adminHash = bcrypt.hashSync(adminPass.trim(), 10);
+      const seedAdminReq = targetPool.request();
+      seedAdminReq.input('adminHash', sql.NVarChar, adminHash);
+      await seedAdminReq.query(`
+        INSERT INTO users (full_name, email, password_hash, phone, role, status)
+        VALUES (N'Quản Trị Viên VAMOS', 'admin@vamos.vn', @adminHash, '0905123456', 'ADMIN', 'active');
+      `);
+      console.log('✅ Admin account seeded securely with parameterized query.');
+    }
 
     // 6. Check tables count
     const countRes = await targetPool.request().query('SELECT COUNT(*) AS total_tables FROM sys.tables');
