@@ -10,6 +10,7 @@
 ## 1. MỤC TIÊU & PHẠM VI
 
 Khắc phục triệt để lỗi **BUG-06** và **BUG-07**:
+
 1. **Loại bỏ hoàn toàn fallback tĩnh/hardcode số liệu trong Admin Controller (BUG-06):**
    - File: `src/controllers/admin.controller.js`.
    - Vấn đề: Chỉ số `totalSKUs` trước đây có fallback tĩnh `|| 342`.
@@ -37,6 +38,7 @@ Khắc phục triệt để lỗi **BUG-06** và **BUG-07**:
 ---
 
 ## 3. DANH SÁCH FILE THAY ĐỔI
+
 - `src/controllers/admin.controller.js` (Loại bỏ fallback `|| 342`)
 - `src/views/pages/admin/dashboard.pug` (Tính toán động tỷ lệ hoàn thành COD & Donut chart)
 - `src/views/pages/admin/banners.pug` (Thay thế số liệu CTR/Impression bằng N/A, nạp banner thật từ DB)

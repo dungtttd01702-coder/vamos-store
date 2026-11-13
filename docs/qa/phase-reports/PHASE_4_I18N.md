@@ -12,11 +12,12 @@
 Khắc phục triệt để lỗi **BUG-05**: Chức năng chuyển đổi ngôn ngữ Tiếng Việt / Tiếng Anh (VI / EN) không hoạt động do các nút bấm trên giao diện chỉ là văn bản tĩnh hoặc thẻ span không có route xử lý.
 
 ### Phạm vi triển khai:
+
 1. Xây dựng Middleware SSR Dictionary Engine: `src/middlewares/i18n.middleware.js` hỗ trợ song ngữ `vi` (mặc định) và `en`.
 2. Tạo 2 từ điển ngôn ngữ chuẩn:
    - `src/locales/vi.json`
    - `src/locales/en.json`
-   Cung cấp nhãn cho Navigation, Search, Admin Portal, Cart, Wishlist, Footer và Common Actions.
+     Cung cấp nhãn cho Navigation, Search, Admin Portal, Cart, Wishlist, Footer và Common Actions.
 3. Tạo Endpoint chuyển đổi ngôn ngữ an toàn: `GET /set-locale/:lang` trong `src/routes/home.routes.js` và `src/controllers/home.controller.js`.
 4. Cơ chế lưu trữ: Sử dụng Cookie `vamos_locale` với thời hạn 1 năm (`maxAge: 365 days`, `sameSite: lax`).
 5. Phòng thủ bảo mật OWASP:
@@ -33,6 +34,7 @@ Khắc phục triệt để lỗi **BUG-05**: Chức năng chuyển đổi ngôn
 ## 2. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG (`tests/test_phase4_i18n.js`)
 
 Bộ kiểm thử tự động gồm 8 kịch bản nghiêm ngặt:
+
 - **Test 1:** Kiểm tra cấu hình danh sách ngôn ngữ hỗ trợ (`['vi', 'en']`) và mặc định (`vi`) — **PASS**.
 - **Test 2:** Khách truy cập lần đầu không mang cookie được render SSR Tiếng Việt ("Sneaker Nam", "FLASH SALE TOÀN HỆ THỐNG") — **PASS**.
 - **Test 3:** Gọi `GET /set-locale/en` sinh header `set-cookie: vamos_locale=en` và redirect an toàn về internal referrer — **PASS**.
@@ -48,6 +50,7 @@ Validate Pug: 39/39 templates biên dịch thành công 100%.
 ---
 
 ## 3. DANH SÁCH FILE THAY ĐỔI
+
 - `src/locales/vi.json` (Mới)
 - `src/locales/en.json` (Mới)
 - `src/middlewares/i18n.middleware.js` (Mới)

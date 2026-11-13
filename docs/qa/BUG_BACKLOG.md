@@ -29,7 +29,7 @@
 - **Tên chức năng:** Giao diện Quản trị viên (Admin Portal Layout)
 - **Vai trò gặp lỗi:** `Admin`
 - **Các bước tái hiện:**
-  1. Đăng nhập với tài khoản Admin (`admin@vamos.vn` / `123456`).
+  1. Đăng nhập với tài khoản Admin (`<ADMIN_EMAIL_PLACEHOLDER>` / `<ADMIN_PASSWORD_PLACEHOLDER>` - thiết lập qua biến môi trường hoặc seed data nội bộ).
   2. Truy cập `/admin/dashboard` hoặc `/admin/products`.
   3. Quan sát đầu trang và cuối trang.
 - **Expected Result:** Admin chỉ thấy Admin Portal (Sidebar/Header quản trị, Breadcrumb, nội dung quản lý, nút Đăng xuất). Không xuất hiện banner Flash Sale, Menu Sneaker Nam/Nữ, ô tìm kiếm sản phẩm, icon Giỏ hàng, icon Yêu thích, hay modal Wishlist.

@@ -53,12 +53,12 @@
 
 | Mã Test   | Mô tả ca kiểm thử                                          | Kết quả | Ghi chú kỹ thuật                 |
 | --------- | ---------------------------------------------------------- | :-----: | -------------------------------- |
-| `AUTH-01` | Tài khoản Admin `admin@vamos.vn` tồn tại trong CSDL        | ✔ PASS  | Đã seed vào bảng `users`         |
-| `AUTH-02` | Mật khẩu Admin khớp mã băm bcrypt với `123456`             | ✔ PASS  | bcrypt.compare thành công        |
+| `AUTH-01` | Tài khoản Admin tồn tại trong CSDL                         | ✔ PASS  | Đã seed vào bảng `users`         |
+| `AUTH-02` | Mật khẩu Admin khớp mã băm bcrypt với mật khẩu seed        | ✔ PASS  | bcrypt.compare thành công        |
 | `AUTH-03` | Tài khoản Admin có vai trò `ADMIN`                         | ✔ PASS  | Đúng vai trò phân quyền          |
 | `AUTH-04` | Tài khoản Admin có trạng thái `active`                     | ✔ PASS  | Thỏa mãn ràng buộc CHECK         |
-| `AUTH-05` | Tài khoản Customer `khachhang@vamos.vn` tồn tại trong CSDL | ✔ PASS  | Đã seed vào bảng `users`         |
-| `AUTH-06` | Mật khẩu Customer khớp mã băm bcrypt với `123456`          | ✔ PASS  | bcrypt.compare thành công        |
+| `AUTH-05` | Tài khoản Customer tồn tại trong CSDL                      | ✔ PASS  | Đã seed vào bảng `users`         |
+| `AUTH-06` | Mật khẩu Customer khớp mã băm bcrypt với mật khẩu seed     | ✔ PASS  | bcrypt.compare thành công        |
 | `AUTH-07` | Tài khoản Customer có vai trò `CUSTOMER`                   | ✔ PASS  | Đúng vai trò khách hàng          |
 | `PROD-01` | Tối thiểu 4 danh mục sản phẩm đang hoạt động               | ✔ PASS  | Tìm thấy 4 danh mục kích hoạt    |
 | `PROD-02` | Danh mục sản phẩm chứa tối thiểu 8 sản phẩm mẫu            | ✔ PASS  | Đang hoạt động trên hệ thống     |

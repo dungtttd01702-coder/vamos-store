@@ -51,7 +51,7 @@
 ## 3. KẾT QUẢ TÁI HIỆN LỖI (ROOT CAUSE ANALYSIS)
 
 ### 3.1. Vấn đề Admin Layout bị lẫn Storefront (BUG-01, BUG-02)
-- **Tái hiện:** Khi đăng nhập Admin (`admin@vamos.vn`), truy cập `/admin/dashboard`:
+- **Tái hiện:** Khi đăng nhập tài khoản Quản trị viên Admin (`<ADMIN_EMAIL_PLACEHOLDER>`), truy cập `/admin/dashboard`:
   - Phía trên cùng xuất hiện `header.pug` của khách hàng: Logo VAMOS, thanh danh mục Sneaker Nam/Nữ, ô tìm kiếm sản phẩm, icon Trái tim Yêu thích có badge, icon Giỏ hàng có badge.
   - Phía dưới cùng xuất hiện `footer.pug` của khách hàng: chính sách bảo hành, đăng ký nhận tin, mạng xã hội.
   - Phía dưới DOM vẫn include `#vamos-wishlist-modal`.

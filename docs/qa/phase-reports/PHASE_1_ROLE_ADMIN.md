@@ -1,4 +1,5 @@
 # PHASE 1 — ROLE SEPARATION & ADMIN PORTAL REPORT
+
 ## BÁO CÁO HOÀN TẤT TÁCH BIỆT VAI TRÒ & GIAO DIỆN QUẢN TRỊ VIÊN
 
 > **Thời điểm xác nhận:** 2026-11-13  
@@ -11,6 +12,7 @@
 ## 1. MỤC TIÊU & PHẠM VI ĐÃ TRIỂN KHAI
 
 Trước đây, tài khoản Admin khi đăng nhập bị lẫn lộn giữa giao diện mua sắm và quản trị:
+
 - Các view Admin kế thừa `layouts/main.pug`, kéo theo toàn bộ thanh Mega Menu (Sneaker Nam/Nữ), thanh tìm kiếm sản phẩm, icon Giỏ hàng, nút Trái tim Yêu thích và `#vamos-wishlist-modal`.
 - Khi Admin đăng nhập, hệ thống redirect về trang chủ Storefront `/` thay vì Dashboard quản trị.
 - Admin có thể truy cập nhầm các route dành riêng cho khách hàng (`/account/*`, `/checkout`).
@@ -61,7 +63,7 @@ Trước đây, tài khoản Admin khi đăng nhập bị lẫn lộn giữa gia
      - Header ẩn hoàn toàn nút Wishlist Heart và nút Shopping Cart.
      - Header hiển thị nút nổi bật: `⚙️ Quản trị Admin` dẫn thẳng về `/admin/dashboard`.
      - Dropdown tài khoản loại bỏ các mục mua sắm cá nhân của khách hàng.
-     - Trang chi tiết sản phẩm (`detail.pug`) hiển thị banner thông báo: *"Chế độ xem trước sản phẩm dành cho Quản trị viên (Không hỗ trợ mua hàng)"* kèm nút tắt chuyển sang quản lý sản phẩm.
+     - Trang chi tiết sản phẩm (`detail.pug`) hiển thị banner thông báo: _"Chế độ xem trước sản phẩm dành cho Quản trị viên (Không hỗ trợ mua hàng)"_ kèm nút tắt chuyển sang quản lý sản phẩm.
 
 ---
 
@@ -90,6 +92,7 @@ Trước đây, tài khoản Admin khi đăng nhập bị lẫn lộn giữa gia
 ```
 
 ### Kiểm thử hồi quy toàn bộ:
+
 - `npm run test:pug`: **39/39 templates PASS**
 - `npm run test:all`: **217/217 tests PASS**
 

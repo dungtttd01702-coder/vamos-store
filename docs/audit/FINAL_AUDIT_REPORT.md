@@ -145,7 +145,7 @@ Kết quả: **86/86 TESTS PASSED (100%)**
 ### Tóm tắt 10 Nhóm Kiểm Thử:
 1. **Server-Side Validation (VAL-01 .. VAL-14):** 14 tests — Kiểm tra nghiêm ngặt định dạng email với TLD (chặn `123@gmail`), SĐT 10 số Việt Nam, mật khẩu tối thiểu 6 ký tự, họ và tên.
 2. **Security & CSRF Protection (SEC-01 .. SEC-08):** 8 tests — Kiểm tra chống Open Redirect (`getSafeReturnUrl`), chống Session Fixation (`session.regenerate`), kiểm tra CSRF Middleware chặn mutating POST thiếu token (403 Forbidden) và chấp nhận token hợp lệ.
-3. **Authentication & Roles (AUTH-01 .. AUTH-07):** 7 tests — Xác thực tài khoản Admin (`admin@vamos.vn` / `123456`) và Customer (`khachhang@vamos.vn` / `123456`), kiểm tra vai trò và trạng thái `active`.
+3. **Authentication & Roles (AUTH-01 .. AUTH-07):** 7 tests — Xác thực tài khoản Admin và Customer qua biến môi trường hoặc seed data nội bộ, kiểm tra vai trò và trạng thái `active`.
 4. **Catalog & Filtering (PROD-01 .. PROD-04):** 4 tests — Đảm bảo 4 danh mục kích hoạt, 8+ sản phẩm mẫu, lọc giới tính MEN/UNISEX, biến thể tồn kho khả dụng.
 5. **Cart Operations & Stock Bounding (CART-01 .. CART-02):** 2 tests — Thêm sản phẩm vào giỏ, giới hạn số lượng không vượt quá tồn kho tối đa (stock bounding).
 6. **Voucher Business Rules (VOUCH-01 .. VOUCH-05):** 5 tests — Mã `VAMOS50K` (đơn từ 500k), `FREESHIP` (giảm 30k), từ chối voucher hết hạn hoặc không tồn tại.
@@ -282,9 +282,9 @@ node server.js
 
 ### Tài khoản trải nghiệm hệ thống:
 
-- **Quản trị viên (Admin):** `admin@vamos.vn` / `123456`
-- **Khách hàng (Customer):** `khachhang@vamos.vn` / `123456`
-- **Khách hàng thử nghiệm:** `trungdung@gmail.com` / `password123`
+- **Quản trị viên (Admin):** Cấu hình qua biến môi trường hoặc tài khoản seed nội bộ (vai trò `ADMIN`).
+- **Khách hàng (Customer):** Cấu hình qua biến môi trường hoặc tài khoản seed nội bộ (vai trò `CUSTOMER`).
+- **Khách hàng thử nghiệm:** Thiết lập độc lập trong môi trường kiểm thử cô lập.
 
 ---
 
