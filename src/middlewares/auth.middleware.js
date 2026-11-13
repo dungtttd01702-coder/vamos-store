@@ -89,14 +89,19 @@ function requireGuest(req, res, next) {
  * Strictly blocks Admin from shopping actions, placing orders, or accessing customer account.
  */
 async function requireCustomer(req, res, next) {
+  const isApi = req.xhr || req.headers.accept?.includes('application/json') || (req.baseUrl && req.baseUrl.startsWith('/api')) || (req.path && req.path.startsWith('/api'));
+
   if (!req.session?.user) {
-    if (req.xhr || req.headers.accept?.includes('application/json')) {
+    if (isApi) {
       return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để tiếp tục' });
     }
     return res.redirect(`/auth/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
   }
 
   if (req.session.user.role === 'ADMIN') {
+    if (isApi) {
+      return res.status(403).json({ success: false, message: 'Tài khoản Quản trị viên không thể thực hiện thao tác này' });
+    }
     if (typeof req.flash === 'function') {
       req.flash('warning', 'Tài khoản Quản trị viên không thực hiện giao dịch của Khách hàng.');
     }
