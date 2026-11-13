@@ -1240,6 +1240,9 @@ function initAutomaticCatalogFiltering() {
 // SECTION F: WISHLIST ENGINE & VAMOS WISHLIST MODAL (MODERN KINETIC UI)
 // ══════════════════════════════════════════════════════════
 function initWishlistEngine() {
+  if (window.IS_ADMIN) {
+    return; // Admin layout strictly bypasses wishlist engine
+  }
   const GUEST_KEY = 'vamos_guest_wishlist_v1';
 
   function getStorageKey() {
@@ -1456,6 +1459,18 @@ function initWishlistEngine() {
 
   // Toggle Wishlist for a Product (Supports both Guest & Logged In)
   window.toggleWishlist = function(productData, buttonEl) {
+    if (window.IS_ADMIN) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Tài khoản Quản trị viên không sử dụng danh sách yêu thích.', 'info');
+      }
+      return;
+    }
+
+    if (!productData || !productData.id || productData.id === 'undefined') {
+      console.warn('Invalid productData for wishlist action');
+      return;
+    }
+
     const pid = String(productData.id);
     let items = getWishlist();
     const existingIndex = items.findIndex(i => String(i.id) === pid);
@@ -1488,7 +1503,9 @@ function initWishlistEngine() {
       }
 
       if (typeof window.showToast === 'function') {
-        const guestNotice = !window.IS_AUTHENTICATED ? ' (Lưu tạm trên trình duyệt)' : '';
+        const guestNotice = !window.IS_AUTHENTICATED 
+          ? ' (Đã lưu tạm trên thiết bị. Đăng nhập để đồng bộ danh sách vào tài khoản của bạn)' 
+          : '';
         window.showToast(`❤️ Đã lưu "${productData.name}" vào danh sách yêu thích!${guestNotice}`, 'heart');
       }
     }
