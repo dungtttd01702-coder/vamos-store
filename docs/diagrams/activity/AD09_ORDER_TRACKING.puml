@@ -1,0 +1,73 @@
+@startuml AD09_ORDER_TRACKING
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: TRA CỨU & THEO DÕI ĐƠN HÀNG (AD09 — ORDER TRACKING)\nHỆ THỐNG VAMOS STORE
+
+|Khách hàng (Customer)|
+start
+:Truy cập danh sách đơn hàng của tôi (/account/orders);
+
+|Hệ thống (Web App)|
+:Xác thực phiên làm việc (requireAuth middleware);
+if (Đã đăng nhập hợp lệ?) then ([Chưa])
+  :Chuyển hướng đến /auth/login;
+  stop
+else ([Hợp lệ])
+  :Lấy userId từ req.session.user.id;
+  :Gọi orderService.getOrdersByUser(userId);
+
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT id, order_code, total_amount, order_status, payment_status, created_at\nFROM orders WHERE user_id = @userId\nORDER BY id DESC;
+
+  |Hệ thống (Web App)|
+  :Hiển thị danh sách các đơn hàng đã đặt;
+
+  |Khách hàng (Customer)|
+  :Xem tổng quan các đơn hàng;\nNhấp chọn một đơn hàng để xem chi tiết (/account/orders/:id);
+
+  |Hệ thống (Web App)|
+  :Lấy orderId hoặc orderCode từ URL tham số;
+  :Gọi orderService.getOrderDetails(id, userId);
+
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Kiểm tra quyền sở hữu đơn hàng:\nSELECT * FROM orders WHERE id = @id AND user_id = @userId;
+
+  |Hệ thống (Web App)|
+  if (Tìm thấy đơn hàng và thuộc quyền sở hữu của Customer?) then ([Không tìm thấy / Sai quyền])
+    :Trả về lỗi HTTP 404 - "Không tìm thấy đơn hàng này";
+    |Khách hàng (Customer)|
+    :Xem thông báo lỗi 404 Not Found;
+    stop
+  else ([Hợp lệ])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Truy vấn chi tiết các mặt hàng:\nSELECT * FROM order_items WHERE order_id = @orderId;
+    :Truy vấn lịch sử trạng thái đơn:\nSELECT osh.*, u.full_name AS changed_by_name\nFROM order_status_histories osh\nLEFT JOIN users u ON osh.changed_by = u.id\nWHERE osh.order_id = @orderId ORDER BY osh.id ASC;
+
+    |Hệ thống (Web App)|
+    :Tổng hợp dữ liệu hiển thị chi tiết:
+    - Mã đơn hàng, ngày đặt hàng
+    - Thông tin snapshot người nhận: Tên, SĐT, Địa chỉ giao hàng
+    - Phương thức thanh toán (COD), Trạng thái thanh toán (UNPAID/PAID)
+    - Trạng thái hiện tại (PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED)
+    - Danh sách sản phẩm mua (Tên snapshot, SKU, Size, Màu, Đơn giá, Số lượng, Thành tiền)
+    - Tạm tính, Phí giao hàng, Giảm giá voucher, Tổng thanh toán
+    - Dòng thời gian tiến trình (Timeline lịch sử trạng thái);
+
+    if (order_status == 'PENDING'?) then ([Đang chờ xác nhận])
+      :Hiển thị nút "Hủy đơn hàng";
+    else ([Các trạng thái khác])
+      :Ẩn nút Hủy đơn (không cho phép tự hủy);
+    endif
+
+    |Khách hàng (Customer)|
+    :Xem chi tiết đơn hàng và tiến độ vận chuyển;
+    stop
+  endif
+endif
+
+@enduml
+

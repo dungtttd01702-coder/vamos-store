@@ -1,0 +1,95 @@
+@startuml SD04_PROFILE_ADDRESS
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: QUẢN LÝ HỒ SƠ & SỔ ĐỊA CHỈ (SD04 - PROFILE & ADDRESS)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Khách hàng\n(Customer)" as Customer
+participant "Trình duyệt Web\n(Browser / Client)" as Browser
+participant "Account Router\n(account.routes.js)" as Router
+participant "Customer Guard\n(requireCustomer)" as AuthGuard
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Account Controller\n(account.controller.js)" as AccCtrl
+participant "Tiện ích Validate\n(validator.js)" as Validator
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== PHẦN 1: XEM VÀ CẬP NHẬT HỒ SƠ CÁ NHÂN (PROFILE) ==
+
+Customer -> Browser : Nhấp "Thông tin tài khoản"
+Browser -> Router : GET /account/profile
+Router -> AuthGuard : Kiểm tra quyền (phải đăng nhập & không phải Admin)
+alt Chưa đăng nhập hoặc vai trò Admin
+    AuthGuard --> Browser : Chuyển hướng /auth/login hoặc lỗi 403
+else Xác thực hợp lệ
+    AuthGuard -> AccCtrl : getProfile(req, res, next)
+    AccCtrl -> DbPool : query("SELECT id, email, full_name, phone, role, created_at FROM users WHERE id = @id", { id: user.id })
+    DbPool -> SqlDb : SELECT FROM users WHERE id = @id
+    SqlDb --> DbPool : Trả về recordset hồ sơ
+    DbPool --> AccCtrl : userRes
+    AccCtrl --> Browser : res.render('pages/account/profile', { profile: userRes.recordset[0] })
+    Browser --> Customer : Hiển thị form thông tin cá nhân
+end
+
+Customer -> Browser : Chỉnh sửa họ tên, số điện thoại & bấm "Lưu thay đổi"
+Browser -> Router : POST /account/profile\n{ full_name, phone, _csrf }
+Router -> AuthGuard : requireCustomer
+AuthGuard -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> AccCtrl : postProfile(req, res, next)
+
+AccCtrl -> Validator : isValidFullName(full_name), isValidPhone(phone)
+alt Dữ liệu không hợp lệ (sai định dạng SĐT VN hoặc tên < 2 ký tự)
+    Validator --> AccCtrl : Lỗi xác thực
+    AccCtrl --> Browser : HTTP 400 Bad Request (Hiển thị thông báo lỗi)
+else Dữ liệu hợp lệ
+    AccCtrl -> DbPool : query("UPDATE users SET full_name = @fullName, phone = @phone, updated_at = GETDATE() WHERE id = @id")
+    DbPool -> SqlDb : UPDATE users WHERE id = @id
+    SqlDb --> DbPool : Xác nhận cập nhật
+    AccCtrl -> AccCtrl : Cập nhật lại req.session.user (full_name, phone)
+    AccCtrl --> Browser : HTTP 302 Redirect về '/account/profile?success=true'
+    Browser --> Customer : Hiển thị thông báo "Cập nhật hồ sơ thành công"
+end
+
+== PHẦN 2: QUẢN LÝ SỔ ĐỊA CHỈ GIAO HÀNG (ADDRESSES) ==
+
+Customer -> Browser : Nhấp "Sổ địa chỉ"
+Browser -> Router : GET /account/addresses
+Router -> AuthGuard : requireCustomer
+AuthGuard -> AccCtrl : getAddresses(req, res, next)
+AccCtrl -> DbPool : query("SELECT * FROM addresses WHERE user_id = @userId ORDER BY is_default DESC, id DESC", { userId })
+DbPool -> SqlDb : SELECT FROM addresses WHERE user_id = @userId
+SqlDb --> DbPool : Trả về danh sách địa chỉ
+DbPool --> AccCtrl : addrRes
+AccCtrl --> Browser : res.render('pages/account/addresses', { addresses: addrRes.recordset })
+Browser --> Customer : Hiển thị danh sách địa chỉ đã lưu (đánh dấu mặc định)
+
+Customer -> Browser : Điền biểu mẫu thêm địa chỉ mới & bấm "Thêm địa chỉ"
+Browser -> Router : POST /account/addresses\n{ recipient_name, phone, province, district, ward, detail_address, is_default, _csrf }
+Router -> AuthGuard : requireCustomer
+AuthGuard -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> AccCtrl : postAddAddress(req, res, next)
+
+AccCtrl -> Validator : isValidFullName(recipient_name), isValidPhone(phone)
+alt Tên hoặc SĐT người nhận không hợp lệ
+    Validator --> AccCtrl : Lỗi xác thực
+    AccCtrl --> Browser : HTTP 400 Bad Request ("Số điện thoại hoặc họ tên không đúng định dạng")
+else Dữ liệu hợp lệ
+    opt Chọn đặt làm địa chỉ mặc định (is_default === true)
+        AccCtrl -> DbPool : query("UPDATE addresses SET is_default = 0 WHERE user_id = @userId", { userId })
+        DbPool -> SqlDb : Reset tất cả địa chỉ cũ về is_default = 0
+    end
+    
+    AccCtrl -> DbPool : query("INSERT INTO addresses (user_id, recipient_name, phone, province, district, ward, detail_address, is_default) VALUES (...)")
+    DbPool -> SqlDb : Thực thi INSERT vào bảng addresses
+    SqlDb --> DbPool : Xác nhận thêm mới
+    AccCtrl --> Browser : HTTP 302 Redirect về '/account/addresses'
+    Browser --> Customer : Tải lại danh sách với địa chỉ mới vừa thêm
+end
+
+@enduml

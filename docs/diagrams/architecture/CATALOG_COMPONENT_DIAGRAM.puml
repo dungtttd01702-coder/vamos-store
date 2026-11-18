@@ -1,0 +1,70 @@
+@startuml CATALOG_COMPONENT_DIAGRAM
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN: PHÂN HỆ SẢN PHẨM & DANH MỤC (CATALOG COMPONENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Tầng Giao diện Người dùng (Presentation Tier)" #F1F5F9 {
+  component [Trang chủ (pages/home.pug)] as ViewHome
+  component [Danh mục sản phẩm (pages/products/index.pug)] as ViewCatalog
+  component [Chi tiết sản phẩm (pages/products/detail.pug)] as ViewDetail
+  component [Client JS (main.js)\nLive Search AJAX & Chọn Size/Màu động] as ClientSearch
+}
+
+package "Tầng Điều tuyến & Điều khiển (Routing & Controller Tier)" #EFF6FF {
+  component [Home Router\n(src/routes/home.routes.js)] as HomeRouter
+  component [Product Router\n(src/routes/product.routes.js)] as ProdRouter
+  component [Home Controller\n(src/controllers/home.controller.js)] as HomeCtrl
+  component [Product Controller\n(src/controllers/product.controller.js)] as ProdCtrl
+  
+  HomeRouter --> HomeCtrl : GET /
+  ProdRouter --> ProdCtrl : GET /products, /products/:slug\nGET /api/products/search
+}
+
+ViewHome --> HomeRouter
+ViewCatalog --> ProdRouter
+ViewDetail --> ProdRouter
+ClientSearch --> ProdRouter : AJAX Live Search /api/products/search
+
+package "Tầng Dịch vụ Nghiệp vụ (Service Tier)" #FEF3C7 {
+  component [Product Service\n(src/services/product.service.js)] as ProdService
+  
+  HomeCtrl --> ProdService : getHomeBanners(), getAllCategories(),\ngetLatestProducts(), getFlashSaleProducts()
+  ProdCtrl --> ProdService : getCatalog(filters), getProductBySlug(slug),\nsearchLive(keyword, limit)
+}
+
+package "Tầng Truy xuất Dữ liệu (Repository & Data Access)" #EEF2FF {
+  component [Product Repository\n(src/models/repositories/product.repository.js)] as ProdRepo
+  component [Database Access Engine\n(src/config/database.js)] as DbEngine
+  
+  ProdService --> ProdRepo : Ủy quyền truy vấn
+  ProdRepo --> DbEngine : query(sqlStr, params)
+}
+
+package "Tầng Cơ sở Dữ liệu (Microsoft SQL Server)" #FFF1F2 {
+  database [SQL Server (vamos_store_db)] as SqlDb {
+    [products] as TblProd
+    [categories] as TblCat
+    [brands] as TblBrand
+    [product_variants] as TblVars
+    [sizes] as TblSizes
+    [colors] as TblColors
+    [product_images] as TblImgs
+    [banners] as TblBanners
+  }
+  
+  DbEngine <--> TblProd : Đọc danh sách & chi tiết
+  DbEngine <--> TblCat : Đọc danh mục active
+  DbEngine <--> TblBrand : Đọc thương hiệu
+  DbEngine <--> TblVars : Đọc biến thể tồn kho
+  DbEngine <--> TblSizes : Đọc kích cỡ giày
+  DbEngine <--> TblColors : Đọc màu sắc & hex
+  DbEngine <--> TblImgs : Đọc ảnh sản phẩm (is_primary)
+  DbEngine <--> TblBanners : Đọc banner trang chủ
+}
+
+@enduml

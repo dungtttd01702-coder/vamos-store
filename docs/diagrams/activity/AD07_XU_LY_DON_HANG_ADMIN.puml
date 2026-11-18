@@ -1,0 +1,44 @@
+@startuml
+title Sơ đồ hoạt động — Admin xử lý đơn hàng (AD07/AD11)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Quản trị viên (Admin)|
+start
+:Mở danh sách quản lý đơn hàng;
+:Chọn đơn hàng cần xử lý;
+:Chọn trạng thái chuyển tiếp tiếp theo;
+
+|Hệ thống|
+:Tiếp nhận yêu cầu cập nhật;
+:Kiểm tra tính hợp lệ của bước chuyển trạng thái (FSM);
+if (Chuyển trạng thái hợp lệ?) then (Đúng)
+  :Cập nhật trạng thái mới cho đơn hàng;
+  :Lưu lịch sử thay đổi trạng thái đơn hàng;
+  if (Trạng thái chuyển sang Đã hoàn thành?) then (Đúng)
+    :Cập nhật trạng thái thanh toán COD thành Đã thu tiền;
+  endif
+  :Thông báo cập nhật đơn hàng thành công;
+  |Quản trị viên (Admin)|
+  :Xem thông tin đơn hàng đã cập nhật;
+  stop
+else (Sai)
+  :Cảnh báo bước chuyển trạng thái không hợp lệ;
+  |Quản trị viên (Admin)|
+  :Thao tác lại theo đúng quy trình;
+  stop
+endif
+@enduml

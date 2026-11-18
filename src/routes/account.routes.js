@@ -16,5 +16,7 @@ router.post('/profile', accountController.postProfile);
 router.get('/addresses', accountController.getAddresses);
 router.post('/addresses', accountController.postAddAddress);
 
+router.get('/wishlist', (req, res, next) => accountController.getWishlist(req, res, next));
+
 module.exports = router;
 

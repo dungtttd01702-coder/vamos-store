@@ -1,0 +1,44 @@
+@startuml
+title Sơ đồ hoạt động — Tìm kiếm & Xem sản phẩm (AD03/AD05)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Truy cập cửa hàng giày dép;
+:Nhập từ khóa hoặc chọn bộ lọc (size, giá, loại giày);
+:Gửi yêu cầu tìm kiếm;
+
+|Hệ thống|
+:Tiếp nhận tiêu chí tìm kiếm;
+:Truy vấn danh mục sản phẩm;
+if (Tìm thấy sản phẩm phù hợp?) then (Có)
+  :Hiển thị danh sách sản phẩm và mức giá;
+  |Người dùng|
+  :Chọn sản phẩm ưng ý để xem;
+  |Hệ thống|
+  :Hiển thị chi tiết (ảnh studio, mô tả, bảng size);
+  |Người dùng|
+  :Xem chi tiết sản phẩm;
+  stop
+else (Không)
+  :Hiển thị thông báo không tìm thấy kết quả;
+  :Gợi ý các mẫu giày bán chạy;
+  |Người dùng|
+  :Điều chỉnh lại từ khóa hoặc bộ lọc;
+  stop
+endif
+@enduml

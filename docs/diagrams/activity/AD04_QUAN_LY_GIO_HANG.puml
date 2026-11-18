@@ -1,0 +1,40 @@
+@startuml
+title Sơ đồ hoạt động — Quản lý giỏ hàng (AD04/AD06)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Chọn size EU, màu sắc và số lượng;
+:Nhấn nút Thêm vào giỏ hàng;
+
+|Hệ thống|
+:Tiếp nhận biến thể và số lượng;
+:Kiểm tra tồn kho khả dụng;
+if (Số lượng hợp lệ & Còn hàng?) then (Đúng)
+  :Cập nhật sản phẩm vào giỏ hàng;
+  :Tính toán lại tổng tiền giỏ hàng;
+  :Hiển thị thông báo thành công;
+  |Người dùng|
+  :Mở giỏ hàng kiểm tra hoặc thay đổi số lượng;
+  stop
+else (Sai)
+  :Thông báo tạm hết hàng hoặc vượt giới hạn;
+  |Người dùng|
+  :Chọn lại size hoặc số lượng khác;
+  stop
+endif
+@enduml

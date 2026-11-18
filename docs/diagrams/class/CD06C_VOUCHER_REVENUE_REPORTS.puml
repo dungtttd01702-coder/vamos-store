@@ -1,0 +1,320 @@
+@startuml CD06C_VOUCHER_REVENUE_REPORTS
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD06C: VOUCHER MANAGEMENT & REVENUE REPORTING CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp chi tiết phân hệ Quản lý Mã giảm giá (UC-13) và Báo cáo Doanh thu (UC-14)</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' ==============================================================================
+package "Presentation & Routing Layer (/admin)" as pkg_routing #EFF6FF {
+
+    class "requireAdmin" as requireAdmin <<middleware function>> {
+        -- Function: src/middlewares/auth.middleware.js:132-158 --
+        + requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void>
+        .. Route Guard & DB Verification ..
+        {verifies session.user.role === 'ADMIN'}
+        {queries DB: SELECT status, role FROM users WHERE id = @id}
+        {fail-open on DB transient error: calls next() [lines 153-157]}
+    }
+
+    class "adminRoutes" as adminRoutes <<router, partial view>> {
+        -- Module: src/routes/admin.routes.js (UC13 & UC14 Scope) --
+        + router.use(requireAdmin) [line 7]
+        .. Dashboard & Revenue Reporting Route (UC-14) ..
+        + GET /dashboard [adminController.getDashboard] [line 11]
+        .. Voucher Management Routes (UC-13) ..
+        + GET /vouchers [adminController.getVouchers] [line 38]
+        + GET /vouchers/create [adminController.getCreateVoucher] [line 39]
+        + POST /vouchers/create [adminController.postCreateVoucher] [line 40]
+        + POST /vouchers/:id/toggle [adminController.postToggleVoucher] [line 41]
+    }
+
+    class "AdminController" as AdminController <<controller, partial view>> {
+        -- File: src/controllers/admin.controller.js (UC13 & UC14 Methods) --
+        .. Revenue Reporting & Dashboard (UC-14) [Direct DB Aggregations] ..
+        + getDashboard(req: Request, res: Response, next: NextFunction): Promise<void> [lines 8-92]
+        .. Voucher Management (UC-13) [Direct DB Queries] ..
+        + getVouchers(req: Request, res: Response, next: NextFunction): Promise<void> [lines 776-794]
+        + getCreateVoucher(req: Request, res: Response): void [lines 799-804]
+        + postCreateVoucher(req: Request, res: Response, next: NextFunction): Promise<void> [lines 809-870]
+        + postToggleVoucher(req: Request, res: Response, next: NextFunction): Promise<void> [lines 875-888]
+    }
+}
+
+adminRoutes .left.> requireAdmin : "router.use(requireAdmin)\n[src/routes/admin.routes.js:7]"
+adminRoutes .down.> AdminController : "dispatches 4 voucher & 1 dashboard routes\n[src/routes/admin.routes.js:11, 38-41]"
+
+' ==============================================================================
+' MIDDLE ROW: BUSINESS LOGIC / SERVICE & DATA ACCESS
+' ==============================================================================
+package "Business Logic / Service Layer" as pkg_service #FAF5FF {
+
+    class "OrderService" as OrderService <<service, partial view>> {
+        -- File: src/services/order.service.js:15-285 --
+        + createCodOrder(orderData: Object): Promise<Object> [lines 15-285]
+        .. Voucher Application & Validation Pipeline (UC-13 Runtime) ..
+        {locks voucher: SELECT ... FROM vouchers WITH (UPDLOCK, ROWLOCK)}
+        {checks validity: is_active = 1, start_date <= NOW <= end_date, subtotal >= min_order_value}
+        {checks usage limit: usage_limit = 0 OR used_count < usage_limit}
+        {enforces Rule Q8: SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK)}
+        {calculates discount: fixed_amount vs percentage with max_discount_amount cap}
+        {atomic update: UPDATE vouchers SET used_count = used_count + 1}
+        {records usage audit: INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)}
+        {snapshots: orders.voucher_id, orders.voucher_code_snapshot}
+    }
+}
+
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "database" as database <<database helper>> {
+        -- CommonJS Module: src/config/database.js:1-117 --
+        + sql: Object (mssql driver instance) [lines 1, 111]
+        + getPool(): Promise<sql.ConnectionPool> [lines 11-32, 112]
+        + closePool(): Promise<void> [lines 36-49, 113]
+        + testDbConnection(): Promise<boolean> [lines 55-66, 114]
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>> [lines 75-86, 115]
+    }
+}
+
+AdminController .left.> OrderService : "module-level import [admin.controller.js:2]\n(shared for UC-10; UC-13/14 query DB directly)"
+AdminController .down.> database : "executes direct T-SQL for\nVoucher CRUD & Revenue Metrics\n[src/controllers/admin.controller.js:11, 778, 845]"
+OrderService .down.> database : "executes atomic transaction for\nVoucher Validation & Usage Log\n[src/services/order.service.js:77-130, 249-258]"
+requireAdmin .down.> database : "verifies active admin status in DB\n[src/middlewares/auth.middleware.js:145]"
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (REFERENCE DATA MODEL - UC13 & UC14 SCOPE)
+' ==============================================================================
+package "Domain Entities (Reference Data Model — UC13 & UC14 Scope)" as pkg_domain #F0FDF4 {
+
+    class "User" as User <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+        .. Actor Roles in Scope ..
+        {admin: manages vouchers | customer: redeems voucher}
+    }
+
+    class "Order" as Order <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        + voucher_id: INT [0..1] <<FK>>
+        --
+        + order_code: NVARCHAR(50) <<UQ>>
+        + recipient_name_snapshot: NVARCHAR(100)
+        + recipient_phone_snapshot: NVARCHAR(20)
+        + delivery_address_snapshot: NVARCHAR(500)
+        + subtotal: DECIMAL(12,0)
+        + discount_amount: DECIMAL(12,0) = 0
+        + shipping_fee: DECIMAL(12,0) = 0
+        + total_amount: DECIMAL(12,0)
+        + voucher_code_snapshot: NVARCHAR(50) [0..1]
+        + payment_method: NVARCHAR(20) = 'COD'
+        + payment_status: NVARCHAR(20) = 'UNPAID'
+        + order_status: NVARCHAR(20) = 'PENDING'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "OrderItem" as OrderItem <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + order_id: INT <<FK>>
+        + product_variant_id: INT <<FK>>
+        --
+        + product_name_snapshot: NVARCHAR(200)
+        + sku_snapshot: NVARCHAR(100)
+        + size_snapshot: NVARCHAR(20)
+        + color_snapshot: NVARCHAR(50)
+        + unit_price: DECIMAL(12,0)
+        + quantity: INT
+        + line_total: DECIMAL(12,0)
+    }
+
+    class "Voucher" as Voucher <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(100)
+        + discount_type: NVARCHAR(20)
+        + discount_value: DECIMAL(12,0)
+        + min_order_value: DECIMAL(12,0) = 0
+        + max_discount_amount: DECIMAL(12,0) [0..1]
+        + start_date: DATETIME2
+        + end_date: DATETIME2
+        + usage_limit: INT = 0
+        + used_count: INT = 0
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+        .. Table Constraints ..
+        {chk_vouchers_dates: end_date >= start_date}
+    }
+
+    class "VoucherUsage" as VoucherUsage <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + voucher_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        + order_id: INT <<FK>>
+        --
+        + used_at: DATETIME2
+        .. Composite Unique ..
+        {unique(voucher_id, user_id)}
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01 DOMAIN MODEL)
+' 1 Composition (*--) + 5 Associations (--) = 6 Domain Relationships
+' ==============================================================================
+User "1" -- "0..*" Order : "fk_orders_user\n(places)"
+Order "1" *-- "1..*" OrderItem : "fk_order_items_order\n(contains)"
+
+Voucher "0..1" -- "0..*" Order : "fk_orders_voucher\n(applied in)"
+Voucher "1" -- "0..*" VoucherUsage : "FK_voucher_usages_voucher\n(logs usage)"
+Order "1" -- "0..*" VoucherUsage : "FK_voucher_usages_order\n(tracks checkout)"
+User "1" -- "0..*" VoucherUsage : "FK_voucher_usages_user\n(redeemed by)"
+
+pkg_data -down[hidden]-> pkg_domain
+
+' ==============================================================================
+' ARCHITECTURAL NOTES (6 TARGETED NOTES)
+' ==============================================================================
+note top of adminRoutes
+  <b>Note 1 – Voucher Management Lifecycle (UC-13):</b>
+  * <b>Danh sách Voucher:</b> <i>getVouchers</i> [lines 776-794] truy vấn toàn bộ vouchers kèm
+    subquery đếm số đơn hàng đã áp dụng: <i>(SELECT COUNT(*) FROM orders WHERE voucher_id = v.id)</i>.
+  * <b>Tạo mới Voucher:</b> <i>postCreateVoucher</i> [lines 809-870] kiểm tra:
+    1. Bắt buộc có mã và giá trị chiết khấu (> 0).
+    2. Nếu phần trăm thì <= 100%.
+    3. Ngày kết thúc không trước ngày bắt đầu (<i>end_date >= start_date</i>).
+    4. Mặc định: <i>used_count = 0, is_active = 1</i>.
+  * <b>Bật/tắt trạng thái:</b> <i>postToggleVoucher</i> [lines 875-888] đảo trạng thái hiển thị
+    <i>is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END</i>.
+  * <i>Hạn chế nghiệp vụ:</i> Source code hiện chưa hỗ trợ tính năng Chỉnh sửa (Edit)
+    hoặc Xóa (Delete) voucher trong <i>admin.controller.js</i>.
+end note
+
+note right of OrderService
+  <b>Note 2 – Voucher Checkout Validation & Rule Q8 (UC-13 Runtime):</b>
+  * <b>Thực thi trong nguyên tử sql.Transaction tại OrderService.createCodOrder:</b>
+    1. <b>Khóa dòng:</b> <i>SELECT ... FROM vouchers WITH (UPDLOCK, ROWLOCK)</i>
+       <i>WHERE code = @code AND is_active = 1 AND start_date <= NOW <= end_date</i>.
+    2. <b>Kiểm tra điều kiện:</b> <i>subtotal >= min_order_value</i>;
+       <i>usage_limit = 0 OR used_count < usage_limit</i>.
+    3. <b>Ràng buộc Rule Q8 (Tối đa 1 lần / Khách hàng):</b>
+       <i>SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK)</i>
+       <i>WHERE voucher_id = @vId AND user_id = @uId</i>. Nếu đã tồn tại -> Từ chối.
+    4. <b>Tính giảm giá:</b> <i>fixed_amount</i> (tối đa bằng subtotal) hoặc
+       <i>percentage</i> (có trần <i>max_discount_amount</i>).
+    5. <b>Cập nhật số lượt dùng nguyên tử:</b> <i>UPDATE vouchers SET used_count = used_count + 1</i>
+       <i>WHERE id = @vId AND (usage_limit = 0 OR used_count < usage_limit)</i>.
+    6. <b>Ghi nhận lịch sử:</b> <i>INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)</i>.
+  * <b>Hoàn trả Voucher khi hủy đơn:</b> Logic dùng chung tại <i>OrderService._executeCancellation</i>
+    [lines 380-396] (áp dụng khi Khách hàng hủy đơn PENDING hoặc Admin hủy đơn CANCELLED) tự động
+    xóa bản ghi <i>voucher_usages</i> và giảm <i>vouchers.used_count</i> (nếu đơn có áp dụng voucher).
+end note
+
+note top of AdminController
+  <b>Note 3 – Revenue Reporting Aggregations & Formulas (UC-14):</b>
+  * <b>Tổng doanh thu toàn sàn:</b> Trong <i>getDashboard</i> [line 11]:
+    <i>SELECT COALESCE(SUM(total_amount), 0) AS total_revenue</i>
+    <i>FROM orders WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'</i>.
+    -> Yêu cầu đồng thời hai điều kiện <b>order_status = 'COMPLETED'</b> VÀ <b>payment_status = 'PAID'</b>.
+  * <b>Top 4 sản phẩm bán chạy nhất:</b> Trong <i>getDashboard</i> [lines 34-48]:
+    Xếp hạng theo <b>tổng số lượng bán (total_sold DESC)</b>; <i>total_revenue</i> là chỉ số doanh thu đi kèm để tham khảo:
+    <i>SELECT TOP 4 oi.product_name_snapshot, SUM(oi.quantity) AS total_sold, SUM(oi.line_total) AS total_revenue,</i>
+    <i>(SELECT TOP 1 pi.image_url FROM product_variants pv JOIN product_images pi ON pi.product_id = pv.product_id</i>
+    <i>WHERE pv.id = MIN(oi.product_variant_id) AND pi.is_primary = 1) AS primary_image</i>
+    <i>FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE o.order_status = 'COMPLETED'</i>
+    <i>GROUP BY oi.product_name_snapshot ORDER BY total_sold DESC</i>.
+    <i>(Lưu ý: Chỉ lọc o.order_status = 'COMPLETED', không lọc payment_status; SQL Server hỗ trợ aggregate tương quan ngoài)</i>.
+  * <b>Thống kê đơn hàng theo trạng thái:</b> <i>statusCounts</i> [lines 49-59] đếm tổng đơn và
+    phân nhóm <i>PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED</i>.
+end note
+
+note right of OrderItem
+  <b>Note 4 – Phân biệt Điều kiện Ghi nhận Doanh thu (UC-14 Invariant):</b>
+  * <b>Tổng doanh thu sàn (Điều kiện kép):</b> Chỉ các đơn hàng có đồng thời
+    <i>order_status = 'COMPLETED'</i> VÀ <i>payment_status = 'PAID'</i> mới được tính
+    vào <i>total_revenue</i>. Các đơn đang xử lý hoặc <i>CANCELLED</i> bị loại trừ tuyệt đối.
+  * <b>Top 4 sản phẩm bán chạy (Điều kiện đơn):</b> Truy vấn chỉ lọc
+    <i>o.order_status = 'COMPLETED'</i> (không lọc <i>payment_status = 'PAID'</i> trong SQL).
+  * <b>Cơ chế đồng bộ thực tế:</b> Trong luồng COD (<i>OrderService:512-515</i>), khi Admin chuyển
+    đơn sang <i>'COMPLETED'</i>, mã nguồn tự động cập nhật <i>payment_status = 'PAID'</i>,
+    giúp dữ liệu vận hành thực tế đạt tính nhất quán.
+end note
+
+note bottom of VoucherUsage
+  <b>Note 5 – Multiplicity & Schema Invariant (Order — VoucherUsage):</b>
+  * <b>CSDL DDL:</b> Ràng buộc duy nhất là <i>CONSTRAINT UQ_voucher_user_usage UNIQUE (voucher_id, user_id)</i>.
+    Bảng <i>voucher_usages</i> <b>KHÔNG CÓ</b> ràng buộc <i>UNIQUE(order_id)</i>.
+  * Do đó, <b>Schema Multiplicity</b> giữa Order và VoucherUsage là <i>1 to 0..*</i>.
+  * <b>Application Invariant:</b> Khi checkout COD, logic nghiệp vụ trong <i>OrderService</i> chỉ cho
+    phép áp dụng tối đa 1 voucher cho mỗi đơn hàng (tỷ lệ thực tế <i>1 : 0..1</i>).
+end note
+
+note bottom of database
+  <b>Note 6 – Kiến trúc Phân tầng & Phạm vi Báo cáo (Architecture Scope):</b>
+  * <b>Admin Two-Tier:</b> Trong phạm vi quản trị Admin của CD06C, <i>AdminController</i> thực hiện trực tiếp
+    truy vấn SQL qua Database Helper cho cả Quản lý Voucher và Báo cáo Doanh thu trên Dashboard.
+    Dependency tới <i>OrderService</i> là import cấp module chia sẻ cho UC-10 (Quản lý đơn hàng); các handler
+    Voucher (UC-13) và Doanh thu (UC-14) hoàn toàn không gọi OrderService.
+  * <b>Checkout Three-Tier:</b> Logic nghiệp vụ kiểm tra, khóa dòng tranh chấp và ghi nhận sử dụng voucher
+    khi khách hàng đặt hàng thuộc về <i>OrderService</i>.
+  * <i>Hạn chế chức năng:</i> Hệ thống hiện chưa có trang báo cáo doanh thu riêng biệt (như <i>/admin/reports</i>);
+    toàn bộ chỉ số doanh thu (UC-14) được tích hợp trong <i>getDashboard</i> (<i>/admin/dashboard</i>).
+    Chưa hỗ trợ bộ lọc theo khoảng ngày tùy chọn (custom date range).
+end note
+
+legend bottom
+    <b>CHÚ DẪN PHÂN LOẠI & QUY ƯỚC KIẾN TRÚC UML 2.5 (CD06C)</b>
+    ----
+    <b>Phân loại Classifiers theo Hiện thực Source Code:</b>
+      * <b><<router, partial view>></b>: Express Router Instance mount routes quản trị voucher và dashboard (src/routes/admin.routes.js)
+      * <b><<middleware function>></b>: Middleware Function kiểm soát quyền truy cập RBAC quản trị viên (requireAdmin)
+      * <b><<controller, partial view>></b>: Controller điều phối 4 phương thức voucher và 1 phương thức dashboard doanh thu (AdminController)
+      * <b><<service, partial view>></b>: Service nghiệp vụ đơn hàng xử lý áp dụng voucher, kiểm soát tranh chấp và ghi nhật ký (OrderService)
+      * <b><<database helper>></b>: CommonJS Module cung cấp kết nối CSDL, Transaction & Query API (src/config/database.js)
+      * <b><<entity, partial view from CD01>></b>: Bảng dữ liệu quan hệ trong SQL Server tham chiếu từ CD01 Domain Model
+    ----
+    <b>Quan hệ Kiến trúc & Dữ liệu:</b>
+      * <b>Dependency (..>)</b>: Quan hệ sử dụng/phụ thuộc giữa các module, function, controller, service và database helper (đường nét đứt có mũi tên)
+      * <b>Composition (*--)</b>: Quan hệ sở hữu vòng đời thực thể dữ liệu (Cascade Lifecycle: Order *-- OrderItem)
+      * <b>Association (--)</b>: Quan hệ liên kết tham chiếu khóa ngoại giữa các bảng CSDL (đường nét liền)
+end legend
+
+@enduml

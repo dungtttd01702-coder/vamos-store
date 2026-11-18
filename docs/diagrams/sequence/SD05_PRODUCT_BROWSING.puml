@@ -1,0 +1,77 @@
+@startuml SD05_PRODUCT_BROWSING
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: TÌM KIẾM, XEM DANH MỤC & CHI TIẾT SẢN PHẨM (SD05 - PRODUCT BROWSING)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Người dùng\n(Guest / Customer)" as User
+participant "Trình duyệt & Client JS\n(main.js / DOM)" as Browser
+participant "Product Router\n(product.routes.js)" as Router
+participant "Product Controller\n(product.controller.js)" as ProdCtrl
+participant "Product Service\n(product.service.js)" as ProdService
+participant "Product Repository\n(product.repository.js)" as ProdRepo
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== LUỒNG 1: XEM DANH MỤC & LỌC ĐA TIÊU CHÍ (CATALOG & FILTERING) ==
+
+User -> Browser : Chọn danh mục, chọn giới tính, khoảng giá, sắp xếp & nhấp Lọc
+Browser -> Router : GET /products?category=sneaker&gender=MEN&minPrice=1000000&sort=price_asc
+Router -> ProdCtrl : index(req, res, next)
+ProdCtrl -> ProdService : getCatalog(filters)
+ProdService -> ProdRepo : findAll(filters)
+ProdRepo -> DbPool : query(sqlStr, params)\n(SELECT products JOIN variants, categories, images WHERE active)
+DbPool -> SqlDb : Thực thi câu truy vấn phân trang & lọc tham số hóa
+SqlDb --> DbPool : Trả về recordset danh sách sản phẩm & tổng số trang
+DbPool --> ProdRepo : { products, totalCount }
+ProdRepo --> ProdService : { products, totalCount, page, totalPages }
+ProdService --> ProdCtrl : Dữ liệu danh mục đã lọc
+ProdCtrl --> Browser : res.render('pages/products/index', { products, filters, totalPages })
+Browser --> User : Hiển thị lưới sản phẩm với bộ lọc đã chọn
+
+== LUỒNG 2: TÌM KIẾM THỜI GIAN THỰC (LIVE SEARCH AJAX) ==
+
+User -> Browser : Gõ từ khóa vào thanh tìm kiếm (ví dụ: "Air Force")
+Browser -> Browser : main.js kích hoạt debounce (250ms)\n& khởi tạo AbortController
+Browser -> Router : GET /api/products/search?q=Air+Force
+Router -> ProdCtrl : liveSearch(req, res, next)
+ProdCtrl -> ProdService : searchLive(keyword, limit=6)
+ProdService -> ProdRepo : searchLive(keyword, limit=6)
+ProdRepo -> DbPool : query("SELECT TOP 6 p.id, p.name, p.slug, p.base_price, p.sale_price, pi.image_url, ... WHERE name LIKE @q")
+DbPool -> SqlDb : SELECT TOP 6 sản phẩm khớp từ khóa
+SqlDb --> DbPool : Trả về 6 kết quả phù hợp
+DbPool --> ProdRepo : searchResults
+ProdRepo --> ProdService : searchResults
+ProdService --> ProdCtrl : searchResults
+ProdCtrl --> Browser : res.json({ success: true, data: searchResults })
+Browser -> Browser : main.js dựng dropdown gợi ý kết quả trực tiếp trên DOM (ảnh, tên, giá, tag)
+Browser --> User : Hiển thị bảng gợi ý tìm kiếm tức thì dưới ô input
+
+== LUỒNG 3: XEM CHI TIẾT SẢN PHẨM & BIẾN THỂ (PRODUCT DETAIL & VARIANTS) ==
+
+User -> Browser : Nhấp vào sản phẩm (ví dụ: /products/nike-air-force-1-07)
+Browser -> Router : GET /products/:slug
+Router -> ProdCtrl : detail(req, res, next)
+ProdCtrl -> ProdService : getProductBySlug(slug)
+ProdService -> ProdRepo : findBySlug(slug)
+ProdRepo -> DbPool : query("SELECT p.*, pv.*, s.*, c.*, pi.* FROM products p JOIN product_variants pv ... WHERE p.slug = @slug AND p.status = 'active'")
+DbPool -> SqlDb : Thực thi câu truy vấn gom dữ liệu sản phẩm, biến thể, ảnh
+SqlDb --> DbPool : Trả về các dòng biến thể (size, color, stock, sku)
+DbPool --> ProdRepo : rawProductVariants
+ProdRepo --> ProdService : rawProductVariants
+ProdService --> ProdCtrl : product
+ProdCtrl -> ProdCtrl : Bóc tách danh sách kích cỡ (availableSizes) & màu sắc (availableColors) duy nhất
+ProdCtrl -> ProdService : getFlashSaleProducts(5) (Lấy sản phẩm gợi ý)
+ProdService -> ProdRepo : getFlashSaleProducts(5)
+ProdRepo --> ProdCtrl : relatedProducts
+ProdCtrl --> Browser : res.render('pages/products/detail', { product, availableSizes, availableColors, relatedProducts })
+Browser -> Browser : main.js khởi tạo Dynamic Variant Picker: lắng nghe sự kiện chọn Size & Color,\nđối chiếu thuộc tính data-variants, cập nhật hiển thị tồn kho & kích hoạt nút mua hàng
+Browser --> User : Hiển thị trang chi tiết sản phẩm hoàn chỉnh
+
+@enduml

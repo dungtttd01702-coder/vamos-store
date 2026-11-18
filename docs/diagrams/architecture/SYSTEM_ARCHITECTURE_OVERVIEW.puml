@@ -1,0 +1,79 @@
+@startuml SYSTEM_ARCHITECTURE_OVERVIEW
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #1E293B
+skinparam packageBorderColor #64748B
+skinparam componentBorderColor #334155
+skinparam componentBackgroundColor #F8FAFC
+
+title SƠ ĐỒ KIẾN TRÚC TỔNG QUAN HỆ THỐNG (SYSTEM ARCHITECTURE OVERVIEW)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "1. TẦNG TRÌNH DUYỆT KHÁCH HÀNG (CLIENT TIER)" #F1F5F9 {
+  [Trình duyệt Web (Web Browser)\nChrome / Firefox / Edge / Safari] as Browser
+  [Giao diện Tương tác Khách hàng\nHTML5 / Tailwind CSS / Vanilla JS (main.js)] as ClientUI
+  Browser -down-> ClientUI : Tương tác giao diện
+}
+
+package "2. TẦNG MÁY CHỦ ỨNG DỤNG (APPLICATION SERVER TIER - Node.js & Express.js)" #F8FAFC {
+
+  package "Cổng nạp & Đường dẫn (HTTP Server & Routing)" #EFF6FF {
+    [HTTP Web Server\n(server.js - Port 3000)] as HttpServer
+    [Ứng dụng Express Core\n(src/app.js)] as ExpressApp
+    [Hàng rào Middleware Toàn cục\n(Security Headers, CORS, Session, CSRF, i18n, Error)] as Middlewares
+    [Bộ điều tuyến phân hệ (Modular Routers)\n/auth, /products, /cart, /checkout, /account, /admin, /api] as Routers
+    
+    HttpServer -> ExpressApp : Khởi tạo & Lắng nghe
+    ExpressApp -> Middlewares : Xử lý tuần tự Request
+    Middlewares -> Routers : Điều hướng URL đã lọc
+  }
+
+  package "Tầng Điều khiển & Trình diễn (Controllers & Views SSR)" #F0FDF4 {
+    [Bộ Điều Khiển Nghiệp Vụ (Controllers)\nAuth, Product, Cart, Wishlist, Checkout, Account, Admin, Home] as Controllers
+    [Động cơ Tạo Giao diện (Pug 3.0.3 SSR)\nLayouts, Partials, Pages Templates] as PugEngine
+    
+    Routers -> Controllers : Phân phối Request
+    Controllers -down-> PugEngine : Cung cấp Dữ liệu Model
+    PugEngine -up-> Browser : Trả về HTML đã Render
+    Controllers -up-> Browser : Trả về JSON (Live Search, Wishlist AJAX)
+  }
+
+  package "Tầng Nghiệp vụ Chuyên sâu (Service Layer)" #FEF3C7 {
+    [Dịch vụ Đơn hàng & Kho (order.service.js)\nACID Transaction, Khóa bi quan, Giảm/Hoàn kho, Voucher] as OrderService
+    [Dịch vụ Sản phẩm (product.service.js)\nTruy xuất danh mục, bộ lọc đa tiêu chí, tìm kiếm] as ProductService
+    [Dịch vụ Yêu thích (wishlist.service.js)\n1-click toggle, đồng bộ danh sách khách hàng] as WishlistService
+    
+    Controllers --> OrderService : Ủy quyền xử lý đơn
+    Controllers --> ProductService : Ủy quyền xử lý catalog
+    Controllers --> WishlistService : Ủy quyền xử lý wishlist
+  }
+
+  package "Tầng Truy xuất Dữ liệu (Data Access Layer)" #EEF2FF {
+    [Kho Dữ liệu Chuyên biệt (Repositories)\nproduct.repository.js, wishlist.repository.js] as Repositories
+    [Mô-đun Kết nối CSDL (database.js)\nConnection Pool (0-10), query(), withTransaction()] as DbHelper
+    
+    ProductService --> Repositories : Truy vấn
+    WishlistService --> Repositories : Truy vấn
+    Repositories --> DbHelper : Mượn kết nối Pool
+    OrderService --> DbHelper : Mở Transaction & UPDLOCK
+    Controllers --> DbHelper : Truy vấn trực tiếp (Auth, Cart, Admin)
+  }
+}
+
+package "3. TẦNG CƠ SỞ DỮ LIỆU (DATABASE TIER - Microsoft SQL Server)" #FFF1F2 {
+  database "Cơ sở Dữ liệu VAMOS STORE\n(Microsoft SQL Server 2019/2022)" as SqlServer {
+    folder "21 Bảng Dữ liệu Quan hệ" {
+      [users, roles, addresses] as ModUser
+      [products, categories, brands, variants, images] as ModCat
+      [orders, order_items, order_status_histories] as ModOrder
+      [carts, cart_items, wishlist_items, vouchers, voucher_usages] as ModShop
+      [inventory_transactions, banners, system_logs, password_reset_tokens] as ModAux
+    }
+  }
+  
+  DbHelper <--> SqlServer : TCP/IP TDS Protocol (Port 1433)\nConnection Pool, Prepared Statements, ACID Locks
+}
+
+ClientUI -down-> HttpServer : HTTP/HTTPS Requests (GET, POST)
+@enduml

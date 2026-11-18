@@ -1,0 +1,84 @@
+@startuml SD01_REGISTER
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: ĐĂNG KÝ TÀI KHOẢN (SD01 - REGISTER)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Khách vãng lai\n(Guest)" as Guest
+participant "Trình duyệt Web\n(Browser / Client)" as Browser
+participant "Auth Router\n(auth.routes.js)" as Router
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Auth Controller\n(auth.controller.js)" as AuthCtrl
+participant "Tiện ích Validate\n(validator.js)" as Validator
+participant "Thư viện Bcrypt\n(bcryptjs)" as Bcrypt
+participant "Database Pool\n(database.js)" as DbPool
+participant "Cart Controller\n(cart.controller.js)" as CartCtrl
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+Guest -> Browser : Nhập họ tên, email, phone, mật khẩu\n& nhấp "Đăng ký"
+Browser -> Router : POST /auth/register\n{ full_name, email, phone, password, confirm_password, _csrf }
+Router -> CsrfMid : Kiểm tra token _csrf
+alt Token CSRF không hợp lệ
+    CsrfMid --> Browser : HTTP 403 Forbidden ("CSRF token mismatch")
+else Token CSRF hợp lệ
+    CsrfMid -> AuthCtrl : postRegister(req, res, next)
+    AuthCtrl -> Validator : isValidFullName(full_name), isValidEmail(email),\nisValidPhone(phone), isValidPassword(password)
+    
+    alt Dữ liệu không hợp lệ hoặc confirm_password không khớp
+        Validator --> AuthCtrl : Kết quả validation thất bại
+        AuthCtrl --> Browser : res.render('pages/auth/register', { error_msg, formData })
+    else Dữ liệu form hợp lệ
+        AuthCtrl -> DbPool : query("SELECT id FROM users WHERE email = @email", { email })
+        DbPool -> SqlDb : SELECT id FROM users WHERE email = @email
+        SqlDb --> DbPool : Trả về recordset
+        DbPool --> AuthCtrl : existRes
+        
+        alt Email đã tồn tại trong CSDL
+            AuthCtrl --> Browser : res.render('pages/auth/register', { error_msg: "Email đã tồn tại" })
+        else Email khả dụng
+            AuthCtrl -> Bcrypt : hash(password, 10)
+            Bcrypt --> AuthCtrl : passwordHash
+            
+            AuthCtrl -> DbPool : getPool() & transaction.begin()
+            DbPool -> SqlDb : BEGIN TRANSACTION
+            
+            AuthCtrl -> DbPool : INSERT INTO users (full_name, email, password_hash, phone, role='CUSTOMER', status='active')
+            DbPool -> SqlDb : Thực thi INSERT users (OUTPUT INSERTED.id)
+            SqlDb --> DbPool : Trả về newUser (id, email, full_name, role)
+            
+            AuthCtrl -> DbPool : INSERT INTO carts (user_id) VALUES (@userId)
+            DbPool -> SqlDb : Thực thi INSERT carts (OUTPUT INSERTED.id)
+            SqlDb --> DbPool : Trả về cartId
+            
+            alt Lỗi trong quá trình Insert CSDL
+                AuthCtrl -> DbPool : transaction.rollback()
+                DbPool -> SqlDb : ROLLBACK TRANSACTION
+                AuthCtrl --> Browser : res.render('pages/auth/register', { error_msg: "Lỗi tạo tài khoản" })
+            else Giao dịch tạo tài khoản thành công
+                AuthCtrl -> DbPool : transaction.commit()
+                DbPool -> SqlDb : COMMIT TRANSACTION
+                
+                opt Khách vãng lai có giỏ hàng tạm (guestCart > 0)
+                    AuthCtrl -> CartCtrl : CartController.mergeGuestCart(cartId, guestCart)
+                    CartCtrl -> DbPool : Mở Transaction hợp nhất giỏ hàng
+                    DbPool -> SqlDb : INSERT / UPDATE cart_items (tối đa 10 đôi)
+                    SqlDb --> DbPool : Xác nhận gộp giỏ
+                    CartCtrl --> AuthCtrl : registeredCartCount
+                end
+                
+                AuthCtrl -> AuthCtrl : req.session.regenerate()\n(Chống tấn công Session Fixation)
+                AuthCtrl -> AuthCtrl : Gán req.session.user = { id, email, full_name, role, cartId }\nreq.session.cartCount = registeredCartCount\nreq.session.guestCart = []
+                AuthCtrl --> Browser : HTTP 302 Redirect về trang chủ ('/')
+                Browser --> Guest : Hiển thị trang chủ với trạng thái đã đăng nhập
+            end
+        end
+    end
+end
+
+@enduml

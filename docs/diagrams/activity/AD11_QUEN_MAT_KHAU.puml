@@ -1,0 +1,46 @@
+@startuml
+title Sơ đồ hoạt động — Khôi phục mật khẩu (AD11/AD03)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Mở chức năng Quên mật khẩu;
+:Nhập địa chỉ email tài khoản;
+:Gửi yêu cầu khôi phục;
+
+|Hệ thống|
+:Tiếp nhận email và kiểm tra tài khoản;
+if (Email tồn tại trong hệ thống?) then (Đúng)
+  :Tạo token khôi phục duy nhất có thời hạn;
+  :Lưu mã token vào bảng mật khẩu;
+  :Gửi hướng dẫn đặt lại mật khẩu;
+  |Người dùng|
+  :Mở link và nhập mật khẩu mới;
+  |Hệ thống|
+  :Cập nhật mật khẩu băm mới;
+  :Vô hiệu hóa token đã sử dụng;
+  :Thông báo đổi mật khẩu thành công;
+  |Người dùng|
+  :Đăng nhập bằng mật khẩu mới;
+  stop
+else (Sai)
+  :Thông báo email không tồn tại trong hệ thống;
+  |Người dùng|
+  :Kiểm tra lại địa chỉ email đã nhập;
+  stop
+endif
+@enduml

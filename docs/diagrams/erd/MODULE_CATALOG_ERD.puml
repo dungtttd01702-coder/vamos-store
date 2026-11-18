@@ -1,0 +1,98 @@
+@startuml MODULE_CATALOG_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam linetype ortho
+skinparam ArrowColor #1E293B
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #F0FDF4
+
+title SƠ ĐỒ ERD PHÂN HỆ SẢN PHẨM & BIẾN THỂ (CATALOG CLUSTER ERD)\nHỆ THỐNG VAMOS STORE
+
+entity "categories" as categories {
+  * **id** : INT [PK, IDENTITY]
+  --
+  name : NVARCHAR(100)
+  slug : NVARCHAR(120) [UQ]
+  description : NVARCHAR(MAX)
+  is_active : BIT
+  created_at : DATETIME2
+}
+
+entity "brands" as brands {
+  * **id** : INT [PK, IDENTITY]
+  --
+  name : NVARCHAR(100)
+  slug : NVARCHAR(120) [UQ]
+  description : NVARCHAR(MAX)
+  created_at : DATETIME2
+}
+
+entity "sizes" as sizes {
+  * **id** : INT [PK, IDENTITY]
+  --
+  size_name : NVARCHAR(20) [UQ]
+  display_order : INT
+}
+
+entity "colors" as colors {
+  * **id** : INT [PK, IDENTITY]
+  --
+  color_name : NVARCHAR(50) [UQ]
+  hex_code : NVARCHAR(10)
+}
+
+entity "products" as products {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * category_id : INT [FK -> categories.id]
+  brand_id : INT [FK -> brands.id, NULL]
+  product_code : NVARCHAR(50) [UQ]
+  name : NVARCHAR(200)
+  slug : NVARCHAR(255) [UQ]
+  description : NVARCHAR(MAX)
+  gender_target : NVARCHAR(20) [CK]
+  base_price : DECIMAL(12,0) [CK >= 0]
+  sale_price : DECIMAL(12,0) [CK: 0 <= sale < base]
+  status : NVARCHAR(20) [CK: active/inactive/draft]
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+entity "product_images" as product_images {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * product_id : INT [FK -> products.id]
+  image_url : NVARCHAR(1000)
+  is_primary : BIT
+  display_order : INT
+  --
+  [Filtered UQ: product_id WHERE is_primary=1]
+}
+
+entity "product_variants" as product_variants {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * product_id : INT [FK -> products.id]
+  * size_id : INT [FK -> sizes.id]
+  * color_id : INT [FK -> colors.id]
+  sku : NVARCHAR(100) [UQ]
+  stock_quantity : INT [CK >= 0]
+  status : NVARCHAR(20) [CK: active/inactive]
+  created_at : DATETIME2
+  updated_at : DATETIME2
+  --
+  [UQ: product_id, size_id, color_id]
+}
+
+categories ||--o{ products : "ON DELETE NO ACTION\nfk_products_category"
+brands ||--o{ products : "ON DELETE SET NULL\nfk_products_brand"
+products ||--o{ product_images : "ON DELETE CASCADE\nfk_product_images_product"
+products ||--|{ product_variants : "ON DELETE CASCADE\nfk_variants_product"
+sizes ||--o{ product_variants : "ON DELETE NO ACTION\nfk_variants_size"
+colors ||--o{ product_variants : "ON DELETE NO ACTION\nfk_variants_color"
+
+@enduml
+

@@ -1,0 +1,44 @@
+@startuml
+title Sơ đồ hoạt động — Quản lý sổ địa chỉ (AD10/AD04)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Khách hàng|
+start
+:Mở trang sổ địa chỉ cá nhân;
+:Nhập địa chỉ mới (người nhận, SĐT, số nhà, tỉnh/thành);
+:Tùy chọn Đặt làm địa chỉ mặc định;
+:Nhấn Lưu địa chỉ;
+
+|Hệ thống|
+:Tiếp nhận thông tin địa chỉ;
+:Kiểm tra định dạng SĐT 10 số và địa chỉ;
+if (Thông tin hợp lệ?) then (Đúng)
+  if (Chọn đặt làm mặc định?) then (Có)
+    :Bỏ cờ mặc định của các địa chỉ cũ;
+  endif
+  :Lưu địa chỉ mới vào sổ địa chỉ;
+  :Hiển thị thông báo lưu thành công;
+  |Khách hàng|
+  :Xem danh sách địa chỉ đã cập nhật;
+  stop
+else (Sai)
+  :Thông báo lỗi thông tin hoặc SĐT không hợp lệ;
+  |Khách hàng|
+  :Sửa lại thông tin địa chỉ;
+  stop
+endif
+@enduml

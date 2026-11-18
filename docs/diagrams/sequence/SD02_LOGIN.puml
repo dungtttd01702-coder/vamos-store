@@ -1,0 +1,87 @@
+@startuml SD02_LOGIN
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: ĐĂNG NHẬP & HỢP NHẤT GIỎ HÀNG (SD02 - LOGIN & CART MERGE)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Người dùng\n(Guest / Customer / Admin)" as User
+participant "Trình duyệt Web\n(Browser / Client)" as Browser
+participant "Auth Router\n(auth.routes.js)" as Router
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Auth Controller\n(auth.controller.js)" as AuthCtrl
+participant "Tiện ích Validate\n(validator.js)" as Validator
+participant "Thư viện Bcrypt\n(bcryptjs)" as Bcrypt
+participant "Database Pool\n(database.js)" as DbPool
+participant "Cart Controller\n(cart.controller.js)" as CartCtrl
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+User -> Browser : Nhập email, mật khẩu & nhấp "Đăng nhập"
+Browser -> Router : POST /auth/login\n{ email, password, returnUrl, _csrf }
+Router -> CsrfMid : Kiểm tra token _csrf
+alt Token CSRF không hợp lệ
+    CsrfMid --> Browser : HTTP 403 Forbidden ("CSRF token mismatch")
+else Token CSRF hợp lệ
+    CsrfMid -> AuthCtrl : postLogin(req, res, next)
+    AuthCtrl -> Validator : isValidEmail(normalizedEmail)
+    alt Email sai định dạng hoặc rỗng
+        Validator --> AuthCtrl : Format email không hợp lệ
+        AuthCtrl --> Browser : res.render('pages/auth/login', { error_msg: "Email không đúng định dạng" })
+    else Email đúng định dạng
+        AuthCtrl -> DbPool : query("SELECT id, full_name, email, password_hash, role, status FROM users WHERE email = @email", { email })
+        DbPool -> SqlDb : SELECT FROM users WHERE email = @email
+        SqlDb --> DbPool : Trả về recordset
+        DbPool --> AuthCtrl : userRes
+        
+        alt Không tìm thấy tài khoản
+            AuthCtrl --> Browser : res.render('pages/auth/login', { error_msg: "Email hoặc mật khẩu không chính xác." })
+        else Tài khoản tồn tại
+            alt Tài khoản bị khóa (status === 'locked')
+                AuthCtrl --> Browser : res.render('pages/auth/login', { error_msg: "Tài khoản của bạn hiện đang bị tạm khóa." })
+            else Tài khoản hoạt động (status === 'active')
+                AuthCtrl -> Bcrypt : compare(password, user.password_hash)
+                Bcrypt --> AuthCtrl : isMatch
+                
+                alt Mật khẩu không trùng khớp (!isMatch)
+                    AuthCtrl --> Browser : res.render('pages/auth/login', { error_msg: "Email hoặc mật khẩu không chính xác." })
+                else Xác thực thành công (isMatch === true)
+                    AuthCtrl -> DbPool : query("SELECT id FROM carts WHERE user_id = @userId", { userId: user.id })
+                    DbPool -> SqlDb : SELECT id FROM carts WHERE user_id = @userId
+                    SqlDb --> DbPool : cartRes
+                    DbPool --> AuthCtrl : cartId (Nếu chưa có, INSERT tạo mới carts)
+                    
+                    AuthCtrl -> DbPool : query("SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId", { cartId })
+                    DbPool -> SqlDb : SELECT SUM(quantity) FROM cart_items WHERE cart_id = @cartId
+                    SqlDb --> DbPool : countRes
+                    DbPool --> AuthCtrl : cartCount ban đầu
+                    
+                    opt Có giỏ hàng tạm trong phiên (guestCart > 0)
+                        AuthCtrl -> CartCtrl : CartController.mergeGuestCart(cartId, guestCart)
+                        CartCtrl -> DbPool : Mở Transaction gộp giỏ
+                        DbPool -> SqlDb : UPDATE/INSERT cart_items (UPDLOCK, giới hạn tối đa 10 đôi)
+                        SqlDb --> DbPool : Commit gộp giỏ
+                        CartCtrl --> AuthCtrl : cartCount sau hợp nhất
+                    end
+                    
+                    AuthCtrl -> AuthCtrl : req.session.regenerate()\n(Cấp Session ID mới chống Session Fixation)
+                    AuthCtrl -> AuthCtrl : Gán req.session.user = { id, email, full_name, role, cartId }\nreq.session.cartCount = cartCount\nreq.session.guestCart = []
+                    
+                    alt Vai trò là ADMIN (user.role === 'ADMIN')
+                        AuthCtrl --> Browser : HTTP 302 Redirect về '/admin/dashboard'
+                        Browser --> User : Hiển thị Bảng điều khiển Quản trị (Admin Dashboard)
+                    else Vai trò là CUSTOMER (user.role === 'CUSTOMER')
+                        AuthCtrl --> Browser : HTTP 302 Redirect về safeReturnUrl hoặc '/'
+                        Browser --> User : Hiển thị trang mục tiêu với phiên đăng nhập mới
+                    end
+                end
+            end
+        end
+    end
+end
+
+@enduml

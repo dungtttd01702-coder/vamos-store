@@ -1,0 +1,66 @@
+@startuml SHOPPING_COMPONENT_DIAGRAM
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN: PHÂN HỆ GIỎ HÀNG & DANH SÁCH YÊU THÍCH (SHOPPING & WISHLIST)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Tầng Trình diễn (Presentation Tier)" #F1F5F9 {
+  component [Trang Giỏ hàng\n(views/pages/cart/index.pug)] as ViewCart
+  component [Nút Yêu thích trên Thẻ SP & Chi tiết\n(Heart Icon Component)] as ViewWishlistBtn
+  component [Client Scripts (main.js)\nAJAX Wishlist Toggle & Badge Counter] as ClientJS
+  
+  ViewWishlistBtn --> ClientJS : Nhấp icon Trái tim
+}
+
+package "Tầng Điều tuyến & Middleware (Routing & Middleware Tier)" #EFF6FF {
+  component [Cart Router\n(src/routes/cart.routes.js)] as CartRouter
+  component [Wishlist Router\n(src/routes/wishlist.routes.js)] as WishRouter
+  component [Customer Guard Middleware\n(requireCustomer: 401 Guest, 403 Admin)] as CustGuard
+  
+  WishRouter --> CustGuard : Áp dụng cho mọi endpoint
+}
+
+ViewCart --> CartRouter : /cart, /cart/add, /cart/update, /cart/remove
+ClientJS --> WishRouter : POST /api/wishlist/toggle
+
+package "Tầng Điều khiển & Xử lý (Controller & Service Tier)" #F0FDF4 {
+  component [Cart Controller\n(src/controllers/cart.controller.js)] as CartCtrl
+  component [Wishlist Controller\n(src/controllers/wishlist.controller.js)] as WishCtrl
+  component [Wishlist Service\n(src/services/wishlist.service.js)] as WishService
+  component [Quản lý Phiên Khách vãng lai\n(req.session.guestCart & Live DB Sync)] as GuestSessionCart
+  
+  CartRouter --> CartCtrl
+  CustGuard --> WishCtrl
+  WishCtrl --> WishService : toggleItem(userId, productId)
+  CartCtrl --> GuestSessionCart : Khi người dùng là Guest
+}
+
+package "Tầng Truy xuất Dữ liệu (Repository & Data Access)" #FEF3C7 {
+  component [Wishlist Repository\n(src/models/repositories/wishlist.repository.js)] as WishRepo
+  component [Database Access Engine\n(src/config/database.js)] as DbEngine
+  
+  WishService --> WishRepo
+  WishRepo --> DbEngine : query(sqlStr, params)
+  CartCtrl --> DbEngine : SQL trực tiếp & Transaction mergeGuestCart
+  GuestSessionCart --> DbEngine : Live DB Sync đối soát tồn kho
+}
+
+package "Tầng Lưu trữ CSDL (Microsoft SQL Server)" #FFF1F2 {
+  database [SQL Server (vamos_store_db)] as SqlDb {
+    [carts\n(id, user_id)] as TblCarts
+    [cart_items\n(cart_id, variant_id, quantity)] as TblCartItems
+    [wishlist_items\n(user_id, product_id, created_at)] as TblWishlist
+    [product_variants\n(stock_quantity, status)] as TblVariants
+  }
+  
+  DbEngine <--> TblCarts : Khóa giỏ hàng (UPDLOCK)
+  DbEngine <--> TblCartItems : Thêm/sửa/xóa mặt hàng
+  DbEngine <--> TblWishlist : INSERT / DELETE 1-click toggle
+  DbEngine <--> TblVariants : Kiểm tra tồn kho & trạng thái
+}
+
+@enduml

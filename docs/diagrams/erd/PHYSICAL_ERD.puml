@@ -1,0 +1,316 @@
+@startuml PHYSICAL_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam linetype ortho
+skinparam ArrowColor #1E293B
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #F1F5F9
+
+title SƠ ĐỒ CƠ SỞ DỮ LIỆU MỨC VẬT LÝ (PHYSICAL ERD) — MICROSOFT SQL SERVER\nHỆ THỐNG VAMOS STORE (20 BẢNG NGHIỆP VỤ)
+
+' ==============================================================================
+' NHÓM 1: NGƯỜI DÙNG & PHÂN QUYỀN
+' ==============================================================================
+package "Phân nhóm 1: Người dùng & Phân quyền" #F8FAFC {
+  entity "users" as users {
+    * **id** : INT [PK, IDENTITY]
+    --
+    full_name : NVARCHAR(100)
+    email : NVARCHAR(150) [UQ]
+    password_hash : NVARCHAR(255)
+    phone : NVARCHAR(20)
+    role : NVARCHAR(20) [CK: ADMIN/CUSTOMER]
+    status : NVARCHAR(20) [CK: active/locked]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "addresses" as addresses {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    recipient_name : NVARCHAR(100)
+    phone : NVARCHAR(20)
+    province : NVARCHAR(100)
+    district : NVARCHAR(100)
+    ward : NVARCHAR(100)
+    detail_address : NVARCHAR(255)
+    is_default : BIT [Filtered UQ: user_id WHERE is_default=1]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "password_reset_tokens" as password_reset_tokens {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    token_hash : NVARCHAR(255) [UQ]
+    expires_at : DATETIME2
+    used_at : DATETIME2
+    created_at : DATETIME2
+  }
+}
+
+' ==============================================================================
+' NHÓM 2: SẢN PHẨM & MA TRẬN BIẾN THỂ
+' ==============================================================================
+package "Phân nhóm 2: Sản phẩm & Ma trận Biến thể" #F0FDF4 {
+  entity "categories" as categories {
+    * **id** : INT [PK, IDENTITY]
+    --
+    name : NVARCHAR(100)
+    slug : NVARCHAR(120) [UQ]
+    description : NVARCHAR(MAX)
+    is_active : BIT
+    created_at : DATETIME2
+  }
+
+  entity "brands" as brands {
+    * **id** : INT [PK, IDENTITY]
+    --
+    name : NVARCHAR(100)
+    slug : NVARCHAR(120) [UQ]
+    description : NVARCHAR(MAX)
+    created_at : DATETIME2
+  }
+
+  entity "sizes" as sizes {
+    * **id** : INT [PK, IDENTITY]
+    --
+    size_name : NVARCHAR(20) [UQ]
+    display_order : INT
+  }
+
+  entity "colors" as colors {
+    * **id** : INT [PK, IDENTITY]
+    --
+    color_name : NVARCHAR(50) [UQ]
+    hex_code : NVARCHAR(10)
+  }
+
+  entity "products" as products {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * category_id : INT [FK -> categories.id]
+    brand_id : INT [FK -> brands.id, NULL]
+    product_code : NVARCHAR(50) [UQ]
+    name : NVARCHAR(200)
+    slug : NVARCHAR(255) [UQ]
+    description : NVARCHAR(MAX)
+    gender_target : NVARCHAR(20) [CK]
+    base_price : DECIMAL(12,0) [CK >= 0]
+    sale_price : DECIMAL(12,0) [CK: 0 <= sale < base]
+    status : NVARCHAR(20) [CK: active/inactive/draft]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "product_images" as product_images {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * product_id : INT [FK -> products.id]
+    image_url : NVARCHAR(1000)
+    is_primary : BIT [Filtered UQ: product_id WHERE is_primary=1]
+    display_order : INT
+  }
+
+  entity "product_variants" as product_variants {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * product_id : INT [FK -> products.id]
+    * size_id : INT [FK -> sizes.id]
+    * color_id : INT [FK -> colors.id]
+    sku : NVARCHAR(100) [UQ]
+    stock_quantity : INT [CK >= 0]
+    status : NVARCHAR(20) [CK: active/inactive]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+    --
+    [UQ: product_id, size_id, color_id]
+  }
+}
+
+' ==============================================================================
+' NHÓM 3: TỒN KHO & KIỂM KÊ
+' ==============================================================================
+package "Phân nhóm 3: Tồn kho & Kiểm kê" #FEF3C7 {
+  entity "inventory_transactions" as inventory_transactions {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * variant_id : INT [FK -> product_variants.id]
+    * user_id : INT [FK -> users.id]
+    old_quantity : INT [CK >= 0]
+    new_quantity : INT [CK >= 0]
+    change_quantity : INT
+    reason : NVARCHAR(255)
+    created_at : DATETIME2
+  }
+}
+
+' ==============================================================================
+' NHÓM 4: KHÁCH HÀNG, GIỎ HÀNG & YÊU THÍCH
+' ==============================================================================
+package "Phân nhóm 4: Khách hàng, Giỏ hàng & Yêu thích" #EFF6FF {
+  entity "carts" as carts {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id, UQ]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "cart_items" as cart_items {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * cart_id : INT [FK -> carts.id]
+    * variant_id : INT [FK -> product_variants.id]
+    quantity : INT [CK > 0]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+    --
+    [UQ: cart_id, variant_id]
+  }
+
+  entity "wishlist_items" as wishlist_items {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    * product_id : INT [FK -> products.id]
+    created_at : DATETIME2
+    --
+    [UQ: user_id, product_id]
+  }
+}
+
+' ==============================================================================
+' NHÓM 5: KHUYẾN MÃI, ĐƠN HÀNG & VẬN HÀNH
+' ==============================================================================
+package "Phân nhóm 5: Khuyến mãi, Đơn hàng & Vận hành" #FFF1F2 {
+  entity "vouchers" as vouchers {
+    * **id** : INT [PK, IDENTITY]
+    --
+    code : NVARCHAR(50) [UQ]
+    name : NVARCHAR(100)
+    discount_type : NVARCHAR(20) [CK]
+    discount_value : DECIMAL(12,0) [CK > 0]
+    min_order_value : DECIMAL(12,0) [CK >= 0]
+    max_discount_amount : DECIMAL(12,0)
+    start_date : DATETIME2
+    end_date : DATETIME2 [CK >= start_date]
+    usage_limit : INT [CK >= 0]
+    used_count : INT [CK >= 0]
+    is_active : BIT
+    created_at : DATETIME2
+  }
+
+  entity "voucher_usages" as voucher_usages {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * voucher_id : INT [FK -> vouchers.id]
+    * user_id : INT [FK -> users.id]
+    * order_id : INT [FK -> orders.id]
+    used_at : DATETIME2
+    --
+    [UQ: voucher_id, user_id]
+  }
+
+  entity "orders" as orders {
+    * **id** : INT [PK, IDENTITY]
+    --
+    order_code : NVARCHAR(50) [UQ]
+    * user_id : INT [FK -> users.id]
+    recipient_name_snapshot : NVARCHAR(100)
+    recipient_phone_snapshot : NVARCHAR(20)
+    delivery_address_snapshot : NVARCHAR(255)
+    subtotal : DECIMAL(12,0) [CK >= 0]
+    discount_amount : DECIMAL(12,0) [CK >= 0]
+    shipping_fee : DECIMAL(12,0) [CK >= 0]
+    total_amount : DECIMAL(12,0) [CK >= 0]
+    voucher_id : INT [FK -> vouchers.id, NULL]
+    voucher_code_snapshot : NVARCHAR(50)
+    payment_method : NVARCHAR(20) [CK: COD]
+    payment_status : NVARCHAR(20) [CK: UNPAID/PAID]
+    order_status : NVARCHAR(20) [CK: PENDING/CONFIRMED/PROCESSING/SHIPPING/COMPLETED/CANCELLED]
+    customer_note : NVARCHAR(500)
+    admin_note : NVARCHAR(500)
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "order_items" as order_items {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * order_id : INT [FK -> orders.id]
+    * product_variant_id : INT [FK -> product_variants.id]
+    product_name_snapshot : NVARCHAR(200)
+    sku_snapshot : NVARCHAR(100)
+    size_snapshot : NVARCHAR(20)
+    color_snapshot : NVARCHAR(50)
+    unit_price : DECIMAL(12,0) [CK >= 0]
+    quantity : INT [CK > 0]
+    line_total : DECIMAL(12,0) [CK >= 0]
+  }
+
+  entity "order_status_histories" as order_status_histories {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * order_id : INT [FK -> orders.id]
+    * changed_by : INT [FK -> users.id]
+    previous_status : NVARCHAR(50)
+    new_status : NVARCHAR(50)
+    note : NVARCHAR(255)
+    created_at : DATETIME2
+  }
+
+  entity "banners" as banners {
+    * **id** : INT [PK, IDENTITY]
+    --
+    title : NVARCHAR(150)
+    image_url : NVARCHAR(1000)
+    link_url : NVARCHAR(255)
+    display_order : INT
+    is_active : BIT
+    created_at : DATETIME2
+  }
+}
+
+' ==============================================================================
+' CÁC ĐƯỜNG LIÊN KẾT KHÓA NGOẠI VẬT LÝ (EXACT PHYSICAL FOREIGN KEYS)
+' ==============================================================================
+users ||--o{ addresses : "ON DELETE CASCADE"
+users ||--o| carts : "ON DELETE CASCADE"
+users ||--o{ password_reset_tokens : "ON DELETE CASCADE"
+users ||--o{ orders : "ON DELETE NO ACTION"
+users ||--o{ wishlist_items : "ON DELETE CASCADE"
+users ||--o{ voucher_usages : "ON DELETE NO ACTION"
+users ||--o{ order_status_histories : "ON DELETE NO ACTION"
+users ||--o{ inventory_transactions : "ON DELETE NO ACTION"
+
+categories ||--o{ products : "ON DELETE NO ACTION"
+brands ||--o{ products : "ON DELETE SET NULL"
+
+products ||--o{ product_images : "ON DELETE CASCADE"
+products ||--|{ product_variants : "ON DELETE CASCADE"
+products ||--o{ wishlist_items : "ON DELETE CASCADE"
+
+sizes ||--o{ product_variants : "ON DELETE NO ACTION"
+colors ||--o{ product_variants : "ON DELETE NO ACTION"
+
+product_variants ||--o{ cart_items : "ON DELETE NO ACTION"
+product_variants ||--o{ order_items : "ON DELETE NO ACTION"
+product_variants ||--o{ inventory_transactions : "ON DELETE NO ACTION"
+
+carts ||--o{ cart_items : "ON DELETE CASCADE"
+
+orders ||--|{ order_items : "ON DELETE CASCADE"
+orders ||--o{ order_status_histories : "ON DELETE CASCADE"
+orders ||--o{ voucher_usages : "ON DELETE CASCADE"
+
+vouchers ||--o{ orders : "ON DELETE SET NULL"
+vouchers ||--o{ voucher_usages : "ON DELETE NO ACTION"
+
+@enduml
+

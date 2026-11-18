@@ -1,0 +1,59 @@
+@startuml SD16_CUSTOMER_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG (SD16 - CUSTOMER MANAGEMENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Quản trị viên\n(Admin)" as Admin
+participant "Trình duyệt Quản trị\n(Admin Browser)" as Browser
+participant "Admin Router\n(admin.routes.js)" as Router
+participant "Admin Guard\n(requireAdmin)" as AuthGuard
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Admin Controller\n(admin.controller.js)" as AdminCtrl
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== LUỒNG 1: XEM DANH SÁCH & TÌM KIẾM KHÁCH HÀNG (CUSTOMER LIST) ==
+
+Admin -> Browser : Nhấp vào "Khách hàng" (có thể nhập từ khóa tìm kiếm theo tên, email, SĐT)
+Browser -> Router : GET /admin/customers?q=nguyen
+Router -> AuthGuard : requireAdmin
+AuthGuard -> AdminCtrl : getCustomers(req, res, next)
+
+AdminCtrl -> DbPool : query("SELECT u.id, u.full_name, u.email, u.phone, u.status, u.created_at, (SELECT COUNT(*) FROM orders WHERE user_id = u.id) AS order_count, (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND order_status = 'COMPLETED') AS total_spent FROM users u WHERE role = 'CUSTOMER' AND ... ORDER BY u.id DESC")
+DbPool -> SqlDb : SELECT FROM users WHERE role = 'CUSTOMER'
+SqlDb --> DbPool : Trả về recordset danh sách khách hàng kèm số đơn & tổng chi tiêu
+DbPool --> AdminCtrl : customersList
+AdminCtrl --> Browser : res.render('pages/admin/customers', { customers: customersList, searchQuery: 'nguyen' })
+Browser --> Admin : Hiển thị bảng khách hàng kèm trạng thái tài khoản (Hoạt động / Bị khóa)
+
+== LUỒNG 2: KHÓA / MỞ KHÓA TÀI KHOẢN KHÁCH HÀNG (TOGGLE ACCOUNT STATUS) ==
+
+Admin -> Browser : Nhấp nút "Khóa tài khoản" hoặc "Mở khóa" một khách hàng
+Browser -> Router : POST /admin/customers/:id/toggle-status\n{ _csrf }
+Router -> AuthGuard : requireAdmin
+AuthGuard -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> AdminCtrl : postToggleCustomerStatus(req, res, next)
+
+AdminCtrl -> DbPool : query("SELECT role FROM users WHERE id = @id", { id: custId })
+DbPool -> SqlDb : Kiểm tra vai trò của tài khoản mục tiêu
+SqlDb --> DbPool : checkAdminRes
+
+alt Tài khoản mục tiêu có vai trò ADMIN (role === 'ADMIN')
+    AdminCtrl --> Browser : Báo lỗi nghiêm trọng: "Tuyệt đối không được phép khóa tài khoản Quản trị viên (ADMIN)!"
+else Tài khoản mục tiêu là CUSTOMER hợp lệ
+    AdminCtrl -> DbPool : query("UPDATE users SET status = CASE WHEN status = 'active' THEN 'locked' ELSE 'active' END, updated_at = GETDATE() WHERE id = @id", { id: custId })
+    DbPool -> SqlDb : Chuyển đổi trạng thái giữa 'active' và 'locked'
+    SqlDb --> DbPool : Xác nhận cập nhật
+    
+    AdminCtrl --> Browser : HTTP 302 Redirect về '/admin/customers'
+    Browser --> Admin : Tải lại danh sách, huy hiệu trạng thái chuyển đổi thành công (Đang hoạt động <-> Đã tạm khóa)
+end
+
+@enduml

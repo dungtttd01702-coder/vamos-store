@@ -1,0 +1,44 @@
+@startuml
+title Sơ đồ hoạt động — Hủy đơn hàng của khách hàng (AD06/AD10)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Mở lịch sử đơn hàng cá nhân;
+:Chọn đơn hàng muốn hủy;
+:Nhấn nút Hủy đơn hàng và chọn lý do;
+
+|Hệ thống|
+:Tiếp nhận yêu cầu hủy;
+:Kiểm tra trạng thái đơn hàng hiện tại;
+if (Đơn ở trạng thái Chờ xác nhận (PENDING)?) then (Đúng)
+  :Cập nhật trạng thái đơn thành Đã hủy (CANCELLED);
+  :Hoàn trả số lượng vào tồn kho sản phẩm;
+  :Ghi nhận giao dịch hoàn kho vào thẻ kho;
+  :Phục hồi lượt sử dụng voucher (nếu có);
+  :Thông báo hủy đơn thành công;
+  |Người dùng|
+  :Kiểm tra đơn hàng đã được cập nhật Đã hủy;
+  stop
+else (Sai)
+  :Từ chối hủy đơn trực tiếp;
+  :Thông báo đơn đã đóng gói/đang giao vận;
+  |Người dùng|
+  :Liên hệ hotline 1900 2126 để được hỗ trợ;
+  stop
+endif
+@enduml

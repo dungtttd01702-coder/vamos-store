@@ -1,0 +1,41 @@
+@startuml
+title Sơ đồ hoạt động — Quản lý sản phẩm & danh mục (AD09/AD13)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Quản trị viên (Admin)|
+start
+:Nhập thông tin sản phẩm (tên, giá, mô tả, ảnh);
+:Cấu hình ma trận kích cỡ EU và màu sắc;
+:Nhấn Lưu sản phẩm;
+
+|Hệ thống|
+:Tiếp nhận thông tin sản phẩm và biến thể;
+:Kiểm tra dữ liệu bắt buộc và trùng lặp mã SKU;
+if (Dữ liệu đầy đủ & Chưa trùng lặp?) then (Đúng)
+  :Lưu thông tin sản phẩm cha và hình ảnh;
+  :Tự động tạo các biến thể SKU theo từng màu và size;
+  :Thông báo lưu sản phẩm thành công;
+  |Quản trị viên (Admin)|
+  :Xem sản phẩm hiển thị trên danh mục;
+  stop
+else (Sai)
+  :Thông báo thiếu thông tin hoặc trùng lặp mã;
+  |Quản trị viên (Admin)|
+  :Kiểm tra và chỉnh sửa lại dữ liệu;
+  stop
+endif
+@enduml

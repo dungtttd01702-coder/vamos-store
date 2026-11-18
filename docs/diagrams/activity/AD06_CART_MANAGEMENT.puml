@@ -1,0 +1,104 @@
+@startuml AD06_CART_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: QUẢN LÝ GIỎ HÀNG (AD06 — CART MANAGEMENT)\nHỆ THỐNG VAMOS STORE
+
+|Người dùng (Guest / Customer)|
+start
+:Thực hiện thao tác với Giỏ hàng:\n(1) Thêm sản phẩm vào giỏ (/cart/add)\n(2) Cập nhật số lượng (/cart/update/:id)\n(3) Xóa sản phẩm khỏi giỏ (/cart/remove/:id)\n(4) Xem trang giỏ hàng (/cart);
+
+|Hệ thống (Web App)|
+if (Người dùng là Quản trị viên (ADMIN)?) then ([Admin])
+  :Cảnh báo: "Tài khoản Quản trị viên không sử dụng chức năng Giỏ hàng";
+  :Chuyển hướng đến /admin/dashboard;
+  stop
+else ([Guest hoặc Customer])
+endif
+
+if (Thao tác là Thêm sản phẩm hoặc Cập nhật số lượng?) then ([Thêm/Sửa số lượng])
+  :Kiểm tra tính hợp lệ của số lượng (validateCartQuantity):
+  - Phải là số nguyên dương
+  - Giới hạn bán lẻ: Tối thiểu 1, Tối đa 10 đôi/sản phẩm;
+
+  if (Số lượng hợp lệ (1 <= qty <= 10)?) then ([Không hợp lệ])
+    :Trả về lỗi: "Số lượng không hợp lệ hoặc vượt hạn mức bán lẻ (tối đa 10 đôi)";
+    stop
+  else ([Hợp lệ])
+    :Kiểm tra tồn kho thời gian thực của biến thể;
+    |Cơ sở Dữ liệu (SQL Server)|
+    :SELECT stock_quantity, status FROM product_variants WHERE id = @variantId;
+    |Hệ thống (Web App)|
+    if (Biến thể active và stock_quantity >= quantity?) then ([Không đủ tồn kho])
+      :Báo lỗi: "Số lượng yêu cầu vượt quá tồn kho khả dụng";
+      stop
+    else ([Đủ tồn kho])
+    endif
+  endif
+else ([Xóa hoặc Xem])
+endif
+
+if (Người dùng đã đăng nhập (Customer)?) then ([Khách hàng đã đăng nhập (Customer)])
+  |Hệ thống (Web App)|
+  :Sử dụng **Giỏ hàng CSDL (Database Cart)** qua cartId của tài khoản;
+
+  if (Thao tác là?) then ([Thêm sản phẩm])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Truy vấn kiểm tra SKU đã có trong giỏ chưa:\nSELECT id, quantity FROM cart_items\nWHERE cart_id = @cartId AND variant_id = @varId;
+    if (Đã tồn tại trong giỏ?) then ([Có])
+      :UPDATE cart_items SET quantity = LEAST(10, quantity + @qty)\nWHERE cart_id = @cartId AND variant_id = @varId;
+    else ([Chưa])
+      :INSERT INTO cart_items (cart_id, variant_id, quantity)\nVALUES (@cartId, @varId, @qty);
+    endif
+  else if (Thao tác là Cập nhật số lượng) then ([Cập nhật])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE()\nWHERE cart_id = @cartId AND variant_id = @varId;
+  else if (Thao tác là Xóa sản phẩm) then ([Xóa])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :DELETE FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId;
+  else ([Xem giỏ hàng])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :SELECT ci.*, pv.stock_quantity, pv.sku, p.name, p.sale_price, p.base_price\nFROM cart_items ci JOIN product_variants pv ...;
+  endif
+
+  |Hệ thống (Web App)|
+  :Tính tổng số lượng mặt hàng (cartCount);\nCập nhật vào req.session.cartCount;
+
+else ([Khách vãng lai (Guest)])
+  |Hệ thống (Web App)|
+  :Sử dụng **Giỏ hàng Phiên (Session Cart)** trong req.session.guestCart;
+
+  if (Thao tác là?) then ([Thêm sản phẩm])
+    if (SKU đã có trong req.session.guestCart?) then ([Có])
+      :Tăng số lượng (giới hạn tối đa 10 đôi);
+    else ([Chưa])
+      :Thêm phần tử mới vào mảng guestCart;
+    endif
+  else if (Thao tác là Cập nhật số lượng) then ([Cập nhật])
+    :Cập nhật thuộc tính quantity của phần tử trong guestCart;
+  else if (Thao tác là Xóa sản phẩm) then ([Xóa])
+    :Lọc bỏ (filter) phần tử ra khỏi mảng guestCart;
+  else ([Xem giỏ hàng])
+    :Thực thi Live DB Sync: Đối soát tồn kho và giá mới nhất từ CSDL;\nTự động điều chỉnh số lượng hoặc gỡ sản phẩm nếu đã hết hàng/ngừng bán;
+  endif
+
+  :Tính tổng số lượng mặt hàng trong guestCart;\nCập nhật vào req.session.cartCount;
+endif
+
+|Hệ thống (Web App)|
+:Tính toán chi phí đơn hàng:
+- Tạm tính: subtotal = SUM(unit_price * quantity)
+- Phí vận chuyển: shippingFee = (subtotal >= 500,000 || subtotal == 0) ? 0 : 30,000
+- Tổng thanh toán: totalAmount = subtotal + shippingFee;
+
+:Trả về kết quả (JSON nếu AJAX hoặc Render View /cart);
+
+|Người dùng (Guest / Customer)|
+:Xem giao diện giỏ hàng cập nhật số lượng và tổng tiền;
+stop
+
+@enduml
+

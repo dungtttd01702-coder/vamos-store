@@ -203,6 +203,26 @@ class AccountController {
       next(error);
     }
   }
+
+  /**
+   * Customer Wishlist Page
+   */
+  async getWishlist(req, res, next) {
+    try {
+      const user = req.session.user;
+      const wishlistService = require('../services/wishlist.service');
+      const { items, count } = await wishlistService.getWishlist(user.id);
+
+      res.render('pages/account/wishlist', {
+        title: 'Sản Phẩm Yêu Thích | VAMOS STORE',
+        wishlistItems: items,
+        wishlistCount: count,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }
 
 module.exports = new AccountController();

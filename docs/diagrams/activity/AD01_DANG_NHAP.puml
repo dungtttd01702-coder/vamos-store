@@ -1,0 +1,41 @@
+@startuml
+title Sơ đồ hoạt động — Đăng nhập hệ thống (AD01/AD02)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Mở trang đăng nhập;
+:Nhập tài khoản và mật khẩu;
+:Nhấn nút Đăng nhập;
+
+|Hệ thống|
+:Tiếp nhận thông tin đăng nhập;
+:Kiểm tra tài khoản và mật khẩu;
+if (Thông tin hợp lệ?) then (Đúng)
+  :Xác thực và tạo phiên làm việc;
+  :Chuyển đến trang phù hợp;
+  |Người dùng|
+  :Truy cập hệ thống thành công;
+  stop
+else (Sai)
+  :Trả về thông báo lỗi;
+  :Hiển thị lại trang đăng nhập;
+  |Người dùng|
+  :Nhập lại thông tin tài khoản;
+  stop
+endif
+@enduml

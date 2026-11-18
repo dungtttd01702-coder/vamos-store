@@ -1,0 +1,104 @@
+@startuml SD06_CART
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: QUẢN LÝ GIỎ HÀNG (SD06 - CART MANAGEMENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Người dùng\n(Guest / Customer)" as User
+participant "Trình duyệt & Client JS\n(Browser / main.js)" as Browser
+participant "Cart Router\n(cart.routes.js)" as Router
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Cart Controller\n(cart.controller.js)" as CartCtrl
+participant "Bộ nhớ Phiên\n(express-session)" as SessionStore
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== LUỒNG 1: THÊM SẢN PHẨM VÀO GIỎ HÀNG (ADD TO CART) ==
+
+User -> Browser : Chọn Size, Màu, Số lượng (1-10) & bấm "Thêm vào giỏ"
+Browser -> Router : POST /cart/add\n{ variant_id, quantity, _csrf }
+Router -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> CartCtrl : addItem(req, res, next)
+
+CartCtrl -> DbPool : query("SELECT pv.id, pv.stock_quantity, pv.status, p.status as p_status FROM product_variants pv JOIN products p ON pv.product_id = p.id WHERE pv.id = @varId")
+DbPool -> SqlDb : Kiểm tra biến thể và trạng thái kinh doanh
+SqlDb --> DbPool : Trả về dữ liệu biến thể
+DbPool --> CartCtrl : variantRecord
+
+alt Biến thể không tồn tại hoặc đã ngừng kinh doanh (status != 'active')
+    CartCtrl --> Browser : Trả về thông báo lỗi: "Sản phẩm hiện không khả dụng"
+else Biến thể hợp lệ
+    alt Người dùng là KHÁCH VÃNG LAI (Chưa đăng nhập)
+        CartCtrl -> SessionStore : Đọc req.session.guestCart
+        CartCtrl -> CartCtrl : Kiểm tra số lượng cộng dồn: (currentQty + quantity <= 10)\nvà không vượt quá stock_quantity thực tế
+        alt Vượt hạn mức 10 đôi hoặc hết hàng tồn
+            CartCtrl --> Browser : Trả về thông báo lỗi giới hạn số lượng
+        else Thỏa mãn điều kiện
+            CartCtrl -> SessionStore : Cập nhật mảng req.session.guestCart\nvà req.session.cartCount
+            CartCtrl --> Browser : JSON phản hồi { success: true, cartCount, message: "Đã thêm vào giỏ hàng" }
+        end
+    else Người dùng là KHÁCH HÀNG ĐÃ ĐĂNG NHẬP (Customer)
+        CartCtrl -> DbPool : query("SELECT id, quantity FROM cart_items WHERE cart_id = @cartId AND variant_id = @varId")
+        DbPool -> SqlDb : Kiểm tra món hàng đã có trong giỏ CSDL chưa
+        SqlDb --> DbPool : itemRes
+        
+        alt Chưa có trong giỏ
+            CartCtrl -> DbPool : query("INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES (@cartId, @varId, @qty)")
+            DbPool -> SqlDb : INSERT INTO cart_items
+        else Đã có trong giỏ
+            CartCtrl -> CartCtrl : Tính newQuantity = currentQuantity + quantity (khống chế <= 10 và <= stock)
+            CartCtrl -> DbPool : query("UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE() WHERE id = @itemId")
+            DbPool -> SqlDb : UPDATE cart_items
+        end
+        
+        CartCtrl -> DbPool : query("SELECT SUM(quantity) AS total_items FROM cart_items WHERE cart_id = @cartId")
+        DbPool -> SqlDb : Tính lại tổng số lượng mặt hàng
+        SqlDb --> DbPool : countRes
+        CartCtrl -> SessionStore : req.session.cartCount = total_items
+        CartCtrl --> Browser : JSON phản hồi { success: true, cartCount, message: "Đã thêm vào giỏ hàng" }
+    end
+end
+Browser -> Browser : main.js cập nhật số đếm trên Header Cart Badge & hiển thị Toast thông báo
+
+== LUỒNG 2: XEM VÀ CẬP NHẬT SỐ LƯỢNG TRONG GIỎ HÀNG ==
+
+User -> Browser : Nhấp vào icon Giỏ hàng
+Browser -> Router : GET /cart
+Router -> CartCtrl : index(req, res, next)
+
+alt Khách vãng lai (Guest)
+    CartCtrl -> SessionStore : Đọc req.session.guestCart
+    CartCtrl -> DbPool : Live DB Sync: Đối soát tồn kho thực tế của các variant trong guestCart
+    DbPool -> SqlDb : SELECT pv.id, pv.stock_quantity, p.name, p.sale_price ... FROM product_variants ...
+    SqlDb --> DbPool : Trả về thông tin chi tiết các món
+    CartCtrl -> CartCtrl : Tự động điều chỉnh số lượng nếu vượt quá tồn kho thực tế
+else Khách hàng (Customer)
+    CartCtrl -> DbPool : query("SELECT ci.id, ci.quantity, pv.stock_quantity, p.name, p.slug, COALESCE(p.sale_price, p.base_price) as unit_price ... FROM cart_items ci JOIN carts ct ... WHERE ct.user_id = @userId")
+    DbPool -> SqlDb : SELECT chi tiết các món trong giỏ hàng CSDL
+    SqlDb --> DbPool : Trả về danh sách cart items
+end
+
+CartCtrl -> CartCtrl : Tính subtotal = SUM(unit_price * quantity)\nTính shippingFee = subtotal >= 500000 ? 0 : 30000
+CartCtrl --> Browser : res.render('pages/cart/index', { items, subtotal, shippingFee, totalAmount })
+Browser --> User : Hiển thị bảng chi tiết giỏ hàng
+
+User -> Browser : Thay đổi số lượng món hàng (+ / -)
+Browser -> Router : POST /cart/update/:id { quantity, _csrf }
+Router -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> CartCtrl : updateItem(req, res, next)
+alt Số lượng mới < 1 hoặc > 10 hoặc vượt tồn kho
+    CartCtrl --> Browser : Báo lỗi giới hạn số lượng hợp lệ
+else Số lượng hợp lệ
+    CartCtrl -> DbPool : Cập nhật lại số lượng (DB cart_items hoặc session.guestCart)
+    DbPool -> SqlDb : UPDATE cart_items SET quantity = @qty WHERE id = @id
+    CartCtrl --> Browser : HTTP 302 Redirect về '/cart' (hoặc JSON cập nhật tổng tiền)
+    Browser --> User : Cập nhật lại thành tiền từng món và tổng đơn hàng
+end
+
+@enduml

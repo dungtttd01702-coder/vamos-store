@@ -1,0 +1,68 @@
+@startuml AD16_CUSTOMER_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG (AD16 — CUSTOMER MANAGEMENT)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Quản lý Khách hàng (/admin/customers);
+
+|Hệ thống (Web App)|
+:Kiểm tra quyền Admin (requireAdmin middleware);
+if (Quyền ADMIN hợp lệ?) then ([Không])
+  :Từ chối truy cập (403 / Redirect login);
+  stop
+else ([Hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Truy vấn danh sách khách hàng:\nSELECT u.id, u.full_name, u.email, u.phone, u.status, u.created_at,\n(SELECT COUNT(*) FROM orders WHERE user_id = u.id) AS order_count,\n(SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND order_status = 'COMPLETED') AS total_spent\nFROM users u WHERE role = 'CUSTOMER' ORDER BY u.id DESC;
+  |Hệ thống (Web App)|
+  :Hiển thị danh sách khách hàng kèm bộ lọc tìm kiếm\n(Họ tên, Email, Số điện thoại, Số đơn đã mua, Tổng chi tiêu, Trạng thái);
+endif
+
+|Quản trị viên (Admin)|
+if (Hành động?) then ([Tìm kiếm / Xem chi tiết hồ sơ])
+  :Nhập từ khóa tìm kiếm (q);\nhoặc nhấp vào khách hàng cụ thể (/admin/customers/:id);
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Truy vấn song song:\n- Thông tin tài khoản users (role = 'CUSTOMER')\n- Danh sách sổ địa chỉ addresses (is_default DESC)\n- Lịch sử tất cả đơn hàng orders đã đặt;
+  |Hệ thống (Web App)|
+  :Render trang chi tiết khách hàng (pages/admin/customer-detail.pug);\nHiển thị thông tin cá nhân, địa chỉ giao hàng và lịch sử đơn hàng;
+  stop
+else ([Khóa / Mở khóa tài khoản])
+  :Nhấn nút Đổi trạng thái tài khoản (Khóa / Mở khóa);\nGửi request POST /admin/customers/:id/toggle-status;
+endif
+
+|Hệ thống (Web App)|
+:Tiếp nhận request thay đổi trạng thái tài khoản (admin.controller.js);
+
+|Cơ sở Dữ liệu (SQL Server)|
+:Truy vấn kiểm tra vai trò tài khoản mục tiêu:\nSELECT role FROM users WHERE id = @id;
+
+|Hệ thống (Web App)|
+partition "Kiểm tra bảo vệ an toàn (Safety Guard)" {
+  if (Tài khoản mục tiêu có role = 'ADMIN'?) then ([Là Admin])
+    :Kích hoạt cơ chế tự vệ hệ thống;\nNém lỗi bảo mật: "Tuyệt đối không được khóa tài khoản Quản trị viên (ADMIN)";
+    stop
+  else ([Là Customer])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Thực hiện đảo ngược trạng thái tài khoản:\nUPDATE users\nSET status = CASE WHEN status = 'active' THEN 'locked' ELSE 'active' END,\n    updated_at = GETDATE()\nWHERE id = @id;
+    |Hệ thống (Web App)|
+    :Ghi nhận trạng thái mới (active <-> locked);\nChuyển hướng về /admin/customers;
+  endif
+}
+
+|Quản trị viên (Admin)|
+:Quan sát trạng thái mới của khách hàng trên bảng quản trị;
+note right
+  Hậu quả bảo mật khi bị Khóa ('locked'):
+  - Người dùng không thể đăng nhập (bị chặn tại auth.controller)
+  - Mọi request yêu cầu xác thực sẽ bị từ chối
+  - Ngăn chặn triệt để hành vi gian lận hoặc phá hoại
+end note
+stop
+
+@enduml
+

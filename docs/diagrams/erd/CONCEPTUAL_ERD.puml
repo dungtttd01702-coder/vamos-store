@@ -1,0 +1,190 @@
+@startuml CONCEPTUAL_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam linetype ortho
+skinparam ArrowColor #2563EB
+skinparam ClassBorderColor #1E293B
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #EFF6FF
+
+title SƠ ĐỒ MỨC QUAN NIỆM (CONCEPTUAL ERD) — HỆ THỐNG VAMOS STORE
+
+entity "NGƯỜI DÙNG\n(users)" as User {
+  * **id** : Định danh
+  --
+  full_name : Họ tên
+  email : Email (Unique)
+  role : Vai trò (CUSTOMER / ADMIN)
+  status : Trạng thái (active / locked)
+}
+
+entity "SỔ ĐỊA CHỈ\n(addresses)" as Address {
+  * **id** : Định danh
+  --
+  recipient_name : Tên người nhận
+  phone : SĐT nhận hàng
+  province, district, ward : Địa chỉ hành chính
+  is_default : Địa chỉ mặc định
+}
+
+entity "DANH MỤC\n(categories)" as Category {
+  * **id** : Định danh
+  --
+  name : Tên danh mục
+  slug : Slug URL (Unique)
+  is_active : Kích hoạt
+}
+
+entity "THƯƠNG HIỆU\n(brands)" as Brand {
+  * **id** : Định danh
+  --
+  name : Tên thương hiệu
+  slug : Slug URL (Unique)
+}
+
+entity "SẢN PHẨM\n(products)" as Product {
+  * **id** : Định danh
+  --
+  product_code : Mã sản phẩm (Unique)
+  name : Tên sản phẩm
+  slug : Slug URL (Unique)
+  base_price : Giá niêm yết
+  sale_price : Giá khuyến mãi
+}
+
+entity "KÍCH CỠ\n(sizes)" as Size {
+  * **id** : Định danh
+  --
+  size_name : Cỡ giày (Unique)
+}
+
+entity "MÀU SẮC\n(colors)" as Color {
+  * **id** : Định danh
+  --
+  color_name : Tên màu (Unique)
+  hex_code : Mã màu Hex
+}
+
+entity "BIẾN THỂ SKU\n(product_variants)" as Variant {
+  * **id** : Định danh
+  --
+  sku : Mã SKU (Unique)
+  stock_quantity : Tồn kho thực tế
+  status : Trạng thái
+}
+
+entity "GIỎ HÀNG THÀNH VIÊN\n(carts)" as Cart {
+  * **id** : Định danh
+  --
+  created_at : Ngày tạo
+}
+
+entity "CHI TIẾT GIỎ HÀNG\n(cart_items)" as CartItem {
+  * **id** : Định danh
+  --
+  quantity : Số lượng chọn mua
+}
+
+entity "DANH SÁCH YÊU THÍCH\n(wishlist_items)" as Wishlist {
+  * **id** : Định danh
+  --
+  created_at : Ngày lưu thích
+}
+
+entity "MÃ GIẢM GIÁ\n(vouchers)" as Voucher {
+  * **id** : Định danh
+  --
+  code : Mã giảm giá (Unique)
+  discount_type : Loại giảm (% / VNĐ)
+  discount_value : Giá trị giảm
+  usage_limit : Giới hạn lượt dùng
+  used_count : Đã sử dụng
+}
+
+entity "LƯỢT DÙNG VOUCHER\n(voucher_usages)" as VoucherUsage {
+  * **id** : Định danh
+  --
+  used_at : Ngày áp dụng
+}
+
+entity "ĐƠN HÀNG\n(orders)" as Order {
+  * **id** : Định danh
+  --
+  order_code : Mã đơn hàng (Unique)
+  total_amount : Tổng tiền COD
+  order_status : Trạng thái đơn
+  payment_status : Trạng thái thanh toán
+}
+
+entity "CHI TIẾT ĐƠN HÀNG\n(order_items)" as OrderItem {
+  * **id** : Định danh
+  --
+  product_name_snapshot : Tên SP lúc mua
+  unit_price : Đơn giá lúc mua
+  quantity : Số lượng mua
+  line_total : Thành tiền
+}
+
+entity "LỊCH SỬ ĐƠN HÀNG\n(order_status_histories)" as History {
+  * **id** : Định danh
+  --
+  previous_status : Trạng thái cũ
+  new_status : Trạng thái mới
+  note : Ghi chú chuyển trạng thái
+}
+
+entity "NHẬT KÝ KHO\n(inventory_transactions)" as InvTrans {
+  * **id** : Định danh
+  --
+  change_quantity : Số lượng biến động
+  reason : Lý do biến động kho
+}
+
+entity "BANNER QUẢNG CÁO\n(banners)" as Banner {
+  * **id** : Định danh
+  --
+  title : Tiêu đề banner
+  image_url : Link hình ảnh
+  display_order : Thứ tự chiếu
+}
+
+' Mối quan hệ giữa các thực thể
+User ||--o{ Address : "quản lý"
+User ||--o| Cart : "sở hữu"
+Cart ||--o{ CartItem : "chứa"
+Variant ||--o{ CartItem : "được chọn"
+
+Category ||--o{ Product : "phân loại"
+Brand ||--o{ Product : "sản xuất"
+Product ||--|{ Variant : "tạo thành"
+Size ||--o{ Variant : "định cỡ"
+Color ||--o{ Variant : "định màu"
+
+Variant ||--o{ InvTrans : "ghi nhận biến động"
+User ||--o{ InvTrans : "thực hiện"
+
+User ||--o{ Wishlist : "lưu yêu thích"
+Product ||--o{ Wishlist : "được thích"
+
+User ||--o{ Order : "đặt hàng"
+Order ||--|{ OrderItem : "bao gồm"
+Variant ||--o{ OrderItem : "mua mặt hàng"
+
+Voucher ||--o{ Order : "áp dụng"
+Voucher ||--o{ VoucherUsage : "ghi nhận"
+User ||--o{ VoucherUsage : "sử dụng (tối đa 1 lần)"
+Order ||--o{ VoucherUsage : "gắn với"
+
+Order ||--o{ History : "lưu vết tiến trình"
+User ||--o{ History : "cập nhật bởi"
+
+note bottom of User
+  **Ghi chú Khách vãng lai (Guest):**
+  - Khách vãng lai duyệt sản phẩm và dùng Giỏ hàng tạm lưu trong Session (`req.session.guestCart`).
+  - Không tạo bản ghi trong bảng `users` và `carts` cho đến khi đăng ký / đăng nhập.
+end note
+
+@enduml
+

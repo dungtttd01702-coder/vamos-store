@@ -1,0 +1,457 @@
+@startuml CD04_SHOPPING_CART_WISHLIST
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD04: SHOPPING, CART & WISHLIST CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp phân hệ Giỏ hàng (Session & Database), Đồng bộ Giỏ hàng & Danh sách yêu thích (Wishlist)</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+legend right
+    <b>CHÚ DẪN KÝ HIỆU & QUY ƯỚC UML 2.5</b>
+    ----
+    <b>Phân loại Classifiers & Modules:</b>
+      * <b><<controller>></b>: JavaScript Class điều phối HTTP request/response giỏ hàng & danh sách yêu thích
+      * <b><<service>></b>: JavaScript Class xử lý logic nghiệp vụ danh sách yêu thích
+      * <b><<repository>></b>: JavaScript Class đóng gói các truy vấn SQL Server cho danh sách yêu thích
+      * <b><<router>></b>: Express Router phân cấp định tuyến URL (/cart, /api/wishlist)
+      * <b><<middleware>></b>: Express Middleware (csrfMiddleware cấp app, requireCustomer cấp router)
+      * <b><<session state>></b>: Cấu trúc dữ liệu giỏ hàng khách vãng lai lưu trong req.session.guestCart
+      * <b><<database helper>></b>: CommonJS Module quản lý Connection Pool, Transaction & Query API
+      * <b><<entity>></b>: Lớp thực thể dữ liệu ánh xạ bảng vật lý SQL Server (Partial View từ CD01)
+    ----
+    <b>Đặc thù Kiến trúc thực tế (Fact-Based Discovery):</b>
+      * <b>CSRF Pipeline:</b> csrfMiddleware gắn cấp ứng dụng (app.use tại src/app.js:61), bảo vệ tất cả
+        phương thức thay đổi trạng thái (POST, PUT, PATCH, DELETE) qua 3 nguồn token (req.body._csrf,
+        req.headers['x-csrf-token'], req.headers['csrf-token']), thực thi trước khi request tới Router và requireCustomer.
+      * <b>Cart Subsystem (Direct Controller-to-DB):</b> CartController gọi trực tiếp Database Helper
+        (query, getPool, sql.Transaction), xử lý song song Guest Cart (Session) và Customer Cart (DB).
+        <i>Hoàn toàn KHÔNG có CartService hay CartRepository.</i>
+      * <b>Wishlist Subsystem (3-Tier Layered):</b> Tuân thủ chuẩn 3 tầng:
+        WishlistController -> WishlistService -> WishlistRepository -> Database Helper.
+      * <b>Attached Function:</b> validateCartQuantity là hàm độc lập gắn vào exported singleton instance
+        (<<attached function>>), không nằm trong class body.
+      * <b>Static Method:</b> CartController.mergeGuestCart(cartId, guestCart) là static method thực sự của class,
+        được AuthController gọi qua CartController.constructor.mergeGuestCart(...) khi đăng nhập/đăng ký.
+      * <b>Browser Client Integration:</b> src/public/js/main.js tương tác REST API và DOM UI.
+end legend
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' ==============================================================================
+package "Presentation & Routing Layer" as pkg_presentation #EFF6FF {
+
+    class "app" as app <<entry point>> {
+        .. Application Entry & Global Middleware Pipeline ..
+        + app.use(csrfMiddleware) [src/app.js:61]
+        + app.use('/', routes) [src/app.js:64]
+    }
+
+    class "csrfMiddleware" as csrfMiddleware <<middleware>> {
+        -- Module: src/middlewares/csrf.middleware.js --
+        + csrfMiddleware(req: Request, res: Response, next: NextFunction): void
+        .. App-Level Security (src/app.js:61) ..
+        {verifies persistent token on state-mutating requests: POST, PUT, PATCH, DELETE}
+        {checks req.body._csrf, req.headers['x-csrf-token'], req.headers['csrf-token']}
+    }
+
+    class "rootRoutes" as rootRoutes <<router>> {
+        -- Module: src/routes/index.js --
+        + router.use('/cart', cartRoutes) [line 19]
+        + router.use('/api/wishlist', wishlistRoutes) [line 24]
+    }
+
+    class "authMiddleware" as authMiddleware <<middleware>> {
+        -- Module: src/middlewares/auth.middleware.js --
+        + requireCustomer(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+
+    class "cartRoutes" as cartRoutes <<router>> {
+        -- Module: src/routes/cart.routes.js (prefix /cart) --
+        + GET / [cartController.index]
+        + POST /add [cartController.addItem]
+        + POST /buy-now [cartController.buyNow]
+        + POST /update [cartController.updateItem]
+        + POST /clear [cartController.clearCart]
+        + POST /remove [cartController.removeItem]
+        + POST /remove/:itemId [cartController.removeItem]
+    }
+
+    class "wishlistRoutes" as wishlistRoutes <<router>> {
+        -- Module: src/routes/wishlist.routes.js (prefix /api/wishlist) --
+        + router.use(requireCustomer) [line 7]
+        + GET / [wishlistController.getWishlist]
+        + POST /items [wishlistController.addItem]
+        + POST /toggle [wishlistController.toggleItem]
+        + DELETE /items/:productId [wishlistController.removeItem]
+        + DELETE / [wishlistController.clearWishlist]
+        + POST /migrate [wishlistController.migrateLegacy]
+    }
+
+    class "CartController" as CartController <<controller>> {
+        -- File: src/controllers/cart.controller.js --
+        .. Static Methods ..
+        + {static} mergeGuestCart(cartId: number, guestCart: Array<Object>): Promise<number>
+        .. Instance Methods (JavaScript Class) ..
+        + index(req: Request, res: Response, next: NextFunction): Promise<void>
+        + addItem(req: Request, res: Response, next: NextFunction): Promise<void>
+        + buyNow(req: Request, res: Response, next: NextFunction): Promise<void>
+        + updateItem(req: Request, res: Response, next: NextFunction): Promise<void>
+        + clearCart(req: Request, res: Response, next: NextFunction): Promise<void>
+        + removeItem(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+
+    class "WishlistController" as WishlistController <<controller>> {
+        -- File: src/controllers/wishlist.controller.js --
+        .. Instance Methods (JavaScript Class) ..
+        + getWishlist(req: Request, res: Response): Promise<Response>
+        + addItem(req: Request, res: Response): Promise<Response>
+        + toggleItem(req: Request, res: Response): Promise<Response>
+        + removeItem(req: Request, res: Response): Promise<Response>
+        + clearWishlist(req: Request, res: Response): Promise<Response>
+        + migrateLegacy(req: Request, res: Response): Promise<Response>
+    }
+
+    class "AuthController" as AuthController <<controller, caller>> {
+        -- File: src/controllers/auth.controller.js (CD02) --
+        + postLogin(req: Request, res: Response, next: NextFunction): Promise<void>
+        + postRegister(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+}
+
+' ==============================================================================
+' MIDDLE ROW: APPLICATION SERVICE (LEFT) | DATA ACCESS & PERSISTENCE (RIGHT)
+' ==============================================================================
+package "Application Service Layer" as pkg_service #FAF5FF {
+
+    class "WishlistService" as WishlistService <<service>> {
+        -- File: src/services/wishlist.service.js --
+        .. Instance Methods (JavaScript Class) ..
+        + getWishlist(userId: number): Promise<Object>
+        + addItem(userId: number, productId: number|string): Promise<Object>
+        + toggleItem(userId: number, productId: number|string): Promise<Object>
+        + removeItem(userId: number, productId: number|string): Promise<Object>
+        + clearWishlist(userId: number): Promise<Object>
+        + migrateLegacyWishlist(userId: number, productIds: Array<number|string>): Promise<Object>
+    }
+
+    note right of WishlistService
+        <b>Cart Service Note:</b>
+        Phân hệ Giỏ hàng (Cart) hoàn toàn
+        <b>KHÔNG CÓ TẦNG SERVICE</b>.
+        CartController thực thi logic nghiệp vụ và
+        truy vấn Database trực tiếp.
+    end note
+}
+
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "WishlistRepository" as WishlistRepository <<repository>> {
+        -- File: src/models/repositories/wishlist.repository.js --
+        .. Instance Methods (JavaScript Class) ..
+        + findByUserId(userId: number): Promise<Array<Object>>
+        + findProductById(productId: number): Promise<Object|null>
+        + isInWishlist(userId: number, productId: number): Promise<boolean>
+        + addItem(userId: number, productId: number): Promise<boolean>
+        + removeItem(userId: number, productId: number): Promise<boolean>
+        + clearWishlist(userId: number): Promise<boolean>
+        + countByUserId(userId: number): Promise<number>
+    }
+
+    class "GuestSessionCart" as GuestSessionCart <<session state>> {
+        -- req.session.guestCart (Array<Object>) --
+        + cart_item_id: string
+        + variant_id: number
+        + product_id: number
+        + quantity: number [1..10]
+        + product_name: string
+        + product_slug: string
+        + sku: string
+        + size_name: string
+        + color_name: string
+        + unit_price: number
+        + stock_quantity: number
+        + image_url: string
+        + line_total: number
+    }
+
+    class "database" as database <<database helper>> {
+        -- Module: src/config/database.js --
+        + sql: Object (mssql driver)
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>>
+        + getPool(): Promise<sql.ConnectionPool>
+        + closePool(): Promise<void>
+        + testDbConnection(): Promise<boolean>
+    }
+}
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (SHOPPING, CART & WISHLIST SCOPE - FROM CD01)
+' ==============================================================================
+package "Domain Entities (Data Model - Shopping & Wishlist Scope)" as pkg_domain #F0FDF4 {
+
+    class "User" as User <<entity>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+    }
+
+    class "Cart" as Cart <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK, UQ>>
+        --
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "CartItem" as CartItem <<entity>> {
+        + id: INT <<PK>>
+        + cart_id: INT <<FK>>
+        + variant_id: INT <<FK>>
+        --
+        + quantity: INT = 1
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Composite Unique ..
+        {unique(cart_id, variant_id)}
+    }
+
+    class "WishlistItem" as WishlistItem <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        + product_id: INT <<FK>>
+        --
+        + created_at: DATETIME2
+        .. Composite Unique ..
+        {unique(user_id, product_id)}
+    }
+
+    class "Product" as Product <<entity>> {
+        + id: INT <<PK>>
+        + category_id: INT <<FK>>
+        + brand_id: INT [0..1] <<FK>>
+        --
+        + product_code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(200)
+        + slug: NVARCHAR(255) <<UQ>>
+        + base_price: DECIMAL(12,0)
+        + sale_price: DECIMAL(12,0) [0..1]
+        + status: NVARCHAR(20) = 'active'
+    }
+
+    class "ProductVariant" as ProductVariant <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        + size_id: INT <<FK>>
+        + color_id: INT <<FK>>
+        --
+        + sku: NVARCHAR(100) <<UQ>>
+        + stock_quantity: INT = 0
+        + status: NVARCHAR(20) = 'active'
+        .. Composite Unique ..
+        {unique(product_id, size_id, color_id)}
+    }
+
+    class "Size" as Size <<entity>> {
+        + id: INT <<PK>>
+        --
+        + size_name: NVARCHAR(20) <<UQ>>
+        + display_order: INT = 0
+    }
+
+    class "Color" as Color <<entity>> {
+        + id: INT <<PK>>
+        --
+        + color_name: NVARCHAR(50) <<UQ>>
+        + hex_code: NVARCHAR(10) [0..1]
+    }
+
+    class "ProductImage" as ProductImage <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        --
+        + image_url: NVARCHAR(1000)
+        + is_primary: BIT = 0
+        + display_order: INT = 0
+        .. Filtered Unique Index ..
+        {unique filtered: product_id WHERE is_primary = 1}
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01)
+' ==============================================================================
+User "1" *-- "0..1" Cart : "fk_carts_user\n(owns)"
+Cart "1" *-- "0..*" CartItem : "fk_cart_items_cart\n(contains)"
+ProductVariant "1" -- "0..*" CartItem : "fk_cart_items_variant\n(selected as)"
+
+User "1" -- "0..*" WishlistItem : "fk_wishlist_items_user\n(saves)"
+Product "1" -- "0..*" WishlistItem : "fk_wishlist_items_product\n(marked in)"
+
+Product "1" *-- "0..*" ProductVariant : "fk_variants_product\n(has SKUs)"
+Product "1" *-- "0..*" ProductImage : "fk_product_images_product\n(contains)"
+
+Size "1" -- "0..*" ProductVariant : "fk_variants_size\n(defines size)"
+Color "1" -- "0..*" ProductVariant : "fk_variants_color\n(defines color)"
+
+' ==============================================================================
+' PACKAGE LAYOUT RELATIONS
+' ==============================================================================
+pkg_presentation -[hidden]down-> pkg_service
+pkg_service -[hidden]right-> pkg_data
+pkg_service -[hidden]down-> pkg_domain
+pkg_data -[hidden]down-> pkg_domain
+
+' ==============================================================================
+' DEPENDENCY & INTERACTION RELATIONSHIPS
+' ==============================================================================
+' Application Middleware Pipeline & Router Hierarchy Mounting
+app ..> csrfMiddleware : "app.use(csrfMiddleware)\n[src/app.js:61]"
+app ..> rootRoutes : "app.use('/', routes)\n[src/app.js:64]"
+
+rootRoutes ..> cartRoutes : "mounts at '/cart' (src/routes/index.js:19)"
+rootRoutes ..> wishlistRoutes : "mounts at '/api/wishlist' (src/routes/index.js:24)"
+
+' Route Guards & Controller Delegation
+cartRoutes ..> CartController : "delegates requests"
+wishlistRoutes ..> authMiddleware : "router.use(requireCustomer)\n[src/routes/wishlist.routes.js:7]"
+wishlistRoutes ..> WishlistController : "delegates requests"
+
+' Cross-Module Merge Guest Cart Invocation
+AuthController ..> CartController : "calls CartController.constructor.mergeGuestCart(cartId, guestCart)\nupon login & registration"
+
+' Cart Direct-to-Database Architecture (No Service/Repository)
+CartController ..> database : "executes parameterized T-SQL &\nsql.Transaction (READ_COMMITTED)"
+CartController ..> GuestSessionCart : "reads & updates req.session.guestCart\n(Guest unauthenticated users)"
+CartController ..> Cart : "queries & creates cart records"
+CartController ..> CartItem : "inserts, updates, deletes cart items"
+CartController ..> ProductVariant : "locks SKU & verifies live stock"
+CartController ..> Product : "verifies active status & joins details"
+CartController ..> Size : "joins size_name in index, addItem, buyNow"
+CartController ..> Color : "joins color_name in index, addItem, buyNow"
+CartController ..> ProductImage : "subqueries image_url in index, addItem, buyNow"
+
+' Wishlist 3-Tier Layered Architecture
+WishlistController ..> WishlistService : "delegates business logic"
+WishlistService ..> WishlistRepository : "delegates data access"
+WishlistRepository ..> database : "executes parameterized T-SQL"
+WishlistRepository ..> WishlistItem : "manages wishlist items"
+WishlistRepository ..> Product : "queries active products"
+WishlistRepository ..> ProductImage : "queries primary image"
+
+' ==============================================================================
+' UML NOTES & ARCHITECTURE SPECIFICATIONS
+' ==============================================================================
+note left of csrfMiddleware
+  <b>CSRF Pipeline & Execution Order:</b>
+  1. Request đi qua <i>csrfMiddleware</i> (app.use tại src/app.js:61).
+  2. Miễn trừ các phương thức an toàn: <b>GET, HEAD, OPTIONS</b>.
+  3. Phương thức thay đổi trạng thái: <b>POST, PUT, PATCH, DELETE</b>:
+     Xác thực token từ 3 nguồn:
+     - <i>req.body._csrf</i>
+     - <i>req.headers['x-csrf-token']</i>
+     - <i>req.headers['csrf-token']</i>
+     đối chiếu với <i>req.session.csrfToken</i>.
+  4. Nếu thiếu/sai token: Chặn ngay với mã lỗi <b>HTTP 403 Forbidden</b>.
+  5. Nếu hợp lệ: Gọi next() chuyển tiếp tới <i>rootRoutes</i> (src/app.js:64).
+  6. Với Wishlist: <i>requireCustomer</i> được thực thi tại router trước controller.
+  <i>(Phạm vi route thực tế: Cart dùng GET, POST; Wishlist dùng GET, POST, DELETE).</i>
+end note
+
+note left of CartController
+  <b><<attached function>> validateCartQuantity(quantity: any): Object</b>
+  * Hàm độc lập (dòng 9, src/controllers/cart.controller.js):
+    <b>CartController.validateCartQuantity = validateCartQuantity;</b> (dòng 764)
+    <b>cartControllerInstance.validateCartQuantity = validateCartQuantity;</b> (dòng 766)
+  * Được gắn vào constructor và singleton instance sau khi khai báo class.
+  * Không nằm trong class body; không phải instance method hay static method.
+  * Kiểm tra số lượng [1..10], chặn số âm, số thập phân, bằng 0 hoặc > 10.
+end note
+
+note right of CartController
+  <b>Note 1 – Dual Cart Architecture & Validation Rules:</b>
+  * <b>Guest Session Cart:</b> Lưu trong <i>req.session.guestCart</i> (MemoryStore).
+    Khi vào trang giỏ hàng (index), hệ thống thực hiện Live DB Sync kiểm tra
+    giá hiện tại, tồn kho và trạng thái active; tự động điều chỉnh số lượng nếu vượt quá kho.
+  * <b>Customer Database Cart:</b> Mỗi khách hàng sở hữu đúng 1 giỏ hàng trong bảng <i>carts</i> (user_id UQ).
+    Chi tiết mặt hàng lưu tại bảng <i>cart_items</i> ({unique(cart_id, variant_id)}).
+  * <b>Admin Access Control:</b> Tài khoản ADMIN bị chặn truy cập giỏ hàng, tự động chuyển về /admin/dashboard.
+end note
+
+note bottom of CartController
+  <b>Note 2 – Cart Merge Process upon Authentication:</b>
+  * Khi khách hàng đăng nhập hoặc đăng ký thành công (AuthController.postLogin / postRegister),
+    hệ thống gọi static method:
+    <b>CartController.constructor.mergeGuestCart(cartId, guestCart)</b>.
+  * Sử dụng <b>sql.Transaction</b> (READ_COMMITTED) kết hợp khóa hàng <i>UPDLOCK, ROWLOCK, HOLDLOCK</i>:
+    1. Khóa bản ghi cart của khách hàng trong bảng carts.
+    2. Duyệt từng mặt hàng trong guestCart, kiểm tra SKU còn active và còn tồn kho hay không.
+    3. Nếu biến thể đã có trong cart_items: cộng dồn số lượng (giới hạn min(10, stock, current + guest)).
+    4. Nếu biến thể chưa có: thêm mới vào cart_items (giới hạn min(10, stock, guest_qty)).
+    5. Đếm lại tổng số lượng mặt hàng trong giỏ hàng.
+  * Hoàn tất transaction, cập nhật <i>req.session.cartCount</i> và xóa giỏ hàng tạm trong session.
+end note
+
+note right of WishlistController
+  <b>Note 3 – Wishlist Subsystem, CSRF & 1-Click Toggle:</b>
+  * <b>Kiến trúc 3 tầng chuẩn:</b> WishlistController -> WishlistService -> WishlistRepository -> Database.
+  * <b>CSRF & Route Protection Pipeline:</b>
+    1. <i>csrfMiddleware</i> (cấp app, src/app.js:61): Bảo vệ tất cả phương thức thay đổi trạng thái
+       (POST, PUT, PATCH, DELETE) qua 3 nguồn token (req.body._csrf, req.headers['x-csrf-token'],
+       req.headers['csrf-token']) so với req.session.csrfToken.
+       Nếu token thiếu hoặc không khớp -> Chặn ngay lập tức với mã lỗi HTTP 403 Forbidden.
+    2. <i>requireCustomer</i> (cấp router, src/routes/wishlist.routes.js:7):
+       - Nếu chưa đăng nhập: trả về mã lỗi 401 JSON.
+       - Nếu là ADMIN: trả về mã lỗi 403 JSON (Admin không tham gia shopping/wishlist).
+       - Kiểm tra trạng thái tài khoản bị khóa (locked).
+  * <b>1-Click Toggle Action:</b> Endpoint <i>/api/wishlist/toggle</i> kiểm tra sự tồn tại của sản phẩm:
+    - Nếu đã có trong Wishlist: xóa khỏi danh sách (action: 'removed', inWishlist: false).
+    - Nếu chưa có trong Wishlist: thêm vào danh sách (action: 'added', inWishlist: true).
+  * <b>Ràng buộc dữ liệu:</b> <i>{unique(user_id, product_id)}</i> ngăn chặn tuyệt đối việc trùng lặp sản phẩm yêu thích.
+end note
+
+note bottom of pkg_domain
+  <b>Note 4 – Legacy Wishlist Migration & Client Integration:</b>
+  * <b>Legacy Migration:</b> Endpoint <i>POST /api/wishlist/migrate</i> tiếp nhận mảng product IDs
+    lưu tạm từ LocalStorage trình duyệt của khách hàng trước khi đăng nhập, kiểm tra sản phẩm active
+    và đồng bộ an toàn (idempotent IF NOT EXISTS) vào bảng wishlist_items trên SQL Server.
+  * <b>Browser Client Integration (src/public/js/main.js):</b>
+    <i>Browser Client Integration is outside the backend classifier scope.</i>
+    Phía trình duyệt, hàm <b>initWishlistEngine()</b> quản lý bộ nhớ đệm cache in-memory, lắng nghe sự kiện click
+    trên các nút trái tim (.btn-wishlist), gửi request AJAX kèm cờ chống click spam (isRequestInFlight),
+    và cập nhật badge số lượng thời gian thực (#header-wishlist-badge).
+end note
+
+@enduml

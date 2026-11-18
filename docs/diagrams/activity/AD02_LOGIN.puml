@@ -1,0 +1,109 @@
+@startuml AD02_LOGIN
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ĐĂNG NHẬP HỆ THỐNG (AD02 — LOGIN)\nHỆ THỐNG VAMOS STORE
+
+|Người dùng (User)|
+start
+:Truy cập trang đăng nhập (/auth/login);
+
+|Hệ thống (Web App)|
+if (Đã đăng nhập từ trước?) then ([Có])
+  if (Vai trò là ADMIN?) then ([Admin])
+    :Chuyển hướng đến /admin/dashboard;
+  else ([Customer])
+    :Chuyển hướng đến /;
+  endif
+  stop
+else ([Chưa])
+  :Hiển thị form đăng nhập;
+endif
+
+|Người dùng (User)|
+:Nhập Email và Mật khẩu;
+:Nhấn nút "Đăng nhập";
+
+|Hệ thống (Web App)|
+:Kiểm tra dữ liệu rỗng và định dạng Email;
+if (Dữ liệu rỗng hoặc sai định dạng email?) then ([Lỗi])
+  :Hiển thị thông báo lỗi trên form;
+  stop
+else ([Hợp lệ])
+  :Gửi truy vấn tìm tài khoản theo Email;
+
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT id, full_name, email, password_hash, role, status\nFROM users WHERE email = @email;
+
+  |Hệ thống (Web App)|
+  if (Tìm thấy tài khoản?) then ([Không])
+    :Hiển thị lỗi: "Email hoặc mật khẩu không chính xác";
+    stop
+  else ([Tìm thấy])
+    if (Trạng thái tài khoản == 'locked'?) then ([Bị khóa])
+      :Hiển thị lỗi: "Tài khoản của bạn hiện đang bị tạm khóa.\nVui lòng liên hệ bộ phận hỗ trợ.";
+      stop
+    else ([Đang hoạt động 'active'])
+      :So khớp mật khẩu bằng bcrypt.compare;
+      if (Mật khẩu trùng khớp?) then ([Không khớp])
+        :Hiển thị lỗi: "Email hoặc mật khẩu không chính xác";
+        stop
+      else ([Khớp])
+        |Hệ thống (Web App)|
+        :Kiểm tra giỏ hàng CSDL của người dùng;
+
+        |Cơ sở Dữ liệu (SQL Server)|
+        :SELECT id FROM carts WHERE user_id = @userId;
+
+        |Hệ thống (Web App)|
+        if (Đã có giỏ hàng CSDL?) then ([Chưa])
+          |Cơ sở Dữ liệu (SQL Server)|
+          :INSERT INTO carts (user_id) OUTPUT INSERTED.id;
+        else ([Đã có])
+          :Lấy cartId hiện có;
+        endif
+
+        |Hệ thống (Web App)|
+        :Đếm tổng mặt hàng hiện tại trong giỏ CSDL;
+        if (Có giỏ hàng phiên của khách (guestCart)?) then ([Có])
+          :Thực thi CartController.mergeGuestCart(cartId, guestCart);
+          |Cơ sở Dữ liệu (SQL Server)|
+          :INSERT / UPDATE số lượng vào bảng cart_items;
+          |Hệ thống (Web App)|
+          :Cập nhật cartCount sau khi gộp;
+        endif
+
+        :Tái tạo Session chống Session Fixation (session.regenerate);
+        :Lưu thông tin đăng nhập vào Session:
+        - user: { id, email, full_name, role, cartId }
+        - cartCount
+        - guestCart = [];
+        :Lưu phiên (session.save);
+
+        if (Vai trò là ADMIN?) then ([ADMIN])
+          if (safeReturnUrl bắt đầu bằng /admin?) then ([Có])
+            :Chuyển hướng đến safeReturnUrl;
+          else ([Không])
+            :Chuyển hướng đến /admin/dashboard;
+          endif
+        else ([CUSTOMER])
+          if (safeReturnUrl bắt đầu bằng /admin?) then ([Chặn])
+            :Chuyển hướng về Trang chủ (/);
+          else ([Hợp lệ])
+            :Chuyển hướng về safeReturnUrl (mặc định /);
+          endif
+        endif
+
+        |Người dùng (User)|
+        :Được chuyển hướng đến trang tương ứng với quyền;
+        stop
+      endif
+    endif
+  endif
+endif
+
+@enduml
+

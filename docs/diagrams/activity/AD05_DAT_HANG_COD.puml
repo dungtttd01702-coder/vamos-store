@@ -1,0 +1,45 @@
+@startuml
+title Sơ đồ hoạt động — Đặt hàng thanh toán COD (AD05/AD08)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Kiểm tra giỏ hàng và chọn địa chỉ nhận hàng;
+:Nhập mã giảm giá voucher (nếu có);
+:Chọn phương thức thanh toán COD;
+:Nhấn nút Đặt hàng;
+
+|Hệ thống|
+:Tiếp nhận yêu cầu đặt hàng;
+:Kiểm tra tồn kho tức thời & tính hợp lệ voucher;
+if (Đủ tồn kho & Voucher hợp lệ?) then (Đúng)
+  :Tạo đơn hàng mới trạng thái Chờ xác nhận (PENDING);
+  :Khóa giá mua snapshot và lưu chi tiết sản phẩm;
+  :Trừ tồn kho và ghi nhật ký thẻ kho;
+  :Làm trống giỏ hàng;
+  :Hiển thị trang đặt hàng thành công;
+  |Người dùng|
+  :Nhận mã đơn hàng và theo dõi đơn;
+  stop
+else (Sai)
+  :Hủy giao dịch và hoàn nguyên dữ liệu;
+  :Thông báo lỗi hết hàng hoặc voucher không hợp lệ;
+  |Người dùng|
+  :Điều chỉnh lại đơn hàng;
+  stop
+endif
+@enduml

@@ -22,6 +22,7 @@ router.use('/account', accountRoutes);
 router.use('/admin', adminRoutes);
 router.use('/', infoRoutes);
 router.use('/api/wishlist', wishlistRoutes);
+router.get('/wishlist', (req, res) => res.redirect('/account/wishlist'));
 
 // Direct API alias for live search
 router.get('/api/products/search', productController.liveSearch);

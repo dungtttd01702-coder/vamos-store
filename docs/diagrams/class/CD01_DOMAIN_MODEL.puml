@@ -1,0 +1,410 @@
+@startuml CD01_DOMAIN_MODEL
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD01: DOMAIN MODEL CLASS DIAGRAM</b></size>
+    <size:12>Mô hình lớp thực thể dữ liệu nghiệp vụ (20 Domain Entities & 24 Relationships)</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+legend right
+    <b>CHÚ DẪN KÝ HIỆU & QUY ƯỚC UML 2.5</b>
+    ----
+    <b>Stereotype:</b> <<entity>> tương ứng 1-1 với bảng vật lý trong SQL Server
+    <b>Ràng buộc & Chỉ mục:</b>
+      * <b><<PK>></b>: Khóa chính (Primary Key - IDENTITY)
+      * <b><<FK>></b>: Khóa ngoại (Foreign Key)
+      * <b><<UQ>></b>: Ràng buộc duy nhất đơn cột (Single-column Unique)
+      * <b>[0..1]</b>: Cột có thể nhận giá trị NULL (Nullable)
+      * <b>{unique(...)}</b>: Ràng buộc duy nhất trên tổ hợp nhiều cột (Composite Unique Constraint)
+      * <b>{unique filtered: ... WHERE ...}</b>: Chỉ mục duy nhất có điều kiện lọc (Filtered Unique Index)
+    ----
+    <b>Quan hệ cấu trúc:</b>
+      * <b>Whole *-- Part</b>: Composition (Quan hệ Whole–Part, trong đó Part có quyền sở hữu
+        vòng đời phụ thuộc vào Whole và không được chia sẻ giữa nhiều composite owners.
+        ON DELETE CASCADE là bằng chứng hỗ trợ từ CSDL, không phải định nghĩa UML)
+      * <b>A -- B</b>: Association (Liên kết không định hướng phản ánh tham chiếu Foreign Key CSDL)
+    ----
+    <b>Bản số (Multiplicity):</b>
+      * <b>Schema Multiplicity</b>: Phản ánh đúng ràng buộc kỹ thuật DDL của SQL Server
+      * <b>Application Invariant</b>: Quy tắc toàn vẹn nghiệp vụ do mã nguồn đảm bảo
+end legend
+
+' ==============================================================================
+' TOP ROW: IDENTITY & PROFILE (LEFT) | SHOPPING & WISHLIST (CENTER) | CATALOG (RIGHT)
+' ==============================================================================
+
+package "Identity & Profile" as pkg_identity #F0FDF4 {
+    class "User" as User <<entity>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + password_hash: NVARCHAR(255)
+        + phone: NVARCHAR(20) [0..1]
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "Address" as Address <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + recipient_name: NVARCHAR(100)
+        + phone: NVARCHAR(20)
+        + province: NVARCHAR(100)
+        + district: NVARCHAR(100)
+        + ward: NVARCHAR(100)
+        + detail_address: NVARCHAR(255)
+        + is_default: BIT = 0
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Filtered Unique Index ..
+        {unique filtered: user_id WHERE is_default = 1}
+    }
+
+    class "PasswordResetToken" as PasswordResetToken <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + token: NVARCHAR(255) <<UQ>>
+        + expires_at: DATETIME2
+        + used_at: DATETIME2 [0..1]
+        + created_at: DATETIME2
+    }
+}
+
+package "Shopping & Wishlist" as pkg_shopping #FAF5FF {
+    class "Cart" as Cart <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK, UQ>>
+        --
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "CartItem" as CartItem <<entity>> {
+        + id: INT <<PK>>
+        + cart_id: INT <<FK>>
+        + variant_id: INT <<FK>>
+        --
+        + quantity: INT = 1
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Composite Unique ..
+        {unique(cart_id, variant_id)}
+    }
+
+    class "WishlistItem" as WishlistItem <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        + product_id: INT <<FK>>
+        --
+        + created_at: DATETIME2
+        .. Composite Unique ..
+        {unique(user_id, product_id)}
+    }
+}
+
+package "Product Catalog" as pkg_catalog #EFF6FF {
+    class "Category" as Category <<entity>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+
+    class "Brand" as Brand <<entity>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + created_at: DATETIME2
+    }
+
+    class "Size" as Size <<entity>> {
+        + id: INT <<PK>>
+        --
+        + size_name: NVARCHAR(20) <<UQ>>
+        + display_order: INT = 0
+    }
+
+    class "Color" as Color <<entity>> {
+        + id: INT <<PK>>
+        --
+        + color_name: NVARCHAR(50) <<UQ>>
+        + hex_code: NVARCHAR(10) [0..1]
+    }
+
+    class "Product" as Product <<entity>> {
+        + id: INT <<PK>>
+        + category_id: INT <<FK>>
+        + brand_id: INT [0..1] <<FK>>
+        --
+        + product_code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(200)
+        + slug: NVARCHAR(255) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + gender_target: NVARCHAR(20) = 'UNISEX'
+        + base_price: DECIMAL(12,0)
+        + sale_price: DECIMAL(12,0) [0..1]
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "ProductImage" as ProductImage <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        --
+        + image_url: NVARCHAR(1000)
+        + is_primary: BIT = 0
+        + display_order: INT = 0
+        .. Filtered Unique Index ..
+        {unique filtered: product_id WHERE is_primary = 1}
+    }
+
+    class "ProductVariant" as ProductVariant <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        + size_id: INT <<FK>>
+        + color_id: INT <<FK>>
+        --
+        + sku: NVARCHAR(100) <<UQ>>
+        + stock_quantity: INT = 0
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Composite Unique ..
+        {unique(product_id, size_id, color_id)}
+    }
+
+    class "Banner" as Banner <<entity>> {
+        + id: INT <<PK>>
+        --
+        + title: NVARCHAR(150)
+        + image_url: NVARCHAR(255)
+        + link_url: NVARCHAR(255) [0..1]
+        + display_order: INT = 0
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+}
+
+' ==============================================================================
+' BOTTOM ROW: ORDER & INVENTORY
+' ==============================================================================
+
+package "Order & Inventory" as pkg_order #FFF7ED {
+    class "Voucher" as Voucher <<entity>> {
+        + id: INT <<PK>>
+        --
+        + code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(100)
+        + discount_type: NVARCHAR(20)
+        + discount_value: DECIMAL(12,0)
+        + min_order_value: DECIMAL(12,0) = 0
+        + max_discount_amount: DECIMAL(12,0) [0..1]
+        + start_date: DATETIME2
+        + end_date: DATETIME2
+        + usage_limit: INT = 0
+        + used_count: INT = 0
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+
+    class "VoucherUsage" as VoucherUsage <<entity>> {
+        + id: INT <<PK>>
+        + voucher_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        + order_id: INT <<FK>>
+        --
+        + used_at: DATETIME2
+        .. Composite Unique ..
+        {unique(voucher_id, user_id)}
+    }
+
+    class "Order" as Order <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        + voucher_id: INT [0..1] <<FK>>
+        --
+        + order_code: NVARCHAR(50) <<UQ>>
+        + recipient_name_snapshot: NVARCHAR(100)
+        + recipient_phone_snapshot: NVARCHAR(20)
+        + delivery_address_snapshot: NVARCHAR(500)
+        + subtotal: DECIMAL(12,0)
+        + discount_amount: DECIMAL(12,0) = 0
+        + shipping_fee: DECIMAL(12,0) = 0
+        + total_amount: DECIMAL(12,0)
+        + voucher_code_snapshot: NVARCHAR(50) [0..1]
+        + payment_method: NVARCHAR(20) = 'COD'
+        + payment_status: NVARCHAR(20) = 'UNPAID'
+        + order_status: NVARCHAR(20) = 'PENDING'
+        + customer_note: NVARCHAR(255) [0..1]
+        + admin_note: NVARCHAR(255) [0..1]
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "OrderItem" as OrderItem <<entity>> {
+        + id: INT <<PK>>
+        + order_id: INT <<FK>>
+        + product_variant_id: INT <<FK>>
+        --
+        + product_name_snapshot: NVARCHAR(200)
+        + sku_snapshot: NVARCHAR(100)
+        + size_snapshot: NVARCHAR(20)
+        + color_snapshot: NVARCHAR(50)
+        + unit_price: DECIMAL(12,0)
+        + quantity: INT
+        + line_total: DECIMAL(12,0)
+        .. Composite Unique ..
+        {unique(order_id, product_variant_id)}
+    }
+
+    class "OrderStatusHistory" as OrderStatusHistory <<entity>> {
+        + id: INT <<PK>>
+        + order_id: INT <<FK>>
+        + changed_by: INT <<FK>>
+        --
+        + previous_status: NVARCHAR(50) [0..1]
+        + new_status: NVARCHAR(50)
+        + note: NVARCHAR(255) [0..1]
+        + created_at: DATETIME2
+    }
+
+    class "InventoryTransaction" as InventoryTransaction <<entity>> {
+        + id: INT <<PK>>
+        + variant_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        --
+        + old_quantity: INT
+        + new_quantity: INT
+        + change_quantity: INT
+        + reason: NVARCHAR(255)
+        + created_at: DATETIME2
+    }
+}
+
+' ==============================================================================
+' PACKAGE LAYOUT RELATIONS
+' ==============================================================================
+pkg_identity -[hidden]right-> pkg_shopping
+pkg_shopping -[hidden]right-> pkg_catalog
+pkg_identity -[hidden]down-> pkg_order
+
+' ==============================================================================
+' 7 COMPOSITION RELATIONSHIPS (WHOLE *-- PART, ON DELETE CASCADE)
+' ==============================================================================
+User "1" *-- "0..*" Address : "fk_addresses_user\n(owns)"
+User "1" *-- "0..1" Cart : "fk_carts_user\n(owns)"
+
+Product "1" *-- "0..*" ProductImage : "fk_product_images_product\n(contains)"
+Product "1" *-- "0..*" ProductVariant : "fk_variants_product\n(has SKUs)"
+
+Cart "1" *-- "0..*" CartItem : "fk_cart_items_cart\n(contains)"
+
+Order "1" *-- "0..*" OrderItem : "fk_order_items_order\n(includes)"
+Order "1" *-- "0..*" OrderStatusHistory : "fk_order_histories_order\n(tracks)"
+
+' ==============================================================================
+' 17 ASSOCIATION RELATIONSHIPS (UNDIRECTED REFERENCES)
+' ==============================================================================
+User "1" -- "0..*" Order : "fk_orders_user\n(places)"
+User "1" -- "0..*" WishlistItem : "fk_wishlist_items_user\n(saves)"
+User "1" -- "0..*" PasswordResetToken : "fk_pwd_reset_user\n(requests)"
+User "1" -- "0..*" VoucherUsage : "FK_voucher_usages_user\n(records)"
+User "1" -- "0..*" InventoryTransaction : "fk_inv_trans_user\n(operates)"
+User "1" -- "0..*" OrderStatusHistory : "fk_order_histories_user\n(changed_by)"
+
+Category "1" -- "0..*" Product : "fk_products_category\n(classifies)"
+Brand "0..1" -- "0..*" Product : "fk_products_brand\n(brands)"
+
+Size "1" -- "0..*" ProductVariant : "fk_variants_size\n(defines size)"
+Color "1" -- "0..*" ProductVariant : "fk_variants_color\n(defines color)"
+
+Product "1" -- "0..*" WishlistItem : "fk_wishlist_items_product\n(marked in)"
+
+ProductVariant "1" -- "0..*" CartItem : "fk_cart_items_variant\n(selected as)"
+ProductVariant "1" -- "0..*" OrderItem : "fk_order_items_variant\n(ordered as)"
+ProductVariant "1" -- "0..*" InventoryTransaction : "fk_inv_trans_variant\n(logs)"
+
+Order "1" -- "0..*" VoucherUsage : "FK_voucher_usages_order\n(applies)"
+
+Voucher "0..1" -- "0..*" Order : "fk_orders_voucher\n(applied to)"
+Voucher "1" -- "0..*" VoucherUsage : "FK_voucher_usages_voucher\n(logs usage)"
+
+' ==============================================================================
+' APPLICATION INVARIANT NOTES & SPECIFICATIONS
+' ==============================================================================
+note bottom of Cart
+  <b>Application Invariant (User - Cart):</b>
+  Khi khách hàng đăng ký (AuthController:postRegister),
+  mã nguồn luôn tự động INSERT 1 Cart cho User.
+  Schema Multiplicity là 1 to 0..1 do UNIQUE(user_id).
+end note
+
+note bottom of VoucherUsage
+  <b>Application Invariant (Order - VoucherUsage):</b>
+  Trong checkout COD, mỗi đơn hàng chỉ áp
+  dụng tối đa 1 voucher (1 : 0..1).
+  Schema Multiplicity là 1 to 0..* do CSDL không có UNIQUE(order_id).
+end note
+
+note bottom of OrderItem
+  <b>Application Invariant (Order - OrderItem):</b>
+  Đơn hàng tạo thành công (createCodOrder)
+  luôn có ít nhất một dòng hàng (1 : 1..*),
+  dù CSDL DDL cho phép 0..*.
+end note
+
+note bottom of OrderStatusHistory
+  <b>Application Invariant (Order - History):</b>
+  Đơn hàng tạo thành công luôn được khởi tạo
+  ngay bản ghi lịch sử trạng thái đầu tiên 'PENDING' (1 : 1..*).
+end note
+
+note bottom of PasswordResetToken
+  <b>Workflow Status (UC03):</b>
+  Entity tồn tại hoàn chỉnh trong CSDL (migration 001),
+  tuy nhiên Express route/controller chưa được cài đặt.
+  Trạng thái: <b>DESIGNED ONLY — NOT IMPLEMENTED</b>.
+end note
+
+@enduml

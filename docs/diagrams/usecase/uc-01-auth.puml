@@ -1,0 +1,86 @@
+@startuml uc-01-auth
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #2563EB
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F8FAFC
+skinparam UsecaseBorderColor #2563EB
+skinparam UsecaseBackgroundColor #EFF6FF
+skinparam RectangleBorderColor #64748B
+skinparam RectangleBackgroundColor #FFFFFF
+
+left to right direction
+
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Customer)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+actor "Dịch vụ Email\n(Email Service)\n*(Dự kiến trong thiết kế)*" as EmailService <<Secondary>>
+
+Customer -up-|> Guest
+
+rectangle "Phân hệ Tài khoản & Xác thực (VAMOS STORE)" {
+
+  usecase "UC01: Đăng ký tài khoản" as UC01
+  usecase "Kiểm tra trùng lặp Email" as CheckEmail
+  usecase "Mã hóa mật khẩu bcrypt" as HashPassword
+  usecase "Tạo giỏ hàng CSDL mặc định" as InitCart
+
+  usecase "UC02: Đăng nhập hệ thống" as UC02
+  usecase "Xác thực mật khẩu bcrypt" as VerifyPassword
+  usecase "Cấp Session & Phân quyền RBAC" as IssueSession
+  usecase "Tự động gộp giỏ hàng khách vãng lai\n(Merge Guest Session Cart)" as MergeCart
+
+  usecase "UC03: Khôi phục mật khẩu\n*(Designed Only - Chưa có SMTP)*" as UC03
+  usecase "Sinh Reset Token bảo mật" as GenToken
+  usecase "Gửi Email đặt lại mật khẩu" as SendEmail
+
+  usecase "UC04: Quản lý hồ sơ & sổ địa chỉ" as UC04
+  usecase "Cập nhật thông tin cá nhân" as UpdateProfile
+  usecase "Đổi mật khẩu tài khoản" as ChangePassword
+  usecase "Quản lý sổ địa chỉ giao hàng\n(Thêm / Sửa / Xóa / Mặc định)" as ManageAddress
+
+  usecase "UC16: Quản lý tài khoản khách hàng" as UC16
+  usecase "Xem danh sách & lịch sử đơn" as ViewCustomerHistory
+  usecase "Khóa / Mở khóa tài khoản khách\n(Chặn khóa tài khoản Admin)" as ToggleCustomerStatus
+
+  ' Quan hệ include & extend
+  UC01 ..> CheckEmail : <<include>>
+  UC01 ..> HashPassword : <<include>>
+  UC01 ..> InitCart : <<include>>
+
+  UC02 ..> VerifyPassword : <<include>>
+  UC02 ..> IssueSession : <<include>>
+  UC02 <.. MergeCart : <<extend>>\n(Khi khách có giỏ tạm)
+
+  UC03 ..> GenToken : <<include>>
+  UC03 ..> SendEmail : <<include>>
+
+  UC04 <.. UpdateProfile : <<extend>>
+  UC04 <.. ChangePassword : <<extend>>
+  UC04 <.. ManageAddress : <<extend>>
+
+  UC16 ..> ViewCustomerHistory : <<include>>
+  UC16 <.. ToggleCustomerStatus : <<extend>>
+}
+
+Guest --> UC01
+Guest --> UC02
+Guest --> UC03
+UC03 ..> EmailService : <<interact>>
+
+Customer --> UC04
+
+Admin --> UC02
+Admin --> UC16
+
+note bottom of UC03
+  **Hiện trạng UC03:**
+  - Database: Bảng `password_reset_tokens` đã tạo sẵn.
+  - UI: Đã có liên kết "Quên mật khẩu?" tại trang login.
+  - Backend: Chưa có route/controller và chưa cấu hình SMTP.
+  - Trạng thái: **Designed Only / Not Implemented**.
+end note
+
+@enduml

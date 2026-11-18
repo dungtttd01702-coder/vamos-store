@@ -1,0 +1,90 @@
+@startuml SD14_REVENUE_REPORT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: BÁO CÁO DOANH THU & DASHBOARD (SD14 - REVENUE REPORT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Quản trị viên\n(Admin)" as Admin
+participant "Trình duyệt Quản trị\n(Admin Browser)" as Browser
+participant "Admin Router\n(admin.routes.js)" as Router
+participant "Admin Guard\n(requireAdmin)" as AuthGuard
+participant "Admin Controller\n(admin.controller.js)" as AdminCtrl
+participant "Bộ Phân phối Đa luồng\n(Promise.all Dispatcher)" as PromiseAll
+participant "Database Pool\n(database.js - query())" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+note over Admin, SqlDb #FEF3C7
+  <b>ĐẶC ĐIỂM KIẾN TRÚC THỰC TẾ:</b>
+  Phân hệ Dashboard không dùng Service/Repository mà gọi trực tiếp Database Pool từ Controller.
+  Thực thi đồng thời <b>9 truy vấn song song qua Promise.all</b> + <b>1 truy vấn tuần tự</b> để tối ưu hóa hiệu năng I/O.
+  Doanh thu tính từ cột <b>orders.total_amount</b> với điều kiện <b>order_status = 'COMPLETED' AND payment_status = 'PAID'</b> (Không lọc ngày).
+end note
+
+Admin -> Browser : Nhấp "Bảng điều khiển (Dashboard)"
+Browser -> Router : GET /admin/dashboard
+Router -> AuthGuard : Kiểm tra session.user.role === 'ADMIN' && status === 'active'
+
+alt Chưa đăng nhập hoặc không phải Admin
+    AuthGuard --> Browser : Chuyển hướng /auth/login hoặc trả về HTTP 403 Forbidden
+else Quyền Quản trị viên hợp lệ
+    AuthGuard -> AdminCtrl : getDashboard(req, res, next)
+    AdminCtrl -> PromiseAll : Kích hoạt Promise.all([ 9 truy vấn KPI song song ])
+    
+    par Q1: Doanh thu thực thu toàn thời gian
+        PromiseAll -> DbPool : query("SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'")
+        DbPool -> SqlDb : SUM(total_amount) các đơn COMPLETED & PAID
+        SqlDb --> DbPool : revRes
+    also Q2: Tổng số đơn hàng
+        PromiseAll -> DbPool : query("SELECT COUNT(*) AS total_orders FROM orders")
+        DbPool -> SqlDb : COUNT(*) orders
+        SqlDb --> DbPool : orderRes
+    also Q3: Đơn hàng chờ xử lý
+        PromiseAll -> DbPool : query("SELECT COUNT(*) AS pending_orders FROM orders WHERE order_status = 'PENDING'")
+        DbPool -> SqlDb : COUNT(*) orders WHERE PENDING
+        SqlDb --> DbPool : pendRes
+    also Q4: Tổng số sản phẩm đang hoạt động
+        PromiseAll -> DbPool : query("SELECT COUNT(*) AS total_products FROM products WHERE status = 'active'")
+        DbPool -> SqlDb : COUNT(*) products WHERE active
+        SqlDb --> DbPool : prodRes
+    also Q5: Tổng số SKU biến thể đang kinh doanh
+        PromiseAll -> DbPool : query("SELECT COUNT(*) AS total_skus FROM product_variants WHERE status = 'active'")
+        DbPool -> SqlDb : COUNT(*) product_variants WHERE active
+        SqlDb --> DbPool : skuRes
+    also Q6: Top 8 SKU sắp hết hàng (Cảnh báo tồn kho)
+        PromiseAll -> DbPool : query("SELECT TOP 8 pv.id, pv.sku, pv.stock_quantity, p.name, s.size_name, c.color_name FROM product_variants pv ... WHERE stock_quantity <= 5 ORDER BY stock_quantity ASC")
+        DbPool -> SqlDb : SELECT TOP 8 biến thể có stock <= 5
+        SqlDb --> DbPool : lowStockRes
+    also Q7: Top 6 đơn hàng mới nhất
+        PromiseAll -> DbPool : query("SELECT TOP 6 o.id, o.order_code, o.recipient_name_snapshot, o.total_amount, o.order_status, o.payment_status ... FROM orders o ORDER BY o.id DESC")
+        DbPool -> SqlDb : SELECT TOP 6 đơn hàng gần đây
+        SqlDb --> DbPool : recentOrdersRes
+    also Q8: Top 4 sản phẩm bán chạy nhất
+        PromiseAll -> DbPool : query("SELECT TOP 4 oi.product_name_snapshot, SUM(oi.quantity) AS total_sold, SUM(oi.line_total) AS total_revenue ... FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE o.order_status = 'COMPLETED' GROUP BY oi.product_name_snapshot ORDER BY total_sold DESC")
+        DbPool -> SqlDb : GROUP BY product_name các đơn COMPLETED
+        SqlDb --> DbPool : topProdRes
+    also Q9: Cơ cấu số lượng đơn theo từng trạng thái
+        PromiseAll -> DbPool : query("SELECT COUNT(*) AS total, SUM(CASE WHEN order_status='PENDING' THEN 1 ELSE 0 END) AS pending, ... FROM orders")
+        DbPool -> SqlDb : Tổng hợp số lượng theo 6 trạng thái đơn
+        SqlDb --> DbPool : statusCountsRes
+    end
+    
+    DbPool --> PromiseAll : Trả về kết quả 9 truy vấn song song
+    PromiseAll --> AdminCtrl : [revRes, orderRes, pendRes, prodRes, skuRes, lowStockRes, recentOrdersRes, topProdRes, statusCountsRes]
+    
+    AdminCtrl -> DbPool : Truy vấn thứ 10: query("SELECT TOP 5 o.id, o.order_code, o.recipient_name_snapshot, o.total_amount, o.order_status ... FROM orders o WHERE o.order_status = 'PENDING' ORDER BY o.id DESC")
+    DbPool -> SqlDb : Lấy 5 đơn hàng khẩn cấp cần duyệt gấp
+    SqlDb --> DbPool : urgentOrdersRes
+    DbPool --> AdminCtrl : urgentOrdersRes
+    
+    AdminCtrl -> AdminCtrl : Tổng hợp đối tượng stats (totalRevenue, totalOrders, pendingOrders, totalProducts, totalSKUs, statusCounts)
+    AdminCtrl --> Browser : res.render('pages/admin/dashboard', { stats, lowStockItems, recentOrders, urgentOrders, topProducts })
+    Browser --> Admin : Hiển thị bảng điều khiển trực quan: Thẻ doanh thu thực thu,\nbiểu đồ cơ cấu đơn, danh sách đơn khẩn cấp, cảnh báo tồn kho và top sản phẩm bán chạy
+end
+
+@enduml

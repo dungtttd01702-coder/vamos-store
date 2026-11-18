@@ -1,0 +1,73 @@
+@startuml SD08_ORDER_TRACKING
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: TRA CỨU & THEO DÕI ĐƠN HÀNG (SD08 - ORDER TRACKING)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Khách hàng\n(Customer)" as Customer
+participant "Trình duyệt Web\n(Browser / Client)" as Browser
+participant "Account Router\n(account.routes.js)" as Router
+participant "Customer Guard\n(requireCustomer)" as AuthGuard
+participant "Account Controller\n(account.controller.js)" as AccCtrl
+participant "Order Service\n(order.service.js)" as OrderService
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== LUỒNG 1: XEM DANH SÁCH LỊCH SỬ ĐƠN HÀNG (ORDER HISTORY) ==
+
+Customer -> Browser : Nhấp vào "Đơn hàng của tôi"
+Browser -> Router : GET /account/orders
+Router -> AuthGuard : Kiểm tra đăng nhập Customer
+alt Chưa đăng nhập hoặc vai trò Admin
+    AuthGuard --> Browser : Chuyển hướng /auth/login hoặc từ chối 403
+else Xác thực Customer thành công
+    AuthGuard -> AccCtrl : getOrders(req, res, next)
+    AccCtrl -> OrderService : getOrdersByUser(user.id)
+    OrderService -> DbPool : query("SELECT o.*, (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count ... FROM orders o WHERE o.user_id = @userId ORDER BY o.id DESC")
+    DbPool -> SqlDb : SELECT FROM orders WHERE user_id = @userId
+    SqlDb --> DbPool : Trả về recordset danh sách đơn hàng
+    DbPool --> OrderService : ordersList
+    OrderService --> AccCtrl : ordersList
+    AccCtrl --> Browser : res.render('pages/account/orders', { orders: ordersList })
+    Browser --> Customer : Hiển thị bảng danh sách đơn hàng kèm trạng thái (PENDING, SHIPPING, ...)
+end
+
+== LUỒNG 2: XEM CHI TIẾT ĐƠN HÀNG & TIẾN TRÌNH VẬN CHUYỂN (ORDER DETAIL & TIMELINE) ==
+
+Customer -> Browser : Nhấp "Chi tiết" một đơn hàng (#VAMYYMMDD-XXXX)
+Browser -> Router : GET /account/orders/:id
+Router -> AuthGuard : requireCustomer
+AuthGuard -> AccCtrl : getOrderDetail(req, res, next)
+AccCtrl -> OrderService : getOrderDetails(orderId, user.id)
+
+OrderService -> DbPool : query("SELECT o.*, v.code as voucher_code FROM orders o LEFT JOIN vouchers v ON o.voucher_id = v.id WHERE (o.id = @id OR o.order_code = @id) AND o.user_id = @userId")
+DbPool -> SqlDb : Kiểm tra đơn hàng thuộc quyền sở hữu của khách
+SqlDb --> DbPool : orderRes
+
+alt Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của Customer
+    DbPool --> OrderService : Không có bản ghi (recordset.length === 0)
+    OrderService --> AccCtrl : null
+    AccCtrl --> Browser : HTTP 404 Not Found ("Không tìm thấy đơn hàng này")
+else Đơn hàng hợp lệ và thuộc sở hữu của Customer
+    DbPool --> OrderService : orderData
+    
+    OrderService -> DbPool : query("SELECT oi.*, (SELECT TOP 1 image_url FROM product_images pi JOIN product_variants pv ON pi.product_id = pv.product_id WHERE pv.id = oi.product_variant_id) as image_url FROM order_items oi WHERE oi.order_id = @orderId")
+    DbPool -> SqlDb : Lấy danh sách sản phẩm snapshot trong đơn
+    SqlDb --> DbPool : itemsRes
+    
+    OrderService -> DbPool : query("SELECT h.*, u.full_name as changer_name FROM order_status_histories h LEFT JOIN users u ON h.changed_by = u.id WHERE h.order_id = @orderId ORDER BY h.id ASC")
+    DbPool -> SqlDb : Lấy lịch sử chuyển trạng thái đơn hàng (Timeline)
+    SqlDb --> DbPool : historyRes
+    
+    OrderService --> AccCtrl : { ...orderData, items: itemsRes.recordset, timeline: historyRes.recordset }
+    AccCtrl --> Browser : res.render('pages/account/order-detail', { order })
+    Browser --> Customer : Hiển thị chi tiết đơn hàng: thông tin nhận hàng, bảng món snapshot,\ntổng tiền COD, nút "Hủy đơn" (nếu trạng thái PENDING) và tiến trình lịch sử trạng thái
+end
+
+@enduml

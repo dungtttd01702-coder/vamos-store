@@ -1,0 +1,93 @@
+@startuml SD11_INVENTORY_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: QUẢN LÝ KHO HÀNG & ĐIỀU CHỈNH TỒN KHO (SD11 - INVENTORY MANAGEMENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Quản trị viên\n(Admin)" as Admin
+participant "Trình duyệt Quản trị\n(Admin Browser)" as Browser
+participant "Admin Router\n(admin.routes.js)" as Router
+participant "Admin Guard\n(requireAdmin)" as AuthGuard
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Admin Controller\n(admin.controller.js)" as AdminCtrl
+participant "Database Pool & Tx\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+== LUỒNG 1: XEM DANH SÁCH TỒN KHO & LỌC CẢNH BÁO TỒN THẤP ==
+
+Admin -> Browser : Nhấp "Kho hàng" (chọn lọc Tồn thấp <= 5)
+Browser -> Router : GET /admin/inventory?low_stock=true
+Router -> AuthGuard : requireAdmin
+AuthGuard -> AdminCtrl : getInventory(req, res, next)
+AdminCtrl -> DbPool : query("SELECT pv.id, pv.sku, pv.stock_quantity, p.name, s.size_name, c.color_name FROM product_variants pv JOIN products p ... WHERE pv.stock_quantity <= 5 ORDER BY pv.stock_quantity ASC")
+DbPool -> SqlDb : SELECT FROM product_variants WHERE stock_quantity <= 5
+SqlDb --> DbPool : Trả về recordset tồn kho
+DbPool --> AdminCtrl : variantsList
+AdminCtrl --> Browser : res.render('pages/admin/inventory', { variants: variantsList, isLowStockFilter: true })
+Browser --> Admin : Hiển thị bảng tồn kho biến thể kèm cảnh báo đỏ cho các SKU sắp hết
+
+== LUỒNG 2: ĐIỀU CHỈNH TỒN KHO THỦ CÔNG (INVENTORY ADJUSTMENT TRANSACTION) ==
+
+Admin -> Browser : Nhập số lượng thay đổi (+ hoặc -), nhập lý do & bấm "Cập nhật tồn"
+Browser -> Router : POST /admin/inventory/adjust\n{ variant_id, change_quantity, reason, _csrf }
+Router -> AuthGuard : requireAdmin
+AuthGuard -> CsrfMid : Kiểm tra token _csrf
+CsrfMid -> AdminCtrl : postAdjustInventory(req, res, next)
+
+alt Lý do rỗng hoặc số lượng thay đổi = 0 hoặc không phải số
+    AdminCtrl --> Browser : Báo lỗi: "Lý do là bắt buộc và số lượng thay đổi phải khác 0"
+else Dữ liệu nhập vào hợp lệ
+    AdminCtrl -> DbPool : getPool() & new sql.Transaction(pool) & transaction.begin()
+    DbPool -> SqlDb : BEGIN TRANSACTION (Bảo đảm nguyên tử và chống âm kho)
+    
+    AdminCtrl -> DbPool : Khóa biến thể: SELECT id, stock_quantity, sku FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId
+    DbPool -> SqlDb : Khóa bi quan dòng biến thể cần điều chỉnh
+    SqlDb --> DbPool : variantRecord (currentStock)
+    
+    alt Biến thể không tồn tại trong CSDL
+        AdminCtrl -> DbPool : transaction.rollback()
+        DbPool -> SqlDb : ROLLBACK TRANSACTION
+        AdminCtrl --> Browser : Báo lỗi: "Biến thể kho không tồn tại"
+    else Biến thể tồn tại
+        AdminCtrl -> AdminCtrl : Tính toán newStock = currentStock + change_quantity
+        
+        alt Tồn kho sau điều chỉnh bị âm (newStock < 0)
+            AdminCtrl -> DbPool : transaction.rollback()
+            DbPool -> SqlDb : ROLLBACK TRANSACTION
+            AdminCtrl --> Browser : Báo lỗi: "Số lượng tồn kho không được phép nhỏ hơn 0"
+        else Tồn kho thỏa mãn phi âm (newStock >= 0)
+            AdminCtrl -> DbPool : UPDATE product_variants SET stock_quantity = @newStock, updated_at = GETDATE() WHERE id = @varId
+            DbPool -> SqlDb : Cập nhật số lượng tồn kho mới
+            
+            AdminCtrl -> DbPool : INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)\nVALUES (@varId, @adminId, @currentStock, @newStock, @changeQty, @reason)
+            DbPool -> SqlDb : Ghi nhật ký biến động kho (Audit Trail)
+            
+            AdminCtrl -> DbPool : transaction.commit()
+            DbPool -> SqlDb : COMMIT TRANSACTION
+            
+            AdminCtrl --> Browser : HTTP 302 Redirect về '/admin/inventory'
+            Browser --> Admin : Hiển thị bảng tồn kho với số lượng mới và thông báo cập nhật thành công
+        end
+    end
+end
+
+== LUỒNG 3: TRA CỨU NHẬT KÝ BIẾN ĐỘNG KHO (AUDIT TRAIL) ==
+
+Admin -> Browser : Nhấp "Lịch sử biến động kho"
+Browser -> Router : GET /admin/inventory/history
+Router -> AuthGuard : requireAdmin
+AuthGuard -> AdminCtrl : getInventoryHistory(req, res, next)
+AdminCtrl -> DbPool : query("SELECT TOP 50 it.*, pv.sku, p.name as product_name, s.size_name, c.color_name, u.full_name as user_name FROM inventory_transactions it JOIN product_variants pv ... ORDER BY it.id DESC")
+DbPool -> SqlDb : SELECT TOP 50 FROM inventory_transactions
+SqlDb --> DbPool : Trả về 50 giao dịch kho gần nhất
+DbPool --> AdminCtrl : historyList
+AdminCtrl --> Browser : res.render('pages/admin/inventory-history', { history: historyList })
+Browser --> Admin : Hiển thị bảng kiểm toán kho (thời gian, người thực hiện, lý do, số lượng cũ/mới)
+
+@enduml

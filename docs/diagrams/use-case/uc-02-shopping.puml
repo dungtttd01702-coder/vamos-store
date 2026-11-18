@@ -1,0 +1,78 @@
+@startuml uc-02-shopping
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #2563EB
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F8FAFC
+skinparam UsecaseBorderColor #2563EB
+skinparam UsecaseBackgroundColor #EFF6FF
+skinparam RectangleBorderColor #64748B
+skinparam RectangleBackgroundColor #FFFFFF
+
+left to right direction
+
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Customer)" as Customer
+
+Customer -up-|> Guest
+
+rectangle "Phân hệ Mua sắm & Danh sách yêu thích (VAMOS STORE)" {
+
+  usecase "UC05: Tìm kiếm & xem sản phẩm" as UC05
+  usecase "Tìm kiếm nhanh (Live Search API)" as LiveSearch
+  usecase "Lọc đa tiêu chí\n(Size, Màu, Danh mục, Giá)" as FilterProducts
+  usecase "Xem chi tiết ma trận biến thể & tồn kho" as ViewVariantMatrix
+
+  usecase "UC06: Quản lý giỏ hàng" as UC06
+  usecase "Quản lý Giỏ hàng khách vãng lai\n(Lưu tạm trong req.session.guestCart)" as GuestCart
+  usecase "Quản lý Giỏ hàng thành viên\n(Lưu bền vững trên CSDL carts, cart_items)" as CustomerCart
+  usecase "Kiểm tra tồn kho thời gian thực\n& Đồng bộ giá (Live Sync)" as CheckStock
+  usecase "Ràng buộc giới hạn mua lẻ (1-10 đôi/mẫu)" as RetailLimit
+  usecase "Cập nhật số lượng & Xóa mặt hàng" as UpdateRemoveItem
+  usecase "Mua ngay (Buy Now)" as BuyNow
+
+  usecase "UC15: Quản lý danh sách yêu thích\n(Wishlist)" as UC15
+  usecase "Bật/tắt yêu thích (1-click Heart Toggle)" as ToggleWishlist
+  usecase "Xóa sạch danh sách yêu thích" as ClearWishlist
+
+  ' Quan hệ UC05
+  UC05 <.. LiveSearch : <<extend>>
+  UC05 <.. FilterProducts : <<extend>>
+  UC05 <.. ViewVariantMatrix : <<extend>>
+
+  ' Quan hệ UC06
+  UC06 ..> GuestCart : <<include>>\n(Khi chưa đăng nhập)
+  UC06 ..> CustomerCart : <<include>>\n(Khi đã đăng nhập)
+  UC06 ..> CheckStock : <<include>>
+  UC06 ..> RetailLimit : <<include>>
+  UC06 <.. UpdateRemoveItem : <<extend>>
+  UC06 <.. BuyNow : <<extend>>
+
+  ' Quan hệ UC15
+  UC15 <.. ToggleWishlist : <<extend>>
+  UC15 <.. ClearWishlist : <<extend>>
+}
+
+Guest --> UC05
+Guest --> UC06
+
+Customer --> UC06
+Customer --> UC15
+
+note bottom of UC06
+  **Phân định hai luồng Giỏ hàng:**
+  - **Khách vãng lai:** Tự do thêm, sửa, xóa giỏ hàng mà KHÔNG bắt buộc đăng nhập.
+  - **Khách hàng:** Dữ liệu lưu bảng `carts` & `cart_items`.
+  - **Giỏ hàng KHÔNG giữ chỗ tồn kho** (Tồn kho chỉ trừ khi thanh toán UC07).
+end note
+
+note bottom of UC15
+  **Quy tắc Wishlist:**
+  - Guest click Tim -> Hiển thị Toast thông báo yêu cầu đăng nhập.
+  - Customer -> Quản trị Wishlist lưu máy chủ (`wishlist_items`).
+  - Admin -> Chặn truy cập (HTTP 403 Forbidden).
+end note
+
+@enduml

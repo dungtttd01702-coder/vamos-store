@@ -1,0 +1,77 @@
+@startuml COMPONENT_DIAGRAM_OVERVIEW
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN TỔNG QUAN (COMPONENT DIAGRAM OVERVIEW)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Giao diện & Trình duyệt (Presentation Tier)" #F1F5F9 {
+  component [Customer Views (Pug SSR)] as CompCustView
+  component [Admin Views (Pug SSR)] as CompAdminView
+  component [Client Scripts (main.js)\nAJAX Search, Wishlist, Toast] as CompClientJS
+}
+
+package "Hạ tầng Điều tuyến & Middleware (Infrastructure & Middleware)" #EFF6FF {
+  component [Express Core Engine\n(src/app.js & server.js)] as CompExpress
+  component [Security & Middleware Bus\nCSRF, Session, Auth Guards, i18n] as CompMiddleware
+  component [Modular Router Bus\n(src/routes/index.js)] as CompRouter
+  
+  CompExpress --> CompMiddleware
+  CompMiddleware --> CompRouter
+}
+
+CompCustView --> CompExpress : HTTP Requests
+CompAdminView --> CompExpress : HTTP Requests
+CompClientJS --> CompExpress : AJAX Requests
+
+package "Các Thành phần Nghiệp vụ Ứng dụng (Application Business Components)" #F0FDF4 {
+  component [Auth Component\n(auth.controller.js)] as CompAuth
+  component [Account Component\n(account.controller.js)] as CompAccount
+  component [Catalog Component\n(product.controller.js & product.service.js)] as CompCatalog
+  component [Cart Component\n(cart.controller.js)] as CompCart
+  component [Wishlist Component\n(wishlist.controller.js & wishlist.service.js)] as CompWishlist
+  component [Order & Checkout Component\n(checkout.controller.js & order.service.js)] as CompOrder
+  component [Admin Management Component\n(admin.controller.js)] as CompAdmin
+  component [Dashboard Analytics Component\n(admin.controller.js:getDashboard)] as CompDashboard
+}
+
+CompRouter --> CompAuth : /auth
+CompRouter --> CompAccount : /account
+CompRouter --> CompCatalog : /products, /
+CompRouter --> CompCart : /cart
+CompRouter --> CompWishlist : /api/wishlist
+CompRouter --> CompOrder : /checkout, /account/orders
+CompRouter --> CompAdmin : /admin
+CompRouter --> CompDashboard : /admin/dashboard
+
+CompOrder ..> CompCart : Xóa giỏ sau khi đặt
+CompAdmin ..> CompOrder : Điều phối duyệt/hủy đơn
+CompAccount ..> CompOrder : Tra cứu/hủy đơn
+
+package "Thành phần Truy xuất Dữ liệu (Data Access Layer)" #FEF3C7 {
+  component [Product Repository\n(product.repository.js)] as CompProdRepo
+  component [Wishlist Repository\n(wishlist.repository.js)] as CompWishRepo
+  component [Database & Transaction Engine\n(src/config/database.js)] as CompDbEngine
+}
+
+CompCatalog --> CompProdRepo
+CompWishlist --> CompWishRepo
+CompProdRepo --> CompDbEngine
+CompWishRepo --> CompDbEngine
+CompOrder --> CompDbEngine : Giao dịch ACID & Khóa UPDLOCK
+CompCart --> CompDbEngine : SQL trực tiếp & Cart Merge
+CompAuth --> CompDbEngine : SQL trực tiếp (users, carts)
+CompAccount --> CompDbEngine : SQL trực tiếp (addresses, profile)
+CompAdmin --> CompDbEngine : SQL trực tiếp (catalog, kho, voucher)
+CompDashboard --> CompDbEngine : Promise.all 9 queries + 1 urgent query
+
+package "Cơ sở Dữ liệu Quan hệ (Relational Database)" #FFF1F2 {
+  database [Microsoft SQL Server\n(vamos_store_db - 21 Tables)] as CompSqlServer
+}
+
+CompDbEngine <--> CompSqlServer : TCP Port 1433 (Connection Pool 0-10)
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml MODULE_USERS_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam linetype ortho
+skinparam ArrowColor #1E293B
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #F1F5F9
+
+title SƠ ĐỒ ERD PHÂN HỆ NGƯỜI DÙNG & PHÂN QUYỀN (USERS CLUSTER ERD)\nHỆ THỐNG VAMOS STORE
+
+entity "users" as users {
+  * **id** : INT [PK, IDENTITY]
+  --
+  full_name : NVARCHAR(100)
+  email : NVARCHAR(150) [UQ]
+  password_hash : NVARCHAR(255)
+  phone : NVARCHAR(20)
+  role : NVARCHAR(20) [CK: ADMIN/CUSTOMER]
+  status : NVARCHAR(20) [CK: active/locked]
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+entity "addresses" as addresses {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * user_id : INT [FK -> users.id]
+  recipient_name : NVARCHAR(100)
+  phone : NVARCHAR(20)
+  province : NVARCHAR(100)
+  district : NVARCHAR(100)
+  ward : NVARCHAR(100)
+  detail_address : NVARCHAR(255)
+  is_default : BIT
+  created_at : DATETIME2
+  updated_at : DATETIME2
+  --
+  [Filtered UQ: user_id WHERE is_default=1]
+}
+
+entity "password_reset_tokens" as password_reset_tokens {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * user_id : INT [FK -> users.id]
+  token_hash : NVARCHAR(255) [UQ]
+  expires_at : DATETIME2
+  used_at : DATETIME2
+  created_at : DATETIME2
+}
+
+users ||--o{ addresses : "ON DELETE CASCADE\nfk_addresses_user"
+users ||--o{ password_reset_tokens : "ON DELETE CASCADE\nfk_pwd_reset_user"
+
+@enduml
+

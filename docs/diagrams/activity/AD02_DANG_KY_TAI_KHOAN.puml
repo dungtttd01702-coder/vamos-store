@@ -1,0 +1,42 @@
+@startuml
+title Sơ đồ hoạt động — Đăng ký tài khoản (AD01/AD02)
+
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 12
+skinparam ActivityFontSize 12
+skinparam ActivityBorderColor #1e293b
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityDiamondBorderColor #b91c1c
+skinparam ActivityDiamondBackgroundColor #fef2f2
+skinparam ActivityDiamondFontSize 11
+skinparam ArrowColor #334155
+skinparam ArrowFontSize 11
+skinparam SwimlaneTitleFontSize 13
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneBorderColor #94a3b8
+skinparam SwimlaneWidth same
+
+|Người dùng|
+start
+:Mở trang đăng ký thành viên;
+:Nhập họ tên, email, SĐT, mật khẩu;
+:Nhấn nút Đăng ký;
+
+|Hệ thống|
+:Tiếp nhận thông tin đăng ký;
+:Kiểm tra tính hợp lệ và trùng lặp email;
+if (Dữ liệu hợp lệ & Chưa tồn tại?) then (Đúng)
+  :Mã hóa mật khẩu an toàn;
+  :Tạo tài khoản mới trong hệ thống;
+  :Hiển thị thông báo thành công;
+  |Người dùng|
+  :Đăng nhập và sử dụng hệ thống;
+  stop
+else (Sai)
+  :Thông báo lỗi cụ thể;
+  :Yêu cầu kiểm tra lại thông tin;
+  |Người dùng|
+  :Chỉnh sửa thông tin đăng ký;
+  stop
+endif
+@enduml

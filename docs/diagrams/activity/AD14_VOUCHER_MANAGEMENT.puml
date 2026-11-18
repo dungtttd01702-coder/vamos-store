@@ -1,0 +1,65 @@
+@startuml AD14_VOUCHER_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN QUẢN LÝ KHUYẾN MÃI & MÃ GIẢM GIÁ (AD14 — VOUCHER MANAGEMENT)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Quản lý Voucher (/admin/vouchers);
+
+|Hệ thống (Web App)|
+:Kiểm tra quyền Admin (requireAdmin middleware);
+if (Quyền ADMIN hợp lệ?) then ([Không])
+  :Từ chối truy cập (403 / Redirect login);
+  stop
+else ([Hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Truy vấn danh sách mã giảm giá kèm số lượt đã sử dụng:\nSELECT v.*, (SELECT COUNT(*) FROM orders WHERE voucher_id = v.id) AS order_usage_count\nFROM vouchers v ORDER BY v.id DESC;
+  |Hệ thống (Web App)|
+  :Hiển thị danh sách Voucher:\n- Mã code, tên chương trình\n- Loại chiết khấu (tiền mặt / %)\n- Giá trị giảm & Giới hạn tối đa\n- Đơn tối thiểu áp dụng\n- Giới hạn lượt dùng & Đã dùng (used_count)\n- Thời gian hiệu lực & Trạng thái (is_active);
+endif
+
+|Quản trị viên (Admin)|
+if (Hành động?) then ([Bật / Tắt trạng thái Voucher])
+  :Nhấn nút Đổi trạng thái (POST /admin/vouchers/:id/toggle);
+  |Cơ sở Dữ liệu (SQL Server)|
+  :UPDATE vouchers\nSET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END\nWHERE id = @id;
+  |Hệ thống (Web App)|
+  :Cập nhật trạng thái hiệu lực tức thì;\nChuyển hướng về /admin/vouchers;
+
+else ([Tạo mã giảm giá mới])
+  :Nhấp "Tạo mã giảm giá mới" (/admin/vouchers/create);
+  |Hệ thống (Web App)|
+  :Hiển thị biểu mẫu tạo Voucher;
+  |Quản trị viên (Admin)|
+  :Nhập Mã code (ví dụ: VAMOS50), Tên voucher;\nChọn Loại giảm: Số tiền cố định / Phần trăm;\nNhập Giá trị giảm (discount_value);\nNhập Đơn hàng tối thiểu (min_order_value);\nNhập Giảm tối đa (max_discount_amount - cho %);\nNhập Giới hạn lượt dùng toàn hệ thống (usage_limit);\nChọn Ngày bắt đầu (start_date) & Ngày kết thúc (end_date);\nNhấn "Lưu mã giảm giá";
+  
+  |Hệ thống (Web App)|
+  :Tiếp nhận request POST /admin/vouchers/create;\nKiểm tra ràng buộc nghiệp vụ (admin.controller.js):;
+  if (Mã trống HOẶC Giá trị giảm <= 0?) then ([Lỗi đầu vào])
+    :Báo lỗi: "Mã giảm giá và giá trị chiết khấu là bắt buộc và phải > 0";
+    stop
+  else if (Loại % mà giá trị giảm > 100%?) then ([Vượt ngưỡng %])
+    :Báo lỗi: "Chiết khấu phần trăm không được vượt quá 100%";
+    stop
+  else if (end_date < start_date?) then ([Sai lệch thời gian])
+    :Báo lỗi: "Ngày kết thúc hiệu lực không thể trước ngày bắt đầu";
+    stop
+  else ([Hợp lệ])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Thêm mã giảm giá mới vào CSDL:\nINSERT INTO vouchers (\n  code, name, discount_type, discount_value, min_order_value,\n  max_discount_amount, usage_limit, used_count, start_date, end_date, is_active\n)\nVALUES (\n  UPPER(@code), @name, @discountType, @discountValue, @minOrder,\n  @maxDiscount, @usageLimit, 0, @startDate, @endDate, 1\n);
+    |Hệ thống (Web App)|
+    :Chuyển hướng về /admin/vouchers?success=created;\nHiển thị thông báo tạo voucher thành công;
+  endif
+endif
+
+|Quản trị viên (Admin)|
+:Xem voucher mới hoặc trạng thái mới trên danh sách;
+stop
+
+@enduml
+

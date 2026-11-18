@@ -1,0 +1,90 @@
+@startuml MODULE_SHOPPING_INVENTORY_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam linetype ortho
+skinparam ArrowColor #1E293B
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #EFF6FF
+
+title SƠ ĐỒ ERD PHÂN HỆ GIỎ HÀNG, YÊU THÍCH & TỒN KHO (SHOPPING & INVENTORY CLUSTER ERD)\nHỆ THỐNG VAMOS STORE
+
+entity "users" as users {
+  * **id** : INT [PK, IDENTITY]
+  --
+  full_name : NVARCHAR(100)
+  email : NVARCHAR(150) [UQ]
+}
+
+entity "products" as products {
+  * **id** : INT [PK, IDENTITY]
+  --
+  product_code : NVARCHAR(50) [UQ]
+  name : NVARCHAR(200)
+}
+
+entity "product_variants" as product_variants {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * product_id : INT [FK -> products.id]
+  sku : NVARCHAR(100) [UQ]
+  stock_quantity : INT [CK >= 0]
+}
+
+entity "carts" as carts {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * user_id : INT [FK -> users.id, UQ]
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+entity "cart_items" as cart_items {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * cart_id : INT [FK -> carts.id]
+  * variant_id : INT [FK -> product_variants.id]
+  quantity : INT [CK > 0]
+  created_at : DATETIME2
+  updated_at : DATETIME2
+  --
+  [UQ: cart_id, variant_id]
+}
+
+entity "wishlist_items" as wishlist_items {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * user_id : INT [FK -> users.id]
+  * product_id : INT [FK -> products.id]
+  created_at : DATETIME2
+  --
+  [UQ: user_id, product_id]
+}
+
+entity "inventory_transactions" as inventory_transactions {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * variant_id : INT [FK -> product_variants.id]
+  * user_id : INT [FK -> users.id]
+  old_quantity : INT [CK >= 0]
+  new_quantity : INT [CK >= 0]
+  change_quantity : INT
+  reason : NVARCHAR(255)
+  reference_id : INT
+  created_at : DATETIME2
+}
+
+users ||--o| carts : "ON DELETE CASCADE\nfk_carts_user"
+users ||--o{ wishlist_items : "ON DELETE CASCADE\nfk_wishlist_items_user"
+users ||--o{ inventory_transactions : "ON DELETE NO ACTION\nfk_inv_trans_user"
+
+products ||--o{ wishlist_items : "ON DELETE CASCADE\nfk_wishlist_items_product"
+
+carts ||--o{ cart_items : "ON DELETE CASCADE\nfk_cart_items_cart"
+product_variants ||--o{ cart_items : "ON DELETE NO ACTION\nfk_cart_items_variant"
+product_variants ||--o{ inventory_transactions : "ON DELETE NO ACTION\nfk_inv_trans_variant"
+
+@enduml
+
