@@ -1,4 +1,5 @@
 const { sql, getPool, query } = require('../config/database');
+const loyaltyService = require('./loyalty.service');
 
 /**
  * State Transition Matrix for VAMOS STORE
@@ -107,6 +108,23 @@ class OrderService {
         `);
         if (vuRes.recordset.length > 0) {
           throw new Error(`Bạn đã từng sử dụng mã giảm giá "${codeTrim}" trước đây. Theo quy định (Q8), mỗi tài khoản chỉ được áp dụng mã này 1 lần.`);
+        }
+
+        // Rule: Personal Voucher Ownership & Availability check (VAMOS Club Redemptions)
+        const vrCheckReq = new sql.Request(transaction);
+        vrCheckReq.input('vouchId', v.id);
+        const vrRes = await vrCheckReq.query(`
+          SELECT user_id, status FROM voucher_redemptions WITH (UPDLOCK, ROWLOCK)
+          WHERE voucher_id = @vouchId
+        `);
+        if (vrRes.recordset.length > 0) {
+          const redemption = vrRes.recordset[0];
+          if (redemption.user_id !== userId) {
+            throw new Error(`Mã giảm giá "${codeTrim}" không hợp lệ hoặc không áp dụng được cho tài khoản của bạn.`);
+          }
+          if (redemption.status !== 'AVAILABLE') {
+            throw new Error(`Mã giảm giá "${codeTrim}" đã được sử dụng hoặc không còn khả dụng.`);
+          }
         }
 
         // Calculate discount
@@ -255,6 +273,16 @@ class OrderService {
           INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)
           VALUES (@vouchId, @userId, @orderId, GETDATE())
         `);
+
+        // Mark personal voucher redemption as USED if applicable
+        const vrUpdReq = new sql.Request(transaction);
+        vrUpdReq.input('vouchId', voucherId);
+        vrUpdReq.input('userId', userId);
+        await vrUpdReq.query(`
+          UPDATE voucher_redemptions 
+          SET status = 'USED', used_at = GETDATE()
+          WHERE voucher_id = @vouchId AND user_id = @userId
+        `);
       }
 
       // 6. Insert Order Items (Preserve product name, SKU, size, color, price snapshots)
@@ -393,6 +421,15 @@ class OrderService {
         SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END
         WHERE id = @vouchId
       `);
+
+      // Restore personal voucher redemption status to AVAILABLE
+      const vrRestoreReq = new sql.Request(transaction);
+      vrRestoreReq.input('vouchId', appliedVoucherId);
+      await vrRestoreReq.query(`
+        UPDATE voucher_redemptions
+        SET status = 'AVAILABLE', used_at = NULL
+        WHERE voucher_id = @vouchId
+      `);
     }
 
     // 4. Log status history
@@ -492,7 +529,7 @@ class OrderService {
       const orderReq = new sql.Request(transaction);
       orderReq.input('orderId', orderId);
       const orderRes = await orderReq.query(`
-        SELECT id, order_code, order_status, payment_status
+        SELECT id, order_code, user_id, order_status, payment_status, subtotal, discount_amount, shipping_fee, total_amount
         FROM orders WITH (UPDLOCK, ROWLOCK)
         WHERE id = @orderId
       `);
@@ -535,6 +572,14 @@ class OrderService {
       let newPaymentStatus = currentOrder.payment_status;
       if (newStatus === 'COMPLETED') {
         newPaymentStatus = 'PAID';
+
+        // 5b. VAMOS Club Loyalty: Award 3% purchase points on eligible merchandise amount (subtotal - discount)
+        const eligibleAmount = Math.max(0, Number(currentOrder.subtotal || 0) - Number(currentOrder.discount_amount || 0));
+        await loyaltyService.awardOrderPurchasePoints(transaction, {
+          orderId: currentOrder.id,
+          userId: currentOrder.user_id,
+          eligibleAmount
+        });
       }
 
       // 6. Update orders table
