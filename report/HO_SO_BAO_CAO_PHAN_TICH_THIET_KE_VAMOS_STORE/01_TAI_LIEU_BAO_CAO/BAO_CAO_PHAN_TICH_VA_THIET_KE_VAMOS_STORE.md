@@ -549,7 +549,7 @@ Dưới đây là phần đặc tả chi tiết cho từng ca sử dụng theo �
      * d. Điền số lượng tồn kho ban đầu cho từng mã SKU được sinh ra.
      * e. Tải lên danh sách hình ảnh sản phẩm và đánh dấu chọn đúng 1 ảnh làm ảnh đại diện chính (`is_primary = 1`).
      * f. Bấm "Lưu sản phẩm". Hệ thống thực thi Transaction lưu sản phẩm cha, lưu các biến thể trong `product_variants`, lưu các ảnh trong `product_images` và ghi nhận thẻ kho ban đầu.
-  3. **Quản lý Danh mục & Thương hiệu (`/admin/categories`):** Admin thêm mới, sửa tên, mô tả và đường dẫn slug cho các phân loại sản phẩm.
+  3. **Quản lý Danh mục & Thương hiệu (`/admin/categories`):** Admin xem danh sách danh mục và thương hiệu, thêm mới danh mục/thương hiệu và bật/tắt trạng thái hoạt động của danh mục. Hệ thống hiện không cung cấp chức năng chỉnh sửa hoặc xóa cứng danh mục.
   4. **Quản lý Banner quảng cáo (`/admin/banners`):** Admin tải lên hình ảnh banner tiếp thị, gán liên kết và sắp xếp thứ tự hiển thị trên slider trang chủ.
 * **Luồng ngoại lệ:**
   * *2b. Trùng mã sản phẩm hoặc trùng Slug:* Hệ thống báo lỗi trùng lặp do vi phạm ràng buộc UNIQUE của CSDL.
@@ -1411,10 +1411,10 @@ Phân hệ Quản trị (Admin Portal) được phân tách thành khu vực ri�
 * **Mục đích màn hình:** Giúp Quản trị viên nắm bắt nhanh chóng bức tranh toàn cảnh về hoạt động kinh doanh, các chỉ số KPI tài chính và danh sách các việc cần xử lý gấp.
 * **Những khu vực chính:** 4 khối thẻ chỉ số KPI trên cùng, bảng xếp hạng Top 4 sản phẩm bán chạy nhất ở cột trái, và danh sách các đơn hàng mới đặt ở cột phải.
 * **Thông tin hiển thị:**
-  * *Tổng doanh thu thực tế:* Tính toán nghiêm ngặt từ các đơn hàng thỏa mãn điều kiện `COMPLETED` và `PAID`.
-  * *Đơn hàng chờ xác nhận:* Số lượng đơn hàng `PENDING` cần duyệt.
-  * *Tổng sản phẩm và Khách hàng:* Số lượng mẫu giày và số thành viên đã đăng ký.
-  * *Top 4 sản phẩm bán chạy nhất:* Ảnh sản phẩm, tên mẫu giày, tổng số lượng bán ra (`total_sold`) và tổng doanh thu tích lũy.
+  * *Tổng doanh thu thực tế:* Tính toán nghiêm ngặt từ các đơn hàng thỏa mãn điều kiện kép `order_status = 'COMPLETED'` và `payment_status = 'PAID'` (SQL: `SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'`). Các đơn hàng đang chờ duyệt, đang giao hoặc đã hủy tuyệt đối không được tính vào doanh thu.
+  * *Đơn hàng chờ xác nhận:* Số lượng đơn hàng `PENDING` cần duyệt gấp.
+  * *Tổng sản phẩm và Khách hàng:* Số lượng mẫu giày đang hoạt động và số thành viên đã đăng ký.
+  * *Top 4 sản phẩm bán chạy nhất:* Bảng xếp hạng sắp xếp theo **tổng số lượng sản phẩm bán ra** (`SUM(oi.quantity) AS total_sold`, sắp xếp `ORDER BY total_sold DESC`), phản ánh mẫu giày được người tiêu dùng lựa chọn nhiều nhất (không sắp xếp theo doanh thu).
 * **Thao tác có thể thực hiện:** Bấm vào các thẻ KPI hoặc liên kết để chuyển nhanh đến màn hình quản trị tương ứng.
 * **Ý nghĩa đối với vận hành:** Cung cấp số liệu tài chính trung thực và chính xác theo thời gian thực giúp ban quản lý đưa ra quyết định nhập hàng kịp thời.
 
@@ -1456,8 +1456,8 @@ Phân hệ Quản trị (Admin Portal) được phân tách thành khu vực ri�
 </div>
 
 * **Mục đích màn hình:** Cấu hình hệ thống phân loại giày dép và danh sách các thương hiệu đối tác cung ứng.
-* **Những khu vực chính:** Bảng quản trị Danh mục sản phẩm (`categories`) và Bảng quản trị Thương hiệu (`brands`) đi kèm các form thêm mới hoặc chỉnh sửa.
-* **Thao tác có thể thực hiện:** Thêm danh mục mới, chỉnh sửa tên gọi, mô tả và cấu hình đường dẫn thân thiện URL (`slug`) duy nhất.
+* **Những khu vực chính:** Bảng quản trị Danh mục sản phẩm (`categories`) và Bảng quản trị Thương hiệu (`brands`) đi kèm form thêm mới danh mục/thương hiệu.
+* **Thao tác có thể thực hiện:** Xem danh sách danh mục (kèm số lượng sản phẩm liên kết), thêm danh mục mới (`name`, `slug`, `description`, `gender_target`), bật/tắt trạng thái hiển thị (`status` = 'active' / 'inactive') và thêm mới thương hiệu. Hệ thống hiện không cung cấp chức năng chỉnh sửa thông tin hoặc xóa cứng danh mục.
 * **Ý nghĩa đối với vận hành:** Duy trì cây danh mục phân loại khoa học giúp khách hàng dễ dàng tìm kiếm sản phẩm trên cửa hàng.
 
 ---
