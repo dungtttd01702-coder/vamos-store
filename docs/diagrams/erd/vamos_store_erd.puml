@@ -1,6 +1,6 @@
 @startuml vamos_store_erd
-title SƠ ĐỒ MỐI QUAN HỆ THỰC THỂ (ERD) - VAMOS STORE (MySQL 8)
-caption Phiên bản v1.2 Chuẩn hóa • 18 Thực thể • Phân nhóm 6 Phân hệ Nghiệp vụ
+title SƠ ĐỒ MỐI QUAN HỆ THỰC THỂ (ERD) - VAMOS STORE
+caption Phiên bản v2.0 Chuẩn hóa • 26 Thực thể nghiệp vụ • Phân nhóm 7 Phân hệ Nghiệp vụ
 
 skinparam linetype ortho
 skinparam roundcorner 8
@@ -275,6 +275,97 @@ package "6. Đơn Hàng & Vận Hành (Orders & Fulfillment)" #EFF6FF {
 }
 
 ' ========================================================
+' 7. NHÓM KHÁCH HÀNG THÂN THIẾT VAMOS CLUB (LOYALTY)
+' ========================================================
+package "7. Khách Hàng Thân Thiết VAMOS Club" #FEF2F2 {
+  entity "reviews" as reviews #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * user_id : INT <<FK>>
+      * order_id : INT <<FK>>
+      * product_id : INT <<FK>>
+      * rating : INT <<CHECK 1..5>>
+      comment : VARCHAR(2000)
+      quick_tags : VARCHAR(500)
+      * points_earned : INT <<CHECK 100..300>>
+      * status : VARCHAR(20) <<DEFAULT 'APPROVED'>>
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+      updated_at : TIMESTAMP <<DEFAULT NOW>>
+      .. Ràng buộc duy nhất ..
+      <<UNIQUE(order_id, product_id)>>
+  }
+
+  entity "review_media" as review_media #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * review_id : INT <<FK>>
+      * media_type : VARCHAR(20) <<DEFAULT 'IMAGE'>>
+      * media_url : VARCHAR(500)
+      original_filename : VARCHAR(255)
+      * file_size : INT
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+
+  entity "user_points_wallets" as user_points_wallets #F8FAFC {
+      * user_id : INT <<PK, FK>>
+      --
+      * available_points : INT <<DEFAULT 0, CHECK >= 0>>
+      * lifetime_earned_points : INT <<DEFAULT 0, CHECK >= 0>>
+      * lifetime_redeemed_points : INT <<DEFAULT 0, CHECK >= 0>>
+      * tier_code : VARCHAR(20) <<DEFAULT 'MEMBER'>>
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+      updated_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+
+  entity "point_transactions" as point_transactions #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * user_id : INT <<FK>>
+      * transaction_type : VARCHAR(30)
+      * amount : INT <<CHECK <> 0>>
+      * balance_after : INT <<CHECK >= 0>>
+      reference_type : VARCHAR(50)
+      reference_id : VARCHAR(100)
+      * description : VARCHAR(500)
+      idempotency_key : VARCHAR(100) <<UNIQUE>>
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+
+  entity "point_reward_rules" as point_reward_rules #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * title : VARCHAR(200)
+      description : VARCHAR(500)
+      * reward_type : VARCHAR(30) <<DEFAULT 'VOUCHER'>>
+      * points_required : INT <<CHECK > 0>>
+      * discount_type : VARCHAR(20)
+      * discount_value : DECIMAL(12,0)
+      min_order_amount : DECIMAL(12,0)
+      max_discount_amount : DECIMAL(12,0)
+      target_product_id : INT <<FK>>
+      * voucher_valid_days : INT <<DEFAULT 30>>
+      stock_quantity : INT <<DEFAULT 0>>
+      * is_active : BOOLEAN <<DEFAULT TRUE>>
+      sort_order : INT <<DEFAULT 0>>
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+      updated_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+
+  entity "voucher_redemptions" as voucher_redemptions #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * user_id : INT <<FK>>
+      * reward_rule_id : INT <<FK>>
+      * voucher_id : INT <<FK, UNIQUE>>
+      * points_spent : INT <<CHECK > 0>>
+      * status : VARCHAR(20) <<DEFAULT 'AVAILABLE'>>
+      * redeemed_at : TIMESTAMP <<DEFAULT NOW>>
+      used_at : TIMESTAMP
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+}
+
+' ========================================================
 ' QUAN HỆ DỮ LIỆU & RÀNG BUỘC CARDINALITY
 ' ========================================================
 users ||--o{ addresses : "1..N"
@@ -283,11 +374,17 @@ users ||--o{ orders : "1..N"
 users ||--o{ password_reset_tokens : "1..N"
 users ||--o{ order_status_histories : "1..N"
 users ||--o{ inventory_transactions : "1..N"
+users ||--o| user_points_wallets : "1..1"
+users ||--o{ point_transactions : "1..N"
+users ||--o{ reviews : "1..N"
+users ||--o{ voucher_redemptions : "1..N"
 
 categories ||--o{ products : "1..N"
 brands |o--o{ products : "0..1..N"
 products ||--o{ product_images : "1..N"
 products ||--|{ product_variants : "1..1..N"
+products ||--o{ reviews : "1..N"
+products ||--o{ point_reward_rules : "0..1..N"
 
 sizes ||--o{ product_variants : "1..N"
 colors ||--o{ product_variants : "1..N"
@@ -300,6 +397,12 @@ carts ||--o{ cart_items : "1..N"
 
 orders ||--|{ order_items : "1..1..N"
 orders ||--|{ order_status_histories : "1..1..N"
+orders ||--o{ reviews : "1..N"
+
+reviews ||--o{ review_media : "1..N"
+
 vouchers |o--o{ orders : "0..1..N"
+vouchers ||--|| voucher_redemptions : "1..1"
+point_reward_rules ||--o{ voucher_redemptions : "1..N"
 
 @enduml

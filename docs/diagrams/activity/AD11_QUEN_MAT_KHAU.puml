@@ -1,46 +1,69 @@
 @startuml
-title Sơ đồ hoạt động — Khôi phục mật khẩu (AD11/AD03)
+title Sơ đồ hoạt động — Khôi phục mật khẩu (Thiết kế quy trình — Chưa cài đặt trong mã nguồn)
 
-skinparam defaultFontName "Arial"
-skinparam defaultFontSize 12
-skinparam ActivityFontSize 12
-skinparam ActivityBorderColor #1e293b
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
 skinparam ActivityBackgroundColor #ffffff
-skinparam ActivityDiamondBorderColor #b91c1c
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
 skinparam ActivityDiamondBackgroundColor #fef2f2
-skinparam ActivityDiamondFontSize 11
-skinparam ArrowColor #334155
-skinparam ArrowFontSize 11
-skinparam SwimlaneTitleFontSize 13
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
 skinparam SwimlaneTitleFontStyle bold
-skinparam SwimlaneBorderColor #94a3b8
-skinparam SwimlaneWidth same
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
 
 |Người dùng|
 start
-:Mở chức năng Quên mật khẩu;
-:Nhập địa chỉ email tài khoản;
-:Gửi yêu cầu khôi phục;
+:Mở trang đăng nhập và nhấn "Quên mật khẩu?";
+:Nhập địa chỉ email tài khoản đã đăng ký;
+:Nhấn nút "Gửi mã xác nhận";
 
 |Hệ thống|
-:Tiếp nhận email và kiểm tra tài khoản;
+:Tiếp nhận email và kiểm tra sự tồn tại trong cơ sở dữ liệu;
+note right
+Lưu ý kỹ thuật:
+- Bảng password_reset_tokens đã có trong CSDL.
+- Quy trình route, controller và gửi mail SMTP chưa triển khai.
+- Sơ đồ thể hiện thiết kế quy trình nghiệp vụ mục tiêu.
+end note
+
 if (Email tồn tại trong hệ thống?) then (Đúng)
-  :Tạo token khôi phục duy nhất có thời hạn;
-  :Lưu mã token vào bảng mật khẩu;
-  :Gửi hướng dẫn đặt lại mật khẩu;
-  |Người dùng|
-  :Mở link và nhập mật khẩu mới;
   |Hệ thống|
-  :Cập nhật mật khẩu băm mới;
-  :Vô hiệu hóa token đã sử dụng;
-  :Thông báo đổi mật khẩu thành công;
+  :Tạo mã token xác thực ngẫu nhiên có thời hạn hết hạn;
+  :Lưu token vào bảng mật khẩu và gửi hướng dẫn đến email;
+  :Hiển thị thông báo hướng dẫn người dùng kiểm tra hòm thư;
   |Người dùng|
-  :Đăng nhập bằng mật khẩu mới;
+  :Mở liên kết xác nhận và nhập mật khẩu mới;
+  |Hệ thống|
+  :Kiểm tra token còn hạn và mã hóa mật khẩu mới bằng bcrypt;
+  :Cập nhật mật khẩu mới và hủy hiệu lực của token;
+  :Hiển thị thông báo đổi mật khẩu thành công;
+  |Người dùng|
+  :Đăng nhập lại vào hệ thống bằng mật khẩu mới;
   stop
 else (Sai)
-  :Thông báo email không tồn tại trong hệ thống;
+  |Hệ thống|
+  :Hiển thị thông báo địa chỉ email không tồn tại trong hệ thống;
   |Người dùng|
-  :Kiểm tra lại địa chỉ email đã nhập;
+  :Kiểm tra lại địa chỉ email hoặc đăng ký tài khoản mới;
   stop
 endif
 @enduml

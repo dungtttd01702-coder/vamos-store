@@ -1,40 +1,57 @@
 @startuml
 title Sơ đồ hoạt động — Quản lý giỏ hàng (AD04/AD06)
 
-skinparam defaultFontName "Arial"
-skinparam defaultFontSize 12
-skinparam ActivityFontSize 12
-skinparam ActivityBorderColor #1e293b
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
 skinparam ActivityBackgroundColor #ffffff
-skinparam ActivityDiamondBorderColor #b91c1c
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
 skinparam ActivityDiamondBackgroundColor #fef2f2
-skinparam ActivityDiamondFontSize 11
-skinparam ArrowColor #334155
-skinparam ArrowFontSize 11
-skinparam SwimlaneTitleFontSize 13
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
 skinparam SwimlaneTitleFontStyle bold
-skinparam SwimlaneBorderColor #94a3b8
-skinparam SwimlaneWidth same
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
 
 |Người dùng|
 start
-:Chọn size EU, màu sắc và số lượng;
-:Nhấn nút Thêm vào giỏ hàng;
+:Xem chi tiết sản phẩm, chọn size EU, màu sắc và số lượng;
+:Nhấn nút "Thêm vào giỏ hàng";
 
 |Hệ thống|
-:Tiếp nhận biến thể và số lượng;
-:Kiểm tra tồn kho khả dụng;
-if (Số lượng hợp lệ & Còn hàng?) then (Đúng)
-  :Cập nhật sản phẩm vào giỏ hàng;
-  :Tính toán lại tổng tiền giỏ hàng;
-  :Hiển thị thông báo thành công;
+:Tiếp nhận thông tin biến thể SKU và số lượng;
+:Kiểm tra số lượng tồn kho khả dụng;
+:Kiểm tra giới hạn bán lẻ tối đa 10 đôi/sản phẩm;
+
+if (Đủ tồn kho và không vượt quá giới hạn 10 đôi?) then (Đúng)
+  |Hệ thống|
+  :Thêm sản phẩm hoặc tăng số lượng trong giỏ hàng;
+  :Tính toán lại tạm tính và hiển thị thông báo thành công;
   |Người dùng|
-  :Mở giỏ hàng kiểm tra hoặc thay đổi số lượng;
+  :Mở trang giỏ hàng để xem tóm tắt hoặc điều chỉnh;
   stop
 else (Sai)
-  :Thông báo tạm hết hàng hoặc vượt giới hạn;
+  |Hệ thống|
+  :Hiển thị thông báo không đủ hàng hoặc vượt giới hạn bán lẻ;
   |Người dùng|
-  :Chọn lại size hoặc số lượng khác;
+  :Chọn lại số lượng hoặc chọn kích cỡ khác;
   stop
 endif
 @enduml

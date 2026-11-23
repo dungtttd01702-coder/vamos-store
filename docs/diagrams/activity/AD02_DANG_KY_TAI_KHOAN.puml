@@ -1,42 +1,59 @@
 @startuml
-title Sơ đồ hoạt động — Đăng ký tài khoản (AD01/AD02)
+title Sơ đồ hoạt động — Đăng ký tài khoản thành viên (AD01/AD02)
 
-skinparam defaultFontName "Arial"
-skinparam defaultFontSize 12
-skinparam ActivityFontSize 12
-skinparam ActivityBorderColor #1e293b
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
 skinparam ActivityBackgroundColor #ffffff
-skinparam ActivityDiamondBorderColor #b91c1c
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
 skinparam ActivityDiamondBackgroundColor #fef2f2
-skinparam ActivityDiamondFontSize 11
-skinparam ArrowColor #334155
-skinparam ArrowFontSize 11
-skinparam SwimlaneTitleFontSize 13
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
 skinparam SwimlaneTitleFontStyle bold
-skinparam SwimlaneBorderColor #94a3b8
-skinparam SwimlaneWidth same
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
 
 |Người dùng|
 start
-:Mở trang đăng ký thành viên;
-:Nhập họ tên, email, SĐT, mật khẩu;
-:Nhấn nút Đăng ký;
+:Mở trang đăng ký tài khoản;
+:Nhập họ tên, email, số điện thoại và mật khẩu;
+:Nhấn nút "Đăng ký tài khoản";
 
 |Hệ thống|
-:Tiếp nhận thông tin đăng ký;
-:Kiểm tra tính hợp lệ và trùng lặp email;
-if (Dữ liệu hợp lệ & Chưa tồn tại?) then (Đúng)
-  :Mã hóa mật khẩu an toàn;
-  :Tạo tài khoản mới trong hệ thống;
-  :Hiển thị thông báo thành công;
+:Tiếp nhận dữ liệu form đăng ký;
+:Kiểm tra định dạng email, mật khẩu >= 6 ký tự;
+:Kiểm tra email đã tồn tại trong cơ sở dữ liệu chưa;
+
+if (Dữ liệu hợp lệ và email chưa tồn tại?) then (Đúng)
+  |Hệ thống|
+  :Băm mật khẩu an toàn bằng thuật toán bcrypt;
+  :Tạo tài khoản mới với vai trò Khách hàng (CUSTOMER);
+  :Hiển thị thông báo đăng ký thành công;
   |Người dùng|
-  :Đăng nhập và sử dụng hệ thống;
+  :Chuyển đến màn hình đăng nhập để sử dụng;
   stop
 else (Sai)
-  :Thông báo lỗi cụ thể;
-  :Yêu cầu kiểm tra lại thông tin;
+  |Hệ thống|
+  :Hiển thị thông báo lỗi cụ thể (Email trùng hoặc thông tin không hợp lệ);
   |Người dùng|
-  :Chỉnh sửa thông tin đăng ký;
+  :Kiểm tra và sửa lại thông tin đăng ký;
   stop
 endif
 @enduml

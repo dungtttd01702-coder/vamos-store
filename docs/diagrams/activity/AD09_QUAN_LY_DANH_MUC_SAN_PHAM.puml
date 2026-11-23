@@ -1,41 +1,57 @@
 @startuml
-title Sơ đồ hoạt động — Quản lý sản phẩm & danh mục (AD09/AD13)
+title Sơ đồ hoạt động — Quản lý danh mục & thương hiệu (AD09/AD13)
 
-skinparam defaultFontName "Arial"
-skinparam defaultFontSize 12
-skinparam ActivityFontSize 12
-skinparam ActivityBorderColor #1e293b
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
 skinparam ActivityBackgroundColor #ffffff
-skinparam ActivityDiamondBorderColor #b91c1c
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
 skinparam ActivityDiamondBackgroundColor #fef2f2
-skinparam ActivityDiamondFontSize 11
-skinparam ArrowColor #334155
-skinparam ArrowFontSize 11
-skinparam SwimlaneTitleFontSize 13
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
 skinparam SwimlaneTitleFontStyle bold
-skinparam SwimlaneBorderColor #94a3b8
-skinparam SwimlaneWidth same
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
 
 |Quản trị viên (Admin)|
 start
-:Nhập thông tin sản phẩm (tên, giá, mô tả, ảnh);
-:Cấu hình ma trận kích cỡ EU và màu sắc;
-:Nhấn Lưu sản phẩm;
+:Mở trang quản lý danh mục và thương hiệu;
+:Nhập thông tin danh mục mới (Tên, Slug, Giới tính mục tiêu, Mô tả);
+:Nhấn nút "Tạo danh mục" (hoặc nhấn nút Ẩn/Hiện trạng thái);
 
 |Hệ thống|
-:Tiếp nhận thông tin sản phẩm và biến thể;
-:Kiểm tra dữ liệu bắt buộc và trùng lặp mã SKU;
-if (Dữ liệu đầy đủ & Chưa trùng lặp?) then (Đúng)
-  :Lưu thông tin sản phẩm cha và hình ảnh;
-  :Tự động tạo các biến thể SKU theo từng màu và size;
-  :Thông báo lưu sản phẩm thành công;
+:Tiếp nhận thông tin danh mục;
+:Kiểm tra tên danh mục bắt buộc và tính duy nhất của slug;
+
+if (Thông tin hợp lệ và chưa trùng lặp?) then (Đúng)
+  |Hệ thống|
+  :Lưu danh mục mới vào bảng categories với trạng thái hiển thị (is_active = 1);
+  :Hiển thị thông báo thao tác danh mục thành công;
   |Quản trị viên (Admin)|
-  :Xem sản phẩm hiển thị trên danh mục;
+  :Xem danh mục hiển thị trên bảng quản trị;
   stop
 else (Sai)
-  :Thông báo thiếu thông tin hoặc trùng lặp mã;
+  |Hệ thống|
+  :Hiển thị thông báo lỗi thiếu tên hoặc trùng lặp slug;
   |Quản trị viên (Admin)|
-  :Kiểm tra và chỉnh sửa lại dữ liệu;
+  :Nhập lại thông tin danh mục hợp lệ;
   stop
 endif
 @enduml

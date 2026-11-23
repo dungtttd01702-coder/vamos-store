@@ -9,7 +9,7 @@ skinparam ClassBorderColor #334155
 skinparam ClassBackgroundColor #FFFFFF
 skinparam ClassHeaderBackgroundColor #F1F5F9
 
-title SƠ ĐỒ CƠ SỞ DỮ LIỆU MỨC VẬT LÝ (PHYSICAL ERD) — MICROSOFT SQL SERVER\nHỆ THỐNG VAMOS STORE (20 BẢNG NGHIỆP VỤ)
+title SƠ ĐỒ CƠ SỞ DỮ LIỆU MỨC VẬT LÝ (PHYSICAL ERD) — MICROSOFT SQL SERVER\nHỆ THỐNG VAMOS STORE (26 BẢNG NGHIỆP VỤ + 1 BẢNG SCHEMA_MIGRATIONS)
 
 ' ==============================================================================
 ' NHÓM 1: NGƯỜI DÙNG & PHÂN QUYỀN
@@ -278,6 +278,97 @@ package "Phân nhóm 5: Khuyến mãi, Đơn hàng & Vận hành" #FFF1F2 {
 }
 
 ' ==============================================================================
+' NHÓM 7: KHÁCH HÀNG THÂN THIẾT VAMOS CLUB (LOYALTY & REVIEW-TO-EARN)
+' ==============================================================================
+package "Phân nhóm 7: Khách hàng thân thiết VAMOS Club" #FEF2F2 {
+  entity "reviews" as reviews {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    * order_id : INT [FK -> orders.id]
+    * product_id : INT [FK -> products.id]
+    rating : INT [CK: 1..5]
+    comment : NVARCHAR(2000)
+    quick_tags : NVARCHAR(500)
+    points_earned : INT [CK: 100..300, DEFAULT 100]
+    status : NVARCHAR(20) [CK: PENDING/APPROVED/REJECTED/HIDDEN, DEFAULT 'APPROVED']
+    created_at : DATETIME2
+    updated_at : DATETIME2
+    --
+    [UQ: (order_id, product_id)]
+  }
+
+  entity "review_media" as review_media {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * review_id : INT [FK -> reviews.id]
+    media_type : NVARCHAR(20) [CK: IMAGE/VIDEO, DEFAULT 'IMAGE']
+    media_url : NVARCHAR(500)
+    original_filename : NVARCHAR(255)
+    file_size : INT [CK > 0]
+    created_at : DATETIME2
+  }
+
+  entity "user_points_wallets" as user_points_wallets {
+    * **user_id** : INT [PK, FK -> users.id]
+    --
+    available_points : INT [CK >= 0, DEFAULT 0]
+    lifetime_earned_points : INT [CK >= 0, DEFAULT 0]
+    lifetime_redeemed_points : INT [CK >= 0, DEFAULT 0]
+    tier_code : NVARCHAR(20) [CK: MEMBER/SILVER/GOLD/VIP, DEFAULT 'MEMBER']
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "point_transactions" as point_transactions {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    transaction_type : NVARCHAR(30) [CK: REVIEW_REWARD/ORDER_PURCHASE/VOUCHER_REDEMPTION/REWARD_REVERSAL/ADMIN_ADJUSTMENT]
+    amount : INT [CK <> 0]
+    balance_after : INT [CK >= 0]
+    reference_type : NVARCHAR(50)
+    reference_id : NVARCHAR(100)
+    description : NVARCHAR(500)
+    idempotency_key : NVARCHAR(100) [Filtered UQ WHERE NOT NULL]
+    created_at : DATETIME2
+  }
+
+  entity "point_reward_rules" as point_reward_rules {
+    * **id** : INT [PK, IDENTITY]
+    --
+    title : NVARCHAR(200)
+    description : NVARCHAR(500)
+    reward_type : NVARCHAR(30) [CK: VOUCHER/PHYSICAL_GIFT/FREE_SHIPPING, DEFAULT 'VOUCHER']
+    points_required : INT [CK > 0]
+    discount_type : NVARCHAR(20) [CK: fixed_amount/percentage/free_shipping]
+    discount_value : DECIMAL(12,0) [CK >= 0]
+    min_order_amount : DECIMAL(12,0) [CK >= 0]
+    max_discount_amount : DECIMAL(12,0)
+    target_product_id : INT [FK -> products.id]
+    voucher_valid_days : INT [CK > 0, DEFAULT 30]
+    stock_quantity : INT [CK >= 0, DEFAULT 0]
+    is_active : BIT [DEFAULT 1]
+    sort_order : INT [DEFAULT 0]
+    created_at : DATETIME2
+    updated_at : DATETIME2
+  }
+
+  entity "voucher_redemptions" as voucher_redemptions {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    * reward_rule_id : INT [FK -> point_reward_rules.id]
+    * voucher_id : INT [FK -> vouchers.id, UQ]
+    points_spent : INT [CK > 0]
+    status : NVARCHAR(20) [CK: AVAILABLE/USED/EXPIRED/REVOKED, DEFAULT 'AVAILABLE']
+    redeemed_at : DATETIME2
+    used_at : DATETIME2
+    created_at : DATETIME2
+  }
+}
+
+' ==============================================================================
 ' CÁC ĐƯỜNG LIÊN KẾT KHÓA NGOẠI VẬT LÝ (EXACT PHYSICAL FOREIGN KEYS)
 ' ==============================================================================
 users ||--o{ addresses : "ON DELETE CASCADE"
@@ -288,6 +379,10 @@ users ||--o{ wishlist_items : "ON DELETE CASCADE"
 users ||--o{ voucher_usages : "ON DELETE NO ACTION"
 users ||--o{ order_status_histories : "ON DELETE NO ACTION"
 users ||--o{ inventory_transactions : "ON DELETE NO ACTION"
+users ||--o| user_points_wallets : "ON DELETE CASCADE"
+users ||--o{ point_transactions : "ON DELETE NO ACTION"
+users ||--o{ reviews : "ON DELETE NO ACTION"
+users ||--o{ voucher_redemptions : "ON DELETE NO ACTION"
 
 categories ||--o{ products : "ON DELETE NO ACTION"
 brands ||--o{ products : "ON DELETE SET NULL"
@@ -295,6 +390,8 @@ brands ||--o{ products : "ON DELETE SET NULL"
 products ||--o{ product_images : "ON DELETE CASCADE"
 products ||--|{ product_variants : "ON DELETE CASCADE"
 products ||--o{ wishlist_items : "ON DELETE CASCADE"
+products ||--o{ reviews : "ON DELETE NO ACTION"
+products ||--o{ point_reward_rules : "ON DELETE SET NULL"
 
 sizes ||--o{ product_variants : "ON DELETE NO ACTION"
 colors ||--o{ product_variants : "ON DELETE NO ACTION"
@@ -308,9 +405,14 @@ carts ||--o{ cart_items : "ON DELETE CASCADE"
 orders ||--|{ order_items : "ON DELETE CASCADE"
 orders ||--o{ order_status_histories : "ON DELETE CASCADE"
 orders ||--o{ voucher_usages : "ON DELETE CASCADE"
+orders ||--o{ reviews : "ON DELETE NO ACTION"
+
+reviews ||--o{ review_media : "ON DELETE CASCADE"
 
 vouchers ||--o{ orders : "ON DELETE SET NULL"
 vouchers ||--o{ voucher_usages : "ON DELETE NO ACTION"
+vouchers ||--|| voucher_redemptions : "ON DELETE NO ACTION"
+point_reward_rules ||--o{ voucher_redemptions : "ON DELETE NO ACTION"
 
 @enduml
 

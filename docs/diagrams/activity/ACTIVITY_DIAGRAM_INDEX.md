@@ -1,379 +1,188 @@
-# DANH MỤC VÀ MÔ TẢ SƠ ĐỒ HOẠT ĐỘNG (ACTIVITY DIAGRAM INDEX)
+# DANH MỤC VÀ ĐỐI CHIẾU CHUẨN HÓA 11 SƠ ĐỒ HOẠT ĐỘNG (ACTIVITY DIAGRAM INDEX)
+# DỰ ÁN THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
 
-## HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
-
-> **Tiêu chuẩn học thuật:** Chuẩn hóa theo UML 2.5 cho đồ án tốt nghiệp FPT Polytechnic / Assignment Phân tích Thiết kế Hệ thống.  
-> **Nguyên tắc thiết kế:** Thể hiện trực quan theo các làn bơi (Swimlanes) phân định rõ ràng giữa **Tác nhân (Actor)**, **Ứng dụng Web (Web App Controller / Service)** và **Cơ sở Dữ liệu (SQL Server Engine / Transaction)**.  
-> **Trạng thái Git:** Branch `fix/master-repair-plan` | Git HEAD `8135e19`.
-
----
-
-## 1. TỔNG QUAN HỆ THỐNG SƠ ĐỒ HOẠT ĐỘNG (16 ADs)
-
-Hệ thống sơ đồ hoạt động của VAMOS STORE gồm **16 sơ đồ (AD01 – AD16)** được chia thành 3 nhóm nghiệp vụ chính:
-
-| Nhóm nghiệp vụ                   | Mã sơ đồ      | Tên sơ đồ hoạt động                                     | Tác nhân chính           | Trạng thái thực tế trong Code                      |
-| :------------------------------- | :------------ | :------------------------------------------------------ | :----------------------- | :------------------------------------------------- |
-| **Nhóm A: Tài khoản & Xác thực** | [AD01](#ad01) | Đăng ký tài khoản (Register)                            | Guest                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD02](#ad02) | Đăng nhập & Hợp nhất giỏ hàng (Login & Cart Merge)      | Guest / Customer / Admin | Đã cài đặt (Implemented)                           |
-|                                  | [AD03](#ad03) | Quên mật khẩu & Đặt lại mật khẩu (Password Reset)       | Guest / Customer         | **Chỉ thiết kế (Designed Only - Not Implemented)** |
-|                                  | [AD04](#ad04) | Quản lý hồ sơ cá nhân & Sổ địa chỉ (Profile & Address)  | Customer                 | Đã cài đặt (Implemented)                           |
-| **Nhóm B: Mua sắm & Đơn hàng**   | [AD05](#ad05) | Tìm kiếm, xem danh mục & Chi tiết sản phẩm              | Guest / Customer         | Đã cài đặt (Implemented)                           |
-|                                  | [AD06](#ad06) | Quản lý giỏ hàng (Cart Management)                      | Guest / Customer         | Đã cài đặt (Implemented)                           |
-|                                  | [AD07](#ad07) | Quản lý danh sách yêu thích (Wishlist Management)       | Customer (Guest 401)     | Đã cài đặt (Implemented)                           |
-|                                  | [AD08](#ad08) | Đặt hàng thanh toán COD (Checkout COD)                  | Customer                 | Đã cài đặt (Implemented)                           |
-|                                  | [AD09](#ad09) | Theo dõi đơn hàng & Lịch sử (Order Tracking)            | Customer                 | Đã cài đặt (Implemented)                           |
-|                                  | [AD10](#ad10) | Hủy đơn hàng phía khách hàng (Cancel Order)             | Customer                 | Đã cài đặt (Implemented)                           |
-| **Nhóm C: Quản trị hệ thống**    | [AD11](#ad11) | Xử lý & Cập nhật trạng thái đơn hàng (Order Processing) | Admin                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD12](#ad12) | Quản lý kho hàng & Điều chỉnh tồn kho (Inventory)       | Admin                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD13](#ad13) | Quản lý danh mục, sản phẩm & biến thể (Catalog)         | Admin                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD14](#ad14) | Quản lý khuyến mãi & Mã giảm giá (Vouchers)             | Admin                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD15](#ad15) | Báo cáo doanh thu & Dashboard (Revenue Report)          | Admin                    | Đã cài đặt (Implemented)                           |
-|                                  | [AD16](#ad16) | Quản lý tài khoản khách hàng (Customer Management)      | Admin                    | Đã cài đặt (Implemented)                           |
+> **Tiêu chuẩn áp dụng:** Chuẩn hóa theo UML 2.5 cho Đồ án Phân tích & Thiết kế Hệ thống VAMOS STORE.  
+> **Nguyên tắc thiết kế:**  
+> 1. Mỗi sơ đồ tập trung vào đúng **một chức năng/quy trình nghiệp vụ cốt lõi**.  
+> 2. Cấu trúc **2 Swimlanes đối xứng tuyệt đối**: Cột trái là **Người dùng** (hoặc Khách hàng / Quản trị viên), cột phải là **Hệ thống**.  
+> 3. Mũi tên xanh `#2563eb` sắc nét, đi thẳng, không đan chéo cắt ngang qua các swimlane.  
+> 4. Nhánh điều kiện Đúng/Sai hiển thị trực quan: Đúng đi thẳng xuống luồng thành công; Sai hiển thị thông báo lỗi và quay lại bước nhập liệu.  
+> 5. Loại bỏ 100% các chi tiết kỹ thuật nội bộ backend (không đưa SQL, controller, service, middleware, transaction isolation vào sơ đồ nghiệp vụ).  
+> **Trạng thái Git:** Branch `fix/master-repair-plan` | Git HEAD `eb822ab`.
 
 ---
 
-## 2. CHI TIẾT CÁC SƠ ĐỒ HOẠT ĐỘNG
+## 1. BẢNG ĐỐI CHIẾU ÁNH XẠ CHÍNH THỨC 11 SƠ ĐỒ HOẠT ĐỘNG
 
-### NHÓM A: TÀI KHOẢN & XÁC THỰC
+Bảng dưới đây thống nhất tuyệt đối giữa **Mã định danh trong Báo cáo**, **Tên quy trình nghiệp vụ**, **File PlantUML nguồn**, **File PNG hồ sơ báo cáo**, **Tác nhân tham gia** và **Trạng thái triển khai thực tế trong source code**:
 
-<a id="ad01"></a>
-
-### AD01 — Đăng ký tài khoản (Register)
-
-- **Tác nhân:** Guest.
-- **Mục tiêu:** Cho phép khách vãng lai đăng ký tài khoản Customer mới để mua hàng, quản lý đơn hàng và tích lũy voucher.
-- **Các làn bơi (Swimlanes):** `Khách vãng lai (Guest)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Kiểm tra email đã tồn tại hay chưa bằng truy vấn kiểm tra `SELECT id FROM users WHERE email = @email`.
-  - Băm mật khẩu một chiều an toàn bằng thư viện `bcrypt` (`saltRounds = 10`).
-  - Mở **SQL Server Transaction**: Tạo bản ghi trong `users` (vai trò mặc định `CUSTOMER`, trạng thái `active`), khởi tạo giỏ hàng trống trong `carts`.
-  - Tự động hợp nhất giỏ hàng tạm trong session (`req.session.guestCart`) vào tài khoản mới.
-  - Tái tạo session ID (`req.session.regenerate`) để triệt tiêu lỗ hổng **Session Fixation (OWASP)**.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD01_REGISTER.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD01_REGISTER.puml)
-  - Ảnh kết xuất: [AD01_REGISTER.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD01_REGISTER.png)
+| Mã Báo cáo | Tên quy trình nghiệp vụ | Tệp PlantUML nguồn (`docs/diagrams/activity/`) | Tệp PNG Hồ sơ Báo cáo (`03_ACTIVITY_DIAGRAM/`) | Kích thước ảnh (WxH) | Tác nhân chính | Trạng thái triển khai trong mã nguồn thực tế |
+|:---:|---|---|---|:---:|:---:|---|
+| **AD01** | **Đăng ký tài khoản thành viên** | `AD02_DANG_KY_TAI_KHOAN.puml` *(alias: `AD01_REGISTER.puml`)* | `AD01_DANG_KY_TAI_KHOAN.png` | 1689 × 770 | Khách vãng lai ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `POST /auth/register`<br>Băm mật khẩu Bcrypt, cấp phiên. |
+| **AD02** | **Đăng nhập hệ thống & Phân quyền** | `AD01_DANG_NHAP.puml` *(alias: `AD02_LOGIN.puml`)* | `AD02_DANG_NHAP.png` | 1359 × 714 | Người dùng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `POST /auth/login`<br>So sánh Bcrypt, tạo Express Session. |
+| **AD03** | **Khôi phục mật khẩu tài khoản** | `AD11_QUEN_MAT_KHAU.puml` *(alias: `AD03_PASSWORD_RESET.puml`)* | `AD03_QUEN_MAT_KHAU.png` | 1935 × 905 | Người dùng ➔ Hệ thống | ⚠️ **Thiết kế quy trình / Chưa hoàn thiện**<br>Bảng `password_reset_tokens` đã có trong DB;<br>Chưa cài đặt route/controller và gửi mail SMTP. |
+| **AD04** | **Quản lý sổ địa chỉ giao hàng** | `AD10_QUAN_LY_SO_DIA_CHI.puml` *(alias: `AD04_PROFILE_ADDRESS.puml`)* | `AD04_QUAN_LY_SO_DIA_CHI.png` | 1678 × 883 | Khách hàng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `/account/addresses`<br>Thêm mới, đổi địa chỉ mặc định. |
+| **AD05** | **Tìm kiếm & Lọc danh mục sản phẩm** | `AD03_TIM_KIEM_LOC_SAN_PHAM.puml` *(alias: `AD05_SEARCH_PRODUCT.puml`)* | `AD05_TIM_KIEM_LOC_SAN_PHAM.png` | 1550 × 714 | Người dùng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `GET /products`<br>Lọc theo size, giá, giới tính, thương hiệu. |
+| **AD06** | **Quản lý giỏ hàng trực tuyến** | `AD04_QUAN_LY_GIO_HANG.puml` *(alias: `AD06_CART_MANAGEMENT.puml`)* | `AD06_QUAN_LY_GIO_HANG.png` | 1624 × 659 | Khách hàng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `/cart`<br>Tăng/giảm số lượng, chặn trần bán lẻ 10 đôi. |
+| **AD08** | **Đặt hàng thanh toán COD nguyên tử** | `AD05_DAT_HANG_COD.puml` *(alias: `AD08_CHECKOUT_COD.puml`)* | `AD08_DAT_HANG_COD.png` | 1765 × 880 | Khách hàng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `POST /checkout`<br>Khóa tồn kho, trừ kho, tạo đơn PENDING. |
+| **AD10** | **Khách hàng hủy đơn hàng (PENDING)** | `AD06_HUY_DON_HANG_KHACH_HANG.puml` *(alias: `AD10_CUSTOMER_CANCEL_ORDER.puml`)* | `AD10_HUY_DON_HANG_KHACH_HANG.png` | 1888 × 880 | Khách hàng ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Chỉ cho phép hủy khi đơn ở `PENDING`.<br>Tự động hoàn kho, hoàn voucher. |
+| **AD11** | **Admin xử lý đơn hàng theo FSM** | `AD07_XU_LY_DON_HANG_ADMIN.puml` *(alias: `AD11_ADMIN_ORDER_PROCESSING.puml`)* | `AD11_XU_LY_DON_HANG_ADMIN.png` | 2003 × 1001 | Quản trị viên ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Máy trạng thái FSM: 6 trạng thái chuẩn.<br>Cập nhật PAID khi COMPLETED. |
+| **AD12** | **Quản lý kho hàng & Ghi thẻ kho** | `AD08_QUAN_LY_TON_KHO.puml` *(alias: `AD12_INVENTORY_MANAGEMENT.puml`)* | `AD12_QUAN_LY_TON_KHO.png` | 1880 × 880 | Quản trị viên ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Route: `POST /admin/inventory/adjust`<br>Ghi nhật ký thẻ kho `inventory_transactions`. |
+| **AD13** | **Quản lý danh mục & thương hiệu** | `AD09_QUAN_LY_DANH_MUC_SAN_PHAM.puml` *(alias: `AD13_CATALOG_MANAGEMENT.puml`)* | `AD13_QUAN_LY_DANH_MUC_SAN_PHAM.png` | 1698 × 659 | Quản trị viên ➔ Hệ thống | **Đã hoàn thiện (Implemented)**<br>Xem danh sách, thêm mới, bật/tắt hiển thị.<br>Không có chức năng xóa cứng/chỉnh sửa. |
 
 ---
 
-<a id="ad02"></a>
+## 2. CHI TIẾT ĐẶC TẢ TỪNG SƠ ĐỒ HOẠT ĐỘNG
 
-### AD02 — Đăng nhập & Hợp nhất giỏ hàng (Login & Cart Merge)
-
-- **Tác nhân:** Guest, Customer, Admin.
-- **Mục tiêu:** Xác thực danh tính người dùng, cấp phiên làm việc an toàn và đồng bộ giỏ hàng từ session vào cơ sở dữ liệu.
-- **Các làn bơi (Swimlanes):** `Người dùng (User)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Kiểm tra trạng thái tài khoản `status === 'locked'` $\rightarrow$ Lập tức từ chối với thông báo "Tài khoản của bạn đã bị khóa".
-  - So sánh băm mật khẩu với `bcrypt.compare`.
-  - Khởi tạo hoặc truy xuất giỏ hàng CSDL: `SELECT id FROM carts WHERE user_id = @userId`.
-  - **Thuật toán Cart Merge:** Nếu có giỏ hàng khách tạm trong `req.session.guestCart`, duyệt từng món, kiểm tra tồn kho, dùng `UPSERT` (hoặc kiểm tra tồn tại rồi `UPDATE`/`INSERT`) vào bảng `cart_items`, sau đó dọn dẹp session cart (`delete req.session.guestCart`).
-  - Gọi `req.session.regenerate` phòng chống Session Fixation.
-  - Phân quyền điều hướng: `role === 'ADMIN'` $\rightarrow$ `/admin/dashboard`; `role === 'CUSTOMER'` $\rightarrow$ chuyển hướng về trang trước đó (`safeReturnUrl`) hoặc `/`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD02_LOGIN.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD02_LOGIN.puml)
-  - Ảnh kết xuất: [AD02_LOGIN.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD02_LOGIN.png)
+### AD01 — Đăng ký tài khoản thành viên (Register)
+* **Tác nhân:** Khách vãng lai (`Guest`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Người dùng mở trang đăng ký, điền họ tên, email, số điện thoại, mật khẩu và bấm "Đăng ký".
+  2. Hệ thống kiểm tra hợp lệ định dạng email, SĐT 10 số, mật khẩu $\ge$ 6 ký tự và kiểm tra email chưa tồn tại.
+  3. **Nhánh Đúng:** Băm mật khẩu bằng Bcrypt, lưu tài khoản vai trò `CUSTOMER`, thông báo đăng ký thành công và chuyển sang màn hình đăng nhập.
+  4. **Nhánh Sai:** Trả về thông báo lỗi cụ thể (trùng email hoặc thông tin không hợp lệ) để người dùng sửa lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD02_DANG_KY_TAI_KHOAN.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD01_DANG_KY_TAI_KHOAN.png`
 
 ---
 
-<a id="ad03"></a>
-
-### AD03 — Quên mật khẩu & Đặt lại mật khẩu (Password Reset)
-
-- **Tác nhân:** Guest, Customer.
-- **Trạng thái:** **Chỉ thiết kế (Designed Only — Not Implemented)**.
-- **Bối cảnh học thuật & Kiến trúc:** Bảng cơ sở dữ liệu `password_reset_tokens` đã được định nghĩa đầy đủ trong cấu trúc CSDL với các ràng buộc khóa ngoại `FK_password_reset_tokens_users`, cờ `is_used` và thời gian hết hạn `expires_at`. Tuy nhiên, mã nguồn ứng dụng hiện tại **chưa cài đặt** route (`/auth/forgot-password`), controller và dịch vụ gửi mail (SMTP/Nodemailer). Sơ đồ AD03 phản ánh thiết kế chuẩn hóa cho đợt nâng cấp tiếp theo để bảo vệ trước hội đồng đồ án.
-- **Các làn bơi (Swimlanes):** `Người dùng (User)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)` | `Dịch vụ Email (SMTP Service)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Tạo token ngẫu nhiên bảo mật cao bằng `crypto.randomBytes(32).toString('hex')`.
-  - Hashing token bằng `SHA-256` trước khi lưu vào `password_reset_tokens` với thời hạn hiệu lực 15 phút.
-  - Phản hồi bảo mật: Dù email có tồn tại hay không, giao diện người dùng vẫn hiển thị cùng thông báo "Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi" để chống tấn công rà quét tài khoản (**Account Enumeration Attack**).
-  - Xác thực token khi truy cập: kiểm tra `is_used = 0` và `expires_at > GETDATE()`.
-  - Băm mật khẩu mới bằng `bcrypt`, cập nhật bảng `users`, đánh dấu `is_used = 1` trong `password_reset_tokens`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD03_PASSWORD_RESET.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD03_PASSWORD_RESET.puml)
-  - Ảnh kết xuất: [AD03_PASSWORD_RESET.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD03_PASSWORD_RESET.png)
+### AD02 — Đăng nhập hệ thống & Phân quyền (Login)
+* **Tác nhân:** Người dùng (`Guest / Customer / Admin`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Người dùng mở trang đăng nhập, điền email, mật khẩu và bấm "Đăng nhập".
+  2. Hệ thống kiểm tra tài khoản tồn tại, trạng thái hoạt động và so sánh mật khẩu Bcrypt.
+  3. **Nhánh Đúng:** Cấp phiên làm việc an toàn (Express Session), phân quyền điều hướng (`ADMIN` vào `/admin/dashboard`, `CUSTOMER` vào trang chủ/đơn hàng).
+  4. **Nhánh Sai:** Thông báo lỗi sai email hoặc mật khẩu, yêu cầu nhập lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD01_DANG_NHAP.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD02_DANG_NHAP.png`
 
 ---
 
-<a id="ad04"></a>
-
-### AD04 — Quản lý hồ sơ cá nhân & Sổ địa chỉ (Profile & Address)
-
-- **Tác nhân:** Customer.
-- **Mục tiêu:** Cập nhật họ tên, số điện thoại, đổi mật khẩu và quản lý nhiều địa chỉ nhận hàng có địa chỉ mặc định.
-- **Mã nguồn thực tế:** `account.controller.js` (các hàm `getProfile`, `postProfile`, `getAddresses`, `postAddAddress`).
-- **Các làn bơi (Swimlanes):** `Khách hàng (Customer)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Xác thực phiên làm việc: Yêu cầu đăng nhập (`requireAuth` middleware).
-  - Cập nhật hồ sơ (`/account/profile`): Validate họ tên không được rỗng, số điện thoại đúng định dạng chuẩn Việt Nam.
-  - Thêm / Sửa địa chỉ (`/account/addresses`): Nếu khách hàng chọn `is_default = 1`, mở Transaction:
-    - Bỏ cờ mặc định của tất cả địa chỉ cũ: `UPDATE addresses SET is_default = 0 WHERE user_id = @userId`.
-    - Gán địa chỉ mới được chọn `is_default = 1`.
-  - Đảm bảo tuân thủ nghiêm ngặt **Filtered Unique Index** `uq_user_default_address` trên SQL Server.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD04_PROFILE_ADDRESS.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD04_PROFILE_ADDRESS.puml)
-  - Ảnh kết xuất: [AD04_PROFILE_ADDRESS.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD04_PROFILE_ADDRESS.png)
+### AD03 — Khôi phục mật khẩu (Password Reset — Designed Architecture)
+* **Tác nhân:** Người dùng (`User`) ➔ `|Hệ thống|`.
+* **Trạng thái thực tế:** **Thiết kế quy trình / Chưa hoàn thiện trong mã nguồn (Pending Implementation)**.
+  > *Lưu ý học thuật:* Bảng `password_reset_tokens` đã được tạo sẵn trong CSDL MSSQL. Tuy nhiên, trong mã nguồn thực tế chưa cài đặt route tiếp nhận, controller và dịch vụ gửi mail SMTP. Sơ đồ AD03 phản ánh bản thiết kế quy trình nghiệp vụ mục tiêu.
+* **Luồng chính:**
+  1. Người dùng mở chức năng Quên mật khẩu, nhập email và bấm gửi yêu cầu.
+  2. Hệ thống kiểm tra email tồn tại trong CSDL.
+  3. **Nhánh Đúng:** Tạo token hết hạn, lưu CSDL, gửi link qua email; Người dùng mở link nhập mật khẩu mới; Hệ thống cập nhật mật khẩu mới và hủy hiệu lực token.
+  4. **Nhánh Sai:** Thông báo email không tồn tại trong hệ thống.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD11_QUEN_MAT_KHAU.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD03_QUEN_MAT_KHAU.png`
 
 ---
 
-### NHÓM B: MUA SẮM & ĐƠN HÀNG
-
-<a id="ad05"></a>
-
-### AD05 — Tìm kiếm, xem danh mục & Chi tiết sản phẩm
-
-- **Tác nhân:** Guest, Customer.
-- **Mục tiêu:** Khám phá sản phẩm, lọc theo tiêu chí (giá, danh mục, thương hiệu, đối tượng) và xem thông tin tồn kho chi tiết theo size/màu.
-- **Các làn bơi (Swimlanes):** `Khách truy cập (Guest / Customer)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Tìm kiếm linh hoạt với mệnh đề `LIKE @q` và gom nhóm điều kiện an toàn, tránh SQL Injection bằng tham số hóa (Parameterized Query).
-  - Lọc theo khoảng giá: `min_price` và `max_price`.
-  - Truy vấn chi tiết sản phẩm: Tải thông tin sản phẩm cha (`products`), danh sách biến thể (`product_variants`), kích cỡ (`sizes`), màu sắc (`colors`) và album ảnh (`product_images`).
-  - Giao diện động: Khi khách chọn Size và Màu, mã JavaScript client-side đối chiếu tồn kho `stock_quantity`, hiển thị nút "Thêm vào giỏ" hoặc vô hiệu hóa nếu "Hết hàng".
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD05_SEARCH_PRODUCT.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD05_SEARCH_PRODUCT.puml)
-  - Ảnh kết xuất: [AD05_SEARCH_PRODUCT.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD05_SEARCH_PRODUCT.png)
+### AD04 — Quản lý sổ địa chỉ giao hàng (Address Management)
+* **Tác nhân:** Khách hàng (`Customer`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Khách hàng mở sổ địa chỉ, nhập người nhận, SĐT 10 số, địa chỉ chi tiết, tùy chọn đặt làm mặc định và bấm "Lưu địa chỉ".
+  2. Hệ thống kiểm tra tính hợp lệ dữ liệu.
+  3. **Nhánh Đúng:** Nếu đặt mặc định thì bỏ cờ mặc định cũ, lưu địa chỉ mới vào bảng `user_addresses`, hiển thị danh sách đã cập nhật.
+  4. **Nhánh Sai:** Cảnh báo SĐT hoặc địa chỉ sai định dạng để người dùng sửa lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD10_QUAN_LY_SO_DIA_CHI.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD04_QUAN_LY_SO_DIA_CHI.png`
 
 ---
 
-<a id="ad06"></a>
-
-### AD06 — Quản lý giỏ hàng (Cart Management)
-
-- **Tác nhân:** Guest, Customer.
-- **Mục tiêu:** Thêm, cập nhật số lượng, xóa sản phẩm trong giỏ hàng với giới hạn mua lẻ 1–10 đôi và đồng bộ tồn kho thực tế.
-- **Các làn bơi (Swimlanes):** `Khách hàng (User)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - **Phân nhánh lưu trữ:**
-    - Khách vãng lai (Guest): Thao tác trên mảng `req.session.guestCart`. Cơ chế **Live DB Sync** kiểm tra trực tiếp tồn kho từ SQL Server trước khi hiển thị; tự động xóa mặt hàng đã hết tồn và giới hạn số lượng tối đa bằng tồn kho thực tế.
-    - Khách đã đăng nhập (Customer): Thao tác trực tiếp trên bảng `cart_items` liên kết với `carts`.
-    - Quản trị viên (Admin): Bị chặn tuyệt đối không được sử dụng tính năng giỏ hàng mua hàng.
-  - **Ràng buộc số lượng:** Kiểm tra nghiêm ngặt `1 <= quantity <= 10` (nguyên tắc bán lẻ chống đầu cơ) và `quantity <= stock_quantity`.
-  - Phản hồi đa dạng: Hỗ trợ cả AJAX JSON (thông báo cập nhật giỏ hàng không reload trang) và form POST truyền thống.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD06_CART_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD06_CART_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD06_CART_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD06_CART_MANAGEMENT.png)
+### AD05 — Tìm kiếm & Lọc danh mục sản phẩm (Product Search & Filter)
+* **Tác nhân:** Người dùng (`Guest / Customer`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Người dùng nhập từ khóa tìm kiếm hoặc chọn bộ lọc (size EU, khoảng giá, giới tính, thương hiệu).
+  2. Hệ thống truy vấn danh mục sản phẩm theo tiêu chí.
+  3. **Nhánh Có:** Phân trang danh sách sản phẩm; Người dùng chọn xem chi tiết; Hệ thống hiển thị ảnh, bảng size và số lượng tồn kho.
+  4. **Nhánh Không:** Hiển thị thông báo không tìm thấy sản phẩm, gợi ý mẫu sneaker nổi bật để người dùng đổi bộ lọc.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD03_TIM_KIEM_LOC_SAN_PHAM.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD05_TIM_KIEM_LOC_SAN_PHAM.png`
 
 ---
 
-<a id="ad07"></a>
-
-### AD07 — Quản lý danh sách yêu thích (Wishlist Management)
-
-- **Tác nhân:** Customer.
-- **Mục tiêu:** Lưu trữ các sản phẩm yêu thích và kích hoạt lại chỉ với 1 cú nhấp chuột (1-click toggle).
-- **Mã nguồn thực tế:** `wishlist.controller.js` (hàm `toggleItem`), `wishlist.service.js` (hàm `toggleItem`), route `POST /api/wishlist/toggle`.
-- **Các làn bơi (Swimlanes):** `Người dùng (User)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Khách vãng lai (Guest): Hệ thống trả về `HTTP 401 Unauthorized` kèm JSON yêu cầu chuyển hướng đến `/auth/login`.
-  - Quản trị viên (Admin): Hệ thống từ chối `HTTP 403 Forbidden`.
-  - Khách hàng (Customer): Kiểm tra bảng `wishlist_items` theo cặp `(user_id, product_id)`:
-    - Nếu đã có $\rightarrow$ Xóa khỏi danh sách (`DELETE FROM wishlist_items`).
-    - Nếu chưa có $\rightarrow$ Thêm vào danh sách (`INSERT INTO wishlist_items`).
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD07_WISHLIST_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD07_WISHLIST_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD07_WISHLIST_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD07_WISHLIST_MANAGEMENT.png)
+### AD06 — Quản lý giỏ hàng trực tuyến (Cart Management)
+* **Tác nhân:** Khách hàng (`Guest / Customer`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Khách hàng chọn size EU, màu sắc, số lượng và bấm "Thêm vào giỏ hàng".
+  2. Hệ thống kiểm tra tồn kho khả dụng và giới hạn bán lẻ tối đa 10 đôi/mẫu.
+  3. **Nhánh Đúng:** Thêm/tăng số lượng trong giỏ hàng, tính toán lại tạm tính và hiển thị thông báo thành công.
+  4. **Nhánh Sai:** Thông báo không đủ tồn kho hoặc vượt quá giới hạn 10 đôi để khách hàng điều chỉnh lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD04_QUAN_LY_GIO_HANG.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD06_QUAN_LY_GIO_HANG.png`
 
 ---
 
-<a id="ad08"></a>
-
-### AD08 — Đặt hàng thanh toán COD (Checkout COD)
-
-- **Tác nhân:** Customer.
-- **Mục tiêu:** Thực hiện toàn bộ quy trình thanh toán COD khép kín với đầy đủ tính toán tài chính, kiểm tra voucher, trừ tồn kho và tạo đơn hàng an toàn.
-- **Mã nguồn thực tế:** `checkout.controller.js` (hàm `postProcessOrder`), `order.service.js` (hàm `createCodOrder`).
-- **Các làn bơi (Swimlanes):** `Khách hàng (Customer)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi (Trọng tâm phân tích hệ thống):**
-  - **Khóa bi quan chống Over-selling (Pessimistic Locking):** Sử dụng mệnh đề `WITH (UPDLOCK, ROWLOCK)` khi khóa từng dòng biến thể trong `product_variants`.
-  - **Ràng buộc bán lẻ:** Kiểm tra từng mặt hàng `1 <= quantity <= 10` và `stock_quantity >= quantity`.
-  - **Tính phí vận chuyển:** Nếu `subtotal >= 500,000 VND` $\rightarrow$ Phí vận chuyển = 0 VND (Miễn phí giao hàng); ngược lại = 30,000 VND.
-  - **Ràng buộc Voucher nghiêm ngặt:** Kiểm tra thời hạn hiệu lực, điều kiện đơn tối thiểu (`min_order_value`), giới hạn toàn hệ thống (`usage_limit > used_count`), và ràng buộc **mỗi khách hàng chỉ được dùng 1 lần duy nhất** bằng truy vấn bảng `voucher_usages`.
-  - **Giao dịch SQL Server (ACID Transaction):**
-    - Trừ tồn kho biến thể: `stock_quantity = stock_quantity - qty`.
-    - Ghi log xuất kho: `INSERT INTO inventory_transactions` với `change_quantity = -qty`.
-    - Chụp ảnh lịch sử (Point-in-Time Historical Snapshotting): Lưu bản sao tên người nhận, SĐT, địa chỉ đầy đủ vào `orders`; lưu tên sản phẩm, mã SKU, size, màu, đơn giá vào `order_items`.
-    - Ghi nhận lịch sử trạng thái ban đầu: `INSERT INTO order_status_histories (new_status = 'PENDING')`.
-    - Tăng `used_count` của voucher và ghi nhận vào `voucher_usages`.
-    - Xóa sạch giỏ hàng: `DELETE FROM cart_items WHERE cart_id = @cartId`.
-    - `COMMIT TRANSACTION` hoặc `ROLLBACK TRANSACTION` nếu có bất kỳ lỗi nào xảy ra.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD08_CHECKOUT_COD.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD08_CHECKOUT_COD.puml)
-  - Ảnh kết xuất: [AD08_CHECKOUT_COD.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD08_CHECKOUT_COD.png)
+### AD08 — Đặt hàng thanh toán COD nguyên tử (Checkout COD)
+* **Tác nhân:** Khách hàng (`Customer`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Khách hàng nhập địa chỉ nhận hàng, chọn phương thức COD, nhập mã voucher (nếu có) và bấm "Xác nhận đặt hàng".
+  2. Hệ thống kiểm tra tồn kho tức thời và tính hợp lệ của voucher.
+  3. **Nhánh Đúng:** Tạo đơn hàng mới trạng thái `PENDING`, khóa giá mua snapshot, trừ tồn kho và ghi sổ thẻ kho (`inventory_transactions`), tăng lượt dùng voucher, làm trống giỏ hàng và cấp mã đơn hàng.
+  4. **Nhánh Sai:** Hoàn nguyên dữ liệu, thông báo lỗi hết hàng hoặc voucher không hợp lệ.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD05_DAT_HANG_COD.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD08_DAT_HANG_COD.png`
 
 ---
 
-<a id="ad09"></a>
-
-### AD09 — Theo dõi đơn hàng & Lịch sử (Order Tracking)
-
-- **Tác nhân:** Customer.
-- **Mục tiêu:** Xem danh sách đơn hàng đã đặt, chi tiết từng đơn hàng và tiến trình thời gian (Timeline) thực tế của đơn hàng.
-- **Mã nguồn thực tế:** `account.controller.js` (hàm `getOrders`, `getOrderDetail`), `order.service.js` (hàm `getOrdersByUser`, `getOrderDetails`).
-- **Các làn bơi (Swimlanes):** `Khách hàng (Customer)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - **Kiểm soát quyền sở hữu đơn hàng (Ownership Authorization):** Mọi truy vấn chi tiết đơn hàng đều kèm điều kiện ràng buộc `WHERE id = @orderId AND user_id = @userId`. Ngăn chặn hoàn toàn lỗ hổng **IDOR (Insecure Direct Object References)**.
-  - Truy vấn 3 bảng dữ liệu liên kết: thông tin đơn hàng (`orders`), danh sách món snapshot (`order_items`), tiến trình trạng thái (`order_status_histories`).
-  - Hiển thị trực quan nút "Hủy đơn hàng" nếu trạng thái hiện tại là `PENDING`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD09_ORDER_TRACKING.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD09_ORDER_TRACKING.puml)
-  - Ảnh kết xuất: [AD09_ORDER_TRACKING.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD09_ORDER_TRACKING.png)
+### AD10 — Khách hàng hủy đơn hàng (Customer Cancel Order)
+* **Tác nhân:** Khách hàng (`Customer`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Khách hàng mở danh sách đơn hàng cá nhân, chọn đơn cần hủy, chọn lý do và xác nhận.
+  2. Hệ thống kiểm tra trạng thái hiện tại của đơn hàng.
+  3. **Nhánh Đúng (Đơn đang ở `PENDING`):** Chuyển trạng thái đơn sang `CANCELLED`, hoàn trả số lượng vào tồn kho SKU, ghi nhận giao dịch hoàn kho vào thẻ kho, khôi phục lượt dùng voucher và hiển thị thông báo hủy thành công.
+  4. **Nhánh Sai (Đơn đã duyệt/đang giao):** Từ chối hủy trực tiếp, thông báo đơn hàng đã đóng gói/đang giao vận và hướng dẫn liên hệ hotline 1900 2126.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD06_HUY_DON_HANG_KHACH_HANG.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD10_HUY_DON_HANG_KHACH_HANG.png`
 
 ---
 
-<a id="ad10"></a>
-
-### AD10 — Hủy đơn hàng phía khách hàng (Cancel Order)
-
-- **Tác nhân:** Customer.
-- **Mục tiêu:** Cho phép khách hàng chủ động hủy đơn khi đơn hàng chưa được xác nhận, tự động hoàn trả tồn kho và giải phóng voucher.
-- **Mã nguồn thực tế:** `account.controller.js` (hàm `postCancelOrder`), `order.service.js` (hàm `cancelOrder`, `_executeCancellation`), route `POST /account/orders/:id/cancel`.
-- **Các làn bơi (Swimlanes):** `Khách hàng (Customer)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - **Quy tắc trạng thái hữu hạn (State Guard):** Khách hàng **chỉ được phép hủy** đơn hàng khi `order_status === 'PENDING'`. Nếu đơn đã sang `CONFIRMED`, `PROCESSING`, `SHIPPING` hoặc `COMPLETED`, hệ thống từ chối.
-  - **Chống hủy trùng lặp:** Kiểm tra nếu đơn đã là `CANCELLED`, báo lỗi ngay.
-  - **SQL Server Transaction hoàn nguyên tài nguyên:**
-    - Khóa đơn hàng với `WITH (UPDLOCK, ROWLOCK)` theo cặp `(id = @orderId AND user_id = @userId)`.
-    - Cập nhật trạng thái: `order_status = 'CANCELLED'`.
-    - Ghi lịch sử: `INSERT INTO order_status_histories (old_status, new_status, note)`.
-    - Duyệt từng mặt hàng trong `order_items`, khóa biến thể `WITH (UPDLOCK, ROWLOCK)`, hoàn trả tồn kho: `stock_quantity = stock_quantity + qty`.
-    - Ghi log nhập lại kho: `INSERT INTO inventory_transactions` với `change_quantity = +qty`, lý do ghi rõ hoàn kho do hủy đơn.
-    - Giải phóng voucher: Nếu đơn có voucher, xóa bản ghi trong `voucher_usages` theo đúng `WHERE order_id = @orderId` (không ảnh hưởng đơn khác) và giảm `vouchers.used_count` đi 1 để khách hàng có thể sử dụng lại mã.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD10_CUSTOMER_CANCEL_ORDER.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD10_CUSTOMER_CANCEL_ORDER.puml)
-  - Ảnh kết xuất: [AD10_CUSTOMER_CANCEL_ORDER.png](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/activity/AD10_CUSTOMER_CANCEL_ORDER.png)
+### AD11 — Admin xử lý đơn hàng theo FSM (Admin Order Processing)
+* **Tác nhân:** Quản trị viên (`Admin`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Admin mở danh sách đơn hàng, xem chi tiết và chọn trạng thái chuyển tiếp tiếp theo.
+  2. Hệ thống kiểm tra tính hợp lệ của quy tắc chuyển đổi máy trạng thái (FSM):
+     - `PENDING` ➔ `CONFIRMED` hoặc `CANCELLED`
+     - `CONFIRMED` ➔ `PROCESSING` hoặc `CANCELLED`
+     - `PROCESSING` ➔ `SHIPPING`
+     - `SHIPPING` ➔ `COMPLETED`
+  3. **Nhánh Đúng:** Cập nhật trạng thái mới. Nếu sang `CANCELLED` thì hoàn kho; nếu sang `COMPLETED` thì tự động cập nhật thanh toán COD thành `PAID`; lưu lịch sử trạng thái.
+  4. **Nhánh Sai:** Từ chối cập nhật và cảnh báo vi phạm quy trình xử lý đơn hàng.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD07_XU_LY_DON_HANG_ADMIN.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD11_XU_LY_DON_HANG_ADMIN.png`
 
 ---
 
-### NHÓM C: QUẢN TRỊ HỆ THỐNG (ADMIN)
-
-<a id="ad11"></a>
-
-### AD11 — Xử lý & Cập nhật trạng thái đơn hàng (Order Processing)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Quản trị viên duyệt, chuyển giao trạng thái đơn hàng theo máy trạng thái tuần tự và thu tiền COD khi hoàn tất.
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Kiểm tra quyền quản trị: `requireAdmin` middleware.
-  - **Máy trạng thái đơn hàng tuần tự (Order State Machine):**
-    - `PENDING` $\rightarrow$ `CONFIRMED` hoặc `CANCELLED`
-    - `CONFIRMED` $\rightarrow$ `PROCESSING` hoặc `CANCELLED`
-    - `PROCESSING` $\rightarrow$ `SHIPPING`
-    - `SHIPPING` $\rightarrow$ `COMPLETED`
-  - Nếu Admin chuyển trạng thái sang `COMPLETED`: Tự động cập nhật `payment_status = 'PAID'` (ghi nhận thu tiền thành công đối với đơn COD).
-  - **Bảo toàn kho khi hoàn tất:** Tuyệt đối không trừ tồn kho lần 2 (vì kho đã trừ ngay từ lúc Checkout COD).
-  - Nếu Admin chuyển sang `CANCELLED`: Tự động kích hoạt cơ chế hoàn trả tồn kho và giải phóng voucher giống quy trình AD10.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD11_ADMIN_ORDER_PROCESSING.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD11_ADMIN_ORDER_PROCESSING.puml)
-  - Ảnh kết xuất: [AD11_ADMIN_ORDER_PROCESSING.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD11_ADMIN_ORDER_PROCESSING.png)
+### AD12 — Quản lý kho hàng & Ghi thẻ kho (Inventory Adjustment)
+* **Tác nhân:** Quản trị viên (`Admin`) ➔ `|Hệ thống|`.
+* **Luồng chính:**
+  1. Admin mở bảng quản lý tồn kho, chọn biến thể SKU, nhập số lượng tồn mới và lý do kiểm kê, bấm "Lưu thay đổi".
+  2. Hệ thống kiểm tra số lượng tồn kho nhập vào.
+  3. **Nhánh Đúng (Số lượng là số nguyên $\ge 0$ và có lý do):** Cập nhật số lượng tồn kho thực tế của SKU, ghi bút toán bất biến vào bảng thẻ kho `inventory_transactions` kèm mã Admin thực hiện, thông báo cập nhật thành công.
+  4. **Nhánh Sai:** Báo lỗi số lượng âm hoặc thiếu lý do kiểm kê để Admin nhập lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD08_QUAN_LY_TON_KHO.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD12_QUAN_LY_TON_KHO.png`
 
 ---
 
-<a id="ad12"></a>
-
-### AD12 — Quản lý kho hàng & Điều chỉnh tồn kho (Inventory Management)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Theo dõi mức tồn kho chi tiết từng SKU (size, màu), phát hiện hàng sắp hết và thực hiện điều chỉnh tồn kho thủ công kèm kiểm toán (Audit Trail).
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Lọc nhanh các mặt hàng có tồn kho nguy cấp: `stock_quantity <= 5`.
-  - Xem lịch sử kiểm toán kho: `GET /admin/inventory/history` lấy 50 giao dịch gần nhất từ `inventory_transactions`.
-  - **Quy trình điều chỉnh kho an toàn (SQL Server Transaction):**
-    - Bắt buộc nhập lý do điều chỉnh (`reason`) phục vụ kiểm toán nội bộ.
-    - Khóa dòng biến thể chống xung đột: `SELECT ... FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId`.
-    - Tính tồn kho mới: `newStock = currentStock + changeQty`.
-    - Kiểm tra ràng buộc phi âm: Nếu `newStock < 0` $\rightarrow$ Rollback transaction và báo lỗi ngay.
-    - Cập nhật số lượng mới trong `product_variants` và ghi nhận lịch sử vào `inventory_transactions` với tiền tố `[Admin #id] reason`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD12_INVENTORY_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD12_INVENTORY_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD12_INVENTORY_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD12_INVENTORY_MANAGEMENT.png)
-
----
-
-<a id="ad13"></a>
-
-### AD13 — Quản lý danh mục, sản phẩm & biến thể (Catalog Management)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Thêm mới sản phẩm kèm biến thể ban đầu, chỉnh sửa thông tin, bật/tắt hiển thị sản phẩm và cấu hình danh mục/thương hiệu.
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Kiểm tra hợp lệ dữ liệu kinh doanh: `base_price > 0`, `sale_price <= base_price`, đầy đủ tên và mã sản phẩm.
-  - Tự động sinh `slug` chuẩn hóa không dấu (URL-friendly).
-  - **SQL Server Transaction khi tạo sản phẩm:**
-    - Chèn dữ liệu vào bảng `products` và thu hồi ID bằng `OUTPUT INSERTED.id`.
-    - Chèn ảnh đại diện vào `product_images` (`is_primary = 1`).
-    - Khởi tạo biến thể đầu tiên vào `product_variants` với quy tắc sinh SKU tự động: `PRODUCTCODE-SIZE_ID-COLOR_ID`.
-  - Hỗ trợ đổi trạng thái sản phẩm tức thời: `UPDATE products SET status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD13_CATALOG_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD13_CATALOG_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD13_CATALOG_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD13_CATALOG_MANAGEMENT.png)
-
----
-
-<a id="ad14"></a>
-
-### AD14 — Quản lý khuyến mãi & Mã giảm giá (Voucher Management)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Tạo mới các chương trình khuyến mãi mã giảm giá, kiểm soát thời hạn, giới hạn số lượt sử dụng và bật/tắt hiệu lực.
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Kiểm tra hợp lệ: Mã voucher tự động chuyển thành chữ HOA (`UPPER`), `discount_value > 0`.
-  - Nếu loại giảm là phần trăm (`percentage`): Giá trị không được vượt quá 100%.
-  - Kiểm tra khoảng thời gian: `end_date >= start_date`.
-  - Khởi tạo `used_count = 0` và `is_active = 1`.
-  - Thao tác đảo trạng thái hiệu lực nhanh: `UPDATE vouchers SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = @id`.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD14_VOUCHER_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD14_VOUCHER_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD14_VOUCHER_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD14_VOUCHER_MANAGEMENT.png)
-
----
-
-<a id="ad15"></a>
-
-### AD15 — Báo cáo doanh thu & Dashboard (Revenue Report)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Cung cấp bức tranh toàn cảnh về hoạt động kinh doanh, dòng tiền thực thu, hiệu quả bán hàng và cảnh báo vận hành.
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - **Nguyên tắc kế toán thực thu (Realized Revenue):** Doanh thu chỉ được cộng dồn khi thỏa mãn đồng thời hai điều kiện: `order_status = 'COMPLETED'` VÀ `payment_status = 'PAID'`. Tuyệt đối loại trừ doanh thu từ các đơn hàng đã bị hủy hoặc đang xử lý dở dang.
-  - Sử dụng cơ chế thực thi song song `Promise.all` để tối ưu hóa hiệu năng truy vấn SQL Server cho 8 chỉ số KPI cùng lúc:
-    1. Tổng doanh thu thực thu (`SUM(total_amount)`).
-    2. Tổng số đơn hàng & số đơn chờ xử lý (`PENDING`).
-    3. Quy mô Catalog và biến thể SKU đang hoạt động (`active`).
-    4. Cảnh báo hàng sắp hết kho (`stock_quantity <= 5`).
-    5. Cơ cấu phân bổ đơn hàng theo máy trạng thái.
-    6. Bảng xếp hạng sản phẩm bán chạy nhất (Top Sellers) kèm doanh số đóng góp.
-    7. Danh sách các đơn hàng cần xử lý gấp.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD15_REVENUE_REPORT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD15_REVENUE_REPORT.puml)
-  - Ảnh kết xuất: [AD15_REVENUE_REPORT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD15_REVENUE_REPORT.png)
-
----
-
-<a id="ad16"></a>
-
-### AD16 — Quản lý tài khoản khách hàng (Customer Management)
-
-- **Tác nhân:** Admin.
-- **Mục tiêu:** Quản trị viên theo dõi danh sách khách hàng, xem chi tiết lịch sử mua sắm và thực hiện khóa/mở khóa tài khoản khi có dấu hiệu gian lận.
-- **Các làn bơi (Swimlanes):** `Quản trị viên (Admin)` | `Hệ thống (Web App)` | `Cơ sở Dữ liệu (SQL Server)`.
-- **Điểm kỹ thuật cốt lõi:**
-  - Lọc tài khoản theo điều kiện `WHERE role = 'CUSTOMER'`, tìm kiếm theo tên, email, SĐT.
-  - Xem chi tiết hồ sơ: Tải đồng thời thông tin cá nhân, danh sách sổ địa chỉ và toàn bộ lịch sử đơn hàng đã đặt.
-  - **Cơ chế tự vệ an toàn hệ thống (Safety Guard):**
-    - Kiểm tra vai trò của tài khoản mục tiêu trước khi thao tác.
-    - Nếu tài khoản có `role === 'ADMIN'` $\rightarrow$ Hệ thống kích hoạt cơ chế phòng vệ, ném ngoại lệ bảo mật: _"Tuyệt đối không được khóa tài khoản Quản trị viên (ADMIN)"_.
-    - Đối với tài khoản khách hàng: Thực hiện đảo trạng thái `status = CASE WHEN status = 'active' THEN 'locked' ELSE 'active' END`. Khi tài khoản ở trạng thái `locked`, mọi hành vi đăng nhập sẽ bị chặn đứng tại controller xác thực.
-- **Tài liệu sơ đồ:**
-  - File nguồn PlantUML: [AD16_CUSTOMER_MANAGEMENT.puml](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD16_CUSTOMER_MANAGEMENT.puml)
-  - Ảnh kết xuất: [AD16_CUSTOMER_MANAGEMENT.png](file:///c:/Users/Admin/Desktop/dự án JAV/docs/diagrams/activity/AD16_CUSTOMER_MANAGEMENT.png)
-
----
-
-_Tài liệu thuộc Giai đoạn 3.1 của Báo cáo Phân tích Thiết kế Hệ thống VAMOS STORE._
+### AD13 — Quản lý danh mục & thương hiệu (Catalog Management)
+* **Tác nhân:** Quản trị viên (`Admin`) ➔ `|Hệ thống|`.
+* **Hiện trạng chức năng thực tế trong mã nguồn:**
+  - `GET /admin/categories`: Xem danh sách danh mục (kèm số lượng sản phẩm liên kết) và thương hiệu.
+  - `POST /admin/categories/create`: Thêm mới danh mục (`name`, `slug`, `gender_target`, `description`).
+  - `POST /admin/categories/:id/toggle`: Bật/tắt trạng thái hiển thị (`status = 'active' | 'inactive'`).
+  - `POST /admin/brands/create`: Thêm mới thương hiệu.
+  - *Không có chức năng chỉnh sửa thông tin hoặc xóa cứng danh mục trong mã nguồn hiện tại.*
+* **Luồng chính:**
+  1. Admin mở trang quản lý danh mục và thương hiệu, nhập thông tin danh mục mới (hoặc chọn bật/tắt hiển thị danh mục cũ).
+  2. Hệ thống kiểm tra tên danh mục bắt buộc và tính duy nhất của slug.
+  3. **Nhánh Đúng:** Lưu danh mục mới với trạng thái `active = 1` (hoặc đảo trạng thái hiển thị), thông báo thành công và hiển thị trên bảng quản trị.
+  4. **Nhánh Sai:** Báo lỗi thiếu tên danh mục hoặc trùng lặp slug để Admin nhập lại.
+* **Tệp liên quan:**
+  - Nguồn PUML: `docs/diagrams/activity/AD09_QUAN_LY_DANH_MUC_SAN_PHAM.puml`
+  - Ảnh PNG: `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/AD13_QUAN_LY_DANH_MUC_SAN_PHAM.png`
