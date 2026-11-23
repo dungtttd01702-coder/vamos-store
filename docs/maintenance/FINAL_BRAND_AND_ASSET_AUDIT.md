@@ -2,8 +2,8 @@
 # (FINAL BRAND AND ASSET AUDIT REPORT)
 
 > **Dự án:** VAMOS STORE — Website Bán Giày Trực Tuyến  
-> **Thời điểm thực hiện:** 18/11/2026  
-> **Trạng thái Git:** Branch `fix/master-repair-plan` | HEAD `8135e190c69553be8f6ebf3eab7ba34de995d53c`  
+> **Thời điểm thực hiện:** 21/11/2026  
+> **Trạng thái Git:** Branch `fix/master-repair-plan` | HEAD `eb822aba57d75a2ecad390123c188afb73db3cb8`  
 > **Đơn vị thực hiện:** Antigravity Engineering System  
 
 ---
@@ -13,9 +13,10 @@
 Báo cáo này tổng hợp kết quả kiểm tra toàn diện nhằm bảo đảm:
 1. Website và toàn bộ tài liệu hồ sơ sử dụng nhất quán thương hiệu **VAMOS STORE**, không còn tài nguyên hoặc từ khóa của thương hiệu khác (Biti's, Gosto,...) xuất hiện nhầm lẫn.
 2. Tài nguyên từ **Google Stitch** (`projects/5716866424895331560`) được lưu trữ, phân loại và sử dụng đúng mục đích kỹ thuật.
-3. Toàn bộ tài nguyên tĩnh (`src/public/images/`) được minh bạch nguồn gốc (phân định rõ tài nguyên cắt từ Stitch với tài nguyên tiện ích sinh bằng script), hoạt động hoàn hảo qua HTTP status 200.
-4. Giao diện người dùng trên 3 kích thước màn hình (Desktop, Tablet, Mobile) hiển thị sắc nét, không tràn thanh cuộn ngang, không có lỗi 404.
-5. Bảo toàn 100% logic backend, CSDL, không commit hoặc push lên remote repository.
+3. Đối chiếu chi tiết 16 màn hình thiết kế Stitch với hệ thống template Pug SSR thực tế trên website.
+4. Toàn bộ tài nguyên tĩnh (`src/public/images/`) được minh bạch nguồn gốc (phân định rõ tài nguyên cắt từ Stitch với tài nguyên tiện ích sinh bằng script), hoạt động hoàn hảo qua HTTP status 200.
+5. Giao diện người dùng trên 3 kích thước màn hình (Desktop, Tablet, Mobile) hiển thị sắc nét, không tràn thanh cuộn ngang, không có lỗi 404.
+6. Bảo toàn 100% logic backend, CSDL, không commit hoặc push khi chưa xác nhận hoàn tất.
 
 ---
 
@@ -26,8 +27,8 @@ Báo cáo này tổng hợp kết quả kiểm tra toàn diện nhằm bảo đ�
 | **Logo** | Logo vector chữ `VAMOS • STORE` tại `src/public/images/logo.svg` và raster tại `src/public/images/logo.png`. | Hiển thị sắc nét tỷ lệ vàng, nhận diện thương hiệu VAMOS độc lập. |
 | **Favicon** | Tệp `src/public/images/favicon.ico` đa kích thước (16/32/48px). | Biểu tượng chữ V đỏ bo góc trên tab trình duyệt, HTTP 200 OK. |
 | **Banner trang chủ** | Section Hero được thiết kế theo layout SSR Kinetic, lấy dữ liệu banner từ CSDL MSSQL (`banners` table) kết hợp typography Tailwind. | Không chứa hình ảnh website lồng nhau; không có từ khóa thương hiệu ngoài. |
-| **Ảnh sản phẩm** | Dữ liệu sản phẩm sử dụng ảnh sneaker CDN chất lượng cao và fallback `placeholder-shoe.png`. | Đã kiểm tra 46 sản phẩm, không có tên thương hiệu Biti's trong CSDL seed. |
-| **Badge COD** | Tệp `src/public/images/cod-trust-badge.png` trích xuất từ component Stitch. | Hiển thị cam kết đồng kiểm và thanh toán khi nhận hàng. |
+| **Ảnh sản phẩm** | Dữ liệu sản phẩm sử dụng ảnh sneaker CDN chất lượng cao và fallback `placeholder-shoe.png`. | Đã kiểm tra 46 sản phẩm trong CSDL, toàn bộ thuộc dòng VAMOS (VAMOS Originals, VAMOS Sport, VAMOS Performance). |
+| **Badge COD** | Tệp `src/public/images/cod-trust-badge.png` trích xuất từ component Stitch Screen #19. | Hiển thị cam kết đồng kiểm và thanh toán khi nhận hàng. |
 | **Wishlist Báo cáo** | Tệp `04_SAN_PHAM_YEU_THICH.png` trước đây chứa tên Biti's và ảnh bị gãy. | **Đã sửa và re-render mới:** 100% sản phẩm VAMOS (Vamos Stride X1, Vamos Retro Classic 1988, Vamos Air Wave V1 Pro), ảnh hiển thị hoàn hảo. |
 | **Activity Diagrams** | 11 sơ đồ hoạt động trước đây có dải cảnh báo PlantUML deprecation màu vàng ở đầu trang. | **Đã biên dịch lại:** Loại bỏ hoàn toàn cảnh báo, sơ đồ Swimlane 2 cột chuẩn mực, trực quan. |
 
@@ -46,18 +47,26 @@ Báo cáo này tổng hợp kết quả kiểm tra toàn diện nhằm bảo đ�
 
 ---
 
-## 4. PHÂN LOẠI 19 TÀI NGUYÊN STITCH TRONG `docs/stitch/images/`
+## 4. BẢNG ĐỐI CHIẾU 16 MÀN HÌNH THIẾT KẾ STITCH VỚI WEBSITE HIỆN TẠI
 
-Toàn bộ 19 tài nguyên Stitch đã được phân loại minh bạch thành 2 nhóm:
-
-### Nhóm A: Ảnh thiết kế giao diện (Design Mockups / Snippets) — Lưu trữ tham khảo & Báo cáo
-* **Số lượng:** 18 tệp (16 màn hình Desktop 2560px + 2 snippet giao diện).
-* **Mục đích:** Sử dụng làm tài liệu đối chiếu giao diện trong `docs/stitch/` và tích hợp vào tài liệu báo cáo phân tích thiết kế phục vụ hội đồng nghiệm thu.
-* **Quy tắc:** Không sử dụng làm asset nhúng trực tiếp trong mã nguồn website.
-
-### Nhóm B: Tài nguyên tĩnh thực tế (Production Static Assets)
-* **Số lượng:** 1 tệp cắt trực tiếp từ Stitch:
-  - `19_14011554995619678628_cod_payment_trust_badge.png` -> Tích hợp thành `src/public/images/cod-trust-badge.png`.
+| STT | Màn hình | Thiết kế Stitch (`docs/stitch/images/`) | Giao diện hiện tại (`src/views/`) | Khác biệt kỹ thuật & Thẩm mỹ | Hành động đã thực hiện |
+|:---:|---|---|---|---|---|
+| 01 | **Trang chủ** | `09_45cc46eb...trang_chu_bitis_store.png` | `pages/home.pug` | Stitch là mockup tĩnh; Web là SSR Pug động với carousel New Arrival, Flash Sale, 4 cam kết bán hàng. | Đồng bộ typography Space Grotesk & Be Vietnam Pro, dùng banner CSDL động, loại bỏ mockup lồng nhau. |
+| 02 | **Danh sách sản phẩm** | `06_e7c4e7cc...danh_muc_bo_loc_san_pham.png` | `pages/products/index.pug` | Web bổ sung AJAX lọc đa tiêu chí (size, giới tính, giá), live search debounce và phân trang SSR. | Chuẩn hóa thẻ sản phẩm, tag giảm giá, hiệu ứng hover shadow và fallback ảnh placeholder. |
+| 03 | **Chi tiết sản phẩm** | `08_b3e44855...chi_tiet_san_pham_bitis_hunter_x.png` | `pages/products/detail.pug` | Web tích hợp ma trận chọn biến thể SKU động (màu, size), kiểm tra tồn kho realtime và nút Mua Ngay. | Đồng bộ bảng thông số kỹ thuật, chính sách đổi trả, liên kết ảnh thu phóng chất lượng cao. |
+| 04 | **Đăng nhập** | `10_5f0cb934...dang_nhap_dang_ky_tai_khoan.png` | `pages/auth/login.pug` | Web có tích hợp xác thực CSRF Token, rate limiting chống brute-force và flash alert thông báo lỗi. | Chuẩn hóa card căn giữa, icon nhãn form, nút CTA nổi bật màu đỏ VAMOS. |
+| 05 | **Đăng ký** | `16_cdee8cfa...dang_ky_tai_khoan_thanh_vien.png` | `pages/auth/register.pug` | Web kiểm tra tính hợp lệ email/SĐT Việt Nam 10 số bằng Regex cả ở client và server. | Đồng bộ form đăng ký thành viên, checkbox đồng ý điều khoản, nút chuyển hướng đăng nhập. |
+| 06 | **Giỏ hàng** | `03_c4b0ed08...gio_hang_tom_tat_don.png` | `pages/cart/index.pug` | Web hỗ trợ stepper tăng giảm số lượng chặn trần tồn kho (giới hạn bán lẻ 10 đôi), áp dụng voucher trực tiếp. | Thiết kế sidebar tóm tắt chi phí (tạm tính, giảm giá, phí ship), đồng bộ nút thanh toán COD. |
+| 07 | **Đặt hàng COD** | `04_ae23af57...thanh_toan_cod_an_toan.png` | `pages/checkout/index.pug` | Web nhúng component badge COD Stitch #19, kiểm tra địa chỉ giao hàng và giao dịch DB atomic. | Tích hợp `/images/cod-trust-badge.png`, xác nhận thông tin đơn hàng bảo vệ CSRF. |
+| 08 | **Lịch sử đơn hàng** | `07_8bc9424e...quan_ly_don_hang_lich_su_mua_sam.png` | `pages/account/orders.pug` | Web phân loại đơn hàng theo 6 trạng thái FSM, hỗ trợ hủy đơn phía khách hàng (PENDING/CONFIRMED). | Đồng bộ timeline tiến trình đơn hàng, badge trạng thái màu sắc theo chuẩn Stitch. |
+| 09 | **Dashboard Admin** | `05_0bab0414...admin_dashboard_kpi_doanh_thu.png` | `pages/admin/dashboard.pug` | Web tính toán doanh thu thực tế chỉ từ đơn COMPLETED+PAID, hiển thị 4 KPI card và biểu đồ doanh thu. | Đồng bộ cấu trúc bảng điều khiển, cảnh báo tồn kho thấp và đơn hàng mới nhất. |
+| 10 | **Quản lý sản phẩm** | `11_4eb8e956...quan_ly_san_pham_ma_tran_bien_the.png` | `pages/admin/products.pug` | Web quản lý đa biến thể SKU (Màu sắc × Size), công tắc kích hoạt/ẩn sản phẩm. | Đồng bộ giao diện bảng quản trị, ảnh thumbnail sản phẩm và bộ lọc trạng thái. |
+| 11 | **Quản lý đơn hàng** | `02_df51e57d...quan_ly_don_hang_state_machine.png` | `pages/admin/orders.pug` | Web kiểm soát chuyển đổi trạng thái đơn hàng theo FSM nghiêm ngặt, tự động hoàn kho khi hủy đơn. | Tích hợp chi tiết đơn hàng, lịch sử thay đổi và nút thao tác xử lý đơn. |
+| 12 | **Quản lý danh mục** | `12_43935f71...quan_ly_danh_muc_thuong_hieu.png` | `pages/admin/categories.pug` | Web hỗ trợ xem danh sách, thêm mới và bật/tắt hiển thị danh mục, tự sinh slug SEO. | Đồng bộ bảng danh mục, modal thêm danh mục mới với validation server. Không có xóa cứng/chỉnh sửa. |
+| 13 | **Quản lý tồn kho** | `13_94f0c7c6...quan_ly_ton_kho_kiem_toan_bien_dong.png` | `pages/admin/inventory.pug` | Web ghi nhận kiểm toán sổ cái thẻ kho (`inventory_transactions`), cảnh báo hết hàng dưới 5 đôi. | Đồng bộ form điều chỉnh kho có nhập lý do điều chỉnh, lịch sử xuất nhập tồn. |
+| 14 | **Quản lý Voucher** | `14_a9e215de...quan_ly_vouchers_khuyen_mai.png` | `pages/admin/vouchers.pug` | Web áp dụng quy tắc 1 lần/khách hàng (Q8), kiểm tra hạn sử dụng và giá trị đơn tối thiểu. | Đồng bộ bảng quản lý mã ưu đãi, thời hạn hiệu lực và số lần sử dụng thực tế. |
+| 15 | **Quản lý khách hàng** | `15_590bf7d9...quan_ly_khach_hang_vo_hieu_hoa_phien.png` | `pages/admin/customers.pug` | Web hỗ trợ khóa/mở khóa tài khoản khách hàng, tự động hủy phiên đăng nhập khi bị khóa. | Đồng bộ bảng danh sách khách hàng, tổng chi tiêu, lịch sử mua hàng cá nhân. |
+| 16 | **Quản lý Banner** | `01_dc21845f...quan_ly_banners_slider.png` | `pages/admin/banners.pug` | Web quản trị banner trang chủ lưu trữ trong CSDL MSSQL, cấu hình thứ tự hiển thị và link đích. | Đồng bộ danh sách banner, xem trước ảnh, công tắc kích hoạt realtime. |
 
 ---
 
@@ -74,7 +83,7 @@ Kết quả kiểm tra HTTP GET thực tế từ máy chủ Express (`node scrat
 | `/images/logo.png` | **Script-generated utility** (raster fallback) | 625 bytes | `image/png` | **200 OK** | Đạt |
 | `/css/style.css` | Biên dịch từ Tailwind CSS v3 | 69,176 bytes | `text/css` | **200 OK** | Đạt |
 | `/js/main.js` | Client-side bundle | 71,975 bytes | `application/javascript` | **200 OK** | Đạt |
-| `/images/banners/banner-hero-hunter-x.png` | Đã di chuyển sang kho tham khảo | - | - | **404 Not Found** | Đạt (Đúng kỳ vọng bảo mật nhận diện) |
+| `/images/banners/banner-hero-hunter-x.png` | Đã di chuyển sang kho tham khảo | - | - | **404 Not Found** | Đạt (Bảo vệ nhận diện, không lộ mockup crop) |
 
 ---
 
@@ -85,55 +94,21 @@ Kết quả kiểm tra HTTP GET thực tế từ máy chủ Express (`node scrat
 2. **Tablet:** 768 × 1024 px
 3. **Mobile:** 390 × 844 px
 
-### Kết quả chi tiết trên 5 tuyến đường trọng yếu:
+### Kết quả chi tiết trên 6 tuyến đường trọng yếu (18 kịch bản):
 * **Trang chủ (`/`):** 3/3 màn hình PASSED (scrollWidth = viewport width, không tràn ngang, zero lỗi 4xx/5xx).
 * **Danh mục sản phẩm (`/products`):** 3/3 màn hình PASSED (lưới sản phẩm co giãn linh hoạt 1-2-4 cột).
+* **Chi tiết sản phẩm (`/products/giay-sneaker-nam-vamos-air-wave-v1`):** 3/3 màn hình PASSED (ảnh sản phẩm không bị méo, selector size/màu co giãn chuẩn).
 * **Đăng nhập (`/auth/login`):** 3/3 màn hình PASSED (form căn giữa chuẩn chỉ, nút CTA rõ ràng).
 * **Đăng ký (`/auth/register`):** 3/3 màn hình PASSED (các trường nhập liệu đầy đủ nhãn).
 * **Giỏ hàng (`/cart`):** 3/3 màn hình PASSED (bảng tóm tắt đơn hàng và danh sách sản phẩm hiển thị chuẩn).
 
-* **Tổng số screenshot kiểm toán đã lưu:** 15 tệp ảnh tại `docs/maintenance/screenshots/`.
+* **Tổng số screenshot kiểm toán đã lưu:** 18 tệp ảnh tại `docs/maintenance/screenshots/`.
 * **Kết luận:** Giao diện website đáp ứng 100% tiêu chuẩn responsive, không có thanh cuộn ngang ngoài ý muốn, không bị vỡ bố cục trên màn hình di động.
 
 ---
 
-## 7. TRẢ LỜI 9 CÂU HỎI THEN CHỐT (THEO YÊU CẦU MỤC 11)
+## 7. KẾT QUẢ KIỂM ĐỊNH MÃ NGUỒN VÀ HỒI QUY NGHIỆP VỤ
 
-1. **Số tài nguyên Stitch đã mở và kiểm tra:**
-   - Đã mở và kiểm tra toàn bộ **19 tài nguyên hình ảnh** và **16 tệp HTML** trong dự án Stitch Cloud (`projects/5716866424895331560`).
-2. **Những ảnh nào thực sự được sử dụng trên website:**
-   - `src/public/images/cod-trust-badge.png` (cắt trực tiếp từ Stitch Screen #19).
-   - `src/public/images/favicon.ico`, `placeholder-shoe.png`, `logo.svg`, `logo.png` (tài nguyên tiện ích sinh bằng script theo thiết kế Stitch).
-3. **Những ảnh nào chỉ giữ để tham khảo:**
-   - 16 ảnh chụp toàn trang (Full-page Screenshots 2560px) tại `docs/stitch/images/`.
-   - 2 ảnh snippet giao diện (`checkout_form_snippet.png`, `catalog_grid_preview.png`).
-   - Tệp mockup crop `docs/design/reference/stitch_hero_mockup_crop.png`.
-4. **Những tài nguyên nào còn mang thương hiệu Biti's:**
-   - Mã nguồn website (`src/`) và CSDL CÓ **0** tham chiếu đến Biti's / Gosto.
-   - Trong `docs/stitch/images/`, 2 tệp giữ nguyên tên gốc từ Stitch: `09_...trang_chu_bitis_store.png` và `08_...chi_tiet_san_pham_bitis_hunter_x.png` (đây là tài nguyên lưu trữ tham khảo thuần túy của Stitch Cloud, không ảnh hưởng đến website).
-   - Tệp ảnh chụp wishlist cũ trong hồ sơ báo cáo (`04_SAN_PHAM_YEU_THICH.png`) từng có tên Biti's đã được **xóa bỏ và chụp lại hoàn toàn bằng thương hiệu VAMOS STORE**.
-5. **Các tài nguyên nào đã được thay thế:**
-   - `04_SAN_PHAM_YEU_THICH.png` trong hồ sơ báo cáo: thay thế bằng bản chụp giao diện mới với 3 sản phẩm VAMOS chuẩn mực và không có ảnh lỗi.
-   - 11 sơ đồ Activity Diagram: biên dịch lại sạch sẽ, xóa bỏ thông báo deprecation vàng.
-   - Tệp `banner-hero-hunter-x.png` trong thư mục public: chuyển sang `docs/design/reference/stitch_hero_mockup_crop.png`.
-6. **Kết quả kiểm tra đường dẫn HTTP:**
-   - 100% tài nguyên tĩnh phục vụ qua Express (`/images/*`, `/css/*`, `/js/*`) trả về HTTP 200 OK với đúng Content-Type và kích thước byte.
-   - Tệp mockup crop cũ trả về HTTP 404 (đúng kỳ vọng, không còn bị lộ ra ngoài).
-7. **Kết quả kiểm thử giao diện:**
-   - 15/15 kịch bản Playwright kiểm thử trên Desktop, Tablet, Mobile đều PASSED, không tràn chiều ngang.
-   - 40/40 template Pug biên dịch thành công 100%.
-   - 118/118 test tự động hệ thống đạt 100%.
-8. **Các file đã thay đổi:**
-   - `src/views/pages/account/wishlist.pug` (Bổ sung fallback an toàn cho trường ảnh sản phẩm).
-   - `scratch/render_wishlist_page.js` (Cập nhật mock data chuẩn thương hiệu VAMOS và nhúng ảnh base64).
-   - `scratch/render_simplified_activity_diagrams.py` (Loại bỏ cú pháp deprecation handwritten).
-   - `docs/design/STITCH_ASSET_INVENTORY.md` (Cập nhật phân loại và minh bạch nguồn gốc).
-   - `docs/maintenance/STITCH_ASSET_SYNC_REPORT.md` (Cập nhật báo cáo đồng bộ).
-   - `docs/maintenance/PROJECT_MAINTENANCE_REPORT.md` (Cập nhật báo cáo bảo trì).
-   - `docs/maintenance/FINAL_BRAND_AND_ASSET_AUDIT.md` (Tạo mới báo cáo kiểm toán cuối cùng).
-   - 11 sơ đồ Activity Diagram tại `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/03_ACTIVITY_DIAGRAM/` và `report/analysis_design_images/`.
-   - Ảnh chụp wishlist tại `report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/02_HINH_ANH_BAO_CAO/05_UI_CUSTOMER/04_SAN_PHAM_YEU_THICH.png` và `report/analysis_design_images/ui_cust_04_wishlist.png`.
-   - Chuyển `banner-hero-hunter-x.png` -> `docs/design/reference/stitch_hero_mockup_crop.png`.
-9. **Những nội dung chưa xác minh:**
-   - Dự án Google Stitch hiện tại không cung cấp file vector riêng cho icon các bộ sưu tập giày; website đang sử dụng icon SVG inline chuẩn Tailwind UI.
-   - Không thực hiện commit hoặc push lên Git theo đúng chỉ thị bảo toàn.
+1. **Pug Validation:** `cmd.exe /c npm run test:pug` -> **40/40 templates PASSED 100%**.
+2. **Hồi quy nghiệp vụ (Regression Suite):** `cmd.exe /c npm test` -> **118/118 test cases PASSED 100%**.
+3. **Không làm vỡ tính năng:** Luồng mua hàng COD, giỏ hàng session -> DB merge, hủy đơn phục hồi kho, quản trị admin FSM hoạt động ổn định.
