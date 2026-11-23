@@ -1,4 +1,5 @@
 const productService = require('../services/product.service');
+const loyaltyService = require('../services/loyalty.service');
 
 class ProductController {
   /**
@@ -107,12 +108,21 @@ class ProductController {
         relatedProducts = [];
       }
 
+      // Fetch real product reviews from VAMOS Club
+      let reviewsData = { summary: { avgRating: 0, totalReviews: 0, starCounts: {}, starPercentages: {} }, reviews: [] };
+      try {
+        reviewsData = await loyaltyService.getProductReviews(product.id);
+      } catch (err) {
+        // Fallback gracefully without breaking page render
+      }
+
       res.render('pages/products/detail', {
         title: product.name,
         product,
         availableSizes,
         availableColors,
         relatedProducts,
+        reviewsData,
       });
     } catch (error) {
       next(error);

@@ -18,9 +18,11 @@
     "test:integrity": "node tests/test_phase6_data_integrity.js",
     "test:browser": "node tests/test_phase7_browser_matrix.js",
     "test:audit": "node tests/test_audit_fixes.js",
+    "test:guard": "node tests/test_db_guard.js",
+    "test:loyalty": "node tests/test_loyalty_module.js",
     "test:pug": "node tests/validate_pug.js",
     "test:db-setup": "node tests/setup_test_db.js",
-    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_phase1_role_separation.js && node tests/test_phase2_wishlist.js && node tests/test_phase3_theme.js && node tests/test_phase4_i18n.js && node tests/test_phase5_functional.js && node tests/test_phase6_data_integrity.js && node tests/test_phase7_browser_matrix.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/regression_suite.js",
+    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_phase1_role_separation.js && node tests/test_phase2_wishlist.js && node tests/test_phase3_theme.js && node tests/test_phase4_i18n.js && node tests/test_phase5_functional.js && node tests/test_phase6_data_integrity.js && node tests/test_phase7_browser_matrix.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/test_loyalty_module.js && node tests/regression_suite.js",
     "build:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify",
     "watch:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --watch"
   },
@@ -46,6 +48,7 @@
     "express-session": "^1.18.1",
     "morgan": "^1.10.0",
     "mssql": "^12.7.14",
+    "multer": "^2.5.0",
     "pug": "^3.0.3"
   },
   "devDependencies": {

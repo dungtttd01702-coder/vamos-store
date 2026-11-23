@@ -14,6 +14,8 @@ header
           span= t('nav.hotline', 'Hotline: 1900 2126')
         span.text-neutral-600 |
         a.transition-colors(class="hover:text-white" href="/account/orders")= t('nav.order_tracking', 'Tra cứu đơn hàng')
+        span.text-neutral-600 |
+        a.transition-colors(class="hover:text-amber-400 text-amber-300 font-bold" href="/account/rewards") ✨ VAMOS Club
 
       //- Center: Value Propositions
       .mx-auto.flex.items-center.justify-center.gap-2.text-xs.tracking-wide
@@ -137,9 +139,15 @@ header
                 a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/profile")
                   span 👤
                   span= t('nav.account_info', 'Thông tin tài khoản')
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/rewards")
+                  span 🎁
+                  span VAMOS Club (Điểm &amp; Voucher)
                 a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/orders")
                   span 📦
                   span= t('nav.order_history', 'Lịch sử đơn hàng')
+                a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/wishlist")
+                  span ❤️
+                  span Sản phẩm yêu thích
                 a.flex.items-center.gap-2.px-4.py-2.text-xs.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-red-600" href="/account/addresses")
                   span 📍
                   span= t('nav.address_book', 'Sổ địa chỉ')

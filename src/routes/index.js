@@ -10,6 +10,7 @@ const accountRoutes = require('./account.routes');
 const adminRoutes = require('./admin.routes');
 const infoRoutes = require('./info.routes');
 const wishlistRoutes = require('./wishlist.routes');
+const loyaltyRoutes = require('./loyalty.routes');
 const productController = require('../controllers/product.controller');
 
 // Mount routes
@@ -21,6 +22,7 @@ router.use('/checkout', checkoutRoutes);
 router.use('/account', accountRoutes);
 router.use('/admin', adminRoutes);
 router.use('/', infoRoutes);
+router.use('/', loyaltyRoutes);
 router.use('/api/wishlist', wishlistRoutes);
 router.get('/wishlist', (req, res) => res.redirect('/account/wishlist'));
 
