@@ -9,6 +9,7 @@ const path = require('path');
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
 const appConfig = require('../src/config/app.config');
+const { validateDatabaseConnection } = require('../src/config/db-guard');
 
 const baseConfig = appConfig.db;
 const targetDbName = baseConfig.database || 'vamos_store_db';
@@ -76,6 +77,13 @@ async function init(dbNameOverride) {
     // 1. Connect to 'master' to ensure target database exists
     console.log('1. Connecting to master database to verify target database...');
     const masterConfig = { ...baseConfig, database: 'master' };
+
+    // Guard validation: Admin master connection must strictly verify that targetDbName is authorized for current environment
+    validateDatabaseConnection(masterConfig, process.env.NODE_ENV, {
+      allowMasterAdmin: true,
+      targetDatabase: targetDbName
+    });
+
     masterPool = await sql.connect(masterConfig);
 
     const checkDbReq = masterPool.request();
@@ -97,6 +105,10 @@ async function init(dbNameOverride) {
 
     // 2. Connect to the target database
     console.log(`\n2. Connecting to "${targetDbName}" to run versioned migrations...`);
+
+    // Guard validation: Target database must be authorized for current environment
+    validateDatabaseConnection(targetConfig, process.env.NODE_ENV);
+
     targetPool = await sql.connect(targetConfig);
 
     // 3. Ensure schema_migrations table exists

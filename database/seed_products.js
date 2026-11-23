@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const config = require('../src/config/app.config');
+const { getPool, closePool } = require('../src/config/database');
 
 const productsData = [
   // ══════════════════════════════════════════════════════════════
@@ -815,7 +816,7 @@ const productsData = [
 async function seed() {
   console.log('--- SEEDING 40 REALISTIC FOOTWEAR PRODUCTS & VARIANTS ---');
   try {
-    const pool = await sql.connect(config.db);
+    const pool = await getPool();
 
     // Get categories map
     const catResult = await pool.request().query('SELECT id, slug FROM categories');
@@ -962,7 +963,7 @@ async function seed() {
 
     console.log('✅ All 40 realistic products, studio images, and variant matrices seeded successfully!');
     if (require.main === module) {
-      await pool.close();
+      await closePool();
       process.exit(0);
     }
   } catch (err) {

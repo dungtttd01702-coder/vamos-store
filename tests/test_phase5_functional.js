@@ -16,6 +16,8 @@
  *    - Order status update.
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const http = require('http');
 const app = require('../src/app');

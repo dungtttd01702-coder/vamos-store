@@ -4,6 +4,8 @@
  * role-aware auth redirection, and route guards.
  */
 
+require('./test_bootstrap');
+
 const http = require('http');
 const assert = require('assert');
 const app = require('../src/app');

@@ -1,3 +1,5 @@
+require('./test_bootstrap');
+
 const http = require('http');
 const app = require('../src/app');
 const { query } = require('../src/config/database');

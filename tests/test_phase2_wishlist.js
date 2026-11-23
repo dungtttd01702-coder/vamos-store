@@ -4,6 +4,8 @@
  * Guest-to-Customer merge without duplicates, and Admin isolation.
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const fs = require('fs');
 

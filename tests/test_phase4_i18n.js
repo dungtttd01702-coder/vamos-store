@@ -11,6 +11,8 @@
  * 8. Currency format preservation (VND) across both languages.
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const http = require('http');
 const app = require('../src/app');

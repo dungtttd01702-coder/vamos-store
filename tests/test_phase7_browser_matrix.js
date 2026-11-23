@@ -18,6 +18,8 @@
  *    - Admin dark mode toggle & language toggle.
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const http = require('http');
 const { chromium } = require('@playwright/test');

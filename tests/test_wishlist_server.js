@@ -4,6 +4,8 @@
  * Guest restrictions, Admin denial, CSRF protection, and data isolation.
  */
 
+require('./test_bootstrap');
+
 const http = require('http');
 const assert = require('assert');
 const app = require('../src/app');

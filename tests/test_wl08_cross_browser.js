@@ -4,6 +4,8 @@
  * between two completely independent Playwright BrowserContexts (Context A and Context B).
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const { chromium } = require('@playwright/test');
 const { query } = require('../src/config/database');

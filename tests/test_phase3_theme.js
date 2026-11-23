@@ -4,6 +4,8 @@
  * LocalStorage persistence, and UI toggle buttons.
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const fs = require('fs');
 

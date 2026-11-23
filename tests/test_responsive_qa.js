@@ -5,6 +5,8 @@
  * Captures full screenshots for each viewport.
  */
 
+require('./test_bootstrap');
+
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('@playwright/test');

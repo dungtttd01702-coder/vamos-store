@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const config = require('./app.config');
+const { validateDatabaseConnection } = require('./db-guard');
 
 let pool = null;
 let isClosing = false;
@@ -14,8 +15,24 @@ async function getPool() {
   }
 
   if (!pool) {
+    // Enforce centralized database isolation guard before connecting
+    validateDatabaseConnection(config.db, process.env.NODE_ENV);
+
     try {
       pool = await sql.connect(config.db);
+
+      // Defense-in-depth: Runtime verification that actual connected database matches expected target
+      const dbCheck = await pool.request().query('SELECT DB_NAME() AS current_db');
+      const actualDb = dbCheck.recordset[0]?.current_db?.toLowerCase();
+      const expectedDb = config.db.database?.toLowerCase();
+      if (actualDb && expectedDb && actualDb !== expectedDb) {
+        await pool.close();
+        pool = null;
+        throw new Error(
+          `[DATABASE GUARD BLOCKED]: Runtime database mismatch. Connected to "${actualDb}" but expected "${expectedDb}". Connection aborted.`
+        );
+      }
+
       pool.on('error', (err) => {
         console.error('[MSSQL Pool Internal Error]:', err.message);
         pool = null;
@@ -114,4 +131,5 @@ module.exports = {
   testDbConnection,
   query,
   withTransaction,
+  validateDatabaseConnection,
 };

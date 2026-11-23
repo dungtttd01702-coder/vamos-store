@@ -4,7 +4,7 @@
  * Target Database: Isolated Test Database `vamos_store_test_db`
  */
 
-process.env.NODE_ENV = 'test';
+require('./test_bootstrap');
 
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -1089,6 +1089,10 @@ async function runSuite() {
       await query("DELETE FROM product_variants WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
       await query("DELETE FROM products WHERE id = @id", { id: tempProdId });
       await query("DELETE FROM vouchers WHERE code IN (@vc, @q8vc)", { vc: testVoucherCode, q8vc: q8VoucherCode });
+      await query("DELETE FROM point_transactions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM reviews WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM voucher_redemptions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM user_points_wallets WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM users WHERE id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
     } catch (cleanupErr) {
       console.warn('  (Cleanup notice):', cleanupErr.message);

@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const isProduction = process.env.NODE_ENV === 'production';
-const isTest = process.env.NODE_ENV === 'test';
 
 if (isProduction && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.includes('fallback') || process.env.SESSION_SECRET.includes('replace_with'))) {
   throw new Error('[SECURITY CRITICAL]: SESSION_SECRET must be configured with a strong random secret in production mode.');
@@ -11,10 +10,16 @@ const config = {
   app: {
     name: process.env.APP_NAME || 'VAMOS STORE',
     port: Number.parseInt(process.env.PORT, 10) || 3000,
-    env: process.env.NODE_ENV || 'development',
+    get env() {
+      return process.env.NODE_ENV || 'development';
+    },
     url: process.env.APP_URL || 'http://localhost:3000',
-    isProduction,
-    isTest,
+    get isProduction() {
+      return process.env.NODE_ENV === 'production';
+    },
+    get isTest() {
+      return process.env.NODE_ENV === 'test';
+    },
   },
   session: {
     secret: process.env.SESSION_SECRET || 'vamos_default_dev_session_secret_2026',
@@ -33,7 +38,10 @@ const config = {
     port: Number.parseInt(process.env.DB_PORT, 10) || 1433,
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || '',
-    database: isTest ? (process.env.DB_TEST_NAME || 'vamos_store_test_db') : (process.env.DB_NAME || 'vamos_store_db'),
+    get database() {
+      const isTestEnv = process.env.NODE_ENV === 'test';
+      return isTestEnv ? 'vamos_store_test_db' : (process.env.DB_NAME || 'vamos_store_db');
+    },
     connectionTimeout: 15000,
     requestTimeout: 15000,
     options: {

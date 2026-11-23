@@ -8,6 +8,8 @@
  * 5. Admin product & voucher business rule validation
  */
 
+require('./test_bootstrap');
+
 const assert = require('assert');
 const { getPool, query } = require('../src/config/database');
 const { isValidEmail, isValidPhone, isValidFullName } = require('../src/utils/validator');

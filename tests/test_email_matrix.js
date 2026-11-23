@@ -1,3 +1,5 @@
+require('./test_bootstrap');
+
 const validator = require('../src/utils/validator');
 
 const htmlPattern = /^\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\s*$/;
