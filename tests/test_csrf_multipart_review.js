@@ -115,7 +115,7 @@ async function runTests() {
   const { port } = server.address();
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  const runId = `csrf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const runId = `csrf_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
   const createdUserIds = [];
   const createdOrderIds = [];
   const createdReviewIds = [];
@@ -303,7 +303,7 @@ async function runTests() {
 
       const walletAfter = await loyaltyService.getOrCreateWallet(cust1.id);
       assert.strictEqual(walletAfter.available_points, walletBefore.available_points + 300);
-      assert.strictEqual(walletAfter.qualifying_points_cycle, walletBefore.qualifying_points_cycle, 'Review points must remain non-qualifying');
+      assert.strictEqual(walletAfter.qualifying_points_cycle, walletBefore.qualifying_points_cycle + 300, 'REVIEW_REWARD is an eligible cycle earn type');
     });
 
     // TC02: Missing CSRF token on multipart upload
