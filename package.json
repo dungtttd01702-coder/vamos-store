@@ -24,11 +24,12 @@
     "test:loyalty:cycle": "node tests/test_loyalty_cycle_integration.js",
     "test:csrf:unit": "node tests/test_csrf_http_unit.js",
     "test:csrf": "node tests/test_csrf_multipart_review.js",
+    "test:review:display": "node tests/test_product_review_display.js",
     "loyalty:process": "node src/jobs/processLoyaltyCycle.js",
     "loyalty:backfill:dry": "node src/jobs/backfillLoyaltyHistory.js --dry-run",
     "test:pug": "node tests/validate_pug.js",
     "test:db-setup": "node tests/setup_test_db.js",
-    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/test_db_guard.js && node tests/test_loyalty_cycle_unit.js && node tests/test_csrf_http_unit.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_phase1_role_separation.js && node tests/test_phase2_wishlist.js && node tests/test_phase3_theme.js && node tests/test_phase4_i18n.js && node tests/test_phase5_functional.js && node tests/test_phase6_data_integrity.js && node tests/test_phase7_browser_matrix.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/test_loyalty_module.js && node tests/test_loyalty_cycle_integration.js && node tests/test_csrf_multipart_review.js && node tests/regression_suite.js",
+    "test:all": "node tests/validate_pug.js && node tests/test_validator.js && node tests/test_db_guard.js && node tests/test_loyalty_cycle_unit.js && node tests/test_csrf_http_unit.js && node tests/test_product_review_display.js && node tests/setup_test_db.js && node tests/test_auth_flow.js && node tests/test_phase1_role_separation.js && node tests/test_phase2_wishlist.js && node tests/test_phase3_theme.js && node tests/test_phase4_i18n.js && node tests/test_phase5_functional.js && node tests/test_phase6_data_integrity.js && node tests/test_phase7_browser_matrix.js && node tests/test_live_search.js && node tests/test_audit_fixes.js && node tests/test_loyalty_module.js && node tests/test_loyalty_cycle_integration.js && node tests/test_csrf_multipart_review.js && node tests/regression_suite.js",
     "build:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --minify",
     "watch:css": "tailwindcss -i ./src/public/css/input.css -o ./src/public/css/style.css --watch"
   },
