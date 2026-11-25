@@ -35,10 +35,26 @@ function test(name, fn) {
 
 // 1. NODE_ENV undefined
 test('GUARD-01: NODE_ENV undefined is strictly rejected (Fail-closed)', () => {
-  assert.throws(
-    () => validateDatabaseConnection({ database: 'vamos_store_db' }, undefined),
-    /Missing NODE_ENV runtime environment/
-  );
+  const previousNodeEnv = process.env.NODE_ENV;
+  try {
+    process.env.NODE_ENV = 'test';
+
+    assert.throws(
+      () => validateDatabaseConnection({ database: 'vamos_store_db' }, undefined),
+      /Missing NODE_ENV runtime environment/
+    );
+
+    assert.strictEqual(
+      validateDatabaseConnection({ database: 'vamos_store_test_db' }),
+      true
+    );
+  } finally {
+    if (previousNodeEnv !== undefined) {
+      process.env.NODE_ENV = previousNodeEnv;
+    } else {
+      delete process.env.NODE_ENV;
+    }
+  }
 });
 
 // 2. NODE_ENV empty string

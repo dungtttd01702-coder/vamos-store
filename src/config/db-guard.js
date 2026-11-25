@@ -55,9 +55,12 @@ const ALLOWED_PROD_DATABASES = new Set([
  * @returns {boolean} true if connection is permitted
  * @throws {Error} if connection is prohibited or misconfigured
  */
-function validateDatabaseConnection(dbConfig, env = process.env.NODE_ENV, options = {}) {
+function validateDatabaseConnection(dbConfig, env, options = {}) {
+  // Distinguish omitted env (falls back to runtime NODE_ENV) from explicit undefined (fail-closed)
+  const effectiveEnv = arguments.length >= 2 ? env : process.env.NODE_ENV;
+
   // 1. Fail-closed on missing, empty, or invalid NODE_ENV
-  if (!env || typeof env !== 'string' || env.trim() === '') {
+  if (!effectiveEnv || typeof effectiveEnv !== 'string' || effectiveEnv.trim() === '') {
     throw new Error(
       `[DATABASE GUARD REJECTED]: Missing NODE_ENV runtime environment. ` +
       `Environment must be explicitly specified as 'test', 'development', or 'production'. ` +
@@ -65,10 +68,10 @@ function validateDatabaseConnection(dbConfig, env = process.env.NODE_ENV, option
     );
   }
 
-  const currentEnv = env.trim().toLowerCase();
+  const currentEnv = effectiveEnv.trim().toLowerCase();
   if (!VALID_ENVIRONMENTS.has(currentEnv)) {
     throw new Error(
-      `[DATABASE GUARD REJECTED]: Unrecognized NODE_ENV "${env}". ` +
+      `[DATABASE GUARD REJECTED]: Unrecognized NODE_ENV "${effectiveEnv}". ` +
       `Permitted environments: 'test', 'development', 'production'. ` +
       `Reason: Unknown environment is treated as untrusted and blocked.`
     );
