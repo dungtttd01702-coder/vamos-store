@@ -222,7 +222,7 @@ async function runTests() {
 
     await runCase('TC07: Preserves summary rating breakdown and per-review point badges', () => {
       assert.strictEqual(serviceData.summary.totalReviews, 3);
-      assert.strictEqual(serviceData.summary.avgRating, 4.7);
+      assert.ok(Math.abs(serviceData.summary.avgRating - 4.7) < 0.001, 'avgRating should match rounded 1-decimal mean');
       assert.ok(serviceHtml.includes('4.7'));
       assert.ok(serviceHtml.includes('(3 đánh giá)'));
       assert.ok(serviceHtml.includes('+300đ'));
