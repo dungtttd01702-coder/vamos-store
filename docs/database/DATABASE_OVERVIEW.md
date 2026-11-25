@@ -26,21 +26,20 @@ Cơ sở dữ liệu **VAMOS STORE** được thiết kế chuyên biệt để 
 
 Qua kiểm toán trực tiếp từ bảng hệ thống `sys.tables` trong CSDL `vamos_store_db` và đối soát với hệ thống migrations (`database/migrations/`), cơ sở dữ liệu bao gồm chính xác:
 
-- **Tổng số bảng:** **21 bảng**
-  - **Bảng nghiệp vụ và dữ liệu ứng dụng:** **20 bảng**
+- **Tổng số bảng kiến trúc (`001`–`006`):** **28 bảng** (21 bảng nền tảng `001`–`004` + 6 bảng VAMOS CLUB `005` + 1 bảng `loyalty_point_batches` từ Migration `006` đã tạo trong mã nguồn, **chưa chạy DDL trên SQL Server runtime**)
+  - **Bảng nghiệp vụ và dữ liệu ứng dụng:** **27 bảng**
   - **Bảng hệ thống quản lý di chuyển dữ liệu:** **01 bảng** (`schema_migrations`)
 
-### Phân nhóm Nghiệp vụ (5 Phân nhóm Dữ liệu)
+### Phân nhóm Nghiệp vụ (6 Phân nhóm Dữ liệu + 1 Hệ thống)
 
 ```
-                            CƠ SỞ DỮ LIỆU VAMOS STORE (21 BẢNG)
+                            CƠ SỞ DỮ LIỆU VAMOS STORE (28 BẢNG / 001–006)
                                               │
-         ┌───────────────────┬────────────────┼───────────────────┬───────────────────┐
-         ▼                   ▼                ▼                   ▼                   ▼
-    [ PHÂN NHÓM 1 ]     [ PHÂN NHÓM 2 ]  [ PHÂN NHÓM 3 ]     [ PHÂN NHÓM 4 ]     [ PHÂN NHÓM 5 ]
-     Người dùng &        Sản phẩm &        Tồn kho &           Khách hàng &        Đơn hàng, Khuyến mãi
-      Phân quyền          Biến thể         Kiểm kê kho          Giỏ hàng & Wishlist  & Vận hành Cửa hàng
-     (3 bảng)            (7 bảng)         (1 bảng)            (3 bảng)            (6 bảng + 1 HT)
+     ┌─────────────────┬─────────────────┬────┴────┬─────────────────┬─────────────────┬─────────────────┐
+     ▼                 ▼                 ▼         ▼                 ▼                 ▼                 ▼
+  Phân nhóm 1       Phân nhóm 2       Phân nhóm 3 Phân nhóm 4      Phân nhóm 5       Phân nhóm 7       Hệ thống
+  Users & Auth      SP & Biến thể     Tồn kho    Giỏ & Wishlist   Đơn & Voucher     VAMOS CLUB        schema_migrations
+  (3 bảng)          (7 bảng)          (1 bảng)   (3 bảng)         (6 bảng)          (7 bảng: 005+006) (1 bảng)
 ```
 
 ---
@@ -48,16 +47,11 @@ Qua kiểm toán trực tiếp từ bảng hệ thống `sys.tables` trong CSDL 
 ## 3. Thống kê Toàn diện Hệ thống Ràng buộc và Chỉ mục (Constraints & Indexes)
 
 Qua đối soát siêu dữ liệu thực tế từ SQL Server (`sys.indexes`, `sys.foreign_keys`, `sys.check_constraints`, `sys.default_constraints`):
-- **Khóa chính (Primary Key):** **21 khóa chính** (100% là `id INT IDENTITY(1,1)` với chỉ mục `CLUSTERED` tổ chức theo cấu trúc Cây B-Tree).
-- **Khóa ngoại (Foreign Key):** **24 khóa ngoại vật lý** (11 `CASCADE`, 2 `SET NULL`, 11 `NO ACTION`). Toàn bộ 24 FK đều có hành vi `ON UPDATE NO ACTION`.
-- **Ràng buộc Duy nhất (Unique Constraints):** **18 ràng buộc** (13 ràng buộc trên cột đơn và 05 ràng buộc trên tổ hợp nhiều cột).
-- **Chỉ mục Duy nhất có Điều kiện lọc (Filtered Unique Indexes):** **02 chỉ mục** (`uq_user_default_address` với `WHERE ([is_default]=(1))` và `uq_product_primary_image` với `WHERE ([is_primary]=(1))`).
-- **Ràng buộc Kiểm tra (Check Constraints):** **26 ràng buộc** cưỡng chế miền giá trị tài chính, tồn kho, chu kỳ ngày tháng và các tập enum hợp lệ.
-- **Ràng buộc Mặc định (Default Constraints):** **47 ràng buộc** tự động hóa việc gán giá trị thời gian và trạng thái mặc định.
+- **Khóa chính (Primary Key) nền tảng (`001`–`004`):** **21 khóa chính** (`id INT IDENTITY(1,1)`). Toàn bộ **28 bảng** (`001`–`006`, gồm `006` chưa chạy trên DB runtime) tuân thủ chuẩn khóa ngoại, ràng buộc miền giá trị (`CHECK`), chỉ mục duy nhất có điều kiện lọc (`Filtered Unique Indexes`) và `DEFAULT`.
 
 ---
 
-## 4. Danh mục Kiểm kê Chi tiết 21 Bảng Dữ liệu
+## 4. Danh mục Kiểm kê 21 Bảng Nền tảng (`001`–`004`) và Mở rộng VAMOS CLUB (`005`–`006`)
 
 | STT | Tên bảng (Table Name)        | Tên nghiệp vụ tiếng Việt     | Phân nhóm dữ liệu       | Migration khởi tạo           | Chức năng & Vai trò nghiệp vụ                                                                                                                 |
 | :-: | :--------------------------- | :--------------------------- | :---------------------- | :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -95,6 +89,12 @@ Cơ sở dữ liệu VAMOS STORE được quản lý thông qua cơ chế Versio
 | **002** | `002_add_filtered_indexes.sql`   | Bổ sung các chỉ mục có điều kiện lọc (Filtered Unique Indexes) để bảo vệ toàn vẹn dữ liệu nâng cao ở tầng CSDL.            | `uq_user_default_address` trên `addresses`<br>`uq_product_primary_image` trên `product_images` |
 | **003** | `003_voucher_customer_usage.sql` | Triển khai bảng theo dõi sử dụng voucher để áp dụng quy tắc kinh doanh: Mỗi khách hàng chỉ được dùng 1 voucher đúng 1 lần. | Tạo bảng `voucher_usages` (Bảng thứ 19)<br>Chỉ mục `IX_voucher_usages_user_id`                 |
 | **004** | `004_create_wishlist_items.sql`  | Triển khai bảng danh sách yêu thích lưu máy chủ (Server-side Wishlist) cho khách hàng thành viên.                          | Tạo bảng `wishlist_items` (Bảng thứ 20)<br>Chỉ mục `ix_wishlist_items_user_id`, `product_id`   |
+| **005** | `005_vamos_club_loyalty_system.sql` | Triển khai VAMOS CLUB (Review-to-Earn, ví điểm, sổ cái `point_transactions`, quy tắc đổi thưởng, voucher cá nhân).     | Tạo 6 bảng (`reviews`, `review_media`, `user_points_wallets`, `point_transactions`, `point_reward_rules`, `voucher_redemptions`) |
+| **006** | `006_vamos_club_expiration_and_tier_cycle.sql` | *(Đã tạo file trong repo, chưa chạy trên DB runtime)* Bổ sung chu kỳ 12 tháng, Soft Landing, lô điểm 365 ngày & `POINT_EXPIRATION`. | Bổ sung 5 cột vào `user_points_wallets`, tạo bảng `loyalty_point_batches` (Bảng thứ 28), mở rộng `chk_point_tx_type` |
+
+### Vận Hành CLI Loyalty (Chu kỳ 12 tháng & Hết hạn 365 ngày)
+- **Worker định kỳ (`npm run loyalty:process` / `src/jobs/processLoyaltyCycle.js`):** Sử dụng `sp_getapplock` (Session lock qua pool ghim 1 kết nối) để quét lô điểm `ACTIVE` đến hạn (`expires_at <= GETDATE()`) và xử lý Soft Landing khi `cycle_end_at < GETDATE()`. Không chạy timer nền trong Express.
+- **Công cụ Backfill an toàn (`npm run loyalty:backfill:dry` / `src/jobs/backfillLoyaltyHistory.js`):** Chế độ mặc định `DRY_RUN` đọc lịch sử và báo cáo sai lệch (ví dụ ví có giao dịch test/điều chỉnh không thể khớp FEFO). Chế độ `APPLY` fail-closed nếu phát hiện dù chỉ 1 tài khoản anomaly hoặc thiếu cờ `--apply --confirm-apply`.
 
 ### Cơ chế Bootstrap CSDL An toàn (`database/init_mssql.js`)
 
@@ -111,6 +111,6 @@ Qua quá trình rà soát mã nguồn, nhóm kiểm toán ghi nhận điểm l�
 
 - **Tệp `database/mssql_schema.sql`:** Là tệp schema nguyên khối được lập ở giai đoạn đầu, hiện chứa **20 bảng** (19 bảng nghiệp vụ + `schema_migrations`), **chưa bao gồm bảng `wishlist_items`**.
 - **Hệ thống Migrations (`database/migrations/`):** Đã bổ sung migration `004_create_wishlist_items.sql` tạo bảng `wishlist_items`.
-- **Cơ sở dữ liệu thực tế (`vamos_store_db`):** Đã chạy đầy đủ 4 migrations, sở hữu chính xác **21 bảng** (20 bảng nghiệp vụ + 1 bảng hệ thống).
+- **Cơ sở dữ liệu thực tế trước Migration `006`:** Đã chạy `001`–`005` (27 bảng); Migration `006` bổ sung bảng thứ `28` (`loyalty_point_batches`) và 5 cột chu kỳ trên `user_points_wallets` đã có trong mã nguồn nhưng **chưa chạy DDL trên SQL Server runtime**. Tệp `mssql_schema.sql` chỉ là bản tham khảo ban đầu.
 
 > **Kết luận kiểm toán:** Nguồn chân lý duy nhất (Single Source of Truth) của cấu trúc CSDL VAMOS STORE là hệ thống các tệp di chuyển trong `database/migrations/` và cấu trúc đang chạy thực tế trong CSDL SQL Server `vamos_store_db`. Tệp `mssql_schema.sql` được ghi nhận là bản schema tham khảo cũ cần được cập nhật bổ sung `wishlist_items` trong các đợt bảo trì sau.

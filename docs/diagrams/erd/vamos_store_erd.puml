@@ -313,6 +313,11 @@ package "7. Khách Hàng Thân Thiết VAMOS Club" #FEF2F2 {
       * lifetime_earned_points : INT <<DEFAULT 0, CHECK >= 0>>
       * lifetime_redeemed_points : INT <<DEFAULT 0, CHECK >= 0>>
       * tier_code : VARCHAR(20) <<DEFAULT 'MEMBER'>>
+      cycle_anchor_at : DATETIME2
+      * cycle_number : INT <<DEFAULT 0, CHECK >= 0>>
+      cycle_start_at : DATETIME2
+      cycle_end_at : DATETIME2
+      * qualifying_points_cycle : INT <<DEFAULT 0, CHECK >= 0>>
       created_at : TIMESTAMP <<DEFAULT NOW>>
       updated_at : TIMESTAMP <<DEFAULT NOW>>
   }
@@ -329,6 +334,19 @@ package "7. Khách Hàng Thân Thiết VAMOS Club" #FEF2F2 {
       * description : VARCHAR(500)
       idempotency_key : VARCHAR(100) <<UNIQUE>>
       created_at : TIMESTAMP <<DEFAULT NOW>>
+  }
+
+  entity "loyalty_point_batches" as loyalty_point_batches #F8FAFC {
+      * id : INT <<PK, AI>>
+      --
+      * user_id : INT <<FK>>
+      * transaction_id : INT <<FK, UNIQUE>>
+      * initial_points : INT <<CHECK > 0>>
+      * remaining_points : INT <<CHECK >= 0>>
+      * expires_at : DATETIME2
+      * status : VARCHAR(20) <<DEFAULT 'ACTIVE'>>
+      created_at : TIMESTAMP <<DEFAULT NOW>>
+      updated_at : TIMESTAMP <<DEFAULT NOW>>
   }
 
   entity "point_reward_rules" as point_reward_rules #F8FAFC {
@@ -376,8 +394,11 @@ users ||--o{ order_status_histories : "1..N"
 users ||--o{ inventory_transactions : "1..N"
 users ||--o| user_points_wallets : "1..1"
 users ||--o{ point_transactions : "1..N"
+users ||--o{ loyalty_point_batches : "1..N"
 users ||--o{ reviews : "1..N"
 users ||--o{ voucher_redemptions : "1..N"
+
+point_transactions ||--o| loyalty_point_batches : "1..0..1"
 
 categories ||--o{ products : "1..N"
 brands |o--o{ products : "0..1..N"

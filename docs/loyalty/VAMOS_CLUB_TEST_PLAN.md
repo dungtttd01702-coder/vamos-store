@@ -16,7 +16,7 @@ Bộ test tự động `tests/test_loyalty_module.js` được thiết kế nh�
 
 | STT | Mã Test | Nhóm Kiểm Thử | Mục Tiêu & Mô Tả Điều Kiện Kiểm Thử | Kết Quả Thực Tế | Trạng Thái |
 | :---: | :--- | :--- | :--- | :--- | :---: |
-| 1 | `TIER-01` | Cấp Độ & Tiến Trình | Kiểm tra gán đúng hạng thành viên: <1.000 (MEMBER), 1.000-2.499 (SILVER), 2.500-4.999 (GOLD), >=5.000 (VIP). | Trả về chính xác mã tier tương ứng với điểm trọn đời. | **PASS** |
+| 1 | `TIER-01` | Cấp Độ & Tiến Trình | Kiểm tra gán đúng hạng thành viên: <1.000 (MEMBER), 1.000-2.499 (SILVER), 2.500-4.999 (GOLD), >=5.000 (VIP). | Trả về chính xác mã tier tương ứng theo ngưỡng điểm đầu vào (tính theo `qualifying_points_cycle` ở Stage 2). | **PASS** |
 | 2 | `TIER-02` | Cấp Độ & Tiến Trình | Tính toán % tiến trình thăng hạng và số điểm còn thiếu đến mốc tiếp theo. | MEMBER 300đ => cần 700đ (30%), SILVER 1500đ => cần 1000đ, VIP => 100%. | **PASS** |
 | 3 | `CALC-01` | Tính Điểm Review | Chỉ đánh giá số sao (1-5) mà không có nhận xét chi tiết hay ảnh. | Cộng đúng 100 điểm thưởng cơ bản. | **PASS** |
 | 4 | `CALC-02` | Tính Điểm Review | Đánh giá sao kèm bình luận ngắn dưới 50 ký tự và không chọn thẻ nhanh. | Nhận 100 điểm (không đủ điều kiện mức 2). | **PASS** |
@@ -45,6 +45,20 @@ Bộ test tự động `tests/test_loyalty_module.js` được thiết kế nh�
 
 ## 3. KẾT LUẬN KIỂM THỬ
 
-- **Tổng số test cases VAMOS Club:** 24/24 tests PASSED (Tỷ lệ thành công 100%).
-- **Kiểm thử hồi quy toàn hệ thống (`tests/regression_suite.js`):** 118/118 tests PASSED (Tỷ lệ thành công 100%).
-- **Kiểm thử giao diện Pug (`tests/validate_pug.js`):** 41/41 templates PASSED (Zero syntax errors).
+- **Tổng số test cases VAMOS Club Giai đoạn 1:** 24/24 tests (`tests/test_loyalty_module.js`, đã cập nhật fixture `loyalty_point_batches` cho FEFO).
+- **Kiểm thử hồi quy toàn hệ thống (`tests/regression_suite.js`):** 118/118 tests.
+- **Kiểm thử giao diện Pug (`tests/validate_pug.js`):** Passed.
+
+---
+
+## 4. KIỂM THỬ GIAI ĐOẠN 2 (CHU KỲ 12 THÁNG & HẾT HẠN 365 NGÀY)
+
+1. **Unit Tests thuần in-memory (`tests/test_loyalty_cycle_unit.js`, 0 kết nối DB):**
+   - Kiểm tra 20 kịch bản chu kỳ 12 tháng (`CYC-01` .. `CYC-20`), bao gồm mốc 29/02 năm nhuận, ranh giới `<= cycle_end_at` vs `>`, mid-cycle upgrade guard, Soft Landing tối đa 1 bậc, và multi-cycle catch-up.
+   - Kiểm tra hết hạn 365 ngày & giải thuật trừ điểm FEFO (`EXP-01` .. `EXP-04`).
+   - Kiểm tra Backfill Replay fail-closed (`BF-01` .. `BF-05`) và transaction rollback/idempotency với SQL mock (`SVC-01` .. `SVC-03`, `WRK-01`).
+   - **Trạng thái:** Đã chạy trực tiếp thành công 33/33 assertions (0 kết nối SQL Server).
+
+2. **SQL Server Integration Tests (`tests/test_loyalty_cycle_integration.js`, CI `vamos_store_test_db`):**
+   - Kiểm tra Migration `006`, các CHECK constraint, tạo lô 365 ngày khi tích điểm, FEFO khi `redeemVoucher`, worker `sp_getapplock` đa tiến trình, partial-failure retry, multi-cycle Soft Landing, race condition `redeemVoucher` vs `processLoyaltyCycle`, và fail-closed backfill.
+   - **Trạng thái:** Đã viết và kiểm tra cú pháp (`node --check`), **CHƯA thực thi** trên SQL Server cục bộ (chỉ chạy trong môi trường test DB cô lập trên CI).

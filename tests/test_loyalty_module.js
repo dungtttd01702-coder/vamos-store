@@ -124,24 +124,59 @@ async function runLoyaltyTests() {
         txReq.input('balAfter', sql.Int, targetPoints);
         txReq.input('type', sql.VarChar(50), 'ADMIN_ADJUSTMENT');
         txReq.input('desc', sql.NVarChar(255), reason);
-        await txReq.query(`
+        const ptInsert = await txReq.query(`
           INSERT INTO point_transactions (user_id, amount, balance_after, transaction_type, description)
+          OUTPUT INSERTED.id
           VALUES (@uid, @amount, @balAfter, @type, @desc)
         `);
+        const pointTxId = ptInsert.recordset[0].id;
 
-        // Update wallet
+        if (delta > 0) {
+          const batchReq = new sql.Request(tx);
+          batchReq.input('uid', sql.Int, userId);
+          batchReq.input('ptId', sql.Int, pointTxId);
+          batchReq.input('pts', sql.Int, delta);
+          await batchReq.query(`
+            INSERT INTO loyalty_point_batches (user_id, transaction_id, initial_points, remaining_points, expires_at, status)
+            VALUES (@uid, @ptId, @pts, @pts, DATEADD(day, 365, GETDATE()), 'ACTIVE')
+          `);
+        } else {
+          let toDeduct = -delta;
+          const activeBatchesRes = await new sql.Request(tx)
+            .input('uid', sql.Int, userId)
+            .query(`
+              SELECT id, remaining_points
+              FROM loyalty_point_batches WITH (UPDLOCK, ROWLOCK)
+              WHERE user_id = @uid AND status = 'ACTIVE' AND remaining_points > 0
+              ORDER BY expires_at ASC, id ASC
+            `);
+          for (const batch of activeBatchesRes.recordset) {
+            if (toDeduct <= 0) break;
+            const take = Math.min(toDeduct, batch.remaining_points);
+            const rem = batch.remaining_points - take;
+            toDeduct -= take;
+            await new sql.Request(tx)
+              .input('bid', sql.Int, batch.id)
+              .input('rem', sql.Int, rem)
+              .input('st', sql.NVarChar(20), rem === 0 ? 'EXHAUSTED' : 'ACTIVE')
+              .query(`
+                UPDATE loyalty_point_batches
+                SET remaining_points = @rem, status = @st
+                WHERE id = @bid
+              `);
+          }
+        }
+
+        // Update wallet balance only (ADMIN_ADJUSTMENT must not activate cycle or elevate tier)
         const updReq = new sql.Request(tx);
         updReq.input('uid', sql.Int, userId);
         updReq.input('target', sql.Int, targetPoints);
         const newLifetime = delta > 0 ? currentLifetime + delta : currentLifetime;
-        const newTier = loyaltyService.calculateTier(newLifetime);
         updReq.input('newLifetime', sql.Int, newLifetime);
-        updReq.input('newTier', sql.NVarChar(20), newTier);
         await updReq.query(`
           UPDATE user_points_wallets
           SET available_points = @target,
               lifetime_earned_points = @newLifetime,
-              tier_code = @newTier,
               updated_at = GETDATE()
           WHERE user_id = @uid
         `);
@@ -865,10 +900,11 @@ async function runLoyaltyTests() {
         }
       }
 
-      // 7. point_transactions & user_points_wallets
+      // 7. loyalty_point_batches, point_transactions & user_points_wallets
       if (trackedFixtures.userIds.length > 0) {
         const uIds = trackedFixtures.userIds.filter(Boolean);
         if (uIds.length) {
+          await query(`DELETE FROM loyalty_point_batches WHERE user_id IN (${uIds.join(',')})`);
           await query(`DELETE FROM point_transactions WHERE user_id IN (${uIds.join(',')})`);
           await query(`DELETE FROM user_points_wallets WHERE user_id IN (${uIds.join(',')})`);
         }

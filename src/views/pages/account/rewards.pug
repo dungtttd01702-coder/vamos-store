@@ -1,6 +1,8 @@
 extends ../../layouts/main
 
 block content
+  - const rawWalletPoints = Number(wallet && wallet.available_points ? wallet.available_points : 0);
+  - const displayUsablePoints = (wallet && wallet.usable_points !== undefined && wallet.usable_points !== null) ? Number(wallet.usable_points) : rawWalletPoints;
   //- ── BREADCRUMB NAVIGATION ──
   section.w-full.bg-slate-50.border-b.border-slate-200
     .max-w-7xl.mx-auto.px-4.py-3.flex.items-center.justify-between.text-xs(class="lg:px-16")
@@ -12,7 +14,7 @@ block content
         span.text-slate-900.font-bold VAMOS Club &amp; Đổi Voucher
       .hidden.items-center.gap-2.text-emerald-700.bg-emerald-50.px-3.py-1.rounded-full.font-medium(class="sm:flex")
         span ✨
-        span Tích điểm không giới hạn • Đổi voucher tức thì
+        span Điểm thưởng có hạn 365 ngày • Chu kỳ xét hạng 12 tháng
 
   //- ── MAIN ACCOUNT CONTAINER ──
   main.max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-16")
@@ -49,7 +51,7 @@ block content
               .flex.items-center.gap-3
                 span 🎁
                 span VAMOS Club (Điểm &amp; Voucher)
-              span.text-xs.bg-red-100.text-vamos-red.px-2.py-1.rounded-full.font-bold= (wallet ? wallet.available_points.toLocaleString('vi-VN') : 0) + ' đ'
+              span.text-xs.bg-red-100.text-vamos-red.px-2.py-1.rounded-full.font-bold= displayUsablePoints.toLocaleString('vi-VN') + ' đ'
             a.flex.items-center.justify-between.px-3.py-2.rounded-lg.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-vamos-red" href="/account/orders")
               .flex.items-center.gap-3
                 span 📦
@@ -84,10 +86,21 @@ block content
                   span.text-xs.font-black.tracking-widest.text-red-500.uppercase(style="font-family:'Space Grotesk',sans-serif") VAMOS CLUB LOYALTY
                   span.text-xs.bg-white.bg-opacity-20.text-white.px-2.py-1.rounded-full.font-bold= wallet.tierIcon + ' ' + wallet.tierName
                 h1.text-3xl.font-black.text-white(style="font-family:'Space Grotesk',sans-serif")
-                  = wallet.available_points.toLocaleString('vi-VN')
-                  span.text-base.font-medium.text-slate-300.ml-2 ĐIỂM KHẢ DỤNG
+                  = displayUsablePoints.toLocaleString('vi-VN')
+                  span.text-base.font-medium.text-slate-300.ml-2 ĐIỂM CÒN HẠN SỬ DỤNG
+                if rawWalletPoints > displayUsablePoints
+                  p.text-xs.text-amber-300.mt-1
+                    = `Số dư sổ ví: ${rawWalletPoints.toLocaleString('vi-VN')} điểm (có ${(rawWalletPoints - displayUsablePoints).toLocaleString('vi-VN')} điểm đã hết hạn chờ worker đối soát)`
                 p.text-xs.text-slate-400.mt-1
-                  = `Tổng điểm trọn đời đã tích lũy: ${wallet.lifetime_earned_points.toLocaleString('vi-VN')} điểm • Đã đổi: ${wallet.lifetime_redeemed_points.toLocaleString('vi-VN')} điểm`
+                  = `Điểm xét hạng chu kỳ: ${Number(wallet.qualifying_points_cycle || 0).toLocaleString('vi-VN')} điểm • Trọn đời đã tích lũy: ${wallet.lifetime_earned_points.toLocaleString('vi-VN')} • Đã đổi: ${wallet.lifetime_redeemed_points.toLocaleString('vi-VN')}`
+                if wallet.cycle_end_at
+                  p.text-xs.text-slate-300.mt-1
+                    = `Chu kỳ ${wallet.cycle_number || 1}: đến ngày ${new Date(wallet.cycle_end_at).toLocaleDateString('vi-VN')}`
+                else
+                  p.text-xs.text-slate-400.mt-1 Chu kỳ xét hạng 12 tháng sẽ kích hoạt từ giao dịch tích điểm hợp lệ đầu tiên
+                if wallet.nextExpiringBatch
+                  p.text-xs.text-amber-300.mt-1
+                    = `Lô điểm sắp hết hạn: ${Number(wallet.nextExpiringBatch.remaining_points || 0).toLocaleString('vi-VN')} điểm vào ngày ${new Date(wallet.nextExpiringBatch.expires_at).toLocaleDateString('vi-VN')}`
 
               .flex.items-center.gap-3
                 a.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-xl.shadow-lg.transition-all(class="hover:bg-red-700 hover:shadow-red-600/30" href="#rewards-store")
@@ -177,9 +190,9 @@ block content
                   if !rule.is_active
                     button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-200.text-slate-500.cursor-not-allowed(disabled)
                       | 🔒 SẮP MỞ ĐỔI QUÀ
-                  else if wallet.available_points < rule.points_required
+                  else if displayUsablePoints < rule.points_required
                     button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-100.text-slate-400.cursor-not-allowed(disabled)
-                      = `Thiếu ${(rule.points_required - wallet.available_points).toLocaleString('vi-VN')} điểm`
+                      = `Thiếu ${(rule.points_required - displayUsablePoints).toLocaleString('vi-VN')} điểm còn hạn`
                   else
                     form(action="/account/rewards/redeem" method="POST" onsubmit="return confirmRedemption(this, '" + rule.title + "', " + rule.points_required + ")")
                       input(type="hidden" name="_csrf" value=csrfToken)
@@ -262,6 +275,8 @@ block content
                             span.px-2.py-1.rounded-full.bg-emerald-100.text-emerald-700.font-bold Mua sắm (3%)
                           else if tx.transaction_type === 'VOUCHER_REDEMPTION'
                             span.px-2.py-1.rounded-full.bg-amber-100.text-amber-800.font-bold Đổi Voucher
+                          else if tx.transaction_type === 'POINT_EXPIRATION'
+                            span.px-2.py-1.rounded-full.bg-slate-200.text-slate-700.font-bold Hết hạn điểm
                           else
                             span.px-2.py-1.rounded-full.bg-slate-100.text-slate-600.font-bold= tx.transaction_type
                         td.py-3.px-4.text-slate-700= tx.description

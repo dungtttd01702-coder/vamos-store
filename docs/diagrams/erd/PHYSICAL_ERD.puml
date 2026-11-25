@@ -316,6 +316,11 @@ package "Phân nhóm 7: Khách hàng thân thiết VAMOS Club" #FEF2F2 {
     lifetime_earned_points : INT [CK >= 0, DEFAULT 0]
     lifetime_redeemed_points : INT [CK >= 0, DEFAULT 0]
     tier_code : NVARCHAR(20) [CK: MEMBER/SILVER/GOLD/VIP, DEFAULT 'MEMBER']
+    cycle_anchor_at : DATETIME2 [NULL]
+    cycle_number : INT [CK >= 0, DEFAULT 0]
+    cycle_start_at : DATETIME2 [NULL]
+    cycle_end_at : DATETIME2 [NULL]
+    qualifying_points_cycle : INT [CK >= 0, DEFAULT 0]
     created_at : DATETIME2
     updated_at : DATETIME2
   }
@@ -324,7 +329,7 @@ package "Phân nhóm 7: Khách hàng thân thiết VAMOS Club" #FEF2F2 {
     * **id** : INT [PK, IDENTITY]
     --
     * user_id : INT [FK -> users.id]
-    transaction_type : NVARCHAR(30) [CK: REVIEW_REWARD/ORDER_PURCHASE/VOUCHER_REDEMPTION/REWARD_REVERSAL/ADMIN_ADJUSTMENT]
+    transaction_type : NVARCHAR(30) [CK: REVIEW_REWARD/ORDER_PURCHASE/VOUCHER_REDEMPTION/REWARD_REVERSAL/ADMIN_ADJUSTMENT/POINT_EXPIRATION]
     amount : INT [CK <> 0]
     balance_after : INT [CK >= 0]
     reference_type : NVARCHAR(50)
@@ -332,6 +337,19 @@ package "Phân nhóm 7: Khách hàng thân thiết VAMOS Club" #FEF2F2 {
     description : NVARCHAR(500)
     idempotency_key : NVARCHAR(100) [Filtered UQ WHERE NOT NULL]
     created_at : DATETIME2
+  }
+
+  entity "loyalty_point_batches" as loyalty_point_batches {
+    * **id** : INT [PK, IDENTITY]
+    --
+    * user_id : INT [FK -> users.id]
+    * transaction_id : INT [FK -> point_transactions.id, UQ]
+    initial_points : INT [CK > 0]
+    remaining_points : INT [CK >= 0, <= initial_points]
+    expires_at : DATETIME2
+    status : NVARCHAR(20) [CK: ACTIVE/EXHAUSTED/EXPIRED, DEFAULT 'ACTIVE']
+    created_at : DATETIME2
+    updated_at : DATETIME2
   }
 
   entity "point_reward_rules" as point_reward_rules {
@@ -381,8 +399,11 @@ users ||--o{ order_status_histories : "ON DELETE NO ACTION"
 users ||--o{ inventory_transactions : "ON DELETE NO ACTION"
 users ||--o| user_points_wallets : "ON DELETE CASCADE"
 users ||--o{ point_transactions : "ON DELETE NO ACTION"
+users ||--o{ loyalty_point_batches : "ON DELETE NO ACTION"
 users ||--o{ reviews : "ON DELETE NO ACTION"
 users ||--o{ voucher_redemptions : "ON DELETE NO ACTION"
+
+point_transactions ||--o| loyalty_point_batches : "1:0..1 UQ tx_id (NO ACTION)"
 
 categories ||--o{ products : "ON DELETE NO ACTION"
 brands ||--o{ products : "ON DELETE SET NULL"

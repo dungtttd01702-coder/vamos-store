@@ -4,13 +4,13 @@
 > **Dự án:** VAMOS STORE — Website Thương mại điện tử Bán giày chuyên nghiệp  
 > **Hệ quản trị CSDL:** Microsoft SQL Server 2019 / 2022 (T-SQL)  
 > **Tên CSDL:** `vamos_store_db`  
-> **Tổng số bảng:** 21 bảng (20 bảng nghiệp vụ + 1 bảng hệ thống `schema_migrations`)  
+> **Tổng số bảng:** 28 bảng (21 bảng nền tảng `001`–`004` + 6 bảng VAMOS CLUB `005` + 1 bảng `loyalty_point_batches` trong `006` — lưu ý Migration `006` mới tạo trong mã nguồn, **chưa chạy DDL trên SQL Server runtime**)
 > **Phiên bản tài liệu:** v2.0 (Trích xuất và kiểm chứng 100% từ cấu trúc CSDL thực tế)  
 > **Cập nhật ngày:** 14/11/2026  
 
 ---
 
-## MỤC LỤC TỪ ĐIỂN DỮ LIỆU (21 BẢNG)
+## MỤC LỤC TỪ ĐIỂN DỮ LIỆU (28 BẢNG TỪ `001`–`006`)
 
 ### Phân nhóm 1: Người dùng & Phân quyền
 1. [`users` — Tài khoản người dùng](#1-bang-users--tai-khoan-nguoi-dung)
@@ -44,6 +44,9 @@
 
 ### Phân nhóm 6: Quản lý Hệ thống
 21. [`schema_migrations` — Bảng hệ thống quản lý di chuyển CSDL](#21-bang-schema_migrations--bang-he-thong-quan-ly-di-chuyen-csdl)
+
+### Phân nhóm 7: VAMOS CLUB — Đánh giá & Điểm thưởng (`005` & `006`)
+- Chi tiết 6 bảng `005` (`reviews`, `review_media`, `user_points_wallets`, `point_transactions`, `point_reward_rules`, `voucher_redemptions`) và phần mở rộng `006` (`cycle_anchor_at`, `cycle_number`, `cycle_start_at`, `cycle_end_at`, `qualifying_points_cycle`, bảng `loyalty_point_batches`, loại `POINT_EXPIRATION`) được tài liệu hóa đầy đủ tại [VAMOS_CLUB_DATA_DICTIONARY.md](file:///c:/Users/Admin/Desktop/d%E1%BB%B1%20%C3%A1n%20JAV/docs/loyalty/VAMOS_CLUB_DATA_DICTIONARY.md).
 
 ---
 

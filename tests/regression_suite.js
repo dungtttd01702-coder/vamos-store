@@ -1091,6 +1091,7 @@ async function runSuite() {
       await query("DELETE FROM product_variants WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
       await query("DELETE FROM products WHERE id = @id", { id: tempProdId });
       await query("DELETE FROM vouchers WHERE code IN (@vc, @q8vc)", { vc: testVoucherCode, q8vc: q8VoucherCode });
+      await query("DELETE FROM loyalty_point_batches WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM point_transactions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM reviews WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM voucher_redemptions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });

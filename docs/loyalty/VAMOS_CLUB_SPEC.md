@@ -108,8 +108,10 @@ Nhằm đảm bảo sự nhất quán tuyệt đối giữa tài liệu đặc t
   * **🥇 VAMOS Gold:** 2.500 – 4.999 điểm tích lũy trong chu kỳ.
   * **👑 VAMOS VIP:** Từ 5.000 điểm tích lũy trong chu kỳ trở lên.
 - **Quy tắc chu kỳ 12 tháng:**
-  * Chu kỳ đầu tiên bắt đầu từ thời điểm phát sinh giao dịch tích điểm hợp lệ đầu tiên (`amount > 0`). Tài khoản chưa có giao dịch tích điểm thì chu kỳ ở trạng thái chờ (`NULL`).
-  * Chu kỳ tiếp theo nối tiếp theo ngày kỷ niệm lịch (`DATEADD(year, 1, cycle_start_at)`).
+  * Chu kỳ đầu tiên bắt đầu từ thời điểm phát sinh giao dịch tích điểm hợp lệ đầu tiên (`REVIEW_REWARD` hoặc `ORDER_PURCHASE` với `amount > 0`). Tài khoản chưa có giao dịch tích điểm hợp lệ giữ `cycle_anchor_at = NULL`, `cycle_start_at = NULL`, `cycle_end_at = NULL`, `cycle_number = 0`, `qualifying_points_cycle = 0`, `tier_code = 'MEMBER'`.
+  * Mốc gốc `cycle_anchor_at` bất biến theo UTC. Chu kỳ thứ `N` ($\ge 1$) chạy từ `addYearsFromAnchor(cycle_anchor_at, N - 1)` đến `addYearsFromAnchor(cycle_anchor_at, N)` để tránh trôi ngày 29/02 năm nhuận (`2024-02-29` $\rightarrow$ `2025-02-28` $\rightarrow$ `2028-02-29`).
+  * Ranh giới giao dịch: `tx.created_at <= cycle_end_at` thuộc chu kỳ đang kết thúc; `tx.created_at > cycle_end_at` kích hoạt rollover/Soft Landing trước khi cộng vào chu kỳ mới.
+  * Mọi mốc thời gian đối chiếu theo đồng hồ chuẩn SQL Server `GETDATE()` (được `mssql`/`tedious` đọc theo UTC).
 - **Quy tắc bảo lưu & Hạ hạng Soft Landing:**
   * Khách hàng thăng hạng giữa chu kỳ có hiệu lực ngay khi đạt ngưỡng.
   * Khi hết chu kỳ 12 tháng, nếu điểm không đủ duy trì hạng hiện tại, hệ thống áp dụng **Soft Landing**: chỉ hạ tối đa 1 bậc (VIP $\rightarrow$ GOLD; GOLD $\rightarrow$ SILVER; SILVER $\rightarrow$ MEMBER; MEMBER giữ nguyên).
@@ -147,10 +149,16 @@ Nhằm đảm bảo sự nhất quán tuyệt đối giữa tài liệu đặc t
 | Kế hoạch tổng thể | [plan.md](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/plan.md#16-vamos-club--loyalty-system-review-to-earn--points-to-voucher) | ✓ Đã đồng bộ |
 | Từ điển dữ liệu CSDL | [DATA_DICTIONARY.md](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/database/DATA_DICTIONARY.md#phân-nhóm-7-khách-hàng-thân-thiết--đổi-thưởng-vamos-club-loyalty-system) | ✓ 27 bảng chuẩn hóa |
 | Sơ đồ quan hệ ERD | [PHYSICAL_ERD.puml](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/docs/diagrams/erd/PHYSICAL_ERD.puml) | ✓ Đã tích hợp 6 bảng |
-| SQL Migration | [005_vamos_club_loyalty_system.sql](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/database/migrations/005_vamos_club_loyalty_system.sql) | ✓ Đã áp dụng (27 tables) |
+| SQL Migration (005) | [005_vamos_club_loyalty_system.sql](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/database/migrations/005_vamos_club_loyalty_system.sql) | ✓ Đã áp dụng |
+| SQL Migration (006) | [006_vamos_club_expiration_and_tier_cycle.sql](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/database/migrations/006_vamos_club_expiration_and_tier_cycle.sql) | ⏳ Đã tạo file (chưa chạy trên DB runtime) |
+| Domain Engine Chu kỳ & FEFO | [loyaltyCycle.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/utils/loyaltyCycle.js) | ✓ Pure module (offline unit tested) |
+| CLI Worker Định kỳ | [processLoyaltyCycle.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/jobs/processLoyaltyCycle.js) | ⏳ Đã tạo CLI (`sp_getapplock`, chưa chạy DB thật) |
+| Backfill Replay Tool | [backfillLoyaltyHistory.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/jobs/backfillLoyaltyHistory.js) | ⏳ Fail-closed (`DRY_RUN`/`APPLY`), chưa chạy DB thật |
 | Review Service & Logic | [review.service.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/services/review.service.js) | ✓ Magic bytes & ACID |
-| Loyalty Service & Wallet | [loyalty.service.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/services/loyalty.service.js) | ✓ Pessimistic lock |
+| Loyalty Service & Wallet | [loyalty.service.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/services/loyalty.service.js) | ✓ Pessimistic lock, FEFO & chu kỳ 12 tháng |
 | Upload Middleware | [upload.middleware.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/middlewares/upload.middleware.js) | ✓ Chống file rác & Giả mạo |
-| Giao diện Đổi thưởng | [rewards.pug](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/views/pages/account/rewards.pug) | ✓ Tailwind CSS |
-| Kiểm thử Tự động | [test_loyalty_module.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/test_loyalty_module.js) | ✓ 24 test cases |
-| Kiểm thử Hồi quy | [regression_suite.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/regression_suite.js) | ✓ 118 test cases |
+| Giao diện Đổi thưởng | [rewards.pug](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/src/views/pages/account/rewards.pug) | ✓ Tailwind CSS + chu kỳ & hạn 365 ngày |
+| Unit Tests (Offline) | [test_loyalty_cycle_unit.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/test_loyalty_cycle_unit.js) | ✓ 0 kết nối DB |
+| Integration Tests (CI DB) | [test_loyalty_cycle_integration.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/test_loyalty_cycle_integration.js) | ⏳ Chờ chạy trên CI SQL Server |
+| Kiểm thử Tự động | [test_loyalty_module.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/test_loyalty_module.js) | ✓ Đã đồng bộ FEFO batch fixture |
+| Kiểm thử Hồi quy | [regression_suite.js](file:///c:/Users/Admin/Desktop/dự%20án%20JAV/tests/regression_suite.js) | ✓ End-to-end suite |

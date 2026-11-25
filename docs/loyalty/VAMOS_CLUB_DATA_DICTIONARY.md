@@ -48,7 +48,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `user_id` | `INT` | PK, FK | NOT NULL, REFERENCES `users(id)` ON DELETE CASCADE | Mã tài khoản người dùng, đồng thời là khóa chính 1-1 của ví điểm. |
 | `available_points` | `INT` | | NOT NULL, DEFAULT 0, CHECK (available_points >= 0) | Số dư điểm thưởng khả dụng để đổi voucher. Không bao giờ âm. |
-| `lifetime_earned_points` | `INT` | | NOT NULL, DEFAULT 0, CHECK (lifetime_earned_points >= 0) | Tổng điểm tích lũy trọn đời từ mọi nguồn (dùng để tính cấp độ VIP). |
+| `lifetime_earned_points` | `INT` | | NOT NULL, DEFAULT 0, CHECK (lifetime_earned_points >= 0) | Tổng điểm tích lũy trọn đời từ mọi nguồn (dùng đối soát thống kê; từ Stage 2 hạng thành viên tính theo `qualifying_points_cycle` ở Mục 7). |
 | `lifetime_redeemed_points`| `INT` | | NOT NULL, DEFAULT 0, CHECK (lifetime_redeemed_points >= 0) | Tổng số điểm đã tiêu dùng để đổi voucher hoặc quà tặng. |
 | `tier_code` | `NVARCHAR(20)` | | NOT NULL, DEFAULT 'MEMBER', CHECK (IN ('MEMBER', 'SILVER', 'GOLD', 'VIP')) | Hạng thành viên hiện tại của khách hàng. |
 | `created_at` | `DATETIME2` | | NOT NULL, DEFAULT GETDATE() | Thời điểm tạo ví điểm thành viên. |
@@ -62,7 +62,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `INT IDENTITY(1,1)` | PK | NOT NULL | Khóa chính tự tăng định danh bút toán sổ cái. |
 | `user_id` | `INT` | FK | NOT NULL, REFERENCES `users(id)` | Mã tài khoản khách hàng thực hiện giao dịch. |
-| `transaction_type` | `NVARCHAR(30)` | | NOT NULL, CHECK (IN ('REVIEW_REWARD', 'ORDER_PURCHASE', 'VOUCHER_REDEMPTION', 'REWARD_REVERSAL', 'ADMIN_ADJUSTMENT')) | Loại giao dịch biến động điểm. |
+| `transaction_type` | `NVARCHAR(30)` | | NOT NULL, CHECK (IN ('REVIEW_REWARD', 'ORDER_PURCHASE', 'VOUCHER_REDEMPTION', 'REWARD_REVERSAL', 'ADMIN_ADJUSTMENT', 'POINT_EXPIRATION')) | Loại giao dịch biến động điểm (`POINT_EXPIRATION` bổ sung trong Migration `006`, xem Mục 7.3). |
 | `amount` | `INT` | | NOT NULL, CHECK (amount <> 0) | Số điểm biến động (+ là cộng, - là trừ). Không được bằng 0. |
 | `balance_after` | `INT` | | NOT NULL, CHECK (balance_after >= 0) | Số dư khả dụng của ví điểm ngay sau khi áp dụng giao dịch này. |
 | `reference_type` | `NVARCHAR(50)` | | NULL | Loại đối tượng liên quan (`REVIEW`, `ORDER`, `VOUCHER_REDEMPTION`). |
@@ -120,38 +120,43 @@
 
 ---
 
-## 7. MÔ HÌNH DỰ KIẾN CHO MIGRATION 006 [THIẾT KẾ ĐỀ XUẤT - CHƯA TRIỂN KHAI]
+## 7. MÔ HÌNH MIGRATION 006 (`006_vamos_club_expiration_and_tier_cycle.sql`)
 
-> [!WARNING]
-> **TRẠNG THÁI: [THIẾT KẾ ĐỀ XUẤT - CHƯA ÁP DỤNG / NOT APPLIED]**  
-> Phần này mô tả thiết kế kỹ thuật dự kiến nhằm phục vụ 3 chính sách đã chốt (Chu kỳ 12 tháng, Điểm hết hạn 365 ngày, Soft Landing). Chưa tạo file migration và chưa chạy DDL vào cơ sở dữ liệu.
+> [!IMPORTANT]
+> **TRẠNG THÁI THỰC TẾ:** Tệp `database/migrations/006_vamos_club_expiration_and_tier_cycle.sql` **đã được tạo trong mã nguồn** và đồng bộ với tầng service/CLI, nhưng **CHƯA ĐƯỢC CHẠY DDL** trên SQL Server cục bộ hoặc production (chờ kiểm thử trên CI và phê duyệt vận hành riêng).
 
-### 7.1. Cột Dự Kiến Bổ Sung Cho Bảng `user_points_wallets`
-| Tên Cột | Kiểu Dữ Liệu | Cho Phép NULL | Mặc Định | Ý Nghĩa Nghiệp Vụ |
+### 7.1. Các Cột Bổ Sung Cho Bảng `user_points_wallets`
+| Tên Cột | Kiểu Dữ Liệu | Cho Phép NULL | Mặc Định | Ràng Buộc & Ý Nghĩa Nghiệp Vụ |
 | :--- | :--- | :---: | :--- | :--- |
-| `cycle_start_at` | `DATETIME2` | YES | `NULL` | Thời điểm bắt đầu chu kỳ 12 tháng (kích hoạt tại giao dịch tích điểm hợp lệ đầu tiên). |
-| `cycle_end_at` | `DATETIME2` | YES | `NULL` | Thời điểm kết thúc chu kỳ (`DATEADD(year, 1, cycle_start_at)`). |
-| `qualifying_points_cycle` | `INT` | NO | `0` | Tổng điểm xét hạng trong chu kỳ 12 tháng hiện tại. Reset về 0 khi sang chu kỳ mới. |
+| `cycle_anchor_at` | `DATETIME2` | YES | `NULL` | Mốc gốc bất biến theo giao dịch tích điểm hợp lệ đầu tiên (`REVIEW_REWARD` hoặc `ORDER_PURCHASE` có `amount > 0`). |
+| `cycle_number` | `INT` | NO | `0` (`df_wallets_cycle_number`) | Số thứ tự chu kỳ hiện tại (`CHECK (cycle_number >= 0)`). `0` khi tài khoản chưa kích hoạt chu kỳ. |
+| `cycle_start_at` | `DATETIME2` | YES | `NULL` | Thời điểm bắt đầu chu kỳ hiện tại (`addYearsFromAnchor(cycle_anchor_at, cycle_number - 1)`). |
+| `cycle_end_at` | `DATETIME2` | YES | `NULL` | Thời điểm kết thúc chu kỳ hiện tại (`addYearsFromAnchor(cycle_anchor_at, cycle_number)`). |
+| `qualifying_points_cycle` | `INT` | NO | `0` (`df_wallets_qualifying_points`) | Điểm xét hạng trong chu kỳ hiện tại (`CHECK (qualifying_points_cycle >= 0)`). Reset về `0` khi sang chu kỳ mới; không giảm khi đổi voucher hoặc hết hạn điểm. |
 
-### 7.2. Bảng Mới Dự Kiến: `loyalty_point_batches` (Quản Lý Lô Điểm & Hạn 365 Ngày)
+- **Ràng buộc toàn vẹn chu kỳ (`chk_wallets_cycle_consistency`):** `(cycle_number = 0 AND cycle_anchor_at IS NULL AND cycle_start_at IS NULL AND cycle_end_at IS NULL AND qualifying_points_cycle = 0) OR (cycle_number >= 1 AND cycle_anchor_at IS NOT NULL AND cycle_start_at IS NOT NULL AND cycle_end_at IS NOT NULL AND cycle_end_at > cycle_start_at)`.
+- **Chỉ mục quét chu kỳ đến hạn (`ix_wallets_cycle_due`):** `NONCLUSTERED INDEX` trên `(cycle_end_at ASC) INCLUDE (tier_code, cycle_anchor_at, cycle_number, cycle_start_at, qualifying_points_cycle) WHERE cycle_end_at IS NOT NULL`.
+
+### 7.2. Bảng Mới: `loyalty_point_batches` (Quản Lý Lô Điểm & Hạn 365 Ngày)
 - **Tên bảng vật lý:** `loyalty_point_batches`
-- **Mục đích:** Theo dõi thời hạn 365 ngày của từng đợt tích điểm và hỗ trợ giải thuật trừ điểm FEFO mà không phá vỡ tính bất biến của sổ cái `point_transactions`.
+- **Mục đích:** Theo dõi thời hạn 365 ngày của từng giao dịch tích điểm và hỗ trợ khấu trừ FEFO (`expires_at ASC, id ASC`) mà không phá vỡ tính bất biến của sổ cái `point_transactions`.
 
 | Tên Cột | Kiểu Dữ Liệu | Khóa | Ràng Buộc (Constraints) | Ý Nghĩa Nghiệp Vụ |
 | :--- | :--- | :---: | :--- | :--- |
 | `id` | `INT IDENTITY(1,1)` | PK | NOT NULL | Khóa chính tự tăng của lô điểm |
-| `user_id` | `INT` | FK | NOT NULL, REFERENCES `users(id)` | Khách hàng sở hữu lô điểm |
-| `transaction_id` | `INT` | FK | NOT NULL, REFERENCES `point_transactions(id)` | Giao dịch tích điểm gốc sinh ra lô này |
-| `initial_points` | `INT` | | NOT NULL, CHECK (initial_points > 0) | Số điểm ban đầu của lô điểm |
-| `remaining_points` | `INT` | | NOT NULL, CHECK (remaining_points >= 0 AND remaining_points <= initial_points) | Số điểm khả dụng còn lại của lô |
-| `expires_at` | `DATETIME2` | | NOT NULL | Thời điểm hết hạn sau 365 ngày (`DATEADD(day, 365, created_at)`) |
-| `status` | `NVARCHAR(20)` | | NOT NULL, DEFAULT 'ACTIVE', CHECK (IN ('ACTIVE', 'EXHAUSTED', 'EXPIRED')) | Trạng thái lô điểm |
-| `created_at` | `DATETIME2` | | NOT NULL, DEFAULT GETDATE() | Thời điểm tạo lô |
-| `updated_at` | `DATETIME2` | | NOT NULL, DEFAULT GETDATE() | Thời điểm cập nhật cuối cùng |
+| `user_id` | `INT` | FK | NOT NULL, `fk_point_batches_user` (`users.id`) | Khách hàng sở hữu lô điểm |
+| `transaction_id` | `INT` | FK / UQ | NOT NULL, `fk_point_batches_tx` (`point_transactions.id`), `uq_point_batches_transaction` | Giao dịch tích điểm gốc sinh ra lô này (quan hệ 1-1 duy nhất) |
+| `initial_points` | `INT` | | NOT NULL, `chk_point_batches_initial` (`initial_points > 0`) | Số điểm ban đầu của lô điểm |
+| `remaining_points` | `INT` | | NOT NULL, `chk_point_batches_remaining` (`remaining_points >= 0 AND remaining_points <= initial_points`) | Số điểm khả dụng còn lại của lô |
+| `expires_at` | `DATETIME2` | | NOT NULL | Thời điểm hết hạn sau 365 ngày (`addDaysUTC(created_at, 365)`) |
+| `status` | `NVARCHAR(20)` | | NOT NULL, `df_point_batches_status` (`'ACTIVE'`), `chk_point_batches_status` (`ACTIVE`/`EXHAUSTED`/`EXPIRED`), `chk_point_batches_status_remaining` | Trạng thái lô điểm đồng bộ tuyệt đối với `remaining_points` |
+| `created_at` | `DATETIME2` | | NOT NULL, `df_point_batches_created` (`GETDATE()`) | Thời điểm tạo lô |
+| `updated_at` | `DATETIME2` | | NOT NULL, `df_point_batches_updated` (`GETDATE()`) | Thời điểm cập nhật cuối cùng |
 
-- **Chỉ mục tối ưu FEFO:**
-  `CREATE NONCLUSTERED INDEX ix_batches_fefo ON loyalty_point_batches (user_id, status, expires_at ASC) INCLUDE (remaining_points) WHERE status = 'ACTIVE';`
+- **Chỉ mục tối ưu FEFO & Quét Hết Hạn:**
+  * `ix_point_batches_fefo`: `(user_id, expires_at ASC, id ASC) INCLUDE (remaining_points) WHERE status = 'ACTIVE'`
+  * `ix_point_batches_exp_due`: `(expires_at ASC, user_id, id) INCLUDE (remaining_points) WHERE status = 'ACTIVE'`
 
 ### 7.3. Mở Rộng Ràng Buộc `point_transactions.transaction_type`
-- Bổ sung loại giao dịch: `'POINT_EXPIRATION'` (ghi nhận khi một lô điểm đến hạn 365 ngày bị thu hồi).
+- Cập nhật `chk_point_tx_type` để bổ sung loại giao dịch `'POINT_EXPIRATION'` (ghi âm khi lô điểm hết hạn 365 ngày với `idempotency_key = 'EXP_BATCH_{batchId}'`, `reference_type = 'POINT_BATCH'`, `reference_id = '{batchId}'`).
 
