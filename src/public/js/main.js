@@ -1353,7 +1353,15 @@ function initWishlistEngine() {
       if (!raw) return;
       const legacyItems = JSON.parse(raw);
       if (Array.isArray(legacyItems) && legacyItems.length > 0) {
-        const productIds = legacyItems.map(i => i.id).filter(id => id && !isNaN(id));
+        const productIds = legacyItems
+          .map((item) => {
+            const rawId = item && item.id;
+            if (typeof rawId !== 'number' && (typeof rawId !== 'string' || rawId.trim() === '')) {
+              return -1;
+            }
+            return Number(rawId);
+          })
+          .filter((id) => Number.isSafeInteger(id) && id > 0);
         if (productIds.length > 0) {
           const res = await fetch('/api/wishlist/migrate', {
             method: 'POST',
@@ -1368,7 +1376,6 @@ function initWishlistEngine() {
           if (data.success) {
             // Remove legacy localStorage key only after verified successful migration
             localStorage.removeItem(legacyKey);
-            await fetchServerWishlist();
             if (data.migratedCount > 0 && typeof window.showToast === 'function') {
               window.showToast(`✨ Đã đồng bộ ${data.migratedCount} sản phẩm yêu thích vào tài khoản!`, 'heart');
             }
@@ -1710,14 +1717,18 @@ function initWishlistEngine() {
       if (removeBtn) {
         e.preventDefault();
         const pid = removeBtn.dataset.id;
-        removeWishlistItem(pid);
+        removeWishlistItem(pid).catch((err) => {
+          console.error('[Wishlist Remove Fallback Error]:', err);
+        });
         return;
       }
 
       // 4. Clear all button inside Wishlist Modal
       if (e.target.closest('#btn-clear-all-wishlist')) {
         e.preventDefault();
-        clearAllWishlist();
+        clearAllWishlist().catch((err) => {
+          console.error('[Wishlist Clear Fallback Error]:', err);
+        });
         return;
       }
 
@@ -1741,9 +1752,11 @@ function initWishlistEngine() {
 
   // Initial Data Load & UI Sync
   if (window.IS_AUTHENTICATED && window.IS_CUSTOMER) {
-    checkAndMigrateLegacyCustomerItems().then(() => {
-      fetchServerWishlist();
-    });
+    checkAndMigrateLegacyCustomerItems()
+      .then(() => fetchServerWishlist())
+      .catch((err) => {
+        console.warn('[Wishlist] Initial sync failed:', err);
+      });
   } else {
     window.syncWishlistUI();
   }

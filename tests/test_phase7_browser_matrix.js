@@ -24,6 +24,7 @@ const assert = require('assert');
 const http = require('http');
 const { chromium } = require('@playwright/test');
 const app = require('../src/app');
+const { closePool } = require('../src/config/database');
 
 async function runBrowserMatrix() {
   console.log('--- STARTING PHASE 7 BROWSER E2E MATRIX VERIFICATION ---');
@@ -36,12 +37,13 @@ async function runBrowserMatrix() {
   const baseUrl = `http://127.0.0.1:${port}`;
   console.log(`[E2E Server] Running at ${baseUrl}`);
 
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    viewport: { width: 1440, height: 900 }
-  });
+  let browser = null;
 
   try {
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 900 }
+    });
     const page = await context.newPage();
 
     // ──────────────────────────────────────────────
@@ -185,19 +187,26 @@ async function runBrowserMatrix() {
     console.error('❌ E2E Browser Test failed with error:', err);
     failed++;
   } finally {
-    await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (browserErr) {
+        console.error('[Phase 7] Browser close warning:', browserErr.message);
+      }
+    }
+    server.closeAllConnections?.();
     await new Promise(resolve => server.close(resolve));
+    await closePool();
   }
 
   console.log(`\n========================================`);
   console.log(`PHASE 7 E2E SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log(`========================================`);
 
-  if (failed > 0) {
-    process.exit(1);
-  } else {
-    process.exit(0);
-  }
+  process.exitCode = failed > 0 ? 1 : 0;
 }
 
-runBrowserMatrix();
+runBrowserMatrix().catch((err) => {
+  console.error('❌ Fatal Phase 7 error:', err);
+  process.exitCode = 1;
+});

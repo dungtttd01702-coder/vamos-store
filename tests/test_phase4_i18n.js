@@ -16,40 +16,9 @@ require('./test_bootstrap');
 const assert = require('assert');
 const http = require('http');
 const app = require('../src/app');
+const { closePool } = require('../src/config/database');
 const { i18nMiddleware, SUPPORTED_LOCALES, DEFAULT_LOCALE } = require('../src/middlewares/i18n.middleware');
-
-function makeRequest(server, path, options = {}) {
-  return new Promise((resolve, reject) => {
-    const address = server.address();
-    const port = address.port;
-    const reqOptions = {
-      hostname: '127.0.0.1',
-      port,
-      path,
-      method: options.method || 'GET',
-      headers: options.headers || {},
-    };
-
-    const req = http.request(reqOptions, (res) => {
-      let body = '';
-      res.on('data', chunk => body += chunk);
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body,
-        });
-      });
-    });
-
-    req.on('error', reject);
-
-    if (options.body) {
-      req.write(options.body);
-    }
-    req.end();
-  });
-}
+const { makeRequest } = require('./helpers/http-request');
 
 async function runTests() {
   console.log('--- STARTING PHASE 4 i18n VERIFICATION ---');
@@ -157,14 +126,19 @@ async function runTests() {
     console.error('❌ Test failed with error:', err);
     failed++;
   } finally {
+    server.closeAllConnections?.();
     await new Promise(resolve => server.close(resolve));
+    await closePool();
   }
 
   console.log(`\n========================================`);
   console.log(`PHASE 4 TEST SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log(`========================================`);
 
-  process.exit(failed > 0 ? 1 : 0);
+  process.exitCode = failed > 0 ? 1 : 0;
 }
 
-runTests();
+runTests().catch((err) => {
+  console.error('❌ Fatal Phase 4 error:', err);
+  process.exitCode = 1;
+});

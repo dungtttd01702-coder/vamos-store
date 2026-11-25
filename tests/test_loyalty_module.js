@@ -685,50 +685,52 @@ async function runLoyaltyTests() {
     // -------------------------------------------------------------
     console.log('\n--- 9. UPLOAD CLEANUP & VOUCHER SECURITY AUDIT ---');
 
-    await asyncTest('CLEANUP-01: Validation failure cleanly deletes uploaded temp files from disk', async () => {
-      const tempFilename = `test_temp_val_${Date.now()}.jpg`;
+    async function assertRejectedReviewCleansTempFile(tempPrefix, buildReviewInput, expectedError, cleanupAssertMsg) {
+      const tempFilename = `${tempPrefix}_${Date.now()}.jpg`;
       const tempPath = path.join(uploadDir, tempFilename);
       fs.writeFileSync(tempPath, Buffer.from([0xFF, 0xD8, 0xFF, 0xE0])); // Valid JPEG header
       assert.ok(fs.existsSync(tempPath), 'Temp file must exist before test');
 
       await assert.rejects(
         async () => {
-          await reviewService.createReview({
-            userId: user1.id,
-            orderId: testOrder.id,
-            productId: testVariant.product_id,
-            rating: 99, // Invalid rating triggers validation failure
-            comment: 'Test cleanup',
-            mediaFiles: [{ filename: tempFilename, path: tempPath, size: 4 }]
-          });
+          await reviewService.createReview(buildReviewInput(tempFilename, tempPath));
         },
-        /Đánh giá số sao bắt buộc từ 1 đến 5 sao/
+        expectedError
       );
 
-      assert.strictEqual(fs.existsSync(tempPath), false, 'Temp file must be deleted upon validation error');
+      assert.strictEqual(fs.existsSync(tempPath), false, cleanupAssertMsg);
+    }
+
+    await asyncTest('CLEANUP-01: Validation failure cleanly deletes uploaded temp files from disk', async () => {
+      await assertRejectedReviewCleansTempFile(
+        'test_temp_val',
+        (tempFilename, tempPath) => ({
+          userId: user1.id,
+          orderId: testOrder.id,
+          productId: testVariant.product_id,
+          rating: 99, // Invalid rating triggers validation failure
+          comment: 'Test cleanup',
+          mediaFiles: [{ filename: tempFilename, path: tempPath, size: 4 }]
+        }),
+        /Đánh giá số sao bắt buộc từ 1 đến 5 sao/,
+        'Temp file must be deleted upon validation error'
+      );
     });
 
     await asyncTest('CLEANUP-02: Duplicate review rejection cleans up newly uploaded files', async () => {
-      const tempFilename = `test_temp_dup_${Date.now()}.jpg`;
-      const tempPath = path.join(uploadDir, tempFilename);
-      fs.writeFileSync(tempPath, Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]));
-      assert.ok(fs.existsSync(tempPath), 'Temp file must exist before test');
-
-      await assert.rejects(
-        async () => {
-          await reviewService.createReview({
-            userId: user1.id,
-            orderId: testOrder.id,
-            productId: testVariant.product_id,
-            rating: 5,
-            comment: 'Attempt duplicate review with photo',
-            mediaFiles: [{ filename: tempFilename, path: tempPath, size: 4 }]
-          });
-        },
-        /Mỗi sản phẩm trong một đơn hàng chỉ được nhận thưởng đánh giá 1 lần/
+      await assertRejectedReviewCleansTempFile(
+        'test_temp_dup',
+        (tempFilename, tempPath) => ({
+          userId: user1.id,
+          orderId: testOrder.id,
+          productId: testVariant.product_id,
+          rating: 5,
+          comment: 'Attempt duplicate review with photo',
+          mediaFiles: [{ filename: tempFilename, path: tempPath, size: 4 }]
+        }),
+        /Mỗi sản phẩm trong một đơn hàng chỉ được nhận thưởng đánh giá 1 lần/,
+        'Temp file must be deleted on duplicate review rejection'
       );
-
-      assert.strictEqual(fs.existsSync(tempPath), false, 'Temp file must be deleted on duplicate review rejection');
     });
 
     test('CLEANUP-03: Magic bytes inspection accepts authentic images and rejects executables', () => {

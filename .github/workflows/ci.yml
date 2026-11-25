@@ -59,7 +59,7 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Install Playwright Chromium browser
-        run: npx playwright install --with-deps chromium
+        run: ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Verify Pug template compilation
         run: node tests/validate_pug.js
