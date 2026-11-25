@@ -94,25 +94,25 @@ async function runLoyaltyTests() {
     try {
       const wReq = new sql.Request(tx);
       const wCheck = await wReq.input('uid', sql.Int, userId).query(`
-        SELECT id, available_points, total_points_earned
+        SELECT user_id, available_points, lifetime_earned_points
         FROM user_points_wallets WITH (UPDLOCK, ROWLOCK)
         WHERE user_id = @uid
       `);
 
       let currentPoints = 0;
-      let currentTotal = 0;
+      let currentLifetime = 0;
       if (wCheck.recordset.length === 0) {
         const createReq = new sql.Request(tx);
         const newW = await createReq.input('uid', sql.Int, userId).query(`
-          INSERT INTO user_points_wallets (user_id, available_points, total_points_earned, tier)
-          OUTPUT INSERTED.id, INSERTED.available_points, INSERTED.total_points_earned
-          VALUES (@uid, 0, 0, 'MEMBER')
+          INSERT INTO user_points_wallets (user_id, available_points, lifetime_earned_points, lifetime_redeemed_points, tier_code)
+          OUTPUT INSERTED.user_id, INSERTED.available_points, INSERTED.lifetime_earned_points
+          VALUES (@uid, 0, 0, 0, 'MEMBER')
         `);
         currentPoints = newW.recordset[0].available_points;
-        currentTotal = newW.recordset[0].total_points_earned;
+        currentLifetime = newW.recordset[0].lifetime_earned_points;
       } else {
         currentPoints = wCheck.recordset[0].available_points;
-        currentTotal = wCheck.recordset[0].total_points_earned;
+        currentLifetime = wCheck.recordset[0].lifetime_earned_points;
       }
 
       const delta = targetPoints - currentPoints;
@@ -133,12 +133,15 @@ async function runLoyaltyTests() {
         const updReq = new sql.Request(tx);
         updReq.input('uid', sql.Int, userId);
         updReq.input('target', sql.Int, targetPoints);
-        const newTotal = delta > 0 ? currentTotal + delta : currentTotal;
-        updReq.input('newTotal', sql.Int, newTotal);
+        const newLifetime = delta > 0 ? currentLifetime + delta : currentLifetime;
+        const newTier = loyaltyService.calculateTier(newLifetime);
+        updReq.input('newLifetime', sql.Int, newLifetime);
+        updReq.input('newTier', sql.NVarChar(20), newTier);
         await updReq.query(`
           UPDATE user_points_wallets
           SET available_points = @target,
-              total_points_earned = @newTotal,
+              lifetime_earned_points = @newLifetime,
+              tier_code = @newTier,
               updated_at = GETDATE()
           WHERE user_id = @uid
         `);
@@ -149,7 +152,11 @@ async function runLoyaltyTests() {
         trackedFixtures.walletUserIds.push(userId);
       }
     } catch (err) {
-      await tx.rollback();
+      try {
+        await tx.rollback();
+      } catch (rollbackErr) {
+        console.warn('[LOYALTY FIXTURE] Rollback warning:', rollbackErr.message);
+      }
       throw err;
     }
   }

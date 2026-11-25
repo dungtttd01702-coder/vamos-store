@@ -16,7 +16,7 @@
  *    - Order status update.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword } = require('./test_bootstrap');
 
 const assert = require('assert');
 const http = require('http');
@@ -160,7 +160,7 @@ async function runTests() {
 
     // 5. Admin blocked from Checkout
     console.log('[Test 5] Admin session is blocked from accessing /checkout');
-    const adminAuth = await loginUser(server, 'admin@vamos.vn', '123456');
+    const adminAuth = await loginUser(server, 'admin@vamos.vn', getTestAdminPassword());
     const resAdminCheckout = await makeRequest(server, '/checkout', {
       headers: {
         'Cookie': adminAuth.cookie,

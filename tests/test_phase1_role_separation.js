@@ -4,7 +4,7 @@
  * role-aware auth redirection, and route guards.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword, getTestCustomerCredentials } = require('./test_bootstrap');
 
 const http = require('http');
 const assert = require('assert');
@@ -87,11 +87,11 @@ async function runPhase1Tests() {
     assert.ok(adminUserRes.recordset.length > 0, 'Admin user must exist in DB');
     const adminEmail = adminUserRes.recordset[0].email;
 
-    // Login with admin credentials (admin@vamos.vn / 123456)
+    // Login with admin credentials from environment
     const adminLogin = await req('/auth/login', {
       method: 'POST',
       headers: { Cookie: initialCookie },
-      body: new URLSearchParams({ email: adminEmail, password: '123456', _csrf: csrfToken }).toString()
+      body: new URLSearchParams({ email: adminEmail, password: getTestAdminPassword(), _csrf: csrfToken }).toString()
     });
 
     const adminCookie = extractCookie(adminLogin.setCookie);
@@ -138,10 +138,11 @@ async function runPhase1Tests() {
     const custCsrf = custLoginPage.body.match(/name="_csrf" value="([^"]+)"/)[1];
     const custInitialCookie = extractCookie(custLoginPage.setCookie);
 
+    const custCreds = getTestCustomerCredentials();
     const custLogin = await req('/auth/login', {
       method: 'POST',
       headers: { Cookie: custInitialCookie },
-      body: new URLSearchParams({ email: 'trungdung@gmail.com', password: 'password123', _csrf: custCsrf }).toString()
+      body: new URLSearchParams({ email: custCreds.email, password: custCreds.password, _csrf: custCsrf }).toString()
     });
     assert.strictEqual(custLogin.status, 302, 'Customer login should redirect');
     assert.strictEqual(custLogin.location, '/', 'Customer login redirects to storefront /');

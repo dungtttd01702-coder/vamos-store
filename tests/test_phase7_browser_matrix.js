@@ -18,7 +18,7 @@
  *    - Admin dark mode toggle & language toggle.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword, getTestCustomerCredentials } = require('./test_bootstrap');
 
 const assert = require('assert');
 const http = require('http');
@@ -117,9 +117,10 @@ async function runBrowserMatrix() {
     // 2. CUSTOMER JOURNEY
     // ──────────────────────────────────────────────
     console.log('\n[E2E 2.1] Customer Login Flow');
+    const custCreds = getTestCustomerCredentials();
     await page.goto(`${baseUrl}/auth/login`);
-    await page.fill('input[name="email"]', 'trungdung@gmail.com');
-    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="email"]', custCreds.email);
+    await page.fill('input[name="password"]', custCreds.password);
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle');
 
@@ -147,7 +148,7 @@ async function runBrowserMatrix() {
     await context.clearCookies();
     await page.goto(`${baseUrl}/auth/login`);
     await page.fill('input[name="email"]', 'admin@vamos.vn');
-    await page.fill('input[name="password"]', '123456');
+    await page.fill('input[name="password"]', getTestAdminPassword());
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle');
 

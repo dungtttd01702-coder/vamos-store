@@ -5,7 +5,7 @@
  * Captures full screenshots for each viewport.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword, getTestCustomerCredentials } = require('./test_bootstrap');
 
 const fs = require('fs');
 const path = require('path');
@@ -24,14 +24,13 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390, height: 844, isMobile: true }
 ];
 
-const customerCredentials = {
-  email: 'trungdung@gmail.com',
-  password: 'password123'
-};
+const customerCredentials = getTestCustomerCredentials();
 
 const adminCredentials = {
   email: 'admin@vamos.vn',
-  password: 'password123'
+  get password() {
+    return getTestAdminPassword();
+  }
 };
 
 async function checkHorizontalOverflow(page, pageName, vpName) {
@@ -249,8 +248,8 @@ async function runResponsiveQA() {
     // Admin Login
     console.log(`  - Admin logging in...`);
     await adminPage.goto(`${baseUrl}/auth/login`, { waitUntil: 'networkidle' });
-    await adminPage.fill('input[name="email"]', 'admin@vamos.vn');
-    await adminPage.fill('input[name="password"]', '123456');
+    await adminPage.fill('input[name="email"]', adminCredentials.email);
+    await adminPage.fill('input[name="password"]', adminCredentials.password);
     await adminPage.click('button[type="submit"]');
     await adminPage.waitForLoadState('networkidle');
 

@@ -12,7 +12,7 @@
  *    - Unmeasured CTR/impressions rendered as N/A.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword } = require('./test_bootstrap');
 
 const assert = require('assert');
 const http = require('http');
@@ -65,7 +65,7 @@ async function loginAdmin(server) {
   const match = loginPage.body.match(/name="_csrf"\s+value="([^"]+)"/);
   const csrf = match ? match[1] : '';
 
-  const postBody = `_csrf=${encodeURIComponent(csrf)}&email=admin@vamos.vn&password=123456`;
+  const postBody = `_csrf=${encodeURIComponent(csrf)}&email=admin@vamos.vn&password=${encodeURIComponent(getTestAdminPassword())}`;
   const postRes = await makeRequest(server, '/auth/login', {
     method: 'POST',
     headers: {

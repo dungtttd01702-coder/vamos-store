@@ -4,7 +4,7 @@
  * Guest restrictions, Admin denial, CSRF protection, and data isolation.
  */
 
-require('./test_bootstrap');
+const { getTestAdminPassword } = require('./test_bootstrap');
 
 const http = require('http');
 const assert = require('assert');
@@ -295,7 +295,7 @@ async function runWishlistTests() {
     pass('WL-11', 'Non-existent product ID rejected with HTTP 404');
 
     // ── WL-12: Admin Access Denial ──
-    const admin = await login('admin@vamos.vn', '123456');
+    const admin = await login('admin@vamos.vn', getTestAdminPassword());
     const adminGet = await apiReq('/api/wishlist', {
       headers: { Cookie: admin.cookie },
     });
