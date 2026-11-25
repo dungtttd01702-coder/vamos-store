@@ -887,7 +887,17 @@ async function runLoyaltyTests() {
         }
       }
 
-      // 9. users (only test users created in this run)
+      // 9. inventory_transactions (created during order placement/cancellation for test users)
+      if (trackedFixtures.userIds.length > 0) {
+        const uIds = trackedFixtures.userIds
+          .map((id) => Number(id))
+          .filter((id) => Number.isInteger(id) && id > 0);
+        if (uIds.length) {
+          await query(`DELETE FROM inventory_transactions WHERE user_id IN (${uIds.join(',')})`);
+        }
+      }
+
+      // 10. users (only test users created in this run)
       if (trackedFixtures.userIds.length > 0) {
         const uIds = trackedFixtures.userIds.filter(Boolean);
         if (uIds.length) {
