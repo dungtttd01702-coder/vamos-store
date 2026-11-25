@@ -344,7 +344,7 @@ async function main() {
         /Simulated worker abort after batch 1/
       );
 
-      // Re-run cleanly: remaining due batches + multi-cycle Soft Landing complete idempotently
+      // Re-run cleanly: remaining due batches + multi-cycle Soft Landing complete idempotently at 2026-06-01
       const summary = await runLoyaltyCycleWorker({
         nowOverride: utc('2026-06-01T00:00:00Z')
       });
@@ -353,15 +353,69 @@ async function main() {
 
       const w = (await query('SELECT * FROM user_points_wallets WHERE user_id = @uid', { uid: u.id })).recordset[0];
       assert.strictEqual(w.available_points, 0);
-      assert.strictEqual(w.tier_code, 'SILVER'); // VIP -> GOLD (Cycle 1->2) -> SILVER (Cycle 2->3)
+      // Cycle 1 (2024-01-01..2025-01-01) earned 6000 pts -> kept VIP in Cycle 2; Cycle 2 earned 0 pts -> Soft Landing VIP -> GOLD (Cycle 3)
+      assert.strictEqual(w.tier_code, 'GOLD');
       assert.strictEqual(w.cycle_number, 3);
       assert.strictEqual(w.qualifying_points_cycle, 0);
+      assert.strictEqual(new Date(w.cycle_anchor_at).toISOString(), '2024-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w.cycle_start_at).toISOString(), '2026-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w.cycle_end_at).toISOString(), '2027-01-01T00:00:00.000Z');
 
       const expLogs = (await query(
         "SELECT idempotency_key, amount FROM point_transactions WHERE user_id = @uid AND transaction_type = 'POINT_EXPIRATION'",
         { uid: u.id }
       )).recordset;
       assert.strictEqual(expLogs.length, 2);
+
+      // Next-cycle follow-up at 2027-06-01: Cycle 3 ends with 0 qualifying pts -> Soft Landing GOLD -> SILVER (Cycle 4)
+      const summary2027 = await runLoyaltyCycleWorker({
+        nowOverride: utc('2027-06-01T00:00:00Z')
+      });
+      assert.strictEqual(summary2027.skippedDueToLock, false);
+      assert.ok(summary2027.walletsRolledOver >= 1);
+      assert.ok(summary2027.cyclesProcessedTotal >= 1);
+
+      const w2027 = (await query('SELECT * FROM user_points_wallets WHERE user_id = @uid', { uid: u.id })).recordset[0];
+      assert.strictEqual(w2027.tier_code, 'SILVER');
+      assert.strictEqual(w2027.cycle_number, 4);
+      assert.strictEqual(w2027.qualifying_points_cycle, 0);
+      assert.strictEqual(w2027.available_points, w.available_points);
+      assert.strictEqual(new Date(w2027.cycle_anchor_at).toISOString(), '2024-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w2027.cycle_start_at).toISOString(), '2027-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w2027.cycle_end_at).toISOString(), '2028-01-01T00:00:00.000Z');
+
+      const batches2027 = (await query(
+        'SELECT status, remaining_points FROM loyalty_point_batches WHERE user_id = @uid ORDER BY id ASC',
+        { uid: u.id }
+      )).recordset;
+      assert.strictEqual(batches2027.length, 2);
+      assert.ok(batches2027.every((b) => b.status === 'EXPIRED' && b.remaining_points === 0));
+
+      const txs2027 = (await query(
+        'SELECT transaction_type FROM point_transactions WHERE user_id = @uid ORDER BY id ASC',
+        { uid: u.id }
+      )).recordset;
+      assert.strictEqual(txs2027.length, 4);
+      assert.strictEqual(txs2027.filter((t) => t.transaction_type === 'ORDER_PURCHASE').length, 2);
+      assert.strictEqual(txs2027.filter((t) => t.transaction_type === 'POINT_EXPIRATION').length, 2);
+
+      // Re-run at identical timestamp 2027-06-01 must NOT roll over or downgrade Cycle 4 a second time
+      const summary2027Repeat = await runLoyaltyCycleWorker({
+        nowOverride: utc('2027-06-01T00:00:00Z')
+      });
+      assert.strictEqual(summary2027Repeat.skippedDueToLock, false);
+      assert.strictEqual(summary2027Repeat.expiredBatches, 0);
+      assert.strictEqual(summary2027Repeat.walletsRolledOver, 0);
+      assert.strictEqual(summary2027Repeat.cyclesProcessedTotal, 0);
+
+      const w2027Repeat = (await query('SELECT * FROM user_points_wallets WHERE user_id = @uid', { uid: u.id })).recordset[0];
+      assert.strictEqual(w2027Repeat.tier_code, 'SILVER');
+      assert.strictEqual(w2027Repeat.cycle_number, 4);
+      assert.strictEqual(w2027Repeat.qualifying_points_cycle, 0);
+      assert.strictEqual(w2027Repeat.available_points, 0);
+      assert.strictEqual(new Date(w2027Repeat.cycle_anchor_at).toISOString(), '2024-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w2027Repeat.cycle_start_at).toISOString(), '2027-01-01T00:00:00.000Z');
+      assert.strictEqual(new Date(w2027Repeat.cycle_end_at).toISOString(), '2028-01-01T00:00:00.000Z');
     });
 
     // -----------------------------------------------------------------
