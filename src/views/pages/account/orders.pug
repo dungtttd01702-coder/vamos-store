@@ -547,8 +547,9 @@ block content
       var origText = btn.innerText;
       btn.innerText = 'Đang xử lý...';
 
+      var csrfToken = window.CSRF_TOKEN || '#{csrfToken}';
       var formData = new FormData();
-      formData.append('_csrf', '#{csrfToken}');
+      formData.append('_csrf', csrfToken);
       formData.append('product_id', selectedProductId);
       formData.append('rating', currentRating);
       formData.append('comment', document.getElementById('review-comment-input').value);
@@ -562,7 +563,8 @@ block content
         method: 'POST',
         body: formData,
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
         }
       })
       .then(function(res) { return res.json(); })
