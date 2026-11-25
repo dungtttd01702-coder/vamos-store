@@ -463,6 +463,39 @@ class LoyaltyService {
         ? loyaltyCycle.toUtcDate(options.nowOverride, 'nowOverride')
         : await this.getDbNow(transaction);
 
+      const customIdempotencyKey = options.idempotencyKey
+        ? String(options.idempotencyKey).trim()
+        : null;
+
+      if (customIdempotencyKey) {
+        const dupTxReq = new sql.Request(transaction);
+        dupTxReq.input('userId', sql.Int, userId);
+        dupTxReq.input('idem', sql.NVarChar(100), customIdempotencyKey);
+        const dupTxRes = await dupTxReq.query(`
+          SELECT pt.reference_id, pt.balance_after, pt.amount,
+                 vr.id AS redemption_id, v.code AS voucher_code, v.name AS voucher_name
+          FROM point_transactions pt
+          LEFT JOIN vouchers v ON TRY_CAST(pt.reference_id AS INT) = v.id
+          LEFT JOIN voucher_redemptions vr ON vr.voucher_id = v.id AND vr.user_id = pt.user_id
+          WHERE pt.user_id = @userId AND pt.idempotency_key = @idem
+        `);
+        if (dupTxRes.recordset.length > 0) {
+          const existing = dupTxRes.recordset[0];
+          await transaction.commit();
+          return {
+            success: true,
+            idempotent: true,
+            voucherCode: existing.voucher_code,
+            voucherId: Number.parseInt(existing.reference_id, 10),
+            redemptionId: existing.redemption_id,
+            voucherName: existing.voucher_name,
+            pointsSpent: Math.abs(Number(existing.amount || 0)),
+            balanceAfter: existing.balance_after,
+            fefoDeductions: []
+          };
+        }
+      }
+
       // 1. Lock and read reward rule
       const ruleReq = new sql.Request(transaction);
       ruleReq.input('ruleId', sql.Int, ruleId);
@@ -558,11 +591,11 @@ class LoyaltyService {
         throw new Error('Hệ thống tạm thời không thể khởi tạo mã voucher độc quyền lúc này. Vui lòng thử lại sau.');
       }
 
-      // 5. Create voucher in vouchers table
+      // 5. Create voucher in vouchers table preserving rule discount_type (true free_shipping vs fixed_amount/percentage)
       const vReq = new sql.Request(transaction);
       vReq.input('code', voucherCode);
       vReq.input('name', `Voucher VAMOS Club - ${rule.title}`);
-      vReq.input('discType', rule.discount_type === 'free_shipping' ? 'fixed_amount' : rule.discount_type);
+      vReq.input('discType', rule.discount_type || 'fixed_amount');
       vReq.input('discVal', rule.discount_value);
       vReq.input('minOrder', rule.min_order_amount);
       vReq.input('maxDisc', rule.max_discount_amount);
@@ -621,7 +654,8 @@ class LoyaltyService {
       txReq.input('refType', sql.NVarChar(50), 'VOUCHER_REDEMPTION');
       txReq.input('refId', sql.NVarChar(100), String(voucherId));
       txReq.input('desc', sql.NVarChar(500), `Đổi ${rule.points_required.toLocaleString('vi-VN')} điểm lấy mã giảm giá ${voucherCode} (${rule.title})`);
-      txReq.input('idem', sql.NVarChar(100), `REDEMPTION_${userId}_${ruleId}_${Date.now()}_${randomPart}`);
+      const redemptionIdemKey = customIdempotencyKey || `REDEMPTION_${userId}_${ruleId}_${Date.now()}_${randomPart}`;
+      txReq.input('idem', sql.NVarChar(100), redemptionIdemKey);
       txReq.input('createdAt', sql.DateTime2, nowTs);
 
       await txReq.query(`

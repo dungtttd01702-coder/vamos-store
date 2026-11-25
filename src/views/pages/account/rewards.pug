@@ -234,7 +234,9 @@ block content
 
                     p.text-xs.text-slate-500
                       if v.discount_type === 'percentage'
-                        = `Giảm ${v.discount_value}% (Tối đa ${v.max_discount_amount ? v.max_discount_amount.toLocaleString('vi-VN') + ' đ' : 'không giới hạn'})`
+                        = `Giảm ${v.discount_value}% (Tối đa ${v.max_discount_amount ? Number(v.max_discount_amount).toLocaleString('vi-VN') + ' đ' : 'không giới hạn'})`
+                      else if v.discount_type === 'free_shipping'
+                        = `Giảm tối đa ${Number(v.max_discount_amount || v.discount_value).toLocaleString('vi-VN')} đ phí vận chuyển cho đơn từ ${Number(v.min_order_value).toLocaleString('vi-VN')} đ`
                       else
                         = `Giảm ${Number(v.discount_value).toLocaleString('vi-VN')} đ cho đơn từ ${Number(v.min_order_value).toLocaleString('vi-VN')} đ`
 

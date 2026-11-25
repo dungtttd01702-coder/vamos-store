@@ -193,6 +193,60 @@ class CheckoutController {
   }
 
   /**
+   * Read-only Voucher Preview at Checkout (AJAX JSON, never consumes voucher)
+   * POST /checkout/apply-voucher
+   */
+  async postApplyVoucher(req, res) {
+    try {
+      const user = req.session?.user;
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để áp dụng voucher.' });
+      }
+
+      const rawCode = req.body?.voucher_code;
+      const codeTrimmed = typeof rawCode === 'string' ? rawCode.trim() : '';
+      if (!codeTrimmed) {
+        return res.status(400).json({ success: false, message: 'Vui lòng nhập mã voucher muốn áp dụng.' });
+      }
+
+      const clientKey = `${req.ip || '127.0.0.1'}_${user.id}`;
+      if (voucherLimiter.isLimited(clientKey)) {
+        return res.status(429).json({
+          success: false,
+          message: 'Bạn đã thử áp dụng mã giảm giá không hợp lệ quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.',
+        });
+      }
+
+      const preview = await orderService.previewCheckoutVoucher({
+        userId: user.id,
+        voucherCode: codeTrimmed,
+      });
+
+      voucherLimiter.reset(clientKey);
+
+      const message =
+        preview.discountType === 'free_shipping'
+          ? `Áp dụng thành công mã "${preview.voucherCode}". Giảm ${preview.shippingDiscountAmount.toLocaleString('vi-VN')} đ phí vận chuyển.`
+          : `Áp dụng thành công mã "${preview.voucherCode}". Giảm ${preview.discountAmount.toLocaleString('vi-VN')} đ tiền hàng.`;
+
+      return res.json({
+        success: true,
+        message,
+        data: preview,
+      });
+    } catch (error) {
+      if (error.message && error.message.includes('Mã giảm giá')) {
+        const clientKey = `${req.ip || '127.0.0.1'}_${req.session?.user?.id || 'guest'}`;
+        voucherLimiter.recordAttempt(clientKey);
+      }
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Không thể áp dụng mã voucher này.',
+      });
+    }
+  }
+
+  /**
    * Order Success Confirmation Page
    */
   async getSuccess(req, res, next) {

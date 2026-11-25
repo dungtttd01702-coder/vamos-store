@@ -116,7 +116,7 @@ BEGIN
         id INT IDENTITY(1,1) PRIMARY KEY,
         code NVARCHAR(50) NOT NULL UNIQUE,
         name NVARCHAR(100) NOT NULL,
-        discount_type NVARCHAR(20) NOT NULL CHECK (discount_type IN ('percentage', 'fixed_amount')),
+        discount_type NVARCHAR(20) NOT NULL CONSTRAINT chk_vouchers_discount_type CHECK (discount_type IN ('percentage', 'fixed_amount', 'free_shipping')),
         discount_value DECIMAL(12, 0) NOT NULL CHECK (discount_value > 0),
         min_order_value DECIMAL(12, 0) NOT NULL DEFAULT 0 CHECK (min_order_value >= 0),
         max_discount_amount DECIMAL(12, 0) NULL,
@@ -319,6 +319,7 @@ BEGIN
         subtotal DECIMAL(12, 0) NOT NULL CHECK (subtotal >= 0),
         discount_amount DECIMAL(12, 0) NOT NULL DEFAULT 0 CHECK (discount_amount >= 0),
         shipping_fee DECIMAL(12, 0) NOT NULL DEFAULT 0 CHECK (shipping_fee >= 0),
+        shipping_discount_amount DECIMAL(12, 0) NOT NULL DEFAULT 0 CHECK (shipping_discount_amount >= 0),
         total_amount DECIMAL(12, 0) NOT NULL CHECK (total_amount >= 0),
         voucher_id INT NULL,
         voucher_code_snapshot NVARCHAR(50) NULL,
@@ -329,6 +330,7 @@ BEGIN
         admin_note NVARCHAR(500) NULL,
         created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
         updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        CONSTRAINT chk_orders_shipping_discount_cap CHECK (shipping_discount_amount <= shipping_fee),
         CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id),
         CONSTRAINT fk_orders_voucher FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE SET NULL
     );
