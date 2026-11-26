@@ -92,7 +92,7 @@ async function runIntegrationTests() {
         .input('pts', sql.Int, amount)
         .query(`
           INSERT INTO loyalty_point_batches (user_id, transaction_id, initial_points, remaining_points, expires_at, status)
-          VALUES (@uid, @txId, @pts, @pts, DATEADD(day, 365, GETDATE()), 'ACTIVE')
+          VALUES (@uid, @txId, @pts, @pts, DATEADD(day, 365, SYSUTCDATETIME()), 'ACTIVE')
         `);
       await new sql.Request(tx)
         .input('uid', sql.Int, userId)
@@ -394,7 +394,7 @@ async function runIntegrationTests() {
       const expRes = await query(`
         INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, max_discount_amount, start_date, end_date, usage_limit, used_count, is_active)
         OUTPUT INSERTED.id, INSERTED.code
-        VALUES (@code, N'Expired FreeShip', 'free_shipping', 40000, 200000, 40000, DATEADD(day,-20,GETDATE()), DATEADD(day,-1,GETDATE()), 1, 0, 1)
+        VALUES (@code, N'Expired FreeShip', 'free_shipping', 40000, 200000, 40000, DATEADD(day,-20,SYSUTCDATETIME()), DATEADD(day,-1,SYSUTCDATETIME()), 1, 0, 1)
       `, { code: `EXP-FS-${runId}` });
       trackedVoucherIds.push(expRes.recordset[0].id);
       await assert.rejects(
@@ -409,7 +409,7 @@ async function runIntegrationTests() {
       const legRes = await query(`
         INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, max_discount_amount, start_date, end_date, usage_limit, used_count, is_active)
         OUTPUT INSERTED.id
-        VALUES (@code, N'Voucher VAMOS Club - Voucher Miễn Phí Vận Chuyển', 'fixed_amount', 40000, 200000, 40000, DATEADD(day,-1,GETDATE()), DATEADD(day,14,GETDATE()), 1, 0, 1)
+        VALUES (@code, N'Voucher VAMOS Club - Voucher Miễn Phí Vận Chuyển', 'fixed_amount', 40000, 200000, 40000, DATEADD(day,-1,SYSUTCDATETIME()), DATEADD(day,14,SYSUTCDATETIME()), 1, 0, 1)
       `, { code: legCode });
       trackedVoucherIds.push(legRes.recordset[0].id);
 
@@ -426,7 +426,7 @@ async function runIntegrationTests() {
       const raceRes = await query(`
         INSERT INTO vouchers (code, name, discount_type, discount_value, min_order_value, max_discount_amount, start_date, end_date, usage_limit, used_count, is_active)
         OUTPUT INSERTED.id
-        VALUES (@code, N'Concurrent FreeShip', 'free_shipping', 40000, 200000, 40000, DATEADD(day,-1,GETDATE()), DATEADD(day,15,GETDATE()), 1, 0, 1)
+        VALUES (@code, N'Concurrent FreeShip', 'free_shipping', 40000, 200000, 40000, DATEADD(day,-1,SYSUTCDATETIME()), DATEADD(day,15,SYSUTCDATETIME()), 1, 0, 1)
       `, { code: raceCode });
       const raceVouchId = raceRes.recordset[0].id;
       trackedVoucherIds.push(raceVouchId);

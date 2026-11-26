@@ -17,7 +17,7 @@ block content
           .text-sm.font-bold.text-vamos-dark.mt-1= customer.phone || 'Chưa cập nhật'
         .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
           .text-xs.text-gray-400.font-semibold.uppercase Ngày Đăng Ký
-          .text-sm.font-bold.text-vamos-dark.mt-1= new Date(customer.created_at).toLocaleString('vi-VN')
+          .text-sm.font-bold.text-vamos-dark.mt-1= fmtVnDateTime(customer.created_at)
         .bg-white.p-5.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card
           .text-xs.text-gray-400.font-semibold.uppercase Trạng Thái Tài Khoản
           .mt-1
@@ -62,7 +62,7 @@ block content
                 each o in orders
                   tr
                     td.py-2.px-3.font-bold.text-vamos-dark= `#${o.order_code}`
-                    td.py-2.px-3.text-gray-400= new Date(o.created_at).toLocaleDateString('vi-VN')
+                    td.py-2.px-3.text-gray-400= fmtVnDate(o.created_at)
                     td.py-2.px-3.font-bold.text-vamos-red= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
                     td.py-2.px-3
                       span.rounded.font-bold(

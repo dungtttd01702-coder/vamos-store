@@ -94,7 +94,11 @@ async function query(queryStr, params = {}) {
   const request = currentPool.request();
   
   for (const [key, val] of Object.entries(params)) {
-    request.input(key, val);
+    if (val instanceof Date) {
+      request.input(key, sql.DateTime2, val);
+    } else {
+      request.input(key, val);
+    }
   }
   
   return request.query(queryStr);

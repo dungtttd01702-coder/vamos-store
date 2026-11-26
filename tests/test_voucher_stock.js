@@ -106,7 +106,7 @@ async function main() {
           .input('pts', sql.Int, initialPoints)
           .query(`
             INSERT INTO loyalty_point_batches (user_id, transaction_id, initial_points, remaining_points, expires_at, status)
-            VALUES (@uid, @txId, @pts, @pts, DATEADD(day, 365, GETDATE()), 'ACTIVE')
+            VALUES (@uid, @txId, @pts, @pts, DATEADD(day, 365, SYSUTCDATETIME()), 'ACTIVE')
           `);
         await new sql.Request(tx)
           .input('uid', sql.Int, user.id)
@@ -468,8 +468,8 @@ async function main() {
 
       await query(`
         UPDATE vouchers
-        SET start_date = DATEADD(day, -40, GETDATE()),
-            end_date = DATEADD(day, -5, GETDATE())
+        SET start_date = DATEADD(day, -40, SYSUTCDATETIME()),
+            end_date = DATEADD(day, -5, SYSUTCDATETIME())
         WHERE id = @vid
       `, { vid: redeemed2.voucherId });
 

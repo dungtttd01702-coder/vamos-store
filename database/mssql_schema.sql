@@ -22,7 +22,7 @@ BEGIN
         id INT IDENTITY(1,1) PRIMARY KEY,
         version VARCHAR(50) NOT NULL UNIQUE,
         description NVARCHAR(255) NOT NULL,
-        applied_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        applied_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         checksum VARCHAR(64) NULL,
         CONSTRAINT chk_schema_migrations_checksum CHECK (checksum IS NULL OR LEN(checksum) = 64)
     );
@@ -42,8 +42,8 @@ BEGIN
         phone NVARCHAR(20) NULL,
         role NVARCHAR(20) NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('ADMIN', 'CUSTOMER')),
         status NVARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'locked')),
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE()
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
     );
 END
 GO
@@ -59,7 +59,7 @@ BEGIN
         slug NVARCHAR(120) NOT NULL UNIQUE,
         description NVARCHAR(MAX) NULL,
         is_active BIT NOT NULL DEFAULT 1,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE()
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
     );
 END
 GO
@@ -74,7 +74,7 @@ BEGIN
         name NVARCHAR(100) NOT NULL,
         slug NVARCHAR(120) NOT NULL UNIQUE,
         description NVARCHAR(MAX) NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE()
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
     );
 END
 GO
@@ -123,7 +123,7 @@ BEGIN
         usage_limit INT NOT NULL DEFAULT 0 CHECK (usage_limit >= 0),
         used_count INT NOT NULL DEFAULT 0 CHECK (used_count >= 0),
         is_active BIT NOT NULL DEFAULT 1,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT chk_vouchers_dates CHECK (end_date >= start_date)
     );
 END
@@ -141,7 +141,7 @@ BEGIN
         link_url NVARCHAR(255) NULL,
         display_order INT NOT NULL DEFAULT 0,
         is_active BIT NOT NULL DEFAULT 1,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE()
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
     );
 END
 GO
@@ -161,8 +161,8 @@ BEGIN
         ward NVARCHAR(100) NOT NULL,
         detail_address NVARCHAR(255) NOT NULL,
         is_default BIT NOT NULL DEFAULT 0,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 END
@@ -187,7 +187,7 @@ BEGIN
         token_hash NVARCHAR(255) NOT NULL UNIQUE,
         expires_at DATETIME2 NOT NULL,
         used_at DATETIME2 NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_pwd_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 END
@@ -201,8 +201,8 @@ BEGIN
     CREATE TABLE carts (
         id INT IDENTITY(1,1) PRIMARY KEY,
         user_id INT NOT NULL UNIQUE,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_carts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 END
@@ -225,8 +225,8 @@ BEGIN
         base_price DECIMAL(12, 0) NOT NULL CHECK (base_price >= 0),
         sale_price DECIMAL(12, 0) NULL,
         status NVARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'draft')),
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id),
         CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL,
         CONSTRAINT chk_products_sale_price CHECK (sale_price IS NULL OR (sale_price >= 0 AND sale_price < base_price))
@@ -271,8 +271,8 @@ BEGIN
         sku NVARCHAR(100) NOT NULL UNIQUE,
         stock_quantity INT NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0),
         status NVARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT uq_variants_combination UNIQUE (product_id, size_id, color_id),
         CONSTRAINT fk_variants_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
         CONSTRAINT fk_variants_size FOREIGN KEY (size_id) REFERENCES sizes(id),
@@ -291,8 +291,8 @@ BEGIN
         cart_id INT NOT NULL,
         variant_id INT NOT NULL,
         quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT uq_cart_variant UNIQUE (cart_id, variant_id),
         CONSTRAINT fk_cart_items_cart FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
         CONSTRAINT fk_cart_items_variant FOREIGN KEY (variant_id) REFERENCES product_variants(id)
@@ -323,8 +323,8 @@ BEGIN
         order_status NVARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (order_status IN ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'COMPLETED', 'CANCELLED')),
         customer_note NVARCHAR(500) NULL,
         admin_note NVARCHAR(500) NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         shipping_discount_amount DECIMAL(12, 0) NOT NULL CONSTRAINT df_orders_shipping_discount_amount DEFAULT 0,
         CONSTRAINT chk_orders_shipping_discount_non_negative CHECK (shipping_discount_amount >= 0),
         CONSTRAINT chk_orders_shipping_discount_cap CHECK (shipping_discount_amount <= shipping_fee),
@@ -368,7 +368,7 @@ BEGIN
         previous_status NVARCHAR(50) NULL,
         new_status NVARCHAR(50) NOT NULL,
         note NVARCHAR(255) NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_order_histories_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
         CONSTRAINT fk_order_histories_user FOREIGN KEY (changed_by) REFERENCES users(id)
     );
@@ -388,7 +388,7 @@ BEGIN
         new_quantity INT NOT NULL CHECK (new_quantity >= 0),
         change_quantity INT NOT NULL,
         reason NVARCHAR(255) NOT NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_inv_trans_variant FOREIGN KEY (variant_id) REFERENCES product_variants(id),
         CONSTRAINT fk_inv_trans_user FOREIGN KEY (user_id) REFERENCES users(id)
     );
@@ -405,7 +405,7 @@ BEGIN
         voucher_id INT NOT NULL CONSTRAINT FK_voucher_usages_voucher REFERENCES vouchers(id),
         user_id INT NOT NULL CONSTRAINT FK_voucher_usages_user REFERENCES users(id),
         order_id INT NOT NULL CONSTRAINT FK_voucher_usages_order REFERENCES orders(id) ON DELETE CASCADE,
-        used_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        used_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT UQ_voucher_user_usage UNIQUE (voucher_id, user_id)
     );
 END
@@ -426,7 +426,7 @@ BEGIN
         id INT IDENTITY(1,1) PRIMARY KEY,
         user_id INT NOT NULL,
         product_id INT NOT NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_wishlist_items_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         CONSTRAINT fk_wishlist_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
         CONSTRAINT uq_wishlist_user_product UNIQUE (user_id, product_id)
@@ -461,8 +461,8 @@ BEGIN
         quick_tags NVARCHAR(500) NULL,
         points_earned INT NOT NULL DEFAULT 100,
         status NVARCHAR(20) NOT NULL DEFAULT 'APPROVED',
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id),
         CONSTRAINT fk_reviews_order FOREIGN KEY (order_id) REFERENCES orders(id),
         CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products(id),
@@ -501,7 +501,7 @@ BEGIN
         media_url NVARCHAR(500) NOT NULL,
         original_filename NVARCHAR(255) NULL,
         file_size INT NOT NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_review_media_review FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
         CONSTRAINT chk_review_media_type CHECK (media_type IN ('IMAGE', 'VIDEO')),
         CONSTRAINT chk_review_media_size CHECK (file_size > 0)
@@ -527,8 +527,8 @@ BEGIN
         lifetime_earned_points INT NOT NULL DEFAULT 0,
         lifetime_redeemed_points INT NOT NULL DEFAULT 0,
         tier_code NVARCHAR(20) NOT NULL DEFAULT 'MEMBER',
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         cycle_anchor_at DATETIME2 NULL,
         cycle_number INT NOT NULL CONSTRAINT df_wallets_cycle_number DEFAULT 0,
         cycle_start_at DATETIME2 NULL,
@@ -574,7 +574,7 @@ BEGIN
         reference_id NVARCHAR(100) NULL,
         description NVARCHAR(500) NOT NULL,
         idempotency_key NVARCHAR(100) NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_point_transactions_user FOREIGN KEY (user_id) REFERENCES users(id),
         CONSTRAINT chk_point_tx_type CHECK (
             transaction_type IN (
@@ -627,8 +627,8 @@ BEGIN
         stock_quantity INT NOT NULL DEFAULT 0,
         is_active BIT NOT NULL DEFAULT 1,
         sort_order INT NOT NULL DEFAULT 0,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_reward_rules_product FOREIGN KEY (target_product_id) REFERENCES products(id),
         CONSTRAINT chk_reward_rules_type CHECK (reward_type IN ('VOUCHER', 'PHYSICAL_GIFT', 'FREE_SHIPPING')),
         CONSTRAINT chk_reward_rules_points CHECK (points_required > 0),
@@ -653,9 +653,9 @@ BEGIN
         voucher_id INT NOT NULL,
         points_spent INT NOT NULL,
         status NVARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
-        redeemed_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        redeemed_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         used_at DATETIME2 NULL,
-        created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_redemptions_user FOREIGN KEY (user_id) REFERENCES users(id),
         CONSTRAINT fk_redemptions_rule FOREIGN KEY (reward_rule_id) REFERENCES point_reward_rules(id),
         CONSTRAINT fk_redemptions_voucher FOREIGN KEY (voucher_id) REFERENCES vouchers(id),
@@ -692,8 +692,8 @@ BEGIN
         remaining_points INT NOT NULL,
         expires_at DATETIME2 NOT NULL,
         status NVARCHAR(20) NOT NULL CONSTRAINT df_point_batches_status DEFAULT 'ACTIVE',
-        created_at DATETIME2 NOT NULL CONSTRAINT df_point_batches_created DEFAULT GETDATE(),
-        updated_at DATETIME2 NOT NULL CONSTRAINT df_point_batches_updated DEFAULT GETDATE(),
+        created_at DATETIME2 NOT NULL CONSTRAINT df_point_batches_created DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL CONSTRAINT df_point_batches_updated DEFAULT SYSUTCDATETIME(),
         CONSTRAINT fk_point_batches_user FOREIGN KEY (user_id) REFERENCES users(id),
         CONSTRAINT fk_point_batches_tx FOREIGN KEY (transaction_id) REFERENCES point_transactions(id),
         CONSTRAINT uq_point_batches_transaction UNIQUE (transaction_id),
@@ -755,6 +755,7 @@ GO
     UNION ALL SELECT '006_vamos_club_expiration_and_tier_cycle', N'Baseline snapshot synced to 006_vamos_club_expiration_and_tier_cycle.sql'
     UNION ALL SELECT '007_vamos_club_true_free_shipping', N'Baseline snapshot synced to 007_vamos_club_true_free_shipping.sql'
     UNION ALL SELECT '008_add_schema_migration_checksum', N'Baseline snapshot synced to 008_add_schema_migration_checksum.sql'
+    UNION ALL SELECT '009_standardize_utc_timestamp_defaults', N'Baseline snapshot synced to 009_standardize_utc_timestamp_defaults.sql'
 )
 INSERT INTO schema_migrations (version, description, checksum)
 SELECT sv.version, sv.description, NULL

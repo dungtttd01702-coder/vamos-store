@@ -95,12 +95,12 @@ block content
                   = `Điểm xét hạng chu kỳ: ${Number(wallet.qualifying_points_cycle || 0).toLocaleString('vi-VN')} điểm • Trọn đời đã tích lũy: ${wallet.lifetime_earned_points.toLocaleString('vi-VN')} • Đã đổi: ${wallet.lifetime_redeemed_points.toLocaleString('vi-VN')}`
                 if wallet.cycle_end_at
                   p.text-xs.text-slate-300.mt-1
-                    = `Chu kỳ ${wallet.cycle_number || 1}: đến ngày ${new Date(wallet.cycle_end_at).toLocaleDateString('vi-VN')}`
+                    = `Chu kỳ ${wallet.cycle_number || 1}: đến ${fmtVnDateTime(wallet.cycle_end_at)}`
                 else
                   p.text-xs.text-slate-400.mt-1 Chu kỳ xét hạng 12 tháng sẽ kích hoạt từ giao dịch tích điểm hợp lệ đầu tiên
                 if wallet.nextExpiringBatch
                   p.text-xs.text-amber-300.mt-1
-                    = `Lô điểm sắp hết hạn: ${Number(wallet.nextExpiringBatch.remaining_points || 0).toLocaleString('vi-VN')} điểm vào ngày ${new Date(wallet.nextExpiringBatch.expires_at).toLocaleDateString('vi-VN')}`
+                    = `Lô điểm sắp hết hạn: ${Number(wallet.nextExpiringBatch.remaining_points || 0).toLocaleString('vi-VN')} điểm vào ${fmtVnDateTime(wallet.nextExpiringBatch.expires_at)}`
 
               .flex.items-center.gap-3
                 a.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-xl.shadow-lg.transition-all(class="hover:bg-red-700 hover:shadow-red-600/30" href="#rewards-store")
@@ -253,8 +253,8 @@ block content
                         = `Giảm ${Number(v.discount_value).toLocaleString('vi-VN')} đ cho đơn từ ${Number(v.min_order_value).toLocaleString('vi-VN')} đ`
 
                   .mt-3.pt-2.border-t.border-slate-100.text-xs.text-slate-400.flex.items-center.justify-between
-                    span= `Đổi ngày: ${new Date(v.redeemed_at).toLocaleDateString('vi-VN')}`
-                    span= `HSD: ${new Date(v.end_date).toLocaleDateString('vi-VN')}`
+                    span= `Đổi lúc: ${fmtVnDateTime(v.redeemed_at)}`
+                    span= `HSD: ${fmtVnVoucherEnd(v.end_date)}`
           else
             .bg-white.rounded-xl.border.border-slate-200.p-8.text-center.shadow-sm
               span.text-3xl 🎟️
@@ -281,7 +281,7 @@ block content
                   tbody.divide-y.divide-slate-100
                     each tx in history
                       tr.transition-colors(class="hover:bg-slate-50")
-                        td.py-3.px-4.text-slate-400= new Date(tx.created_at).toLocaleString('vi-VN')
+                        td.py-3.px-4.text-slate-400= fmtVnDateTime(tx.created_at, { withSeconds: true })
                         td.py-3.px-4
                           if tx.transaction_type === 'REVIEW_REWARD'
                             span.px-2.py-1.rounded-full.bg-red-100.text-vamos-red.font-bold Đánh giá SP

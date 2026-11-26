@@ -43,7 +43,7 @@ block content
                     span.font-bold= `${v.used_count || 0}`
                     span.text-gray-400= ` / ${v.usage_limit > 0 ? v.usage_limit : 'Không giới hạn'}`
                   td.py-3.px-4.text-gray-400
-                    = `${new Date(v.start_date).toLocaleDateString('vi-VN')} - ${new Date(v.end_date).toLocaleDateString('vi-VN')}`
+                    = `${fmtVnDateTime(v.start_date)} - ${fmtVnVoucherEnd(v.end_date)}`
                   td.py-3.px-4
                     if v.is_active
                       span.rounded.font-bold(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs") Kích hoạt

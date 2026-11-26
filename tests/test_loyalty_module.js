@@ -138,7 +138,7 @@ async function runLoyaltyTests() {
           batchReq.input('pts', sql.Int, delta);
           await batchReq.query(`
             INSERT INTO loyalty_point_batches (user_id, transaction_id, initial_points, remaining_points, expires_at, status)
-            VALUES (@uid, @ptId, @pts, @pts, DATEADD(day, 365, GETDATE()), 'ACTIVE')
+            VALUES (@uid, @ptId, @pts, @pts, DATEADD(day, 365, SYSUTCDATETIME()), 'ACTIVE')
           `);
         } else {
           let toDeduct = -delta;
@@ -177,7 +177,7 @@ async function runLoyaltyTests() {
           UPDATE user_points_wallets
           SET available_points = @target,
               lifetime_earned_points = @newLifetime,
-              updated_at = GETDATE()
+              updated_at = SYSUTCDATETIME()
           WHERE user_id = @uid
         `);
       }
@@ -319,7 +319,7 @@ async function runLoyaltyTests() {
         N'123 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
         'COD', 'PAID', 'COMPLETED',
         1000000, 100000, 30000, 930000,
-        GETDATE(), GETDATE()
+        SYSUTCDATETIME(), SYSUTCDATETIME()
       )
     `, { runId: testRunId, userId: user1.id });
     const testOrder = testOrderRes.recordset[0];

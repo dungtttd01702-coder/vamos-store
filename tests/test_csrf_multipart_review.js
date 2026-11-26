@@ -182,7 +182,7 @@ async function runTests() {
         VALUES (
           @code, @userId, N'CSRF Order User', '0912345678',
           N'123 Nguyễn Huệ, Quận 1, TP.HCM', 'COD', 'PAID', 'COMPLETED',
-          1000000, 0, 0, 1000000, GETDATE(), GETDATE()
+          1000000, 0, 0, 1000000, SYSUTCDATETIME(), SYSUTCDATETIME()
         )
       `, { code: `ORD-${runId}-${suffix}`, userId });
       const orderId = oRes.recordset[0].id;

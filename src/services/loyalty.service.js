@@ -77,7 +77,7 @@ class LoyaltyService {
    */
   async getDbNow(transaction = null) {
     const runner = transaction ? new sql.Request(transaction) : { query: (q) => query(q) };
-    const res = await runner.query('SELECT GETDATE() AS db_now');
+    const res = await runner.query('SELECT SYSUTCDATETIME() AS db_now');
     return loyaltyCycle.toUtcDate(res.recordset[0].db_now, 'db_now');
   }
 

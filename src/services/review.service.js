@@ -194,7 +194,7 @@ class ReviewService {
         (user_id, order_id, product_id, rating, comment, quick_tags, points_earned, status, created_at, updated_at)
         OUTPUT INSERTED.id
         VALUES
-        (@userId, @orderId, @productId, @rating, @comment, @quickTags, @pointsEarned, 'APPROVED', GETDATE(), GETDATE());
+        (@userId, @orderId, @productId, @rating, @comment, @quickTags, @pointsEarned, 'APPROVED', SYSUTCDATETIME(), SYSUTCDATETIME());
       `);
 
       const reviewId = insRes.recordset[0].id;
@@ -213,7 +213,7 @@ class ReviewService {
             INSERT INTO review_media 
             (review_id, media_type, media_url, original_filename, file_size, created_at)
             VALUES
-            (@reviewId, @mediaType, @mediaUrl, @origName, @fileSize, GETDATE())
+            (@reviewId, @mediaType, @mediaUrl, @origName, @fileSize, SYSUTCDATETIME())
           `);
         }
       }

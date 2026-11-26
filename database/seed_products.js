@@ -876,7 +876,7 @@ async function seed() {
           .query(`
             INSERT INTO products (category_id, brand_id, product_code, name, slug, description, gender_target, base_price, sale_price, status, created_at, updated_at)
             OUTPUT INSERTED.id
-            VALUES (@catId, @brandId, @code, @name, @slug, @desc, @gender, @basePrice, @salePrice, 'active', GETDATE(), GETDATE())
+            VALUES (@catId, @brandId, @code, @name, @slug, @desc, @gender, @basePrice, @salePrice, 'active', SYSUTCDATETIME(), SYSUTCDATETIME())
           `);
         productId = insertRes.recordset[0].id;
         console.log(`[INSERTED PRODUCT] ID: ${productId} - ${prod.name}`);
@@ -891,7 +891,7 @@ async function seed() {
           .input('basePrice', prod.base_price)
           .query(`
             UPDATE products 
-            SET name = @name, slug = @slug, description = @desc, base_price = @basePrice, sale_price = @salePrice, updated_at = GETDATE()
+            SET name = @name, slug = @slug, description = @desc, base_price = @basePrice, sale_price = @salePrice, updated_at = SYSUTCDATETIME()
             WHERE id = @id
           `);
       }

@@ -108,7 +108,7 @@ async function runMockedRedeem({
       const normalized = sqlText.replace(/\s+/g, ' ').trim();
       state.queries.push(normalized);
 
-      if (normalized.includes('SELECT GETDATE()')) {
+      if (normalized.includes('SELECT SYSUTCDATETIME()')) {
         return { recordset: [{ db_now: nowTs }] };
       }
       if (normalized.includes('FROM point_reward_rules WITH (UPDLOCK, ROWLOCK)')) {
@@ -318,7 +318,7 @@ async function main() {
           }]
         };
       }
-      if (sqlText.includes('SELECT GETDATE()')) {
+      if (sqlText.includes('SELECT SYSUTCDATETIME()')) {
         return { recordset: [{ db_now: utc('2026-06-01T00:00:00Z') }] };
       }
       if (sqlText.includes('FROM point_reward_rules')) {

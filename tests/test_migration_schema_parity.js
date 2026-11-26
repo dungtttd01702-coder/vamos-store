@@ -215,14 +215,14 @@ async function main() {
 
   try {
     // 1. Fresh Install vs mssql_schema.sql Parity
-    await asyncTest('PARITY-01: Fresh 001-008 migration chain matches 28-table mssql_schema.sql snapshot identically', async () => {
+    await asyncTest('PARITY-01: Fresh 001-009 migration chain matches 28-table mssql_schema.sql snapshot identically', async () => {
       await dropDatabaseIfExists(masterPool, PARITY_DB);
       await createEmptyDatabase(masterPool, UPGRADE_DB);
 
-      // Build DB1 strictly via migration runner (001..008)
+      // Build DB1 strictly via migration runner (001..009)
       const migResult = await init(PARITY_DB);
       assert.strictEqual(migResult.totalTables, 28);
-      assert.strictEqual(migResult.appliedNow.length, 8);
+      assert.strictEqual(migResult.appliedNow.length, 9);
 
       // Build DB2 strictly via mssql_schema.sql snapshot
       const snapPool = await openTempPool(UPGRADE_DB);
@@ -245,11 +245,11 @@ async function main() {
           assert.deepStrictEqual(rulesB, rulesA, 'Seeded point_reward_rules must match identically');
           assert.strictEqual(rulesA.length, 6);
 
-          // Verify fresh DB recorded 8 non-null SHA-256 checksums, while snapshot recorded 8 NULL baseline entries
+          // Verify fresh DB recorded 9 non-null SHA-256 checksums, while snapshot recorded 9 NULL baseline entries
           const migRows = (await migPool.request().query('SELECT version, checksum FROM schema_migrations ORDER BY id')).recordset;
           const snapRows = (await snapPool.request().query('SELECT version, checksum FROM schema_migrations ORDER BY id')).recordset;
-          assert.strictEqual(migRows.length, 8);
-          assert.strictEqual(snapRows.length, 8);
+          assert.strictEqual(migRows.length, 9);
+          assert.strictEqual(snapRows.length, 9);
           assert.ok(migRows.every((r) => typeof r.checksum === 'string' && r.checksum.length === 64));
           assert.ok(snapRows.every((r) => r.checksum === null));
         } finally {
@@ -259,14 +259,14 @@ async function main() {
         await snapPool.close();
       }
 
-      // Running init() on snapshot-seeded DB skips 001..008 without re-applying or erroring
+      // Running init() on snapshot-seeded DB skips 001..009 without re-applying or erroring
       const postSnapInit = await init(UPGRADE_DB);
       assert.strictEqual(postSnapInit.appliedNow.length, 0);
-      assert.strictEqual(postSnapInit.legacyUnverified.length, 8);
+      assert.strictEqual(postSnapInit.legacyUnverified.length, 9);
     });
 
-    // 2. Existing Pre-008 Upgrade Simulation (003 -> 004..008) & Data Preservation
-    await asyncTest('UPG-01: Legacy pre-008 DB frozen at 003 upgrades cleanly through 008 preserving data and LEGACY_UNVERIFIED NULLs', async () => {
+    // 2. Existing Pre-008 Upgrade Simulation (003 -> 004..009) & Data Preservation
+    await asyncTest('UPG-01: Legacy pre-008 DB frozen at 003 upgrades cleanly through 009 preserving data and LEGACY_UNVERIFIED NULLs', async () => {
       await createEmptyDatabase(masterPool, UPGRADE_DB);
       const upgPool = await openTempPool(UPGRADE_DB);
 
@@ -322,10 +322,11 @@ async function main() {
         '005_vamos_club_loyalty_system',
         '006_vamos_club_expiration_and_tier_cycle',
         '007_vamos_club_true_free_shipping',
-        '008_add_schema_migration_checksum'
+        '008_add_schema_migration_checksum',
+        '009_standardize_utc_timestamp_defaults'
       ]);
 
-      // Verify data preservation, tracking states (001..007 NULL legacy/pre-008, 008 SHA-256), and final parity against PARITY_DB
+      // Verify data preservation, tracking states (001..007 NULL legacy/pre-008, 008-009 SHA-256), and final parity against PARITY_DB
       const postUpgPool = await openTempPool(UPGRADE_DB);
       const parityPool = await openTempPool(PARITY_DB);
       try {
@@ -334,15 +335,20 @@ async function main() {
         assert.strictEqual(Number(legacyOrder.shipping_discount_amount), 0);
 
         const rows = (await postUpgPool.request().query('SELECT version, checksum FROM schema_migrations ORDER BY id')).recordset;
-        assert.strictEqual(rows.length, 8);
+        assert.strictEqual(rows.length, 9);
         for (const r of rows.slice(0, 7)) {
           assert.strictEqual(r.checksum, null, `${r.version} executed before 008 must preserve NULL checksum`);
         }
         const expected008Hash = computeSha256(
           fs.readFileSync(path.resolve(__dirname, '../database/migrations/008_add_schema_migration_checksum.sql'))
         );
+        const expected009Hash = computeSha256(
+          fs.readFileSync(path.resolve(__dirname, '../database/migrations/009_standardize_utc_timestamp_defaults.sql'))
+        );
         assert.strictEqual(rows[7].version, '008_add_schema_migration_checksum');
         assert.strictEqual(rows[7].checksum, expected008Hash);
+        assert.strictEqual(rows[8].version, '009_standardize_utc_timestamp_defaults');
+        assert.strictEqual(rows[8].checksum, expected009Hash);
 
         const catPar = await fetchSchemaCatalog(parityPool);
         const catUpg = await fetchSchemaCatalog(postUpgPool);
@@ -367,8 +373,8 @@ async function main() {
         fs.copyFileSync(path.join(srcMigDir, f), path.join(tempMigDir, f));
       }
 
-      const mig009Path = path.join(tempMigDir, '009_temp_tx_rollback.sql');
-      fs.writeFileSync(mig009Path, [
+      const mig010Path = path.join(tempMigDir, '010_temp_tx_rollback.sql');
+      fs.writeFileSync(mig010Path, [
         'CREATE TABLE temp_mig_step1 (id INT PRIMARY KEY);',
         'GO',
         'CREATE TABLE temp_mig_step2 (id INT PRIMARY KEY, step1_id INT NOT NULL);',
@@ -388,7 +394,7 @@ async function main() {
             migrationsDir: tempMigDir,
             skipSeeds: true,
             _testFailHook: async (ctx) => {
-              if (ctx.version === '009_temp_tx_rollback' && ctx.stage === targetFailStage.stage && (targetFailStage.batchIndex === undefined || ctx.batchIndex === targetFailStage.batchIndex)) {
+              if (ctx.version === '010_temp_tx_rollback' && ctx.stage === targetFailStage.stage && (targetFailStage.batchIndex === undefined || ctx.batchIndex === targetFailStage.batchIndex)) {
                 throw new Error(`Injected failure at ${targetFailStage.stage}:${targetFailStage.batchIndex ?? 'track'}`);
               }
             }
@@ -401,7 +407,7 @@ async function main() {
           const checkRes = await checkPool.request().query(`
             SELECT OBJECT_ID('temp_mig_step1', 'U') AS t1,
                    OBJECT_ID('temp_mig_step2', 'U') AS t2,
-                   (SELECT COUNT(*) FROM schema_migrations WHERE version = '009_temp_tx_rollback') AS tracked
+                   (SELECT COUNT(*) FROM schema_migrations WHERE version = '010_temp_tx_rollback') AS tracked
           `);
           assert.strictEqual(checkRes.recordset[0].t1, null, 'Step 1 table must be rolled back');
           assert.strictEqual(checkRes.recordset[0].t2, null, 'Step 2 table must be rolled back');
@@ -411,12 +417,12 @@ async function main() {
         }
       }
 
-      // Retry cleanly without failure injection -> commits 009 + checksum
+      // Retry cleanly without failure injection -> commits 010 + checksum
       const okRes = await init(UPGRADE_DB, { migrationsDir: tempMigDir, skipSeeds: true });
-      assert.deepStrictEqual(okRes.appliedNow, ['009_temp_tx_rollback']);
+      assert.deepStrictEqual(okRes.appliedNow, ['010_temp_tx_rollback']);
 
-      // Tampering committed 009 file must trigger fail-closed checksum mismatch
-      fs.appendFileSync(mig009Path, '\n-- tampered\n', 'utf8');
+      // Tampering committed 010 file must trigger fail-closed checksum mismatch
+      fs.appendFileSync(mig010Path, '\n-- tampered\n', 'utf8');
       await assert.rejects(
         () => init(UPGRADE_DB, { migrationsDir: tempMigDir, skipSeeds: true }),
         /MIGRATION CHECKSUM MISMATCH/
@@ -438,7 +444,7 @@ async function main() {
       const res2 = settled[1].value;
 
       const totalApplied = res1.appliedNow.length + res2.appliedNow.length;
-      assert.strictEqual(totalApplied, 8, 'Across concurrent runners, exactly 8 migrations apply once total');
+      assert.strictEqual(totalApplied, 9, 'Across concurrent runners, exactly 9 migrations apply once total');
       assert.strictEqual(res1.totalTables, 28);
       assert.strictEqual(res2.totalTables, 28);
 

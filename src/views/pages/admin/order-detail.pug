@@ -12,7 +12,7 @@ block content
           .flex.items-center.gap-2
             if order.order_status === 'PENDING'
               span.px-2.rounded.bg-vamos-red.text-white.text-2xs.font-bold.animate-pulse(class="py-0.5") CẦN XỬ LÝ GẤP
-            span.text-xs.text-gray-400= `Đặt lúc ${new Date(order.created_at).toLocaleString('vi-VN')}`
+            span.text-xs.text-gray-400= `Đặt lúc ${fmtVnDateTime(order.created_at)}`
           h1.text-xl.font-black.tracking-tight.text-white.mt-1.flex.items-center.gap-3(style="font-family:'Space Grotesk',sans-serif")
             = `ĐƠN HÀNG #${order.order_code}`
             span.text-xs.font-bold.text-red-300.bg-red-950.px-2.rounded.border.border-red-800(class="py-0.5")
@@ -134,7 +134,7 @@ block content
                     .font-bold.text-slate-900= `Trạng thái: ${h.new_status}`
                     if h.note
                       p.text-gray-600= h.note
-                    span.text-2xs.text-gray-400= new Date(h.created_at).toLocaleString('vi-VN')
+                    span.text-2xs.text-gray-400= fmtVnDateTime(h.created_at)
 
       //- RIGHT 5 COLUMNS: Immutable Order Snapshot (Receipt Canvas)
       .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between(class="lg:col-span-5")

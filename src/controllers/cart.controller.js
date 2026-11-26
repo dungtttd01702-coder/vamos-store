@@ -337,7 +337,7 @@ class CartController {
           }
           itemReq.input('newQty', sql.Int, newQty);
           itemReq.input('itemId', sql.Int, itemRes.recordset[0].id);
-          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE() WHERE id = @itemId');
+          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = SYSUTCDATETIME() WHERE id = @itemId');
         } else {
           if (qty > liveStock) {
             await transaction.rollback();
@@ -510,7 +510,7 @@ class CartController {
           const newQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(liveStock, currentQty + qty));
           itemReq.input('newQty', sql.Int, newQty);
           itemReq.input('itemId', sql.Int, itemRes.recordset[0].id);
-          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = GETDATE() WHERE id = @itemId');
+          await itemReq.query('UPDATE cart_items SET quantity = @newQty, updated_at = SYSUTCDATETIME() WHERE id = @itemId');
         } else {
           const initialQty = Math.min(MAX_RETAIL_QUANTITY, Math.min(liveStock, qty));
           itemReq.input('qty', sql.Int, initialQty);
@@ -605,7 +605,7 @@ class CartController {
             if (req.flash) req.flash('warning', `Sản phẩm "${prodName}" chỉ còn ${maxStock} đôi trong kho.`);
             return res.redirect('/cart');
           }
-          await query('UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @itemId AND cart_id = @cartId', {
+          await query('UPDATE cart_items SET quantity = @qty, updated_at = SYSUTCDATETIME() WHERE id = @itemId AND cart_id = @cartId', {
             qty: targetQty,
             itemId: cartItemId,
             cartId: user.cartId,
@@ -736,7 +736,7 @@ class CartController {
           existReq.input('qty', sql.Int, newQty);
           existReq.input('id', sql.Int, existRes.recordset[0].id);
           await existReq.query(`
-            UPDATE cart_items SET quantity = @qty, updated_at = GETDATE() WHERE id = @id
+            UPDATE cart_items SET quantity = @qty, updated_at = SYSUTCDATETIME() WHERE id = @id
           `);
         } else {
           const initialQty = Math.min(MAX_RETAIL_QUANTITY, variant.stock_quantity, quantity);

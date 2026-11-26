@@ -1,0 +1,31 @@
+-
+  var _vnParts = (v) => {
+    if (v === null || v === undefined || v === '') return null;
+    var d = v instanceof Date ? v : new Date(v);
+    if (Number.isNaN(d.getTime())) return null;
+    var parts = {};
+    for (var p of new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23'
+    }).formatToParts(d)) {
+      if (p.type !== 'literal') parts[p.type] = p.value;
+    }
+    parts.ms = d.getUTCMilliseconds();
+    parts.msEpoch = d.getTime();
+    return parts;
+  };
+  var fmtVnDate = typeof formatVnDate === 'function'
+    ? formatVnDate
+    : (v) => { var p = _vnParts(v); return p ? `${p.day}/${p.month}/${p.year}` : ''; };
+  var fmtVnDateTime = typeof formatVnDateTime === 'function'
+    ? formatVnDateTime
+    : (v, opts) => { var p = _vnParts(v); return p ? `${opts && opts.withSeconds ? `${p.hour}:${p.minute}:${p.second}` : `${p.hour}:${p.minute}`} ${p.day}/${p.month}/${p.year}` : ''; };
+  var fmtVnVoucherEnd = typeof formatVnVoucherEnd === 'function'
+    ? formatVnVoucherEnd
+    : (v) => { var p = _vnParts(v); if (!p) return ''; return (p.hour === '00' && p.minute === '00' && p.second === '00' && p.ms === 0) ? fmtVnDateTime(new Date(p.msEpoch - 1)) : fmtVnDateTime(v); };

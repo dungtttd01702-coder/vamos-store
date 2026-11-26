@@ -379,7 +379,7 @@ block content
                           each s in [1, 2, 3, 4, 5]
                             span= s <= rev.rating ? '★' : '☆'
                         span •
-                        span= rev.created_at ? new Date(rev.created_at).toLocaleDateString('vi-VN') : ''
+                        span= rev.created_at ? fmtVnDate(rev.created_at) : ''
                   if rev.points_earned && rev.points_earned > 0
                     span.inline-flex.items-center.gap-1.text-xs.font-bold.text-red-600.bg-red-50.px-2.rounded-full.border.border-red-100(class="py-0.5")
                       span 🏅

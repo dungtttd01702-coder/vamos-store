@@ -76,7 +76,7 @@ class WishlistRepository {
       IF NOT EXISTS (SELECT 1 FROM wishlist_items WHERE user_id = @userId AND product_id = @productId)
       BEGIN
         INSERT INTO wishlist_items (user_id, product_id, created_at)
-        VALUES (@userId, @productId, GETDATE());
+        VALUES (@userId, @productId, SYSUTCDATETIME());
       END
     `;
     await query(sql, { userId, productId });

@@ -1,3 +1,10 @@
+const {
+  formatVietnameseDate,
+  formatVietnameseDateTime,
+  formatVietnameseVoucherEnd,
+  toUtcISOString
+} = require('../utils/dateTime');
+
 /**
  * Attach authentication state from session to res.locals for view templates
  * and provide lightweight, single-use Flash message support
@@ -9,6 +16,10 @@ function sessionContextMiddleware(req, res, next) {
   res.locals.isCustomer = req.session?.user?.role === 'CUSTOMER';
   res.locals.cartCount = req.session?.cartCount || 0;
   res.locals.currentPath = req.path;
+  res.locals.formatVnDate = formatVietnameseDate;
+  res.locals.formatVnDateTime = formatVietnameseDateTime;
+  res.locals.formatVnVoucherEnd = formatVietnameseVoucherEnd;
+  res.locals.toUtcISOString = toUtcISOString;
 
   // Flash message support: consume once from session and expose to res.locals
   if (req.session?.flash) {

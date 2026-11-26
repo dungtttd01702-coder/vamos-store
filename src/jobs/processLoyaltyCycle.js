@@ -262,7 +262,7 @@ async function runLoyaltyCycleWorker(options = {}) {
 
   try {
     const pool = await getPool();
-    const nowRes = await pool.request().query('SELECT GETDATE() AS db_now');
+    const nowRes = await pool.request().query('SELECT SYSUTCDATETIME() AS db_now');
     const nowTs = options.nowOverride
       ? loyaltyCycle.toUtcDate(options.nowOverride, 'nowOverride')
       : loyaltyCycle.toUtcDate(nowRes.recordset[0].db_now, 'db_now');

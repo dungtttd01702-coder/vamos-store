@@ -112,7 +112,7 @@ class AccountController {
 
       await query(`
         UPDATE users 
-        SET full_name = @fullName, phone = @phone, updated_at = GETDATE()
+        SET full_name = @fullName, phone = @phone, updated_at = SYSUTCDATETIME()
         WHERE id = @id
       `, {
         fullName: full_name ? full_name.trim() : null,

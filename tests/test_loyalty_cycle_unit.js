@@ -589,7 +589,7 @@ async function main() {
       if (sqlText.includes('FROM point_transactions WHERE idempotency_key')) {
         return { recordset: [] };
       }
-      if (sqlText.includes('SELECT GETDATE() AS db_now')) {
+      if (sqlText.includes('SELECT SYSUTCDATETIME() AS db_now')) {
         return { recordset: [{ db_now: utc('2026-04-01T10:00:00Z') }] };
       }
       if (sqlText.includes('FROM user_points_wallets WITH (UPDLOCK, ROWLOCK)')) {
@@ -661,7 +661,7 @@ async function main() {
       constructor() { this.params = {}; }
       input(k, t, v) { this.params[k] = v === undefined ? t : v; return this; }
       async query(sqlText) {
-        if (sqlText.includes('SELECT GETDATE()')) return { recordset: [{ db_now: utc('2026-04-01T00:00:00Z') }] };
+        if (sqlText.includes('SELECT SYSUTCDATETIME()')) return { recordset: [{ db_now: utc('2026-04-01T00:00:00Z') }] };
         if (sqlText.includes('FROM point_reward_rules')) {
           return {
             recordset: [{
@@ -975,7 +975,7 @@ async function main() {
           walletLockSeen = true;
           return { recordset: [{ user_id: 21, available_points: 500, tier_code: 'MEMBER' }] };
         }
-        if (sqlText.includes('SELECT GETDATE() AS db_now')) {
+        if (sqlText.includes('SELECT SYSUTCDATETIME() AS db_now')) {
           walletLockedBeforeNowFetch = walletLockSeen;
           return { recordset: [{ db_now: utc('2026-06-01T00:00:00Z') }] };
         }
@@ -1038,7 +1038,7 @@ async function main() {
       request: () => ({
         async query(sqlText) {
           queriesExecuted.push(sqlText);
-          if (sqlText.includes('SELECT GETDATE()')) return { recordset: [{ db_now: utc('2026-06-01T00:00:00Z') }] };
+          if (sqlText.includes('SELECT SYSUTCDATETIME()')) return { recordset: [{ db_now: utc('2026-06-01T00:00:00Z') }] };
           if (sqlText.includes('FROM user_points_wallets')) return { recordset: [{ user_id: 1, available_points: 0, tier_code: 'MEMBER' }] };
           return { recordset: [] };
         }
@@ -1074,7 +1074,7 @@ async function main() {
           }]
         };
       }
-      if (sqlText.includes('SELECT GETDATE() AS db_now')) {
+      if (sqlText.includes('SELECT SYSUTCDATETIME() AS db_now')) {
         return { recordset: [{ db_now: nowTs }] };
       }
       if (sqlText.includes('FROM point_reward_rules')) {

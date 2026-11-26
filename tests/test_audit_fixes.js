@@ -13,6 +13,7 @@ require('./test_bootstrap');
 const assert = require('assert');
 const { getPool, query } = require('../src/config/database');
 const { isValidEmail, isValidPhone, isValidFullName } = require('../src/utils/validator');
+const { parseVietnameseDateInput } = require('../src/utils/dateTime');
 const productService = require('../src/services/product.service');
 const pug = require('pug');
 const path = require('path');
@@ -199,9 +200,9 @@ async function runAuditTests() {
   });
 
   test('ADM-VOUCHER-02: Reject voucher with endDate earlier than startDate', () => {
-    const start_date = new Date('2026-12-01');
-    const end_date = new Date('2026-11-01');
-    assert.ok(end_date < start_date, 'End date earlier than start date must be detected');
+    const start_date = parseVietnameseDateInput('2026-12-01').startUtc;
+    const end_date = parseVietnameseDateInput('2026-11-01').endExclusiveUtc;
+    assert.ok(end_date <= start_date, 'End date earlier than start date must be detected');
   });
 
   console.log('\n===============================================================');

@@ -122,7 +122,7 @@ async function ensureSchemaMigrationsTable(pinnedPool) {
         id INT IDENTITY(1,1) PRIMARY KEY,
         version VARCHAR(50) NOT NULL UNIQUE,
         description NVARCHAR(255) NOT NULL,
-        applied_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+        applied_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
         checksum VARCHAR(64) NULL,
         CONSTRAINT chk_schema_migrations_checksum CHECK (checksum IS NULL OR LEN(checksum) = 64)
       );

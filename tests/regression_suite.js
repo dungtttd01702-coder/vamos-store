@@ -227,7 +227,7 @@ async function runSuite() {
       SELECT id FROM vouchers 
       WHERE code = 'EXPIRED_CODE' 
         AND is_active = 1 
-        AND start_date <= GETDATE() AND end_date >= GETDATE()
+        AND start_date <= SYSUTCDATETIME() AND end_date > SYSUTCDATETIME()
     `);
     assert(expiredRes.recordset.length === 0, 'VOUCH-05', 'Expired or non-existent voucher code rejected');
 

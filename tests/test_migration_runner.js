@@ -195,10 +195,10 @@ async function main() {
     assert.strictEqual(batches[1], 'SELECT 2;');
   });
 
-  test('GO-07: Real project migrations 001..008 all parse cleanly with zero batch syntax errors', () => {
+  test('GO-07: Real project migrations 001..009 all parse cleanly with zero batch syntax errors', () => {
     const migDir = path.resolve(__dirname, '../database/migrations');
     const { files, sequenceGaps } = discoverMigrationFiles(migDir);
-    assert.strictEqual(files.length, 8);
+    assert.strictEqual(files.length, 9);
     assert.strictEqual(sequenceGaps.length, 0);
     for (const m of files) {
       const sqlText = fs.readFileSync(m.fullPath, 'utf8');

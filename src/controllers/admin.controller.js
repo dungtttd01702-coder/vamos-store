@@ -1,5 +1,6 @@
 const { query, getPool, sql } = require('../config/database');
 const orderService = require('../services/order.service');
+const { nowUtc, addDaysUtc, parseVietnameseDateInput } = require('../utils/dateTime');
 
 class AdminController {
   /**
@@ -461,7 +462,7 @@ class AdminController {
           sale_price = @salePrice,
           description = @desc,
           status = @status,
-          updated_at = GETDATE()
+          updated_at = SYSUTCDATETIME()
         WHERE id = @id
       `, {
         id: Number.parseInt(id, 10),
@@ -505,7 +506,7 @@ class AdminController {
       await query(`
         UPDATE products
         SET status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END,
-            updated_at = GETDATE()
+            updated_at = SYSUTCDATETIME()
         WHERE id = @id
       `, { id: Number.parseInt(id, 10) });
 
@@ -605,7 +606,7 @@ class AdminController {
       updReq.input('newStock', newStock);
       await updReq.query(`
         UPDATE product_variants 
-        SET stock_quantity = @newStock, updated_at = GETDATE() 
+        SET stock_quantity = @newStock, updated_at = SYSUTCDATETIME()
         WHERE id = @varId
       `);
 
@@ -834,12 +835,24 @@ class AdminController {
         throw new Error('Chiết khấu phần trăm không được vượt quá 100%.');
       }
 
-      if (start_date && end_date) {
-        const sDate = new Date(start_date);
-        const eDate = new Date(end_date);
-        if (eDate < sDate) {
-          throw new Error('Ngày kết thúc hiệu lực voucher không thể trước ngày bắt đầu.');
-        }
+      const defaultNow = nowUtc();
+      let startDateUtc = defaultNow;
+      let endDateUtc = addDaysUtc(defaultNow, 30);
+
+      const hasStartInput = typeof start_date === 'string' && start_date.trim() !== '';
+      const hasEndInput = typeof end_date === 'string' && end_date.trim() !== '';
+
+      if (hasStartInput) {
+        startDateUtc = parseVietnameseDateInput(start_date).startUtc;
+      }
+      if (hasEndInput) {
+        endDateUtc = parseVietnameseDateInput(end_date).endExclusiveUtc;
+      } else if (hasStartInput) {
+        endDateUtc = addDaysUtc(startDateUtc, 30);
+      }
+
+      if (endDateUtc <= startDateUtc) {
+        throw new Error('Ngày kết thúc hiệu lực voucher không thể trước ngày bắt đầu.');
       }
 
       await query(`
@@ -859,8 +872,8 @@ class AdminController {
         minOrder: min_order_value ? Number.parseFloat(min_order_value) : 0,
         maxDiscount: max_discount_amount ? Number.parseFloat(max_discount_amount) : null,
         usageLimit: Number.parseInt(usage_limit, 10) || 0,
-        startDate: start_date ? new Date(start_date) : new Date(),
-        endDate: end_date ? new Date(end_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        startDate: startDateUtc,
+        endDate: endDateUtc,
       });
 
       res.redirect('/admin/vouchers?success=created');
@@ -969,7 +982,7 @@ class AdminController {
       await query(`
         UPDATE users
         SET status = CASE WHEN status = 'active' THEN 'locked' ELSE 'active' END,
-            updated_at = GETDATE()
+            updated_at = SYSUTCDATETIME()
         WHERE id = @id
       `, { id: custId });
 

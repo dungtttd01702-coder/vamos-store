@@ -203,7 +203,7 @@ block content
                   td.py-4.px-5
                     a.font-bold.text-vamos-red(class="hover:underline" href=`/admin/orders/${o.id}` style="font-family:'Space Grotesk',sans-serif")
                       = `#${o.order_code}`
-                    span.block.text-2xs.text-gray-400= new Date(o.created_at).toLocaleString('vi-VN')
+                    span.block.text-2xs.text-gray-400= fmtVnDateTime(o.created_at)
                   td.py-4.px-5
                     .font-bold.text-vamos-dark= o.recipient_name_snapshot
                     span.text-2xs.text-gray-400= o.recipient_phone_snapshot

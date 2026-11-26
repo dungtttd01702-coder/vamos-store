@@ -1,5 +1,6 @@
 const { sql, getPool, query } = require('../config/database');
 const loyaltyService = require('./loyalty.service');
+const { getVietnameseOrderDatePrefix } = require('../utils/dateTime');
 
 /**
  * State Transition Matrix for VAMOS STORE
@@ -94,7 +95,7 @@ class OrderService {
       SELECT id, code, name, discount_type, discount_value, min_order_value, max_discount_amount, is_active, start_date, end_date, usage_limit, used_count
       FROM vouchers ${lockHint}
       WHERE code = @code AND is_active = 1
-        AND start_date <= GETDATE() AND end_date >= GETDATE()
+        AND start_date <= SYSUTCDATETIME() AND end_date > SYSUTCDATETIME()
     `);
 
     if (vouchRes.recordset.length === 0) {
@@ -289,7 +290,7 @@ class OrderService {
       let orderId = null;
 
       for (let attempt = 0; attempt < 5; attempt++) {
-        const orderDateStr = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+        const orderDateStr = getVietnameseOrderDatePrefix();
         const randomSuffix = Math.floor(1000 + Math.random() * 9000);
         const candidateCode = `VAM${orderDateStr}-${randomSuffix}`;
 
@@ -340,7 +341,7 @@ class OrderService {
         deductReq.input('qty', item.quantity);
         await deductReq.query(`
           UPDATE product_variants 
-          SET stock_quantity = stock_quantity - @qty, updated_at = GETDATE()
+          SET stock_quantity = stock_quantity - @qty, updated_at = SYSUTCDATETIME()
           WHERE id = @varId
         `);
 
@@ -403,7 +404,7 @@ class OrderService {
         vuInsReq.input('orderId', orderId);
         await vuInsReq.query(`
           INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)
-          VALUES (@vouchId, @userId, @orderId, GETDATE())
+          VALUES (@vouchId, @userId, @orderId, SYSUTCDATETIME())
         `);
 
         // Mark personal voucher redemption as USED if applicable
@@ -412,7 +413,7 @@ class OrderService {
         vrUpdReq.input('userId', userId);
         await vrUpdReq.query(`
           UPDATE voucher_redemptions 
-          SET status = 'USED', used_at = GETDATE()
+          SET status = 'USED', used_at = SYSUTCDATETIME()
           WHERE voucher_id = @vouchId AND user_id = @userId
         `);
       }
@@ -510,7 +511,7 @@ class OrderService {
         restoreReq.input('newStock', newStock);
         await restoreReq.query(`
           UPDATE product_variants 
-          SET stock_quantity = @newStock, updated_at = GETDATE() 
+          SET stock_quantity = @newStock, updated_at = SYSUTCDATETIME()
           WHERE id = @varId
         `);
 
@@ -533,7 +534,7 @@ class OrderService {
     updateReq.input('orderId', orderId);
     await updateReq.query(`
       UPDATE orders 
-      SET order_status = 'CANCELLED', updated_at = GETDATE() 
+      SET order_status = 'CANCELLED', updated_at = SYSUTCDATETIME()
       WHERE id = @orderId
     `);
 
@@ -722,7 +723,7 @@ class OrderService {
       updateReq.input('payStatus', newPaymentStatus);
       await updateReq.query(`
         UPDATE orders 
-        SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() 
+        SET order_status = @newStatus, payment_status = @payStatus, updated_at = SYSUTCDATETIME()
         WHERE id = @orderId
       `);
 
