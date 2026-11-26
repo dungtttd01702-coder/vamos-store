@@ -29,6 +29,37 @@ services:
       - ./src:/app/src
       - ./server.js:/app/server.js
 
+  loyalty-worker:
+    build: .
+    container_name: vamos_store_loyalty_worker
+    profiles: ["loyalty-worker"]
+    command: ["npm", "run", "loyalty:worker"]
+    init: true
+    stop_grace_period: 30s
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - WORKER_HEALTH_HOST=127.0.0.1
+      - WORKER_HEALTH_PORT=3100
+      - WORKER_SHUTDOWN_GRACE_MS=20000
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
+      - DB_SERVER=mssql
+      - DB_PORT=${DB_PORT:-1433}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      - DB_NAME=${DB_NAME:-vamos_store_db}
+      - DB_ENCRYPT=${DB_ENCRYPT:-false}
+      - DB_TRUST_SERVER_CERTIFICATE=${DB_TRUST_SERVER_CERTIFICATE:-true}
+    depends_on:
+      mssql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3100/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: vamos_store_mssql

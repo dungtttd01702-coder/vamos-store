@@ -64,6 +64,12 @@ jobs:
       - name: Verify Pug template compilation
         run: node tests/validate_pug.js
 
+      - name: Validate Docker Compose configuration
+        env:
+          SESSION_SECRET: ci_validation_placeholder_secret_32chars_min
+          DB_PASSWORD: CiValidationPlaceholder!123
+        run: docker compose --profile loyalty-worker config --quiet
+
       - name: Build Tailwind CSS
         run: npm run build:css
 

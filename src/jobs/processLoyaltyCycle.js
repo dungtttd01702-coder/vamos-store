@@ -1,34 +1,182 @@
 /**
- * VAMOS CLUB CLI Worker: 365-Day Point Expiration & 12-Month Tier Cycle Soft Landing
+ * VAMOS CLUB Worker: 365-Day Point Expiration & 12-Month Tier Cycle Soft Landing
  *
  * Security & Concurrency:
  * - Enforces database-guard validation via src/config/database.js & db-guard.js
- * - Coordinates multi-worker runs via SQL Server sp_getapplock (Session-scoped on pinned pool)
+ * - Coordinates multi-worker runs via SQL Server sp_getapplock (Session-scoped on pinned connection)
+ * - Verifies active session lock ownership before execution phases and during release
  * - Uses strict Lock Hierarchy: user_points_wallets FIRST -> loyalty_point_batches SECOND
- * - Never auto-starts timers inside Express web requests
+ * - Isolates recoverable per-item invariant errors while aborting immediately on systemic failures
+ * - Retries confirmed SQL Server deadlock victims (error 1205) with bounded backoff, never on uncertain commits
+ * - Never auto-starts timers inside Express web requests or module import
  */
 
 require('dotenv').config();
+const crypto = require('node:crypto');
+const os = require('node:os');
 const sql = require('mssql');
 const appConfig = require('../config/app.config');
 const { validateDatabaseConnection } = require('../config/db-guard');
-const { getPool, closePool } = require('../config/database');
+const { closePool } = require('../config/database');
 const loyaltyCycle = require('../utils/loyaltyCycle');
 
 const APPLOCK_RESOURCE = 'VAMOS_LOYALTY_CYCLE_WORKER_LOCK';
+const JOB_NAME = 'loyalty-cycle-worker';
+const DEADLOCK_SQL_ERROR_NUMBER = 1205;
+const DEFAULT_DEADLOCK_MAX_RETRIES = 2;
+const DEFAULT_DEADLOCK_BASE_DELAY_MS = 25;
 
-async function acquireSessionAppLock(lockTimeoutMs = 0) {
+const SYSTEMIC_ERROR_CODES = new Set([
+  'ELOGIN',
+  'ESOCKET',
+  'ETIMEOUT',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ENOTFOUND',
+  'ENETUNREACH',
+  'EPIPE',
+  'LOCK_SESSION_LOST',
+  'DB_NOT_READY',
+  'EAIR',
+  'EREQUEST_TIMEOUT'
+]);
+
+const SYSTEMIC_SQL_NUMBERS = new Set([
+  207,   // Invalid column name (schema mismatch)
+  208,   // Invalid object name (migration incomplete)
+  229,   // Permission denied
+  2812,  // Stored procedure not found
+  4060,  // Cannot open database
+  18456, // Login failed
+  18470, // Account disabled
+  40197,
+  40501,
+  40613
+]);
+
+function getInstanceId() {
+  return `${os.hostname()}:${process.pid}`;
+}
+
+function defaultLogEmitter(entry) {
+  console.log(JSON.stringify(entry));
+}
+
+function sanitizeErrorSummary(err) {
+  const raw = err && typeof err === 'object' ? (err.message || String(err)) : String(err || 'Unknown error');
+  return raw
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
+    .replace(/(password|pwd|secret|token|authorization)\s*=\s*[^;\s]+/gi, '$1=[REDACTED]')
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer [REDACTED]')
+    .slice(0, 240);
+}
+
+function getSqlErrorNumber(err) {
+  if (!err || typeof err !== 'object') return null;
+  if (typeof err.number === 'number') return err.number;
+  if (err.originalError && err.originalError.info && typeof err.originalError.info.number === 'number') {
+    return err.originalError.info.number;
+  }
+  if (Array.isArray(err.precedingErrors)) {
+    const found = err.precedingErrors.find((e) => typeof e?.number === 'number');
+    if (found) return found.number;
+  }
+  return null;
+}
+
+function isDeadlockError(err) {
+  if (!err || typeof err !== 'object') return false;
+  if (getSqlErrorNumber(err) === DEADLOCK_SQL_ERROR_NUMBER) return true;
+  if (Array.isArray(err.precedingErrors)) {
+    return err.precedingErrors.some((e) => getSqlErrorNumber(e) === DEADLOCK_SQL_ERROR_NUMBER);
+  }
+  return false;
+}
+
+function isSystemicError(err) {
+  if (!err || typeof err !== 'object') return false;
+  if (err.isSystemic === true || err.isCommitOutcomeUncertain === true) return true;
+  if (err.code && SYSTEMIC_ERROR_CODES.has(String(err.code))) return true;
+  if (err.name === 'ConnectionError') return true;
+
+  const sqlNum = getSqlErrorNumber(err);
+  if (sqlNum !== null && SYSTEMIC_SQL_NUMBERS.has(sqlNum)) return true;
+
+  const msg = String(err.message || '');
+  return /pool is closing|connection is closed|failed to connect|cannot open database|login failed|invalid object name|invalid column name|lock session/i.test(msg);
+}
+
+function createSystemicError(code, message) {
+  const err = new Error(message);
+  err.code = code;
+  err.isSystemic = true;
+  return err;
+}
+
+function defaultSleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function executeWithDeadlockRetry(fn, options = {}) {
+  const maxRetries = Number.isInteger(options.maxRetries) && options.maxRetries >= 0
+    ? options.maxRetries
+    : DEFAULT_DEADLOCK_MAX_RETRIES;
+  const baseDelayMs = Number.isFinite(options.baseDelayMs) && options.baseDelayMs >= 0
+    ? options.baseDelayMs
+    : DEFAULT_DEADLOCK_BASE_DELAY_MS;
+  const sleep = typeof options.sleep === 'function' ? options.sleep : defaultSleep;
+
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fn(attempt);
+    } catch (err) {
+      if (err?.isCommitOutcomeUncertain || !isDeadlockError(err) || attempt >= maxRetries) {
+        throw err;
+      }
+      attempt++;
+      const jitter = crypto.randomInt(0, 15);
+      const delayMs = baseDelayMs * (2 ** (attempt - 1)) + jitter;
+      await sleep(delayMs);
+    }
+  }
+}
+
+async function acquireSessionAppLock(lockTimeoutMs = 0, options = {}) {
   validateDatabaseConnection(appConfig.db, process.env.NODE_ENV);
+  const log = typeof options.logger === 'function' ? options.logger : null;
+  const sessionState = {
+    lockLost: false,
+    lastError: null
+  };
+
   const lockPool = new sql.ConnectionPool({
     ...appConfig.db,
     pool: { max: 1, min: 1, idleTimeoutMillis: 30000 }
   });
+
+  if (typeof lockPool.on === 'function') {
+    lockPool.on('error', (err) => {
+      sessionState.lockLost = true;
+      sessionState.lastError = sanitizeErrorSummary(err);
+      if (log) {
+        log({
+          event: 'loyalty_lock_session_error',
+          executionId: options.executionId || null,
+          errorCode: err.code || 'LOCK_POOL_ERROR',
+          errorSummary: sessionState.lastError,
+          timestampUtc: new Date().toISOString()
+        });
+      }
+    });
+  }
+
   await lockPool.connect();
 
   try {
     const req = lockPool.request();
     req.input('resource', sql.NVarChar(255), APPLOCK_RESOURCE);
-    req.input('timeoutMs', sql.Int, Number.isSafeInteger(lockTimeoutMs) ? lockTimeoutMs : 0);
+    req.input('timeoutMs', sql.Int, Number.isSafeInteger(lockTimeoutMs) && lockTimeoutMs >= 0 ? lockTimeoutMs : 0);
     const res = await req.query(`
       DECLARE @lockResult INT;
       EXEC @lockResult = sp_getapplock
@@ -41,9 +189,9 @@ async function acquireSessionAppLock(lockTimeoutMs = 0) {
     const lockResult = res.recordset[0]?.lock_result;
     if (lockResult === undefined || lockResult < 0) {
       await lockPool.close();
-      return { acquired: false, lockResult, lockPool: null };
+      return { acquired: false, lockResult, lockPool: null, sessionState };
     }
-    return { acquired: true, lockResult, lockPool };
+    return { acquired: true, lockResult, lockPool, sessionState };
   } catch (err) {
     try {
       await lockPool.close();
@@ -52,18 +200,108 @@ async function acquireSessionAppLock(lockTimeoutMs = 0) {
   }
 }
 
-async function releaseSessionAppLock(lockPool) {
-  if (!lockPool) return;
+async function verifySessionLockHeld(lockState) {
+  if (!lockState || !lockState.lockPool || lockState.sessionState?.lockLost) {
+    throw createSystemicError('LOCK_SESSION_LOST', 'Distributed worker lock session is missing or lost.');
+  }
+  if (lockState.lockPool.connected === false) {
+    throw createSystemicError('LOCK_SESSION_LOST', 'Distributed worker lock connection is closed.');
+  }
+
   try {
-    const req = lockPool.request();
+    const req = lockState.lockPool.request();
     req.input('resource', sql.NVarChar(255), APPLOCK_RESOURCE);
-    await req.query(`
-      EXEC sp_releaseapplock
+    const res = await req.query("SELECT APPLOCK_MODE('public', @resource, 'Session') AS lock_mode");
+    const mode = res.recordset[0]?.lock_mode;
+    if (!mode || mode === 'NoLock') {
+      lockState.sessionState.lockLost = true;
+      throw createSystemicError('LOCK_SESSION_LOST', 'SQL Server session no longer holds VAMOS_LOYALTY_CYCLE_WORKER_LOCK.');
+    }
+    return mode;
+  } catch (err) {
+    if (isSystemicError(err)) throw err;
+    lockState.sessionState.lockLost = true;
+    throw createSystemicError('LOCK_SESSION_LOST', `Failed to verify session lock: ${sanitizeErrorSummary(err)}`);
+  }
+}
+
+async function releaseSessionAppLock(lockPool, options = {}) {
+  if (!lockPool) return { released: false, reason: 'no_pool' };
+  const log = typeof options.logger === 'function' ? options.logger : null;
+
+  try {
+    if (lockPool.connected === false) {
+      if (log) {
+        log({
+          event: 'loyalty_lock_release_failed',
+          executionId: options.executionId || null,
+          reason: 'session_disconnected',
+          timestampUtc: new Date().toISOString()
+        });
+      }
+      return { released: false, reason: 'session_disconnected' };
+    }
+
+    const modeReq = lockPool.request();
+    modeReq.input('resource', sql.NVarChar(255), APPLOCK_RESOURCE);
+    const modeRes = await modeReq.query("SELECT APPLOCK_MODE('public', @resource, 'Session') AS lock_mode");
+    const mode = modeRes.recordset[0]?.lock_mode;
+
+    if (!mode || mode === 'NoLock') {
+      if (log) {
+        log({
+          event: 'loyalty_lock_release_failed',
+          executionId: options.executionId || null,
+          reason: 'lock_not_held_by_session',
+          timestampUtc: new Date().toISOString()
+        });
+      }
+      return { released: false, reason: 'lock_not_held_by_session' };
+    }
+
+    const relReq = lockPool.request();
+    relReq.input('resource', sql.NVarChar(255), APPLOCK_RESOURCE);
+    const relRes = await relReq.query(`
+      DECLARE @rc INT;
+      EXEC @rc = sp_releaseapplock
         @Resource = @resource,
         @LockOwner = 'Session';
+      SELECT @rc AS release_result;
     `);
+    const rc = relRes.recordset[0]?.release_result;
+    if (rc === undefined || rc < 0) {
+      if (log) {
+        log({
+          event: 'loyalty_lock_release_failed',
+          executionId: options.executionId || null,
+          reason: `sp_releaseapplock_rc_${rc}`,
+          timestampUtc: new Date().toISOString()
+        });
+      }
+      return { released: false, releaseResult: rc };
+    }
+
+    if (log) {
+      log({
+        event: 'loyalty_lock_released',
+        executionId: options.executionId || null,
+        releaseResult: rc,
+        timestampUtc: new Date().toISOString()
+      });
+    }
+    return { released: true, releaseResult: rc };
   } catch (err) {
-    console.warn('[LOYALTY WORKER] sp_releaseapplock warning:', err.message);
+    if (log) {
+      log({
+        event: 'loyalty_lock_release_failed',
+        executionId: options.executionId || null,
+        errorSummary: sanitizeErrorSummary(err),
+        timestampUtc: new Date().toISOString()
+      });
+    } else {
+      console.warn('[LOYALTY WORKER] sp_releaseapplock warning:', sanitizeErrorSummary(err));
+    }
+    return { released: false, error: sanitizeErrorSummary(err) };
   } finally {
     try {
       await lockPool.close();
@@ -74,6 +312,7 @@ async function releaseSessionAppLock(lockPool) {
 async function expireSingleBatch(pool, batchId, userId, nowTs) {
   const tx = new sql.Transaction(pool);
   await tx.begin();
+  let commitAttempted = false;
 
   try {
     // Lock Hierarchy Step 1: Lock wallet FIRST
@@ -100,6 +339,7 @@ async function expireSingleBatch(pool, batchId, userId, nowTs) {
     `);
 
     if (bRes.recordset.length === 0) {
+      commitAttempted = true;
       await tx.commit();
       return { expired: false, skipped: true, reason: 'BATCH_NOT_FOUND' };
     }
@@ -108,6 +348,7 @@ async function expireSingleBatch(pool, batchId, userId, nowTs) {
     const batchExpiresAt = loyaltyCycle.toUtcDate(batch.expires_at, `batch#${batch.id}.expires_at`);
 
     if (batch.status !== 'ACTIVE' || batch.remaining_points <= 0 || batchExpiresAt.getTime() > nowTs.getTime()) {
+      commitAttempted = true;
       await tx.commit();
       return { expired: false, skipped: true, reason: `STATUS_${batch.status}` };
     }
@@ -117,11 +358,9 @@ async function expireSingleBatch(pool, batchId, userId, nowTs) {
     idemReq.input('idem', sql.NVarChar(100), idempotencyKey);
     const idemRes = await idemReq.query('SELECT id FROM point_transactions WHERE idempotency_key = @idem');
     if (idemRes.recordset.length > 0) {
-      // Batch somehow left ACTIVE after prior expiration tx? Report invariant breach instead of silent adjustment
       throw new Error(`[INVARIANT VIOLATION] Idempotency key ${idempotencyKey} already exists while batch #${batch.id} is still ACTIVE.`);
     }
 
-    // Strict balance invariant: never deduct more than wallet.available_points
     if (wallet.available_points < batch.remaining_points) {
       throw new Error(
         `[INVARIANT VIOLATION] Batch #${batch.id} remaining (${batch.remaining_points}) exceeds wallet.available_points (${wallet.available_points}) for user_id=${userId}`
@@ -172,12 +411,18 @@ async function expireSingleBatch(pool, batchId, userId, nowTs) {
       WHERE id = @batchId
     `);
 
+    commitAttempted = true;
     await tx.commit();
     return { expired: true, skipped: false, batchId: batch.id, pointsExpired: batch.remaining_points };
   } catch (err) {
-    try {
-      await tx.rollback();
-    } catch (_) {}
+    if (commitAttempted) {
+      err.isCommitOutcomeUncertain = true;
+      err.isSystemic = true;
+    } else {
+      try {
+        await tx.rollback();
+      } catch (_) {}
+    }
     throw err;
   }
 }
@@ -185,6 +430,7 @@ async function expireSingleBatch(pool, batchId, userId, nowTs) {
 async function processDueWalletCycle(pool, userId, nowTs) {
   const tx = new sql.Transaction(pool);
   await tx.begin();
+  let commitAttempted = false;
 
   try {
     const wReq = new sql.Request(tx);
@@ -196,6 +442,7 @@ async function processDueWalletCycle(pool, userId, nowTs) {
     `);
 
     if (wRes.recordset.length === 0) {
+      commitAttempted = true;
       await tx.commit();
       return { updated: false, cyclesProcessed: 0 };
     }
@@ -203,6 +450,7 @@ async function processDueWalletCycle(pool, userId, nowTs) {
     const wallet = wRes.recordset[0];
     const rolled = loyaltyCycle.rolloverCyclesThroughTimestamp(wallet, nowTs);
     if (!rolled.changed) {
+      commitAttempted = true;
       await tx.commit();
       return { updated: false, cyclesProcessed: 0 };
     }
@@ -228,6 +476,7 @@ async function processDueWalletCycle(pool, userId, nowTs) {
       WHERE user_id = @userId
     `);
 
+    commitAttempted = true;
     await tx.commit();
     return {
       updated: true,
@@ -238,37 +487,119 @@ async function processDueWalletCycle(pool, userId, nowTs) {
       history: rolled.history
     };
   } catch (err) {
-    try {
-      await tx.rollback();
-    } catch (_) {}
+    if (commitAttempted) {
+      err.isCommitOutcomeUncertain = true;
+      err.isSystemic = true;
+    } else {
+      try {
+        await tx.rollback();
+      } catch (_) {}
+    }
     throw err;
   }
 }
 
 async function runLoyaltyCycleWorker(options = {}) {
+  const executionId = options.executionId || crypto.randomUUID();
+  const instanceId = options.instanceId || getInstanceId();
+  const trigger = options.trigger || 'manual';
+  const startedAtMs = Date.now();
+  const startedAtUtc = new Date(startedAtMs).toISOString();
+  const emitLog = typeof options.logger === 'function' ? options.logger : defaultLogEmitter;
+  const shouldEmitLogs = options.emitStructuredLogs === true;
+
   const lockTimeoutMs = options.lockTimeoutMs !== undefined ? options.lockTimeoutMs : 0;
-  const lockState = await acquireSessionAppLock(lockTimeoutMs);
+  const acquireFn = typeof options.acquireLockFn === 'function' ? options.acquireLockFn : acquireSessionAppLock;
+  const verifyFn = typeof options.verifyLockFn === 'function' ? options.verifyLockFn : verifySessionLockHeld;
+  const releaseFn = typeof options.releaseLockFn === 'function' ? options.releaseLockFn : releaseSessionAppLock;
+  const expireBatchFn = typeof options.expireBatchFn === 'function' ? options.expireBatchFn : expireSingleBatch;
+  const processWalletFn = typeof options.processWalletFn === 'function' ? options.processWalletFn : processDueWalletCycle;
+
+  const lockState = await acquireFn(lockTimeoutMs, {
+    executionId,
+    logger: shouldEmitLogs ? emitLog : null
+  });
 
   if (!lockState.acquired) {
+    const finishedAtUtc = new Date().toISOString();
+    if (shouldEmitLogs) {
+      emitLog({
+        event: 'loyalty_lock_not_acquired',
+        executionId,
+        jobName: JOB_NAME,
+        trigger,
+        instanceId,
+        lockStatus: 'not_acquired',
+        lockResult: lockState.lockResult ?? -1,
+        timestampUtc: finishedAtUtc
+      });
+    }
     return {
+      executionId,
+      jobName: JOB_NAME,
+      trigger,
+      instanceId,
+      startedAtUtc,
+      finishedAtUtc,
+      durationMs: Math.max(0, Date.now() - startedAtMs),
       skippedDueToLock: true,
+      lockStatus: 'not_acquired',
+      processedAccounts: 0,
+      processedCycles: 0,
       expiredBatches: 0,
       pointsExpiredTotal: 0,
       skippedBatches: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      failedDetails: [],
+      errorSummary: null,
       walletsRolledOver: 0,
-      cyclesProcessedTotal: 0
+      cyclesProcessedTotal: 0,
+      outcome: 'skipped'
     };
   }
 
+  if (shouldEmitLogs) {
+    emitLog({
+      event: 'loyalty_lock_acquired',
+      executionId,
+      jobName: JOB_NAME,
+      instanceId,
+      lockResult: lockState.lockResult ?? 0,
+      timestampUtc: new Date().toISOString()
+    });
+    emitLog({
+      event: 'loyalty_job_started',
+      executionId,
+      jobName: JOB_NAME,
+      startedAtUtc,
+      instanceId,
+      trigger,
+      lockStatus: 'acquired'
+    });
+  }
+
   try {
-    const pool = await getPool();
-    const nowRes = await pool.request().query('SELECT SYSUTCDATETIME() AS db_now');
+    // Execute worker queries & transactions on the same pinned lock session pool unless overridden
+    const workPool = options.workPool || lockState.lockPool;
+    await verifyFn(lockState);
+
+    const nowRes = await workPool.request().query('SELECT SYSUTCDATETIME() AS db_now');
     const nowTs = options.nowOverride
       ? loyaltyCycle.toUtcDate(options.nowOverride, 'nowOverride')
       : loyaltyCycle.toUtcDate(nowRes.recordset[0].db_now, 'db_now');
 
+    const touchedUserIds = new Set();
+    const failedDetails = [];
+    let expiredBatches = 0;
+    let pointsExpiredTotal = 0;
+    let skippedBatches = 0;
+    let walletsRolledOver = 0;
+    let cyclesProcessedTotal = 0;
+    let abortedDueToShutdown = false;
+
     // Phase 1: Scan and expire due batches (365-day expiration)
-    const dueBatchesReq = pool.request();
+    const dueBatchesReq = workPool.request();
     dueBatchesReq.input('nowTs', sql.DateTime2, nowTs);
     const dueBatchesRes = await dueBatchesReq.query(`
       SELECT id, user_id
@@ -279,68 +610,174 @@ async function runLoyaltyCycleWorker(options = {}) {
       ORDER BY expires_at ASC, id ASC
     `);
 
-    let expiredBatches = 0;
-    let pointsExpiredTotal = 0;
-    let skippedBatches = 0;
-
     for (const row of dueBatchesRes.recordset) {
+      if (typeof options.shouldAbort === 'function' && options.shouldAbort()) {
+        abortedDueToShutdown = true;
+        break;
+      }
+      await verifyFn(lockState);
+
       if (options.testHooks && typeof options.testHooks.beforeExpireBatch === 'function') {
         await options.testHooks.beforeExpireBatch(row);
       }
-      const res = await expireSingleBatch(pool, row.id, row.user_id, nowTs);
-      if (res.expired) {
-        expiredBatches++;
-        pointsExpiredTotal += res.pointsExpired;
-      } else if (res.skipped) {
-        skippedBatches++;
+
+      try {
+        const res = await executeWithDeadlockRetry(
+          () => expireBatchFn(workPool, row.id, row.user_id, nowTs),
+          options.retryOptions
+        );
+        touchedUserIds.add(row.user_id);
+        if (res.expired) {
+          expiredBatches++;
+          pointsExpiredTotal += res.pointsExpired;
+        } else if (res.skipped) {
+          skippedBatches++;
+        }
+      } catch (itemErr) {
+        if (isSystemicError(itemErr)) {
+          throw itemErr;
+        }
+        failedDetails.push({
+          entityType: 'POINT_BATCH',
+          entityId: row.id,
+          userId: row.user_id,
+          errorCode: itemErr.code || `SQL_${getSqlErrorNumber(itemErr) || 'ITEM_ERROR'}`,
+          errorSummary: sanitizeErrorSummary(itemErr)
+        });
       }
     }
 
     // Phase 2: Scan and roll over due 12-month tier cycles (with Soft Landing)
-    const dueWalletsReq = pool.request();
-    dueWalletsReq.input('nowTs', sql.DateTime2, nowTs);
-    const dueWalletsRes = await dueWalletsReq.query(`
-      SELECT user_id
-      FROM user_points_wallets
-      WHERE cycle_end_at IS NOT NULL
-        AND cycle_end_at < @nowTs
-      ORDER BY cycle_end_at ASC, user_id ASC
-    `);
+    if (!abortedDueToShutdown) {
+      await verifyFn(lockState);
 
-    let walletsRolledOver = 0;
-    let cyclesProcessedTotal = 0;
+      const dueWalletsReq = workPool.request();
+      dueWalletsReq.input('nowTs', sql.DateTime2, nowTs);
+      const dueWalletsRes = await dueWalletsReq.query(`
+        SELECT user_id
+        FROM user_points_wallets
+        WHERE cycle_end_at IS NOT NULL
+          AND cycle_end_at < @nowTs
+        ORDER BY cycle_end_at ASC, user_id ASC
+      `);
 
-    for (const row of dueWalletsRes.recordset) {
-      const res = await processDueWalletCycle(pool, row.user_id, nowTs);
-      if (res.updated) {
-        walletsRolledOver++;
-        cyclesProcessedTotal += res.cyclesProcessed;
+      for (const row of dueWalletsRes.recordset) {
+        if (typeof options.shouldAbort === 'function' && options.shouldAbort()) {
+          abortedDueToShutdown = true;
+          break;
+        }
+        await verifyFn(lockState);
+
+        try {
+          const res = await executeWithDeadlockRetry(
+            () => processWalletFn(workPool, row.user_id, nowTs),
+            options.retryOptions
+          );
+          touchedUserIds.add(row.user_id);
+          if (res.updated) {
+            walletsRolledOver++;
+            cyclesProcessedTotal += res.cyclesProcessed;
+          }
+        } catch (itemErr) {
+          if (isSystemicError(itemErr)) {
+            throw itemErr;
+          }
+          failedDetails.push({
+            entityType: 'WALLET',
+            entityId: row.user_id,
+            userId: row.user_id,
+            errorCode: itemErr.code || `SQL_${getSqlErrorNumber(itemErr) || 'ITEM_ERROR'}`,
+            errorSummary: sanitizeErrorSummary(itemErr)
+          });
+        }
       }
     }
 
+    const finishedAtUtc = new Date().toISOString();
+    const durationMs = Math.max(0, Date.now() - startedAtMs);
+    const failedRecords = failedDetails.length;
+    const outcome = abortedDueToShutdown
+      ? 'aborted_shutdown'
+      : (failedRecords > 0 ? 'degraded' : 'success');
+    const errorSummary = failedRecords > 0
+      ? failedDetails.slice(0, 5).map((f) => `${f.entityType}#${f.entityId}:${f.errorSummary}`).join(' | ')
+      : null;
+
+    if (shouldEmitLogs) {
+      emitLog({
+        event: 'loyalty_job_completed',
+        executionId,
+        jobName: JOB_NAME,
+        finishedAtUtc,
+        durationMs,
+        instanceId,
+        processedAccounts: touchedUserIds.size,
+        processedCycles: cyclesProcessedTotal,
+        expiredBatches,
+        skippedRecords: skippedBatches,
+        failedRecords,
+        errorSummary,
+        outcome
+      });
+    }
+
     return {
+      executionId,
+      jobName: JOB_NAME,
+      trigger,
+      instanceId,
+      startedAtUtc,
+      finishedAtUtc,
+      durationMs,
       skippedDueToLock: false,
+      lockStatus: 'acquired',
       processedAt: nowTs,
+      processedAccounts: touchedUserIds.size,
+      processedCycles: cyclesProcessedTotal,
       expiredBatches,
       pointsExpiredTotal,
       skippedBatches,
+      skippedRecords: skippedBatches,
+      failedRecords,
+      failedDetails,
+      errorSummary,
       walletsRolledOver,
-      cyclesProcessedTotal
+      cyclesProcessedTotal,
+      abortedDueToShutdown,
+      outcome
     };
+  } catch (err) {
+    const finishedAtUtc = new Date().toISOString();
+    const durationMs = Math.max(0, Date.now() - startedAtMs);
+    if (shouldEmitLogs) {
+      emitLog({
+        event: 'loyalty_job_failed',
+        executionId,
+        jobName: JOB_NAME,
+        instanceId,
+        errorCode: err.code || `SQL_${getSqlErrorNumber(err) || 'WORKER_FAILED'}`,
+        errorSummary: sanitizeErrorSummary(err),
+        finishedAtUtc,
+        durationMs
+      });
+    }
+    throw err;
   } finally {
-    await releaseSessionAppLock(lockState.lockPool);
+    await releaseFn(lockState.lockPool, {
+      executionId,
+      logger: shouldEmitLogs ? emitLog : null
+    });
   }
 }
 
 if (require.main === module) {
-  runLoyaltyCycleWorker()
+  runLoyaltyCycleWorker({ trigger: 'cli', emitStructuredLogs: true })
     .then(async (summary) => {
-      console.log('[LOYALTY WORKER SUMMARY]', JSON.stringify(summary));
-      process.exitCode = 0;
+      process.exitCode = summary.failedRecords > 0 ? 1 : 0;
       await closePool();
     })
     .catch(async (err) => {
-      console.error('[LOYALTY WORKER ERROR]', err);
+      console.error('[LOYALTY WORKER ERROR]', sanitizeErrorSummary(err));
       process.exitCode = 1;
       await closePool();
     });
@@ -348,9 +785,17 @@ if (require.main === module) {
 
 module.exports = {
   APPLOCK_RESOURCE,
+  JOB_NAME,
+  DEADLOCK_SQL_ERROR_NUMBER,
+  DEFAULT_DEADLOCK_MAX_RETRIES,
   acquireSessionAppLock,
+  verifySessionLockHeld,
   releaseSessionAppLock,
   expireSingleBatch,
   processDueWalletCycle,
-  runLoyaltyCycleWorker
+  runLoyaltyCycleWorker,
+  executeWithDeadlockRetry,
+  isDeadlockError,
+  isSystemicError,
+  sanitizeErrorSummary
 };
