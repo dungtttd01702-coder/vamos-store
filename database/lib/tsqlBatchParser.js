@@ -41,8 +41,9 @@ function parseGoDirectiveLine(line, lineNumber) {
   let repeatCount = 1;
 
   if (rest.length > 0 && !rest.startsWith('--') && !rest.startsWith('/*')) {
-    const tokenMatch = /^(\S+)(.*)$/.exec(rest);
-    const token = tokenMatch[1];
+    const endIdx = rest.search(/\s|--|\/\*/);
+    const token = endIdx === -1 ? rest : rest.slice(0, endIdx);
+    rest = endIdx === -1 ? '' : rest.slice(endIdx).trim();
     if (!/^[1-9]\d*$/.test(token)) {
       throw new Error(`Invalid GO batch directive token "${token}" at line ${lineNumber}. Expected positive integer repeat count.`);
     }
@@ -50,7 +51,6 @@ function parseGoDirectiveLine(line, lineNumber) {
     if (!Number.isSafeInteger(repeatCount) || repeatCount > MAX_GO_REPEAT) {
       throw new Error(`Unsupported GO repeat count ${repeatCount} at line ${lineNumber} (max allowed: ${MAX_GO_REPEAT}).`);
     }
-    rest = tokenMatch[2].trim();
   }
 
   // Remaining text on a GO line may only consist of single-line block comments and/or `--` line comment
