@@ -65,9 +65,9 @@ function defaultLogEmitter(entry) {
 function sanitizeErrorSummary(err) {
   const raw = err && typeof err === 'object' ? (err.message || String(err)) : String(err || 'Unknown error');
   return raw
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
-    .replace(/(password|pwd|secret|token|authorization)\s*=\s*[^;\s]+/gi, '$1=[REDACTED]')
-    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer [REDACTED]')
+    .replace(/[^\s@]{1,64}@[^\s@.]{1,63}(?:\.[^\s@.]{1,63}){1,8}/g, '[REDACTED_EMAIL]')
+    .replace(/(password|pwd|secret|token|authorization)[ \t]{0,8}=[ \t]{0,8}[^;\s]{1,256}/gi, '$1=[REDACTED]')
+    .replace(/Bearer[ \t]{1,8}[A-Za-z0-9._-]{1,512}/gi, 'Bearer [REDACTED]')
     .slice(0, 240);
 }
 

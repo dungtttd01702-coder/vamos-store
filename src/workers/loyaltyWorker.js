@@ -142,10 +142,10 @@ if (require.main === module) {
   const runtime = createDedicatedLoyaltyWorkerRuntime();
 
   process.on('SIGTERM', () => {
-    runtime.shutdown('SIGTERM', 0);
+    void runtime.shutdown('SIGTERM', 0).catch(() => process.exit(1));
   });
   process.on('SIGINT', () => {
-    runtime.shutdown('SIGINT', 0);
+    void runtime.shutdown('SIGINT', 0).catch(() => process.exit(1));
   });
   process.on('unhandledRejection', (reason) => {
     console.error(JSON.stringify({
@@ -153,7 +153,7 @@ if (require.main === module) {
       errorSummary: sanitizeErrorSummary(reason instanceof Error ? reason : new Error(String(reason))),
       timestampUtc: new Date().toISOString()
     }));
-    runtime.shutdown('unhandledRejection', 1);
+    void runtime.shutdown('unhandledRejection', 1).catch(() => process.exit(1));
   });
   process.on('uncaughtException', (err) => {
     console.error(JSON.stringify({
@@ -161,7 +161,7 @@ if (require.main === module) {
       errorSummary: sanitizeErrorSummary(err),
       timestampUtc: new Date().toISOString()
     }));
-    runtime.shutdown('uncaughtException', 1);
+    void runtime.shutdown('uncaughtException', 1).catch(() => process.exit(1));
   });
 
   runtime.start().catch((err) => {
@@ -170,7 +170,7 @@ if (require.main === module) {
       errorSummary: sanitizeErrorSummary(err),
       timestampUtc: new Date().toISOString()
     }));
-    runtime.shutdown('boot_failed', 1);
+    return runtime.shutdown('boot_failed', 1).catch(() => process.exit(1));
   });
 }
 
