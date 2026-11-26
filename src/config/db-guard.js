@@ -10,7 +10,9 @@ const VALID_ENVIRONMENTS = new Set([
 ]);
 
 const ALLOWED_TEST_DATABASES = new Set([
-  'vamos_store_test_db'
+  'vamos_store_test_db',
+  'vamos_store_parity_test_db',
+  'vamos_store_upgrade_test_db'
 ]);
 
 const BLOCKED_IN_TEST = new Set([
