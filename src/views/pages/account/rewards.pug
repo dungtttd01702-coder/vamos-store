@@ -162,8 +162,10 @@ block content
 
           .grid.grid-cols-1.gap-4(class="sm:grid-cols-2 lg:grid-cols-3")
             each rule in rewardRules
+              - const availableStock = Number(rule.stock_quantity || 0)
+              - const isOutOfStock = availableStock <= 0
               article.bg-white.rounded-xl.border.p-5.flex.flex-col.justify-between.transition-all(
-                class=rule.is_active ? 'border-slate-200 hover:border-slate-300 shadow-sm' : 'border-slate-100 bg-slate-50 opacity-75'
+                class=rule.is_active && !isOutOfStock ? 'border-slate-200 hover:border-slate-300 shadow-sm' : 'border-slate-100 bg-slate-50 opacity-75'
               )
                 div
                   .flex.items-center.justify-between.mb-3
@@ -185,11 +187,21 @@ block content
                     p
                       span.text-slate-400 Thời hạn: 
                       strong.text-slate-700= rule.voucher_valid_days + ' ngày kể từ khi đổi'
+                    if rule.is_active
+                      p
+                        span.text-slate-400= 'Số lượng còn lại: '
+                        if isOutOfStock
+                          strong.text-red-600 HẾT LƯỢT ĐỔI
+                        else
+                          strong.text-slate-700= `Còn ${availableStock.toLocaleString('vi-VN')} lượt đổi`
 
                 .mt-5.pt-4
                   if !rule.is_active
                     button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-200.text-slate-500.cursor-not-allowed(disabled)
                       | 🔒 SẮP MỞ ĐỔI QUÀ
+                  else if isOutOfStock
+                    button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-200.text-slate-500.cursor-not-allowed(disabled)
+                      | HẾT LƯỢT ĐỔI
                   else if displayUsablePoints < rule.points_required
                     button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-100.text-slate-400.cursor-not-allowed(disabled)
                       = `Thiếu ${(rule.points_required - displayUsablePoints).toLocaleString('vi-VN')} điểm còn hạn`

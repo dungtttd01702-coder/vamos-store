@@ -48,7 +48,16 @@ class LoyaltyController {
       }
       redeemLimiter.recordAttempt(clientKey);
 
-      const result = await loyaltyService.redeemVoucher(user.id, reward_rule_id);
+      const rawIdemKey = req.body?.idempotency_key || req.get('Idempotency-Key') || '';
+      const idempotencyKey = typeof rawIdemKey === 'string' && rawIdemKey.trim()
+        ? rawIdemKey.trim().slice(0, 100)
+        : undefined;
+
+      const result = await loyaltyService.redeemVoucher(
+        user.id,
+        reward_rule_id,
+        idempotencyKey ? { idempotencyKey } : {}
+      );
 
       if (req.xhr || req.headers.accept?.includes('application/json')) {
         return res.json({

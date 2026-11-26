@@ -668,7 +668,7 @@ async function main() {
               id: 1, title: 'Voucher 50k', reward_type: 'VOUCHER_FIXED',
               points_required: 500, discount_value: 50000, min_order_value: 200000,
               max_discount_amount: 50000, voucher_valid_days: 30, is_active: true,
-              stock_quantity: null, redeemed_count: 0
+              stock_quantity: 10, redeemed_count: 0
             }]
           };
         }
@@ -1082,7 +1082,7 @@ async function main() {
           recordset: [{
             id: 1, title: 'Voucher 700', reward_type: 'VOUCHER', points_required: 700,
             discount_type: 'fixed_amount', discount_value: 50000, min_order_amount: 0,
-            voucher_valid_days: 30, is_active: true
+            voucher_valid_days: 30, stock_quantity: 15, is_active: true
           }]
         };
       }

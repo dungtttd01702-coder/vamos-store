@@ -18,6 +18,8 @@ const ALLOWED_QUICK_TAGS = new Set([
   'Đóng gói cẩn thận'
 ]);
 
+const OUT_OF_STOCK_MSG = 'Voucher này đã hết lượt đổi.';
+
 class LoyaltyService {
   /**
    * Determine Tier Code based on qualifying points (or passed points value)
@@ -442,8 +444,106 @@ class LoyaltyService {
   }
 
   /**
-   * Redeem Points for Voucher with ACID Transaction, Pessimistic Locking & FEFO Batch Deduction.
-   * All tiers (MEMBER/SILVER/GOLD/VIP) are permitted if points and rule conditions are met.
+   * Look up an existing successful redemption by (userId, idempotencyKey) inside the current transaction.
+   * @private
+   */
+  async _findIdempotentRedemption(transaction, userId, idempotencyKey) {
+    const dupTxReq = new sql.Request(transaction);
+    dupTxReq.input('userId', sql.Int, userId);
+    dupTxReq.input('idem', sql.NVarChar(100), idempotencyKey);
+    const dupTxRes = await dupTxReq.query(`
+      SELECT pt.reference_id, pt.balance_after, pt.amount,
+             vr.id AS redemption_id, v.code AS voucher_code, v.name AS voucher_name,
+             prr.stock_quantity AS remaining_stock
+      FROM point_transactions pt
+      LEFT JOIN vouchers v ON TRY_CAST(pt.reference_id AS INT) = v.id
+      LEFT JOIN voucher_redemptions vr ON vr.voucher_id = v.id AND vr.user_id = pt.user_id
+      LEFT JOIN point_reward_rules prr ON vr.reward_rule_id = prr.id
+      WHERE pt.user_id = @userId AND pt.idempotency_key = @idem
+    `);
+    if (dupTxRes.recordset.length === 0) {
+      return null;
+    }
+    const existing = dupTxRes.recordset[0];
+    return {
+      success: true,
+      idempotent: true,
+      voucherCode: existing.voucher_code,
+      voucherId: Number.parseInt(existing.reference_id, 10),
+      redemptionId: existing.redemption_id,
+      voucherName: existing.voucher_name,
+      pointsSpent: Math.abs(Number(existing.amount || 0)),
+      balanceAfter: existing.balance_after,
+      remainingStock: existing.remaining_stock,
+      fefoDeductions: []
+    };
+  }
+
+  /**
+   * Lock the reward rule first (UPDLOCK, ROWLOCK) and verify idempotency/active/stock preconditions.
+   * @private
+   */
+  async _lockAndValidateRule(transaction, ruleId, userId, customIdempotencyKey) {
+    const ruleReq = new sql.Request(transaction);
+    ruleReq.input('ruleId', sql.Int, ruleId);
+    const ruleRes = await ruleReq.query(`
+      SELECT * FROM point_reward_rules WITH (UPDLOCK, ROWLOCK)
+      WHERE id = @ruleId
+    `);
+
+    if (customIdempotencyKey) {
+      const cachedAfterLock = await this._findIdempotentRedemption(transaction, userId, customIdempotencyKey);
+      if (cachedAfterLock) {
+        return { cached: cachedAfterLock, rule: null, currentStock: null };
+      }
+    }
+
+    if (ruleRes.recordset.length === 0) {
+      throw new Error('Chương trình đổi thưởng này không tồn tại.');
+    }
+
+    const rule = ruleRes.recordset[0];
+    if (!rule.is_active) {
+      throw new Error(`Phần thưởng "${rule.title}" hiện đang tạm đóng hoặc chưa khả dụng đổi điểm.`);
+    }
+
+    if (rule.reward_type === 'PHYSICAL_GIFT') {
+      throw new Error(`Phần thưởng "${rule.title}" là quà tặng vật lý hiện đang ở trạng thái chuẩn bị mở.`);
+    }
+
+    const currentStock = Number(rule.stock_quantity);
+    if (!Number.isInteger(currentStock) || currentStock <= 0) {
+      throw new Error(OUT_OF_STOCK_MSG);
+    }
+
+    return { cached: null, rule, currentStock };
+  }
+
+  /**
+   * Atomically decrement finite voucher stock inside the active transaction.
+   * @private
+   */
+  async _decrementRuleStock(transaction, ruleId, nowTs) {
+    const stockReq = new sql.Request(transaction);
+    stockReq.input('ruleId', sql.Int, ruleId);
+    stockReq.input('nowTs', sql.DateTime2, nowTs);
+    const stockRes = await stockReq.query(`
+      UPDATE point_reward_rules
+      SET stock_quantity = stock_quantity - 1,
+          updated_at = @nowTs
+      WHERE id = @ruleId
+        AND is_active = 1
+        AND stock_quantity > 0
+    `);
+
+    if (!stockRes.rowsAffected || stockRes.rowsAffected[0] !== 1) {
+      throw new Error(OUT_OF_STOCK_MSG);
+    }
+  }
+
+  /**
+   * Redeem Points for Voucher with ACID Transaction, Pessimistic Locking, Atomic Stock Control & FEFO Batch Deduction.
+   * All tiers (MEMBER/SILVER/GOLD/VIP) are permitted if points, active state, and stock conditions are met.
    */
   async redeemVoucher(userId, rewardRuleId, options = {}) {
     if (!userId) {
@@ -468,54 +568,20 @@ class LoyaltyService {
         : null;
 
       if (customIdempotencyKey) {
-        const dupTxReq = new sql.Request(transaction);
-        dupTxReq.input('userId', sql.Int, userId);
-        dupTxReq.input('idem', sql.NVarChar(100), customIdempotencyKey);
-        const dupTxRes = await dupTxReq.query(`
-          SELECT pt.reference_id, pt.balance_after, pt.amount,
-                 vr.id AS redemption_id, v.code AS voucher_code, v.name AS voucher_name
-          FROM point_transactions pt
-          LEFT JOIN vouchers v ON TRY_CAST(pt.reference_id AS INT) = v.id
-          LEFT JOIN voucher_redemptions vr ON vr.voucher_id = v.id AND vr.user_id = pt.user_id
-          WHERE pt.user_id = @userId AND pt.idempotency_key = @idem
-        `);
-        if (dupTxRes.recordset.length > 0) {
-          const existing = dupTxRes.recordset[0];
+        const cached = await this._findIdempotentRedemption(transaction, userId, customIdempotencyKey);
+        if (cached) {
           await transaction.commit();
-          return {
-            success: true,
-            idempotent: true,
-            voucherCode: existing.voucher_code,
-            voucherId: Number.parseInt(existing.reference_id, 10),
-            redemptionId: existing.redemption_id,
-            voucherName: existing.voucher_name,
-            pointsSpent: Math.abs(Number(existing.amount || 0)),
-            balanceAfter: existing.balance_after,
-            fefoDeductions: []
-          };
+          return cached;
         }
       }
 
-      // 1. Lock and read reward rule
-      const ruleReq = new sql.Request(transaction);
-      ruleReq.input('ruleId', sql.Int, ruleId);
-      const ruleRes = await ruleReq.query(`
-        SELECT * FROM point_reward_rules WITH (UPDLOCK, ROWLOCK)
-        WHERE id = @ruleId
-      `);
-
-      if (ruleRes.recordset.length === 0) {
-        throw new Error('Chương trình đổi thưởng này không tồn tại.');
+      // 1. Lock reward rule first to preserve consistent Lock Hierarchy: rule -> wallet -> batches
+      const ruleState = await this._lockAndValidateRule(transaction, ruleId, userId, customIdempotencyKey);
+      if (ruleState.cached) {
+        await transaction.commit();
+        return ruleState.cached;
       }
-
-      const rule = ruleRes.recordset[0];
-      if (!rule.is_active) {
-        throw new Error(`Phần thưởng "${rule.title}" hiện đang tạm đóng hoặc chưa khả dụng đổi điểm.`);
-      }
-
-      if (rule.reward_type === 'PHYSICAL_GIFT') {
-        throw new Error(`Phần thưởng "${rule.title}" là quà tặng vật lý hiện đang ở trạng thái chuẩn bị mở.`);
-      }
+      const { rule, currentStock } = ruleState;
 
       // 2. Lock Hierarchy Step 1: Lock user points wallet FIRST
       const wallet = await this.getOrCreateWallet(userId, transaction);
@@ -545,6 +611,9 @@ class LoyaltyService {
 
       const fefoPlan = loyaltyCycle.planFefoDeduction(batchRes.recordset, rule.points_required, { now: nowTs });
 
+      // 4. Atomic conditional stock decrement guarded at SQL layer (prevents overselling & negative stock)
+      await this._decrementRuleStock(transaction, rule.id, nowTs);
+
       // Apply FEFO batch updates atomically inside same transaction
       for (const item of fefoPlan.deductions) {
         const upBatchReq = new sql.Request(transaction);
@@ -572,7 +641,11 @@ class LoyaltyService {
         }
       }
 
-      // 4. Generate cryptographically strong, unique personal voucher code
+      if (process.env.NODE_ENV === 'test' && options._testFailAt === 'before_voucher_insert') {
+        throw new Error('Simulated failure before voucher insert (test-only)');
+      }
+
+      // 5. Generate cryptographically strong, unique personal voucher code
       let voucherCode = null;
       let randomPart = '';
       for (let attempt = 0; attempt < 5; attempt++) {
@@ -591,7 +664,7 @@ class LoyaltyService {
         throw new Error('Hệ thống tạm thời không thể khởi tạo mã voucher độc quyền lúc này. Vui lòng thử lại sau.');
       }
 
-      // 5. Create voucher in vouchers table preserving rule discount_type (true free_shipping vs fixed_amount/percentage)
+      // 6. Create voucher in vouchers table preserving rule discount_type (true free_shipping vs fixed_amount/percentage)
       const vReq = new sql.Request(transaction);
       vReq.input('code', voucherCode);
       vReq.input('name', `Voucher VAMOS Club - ${rule.title}`);
@@ -612,7 +685,11 @@ class LoyaltyService {
 
       const voucherId = vRes.recordset[0].id;
 
-      // 6. Create voucher_redemptions record
+      if (process.env.NODE_ENV === 'test' && options._testFailAt === 'before_redemption_insert') {
+        throw new Error('Simulated failure before redemption insert (test-only)');
+      }
+
+      // 7. Create voucher_redemptions record
       const redReq = new sql.Request(transaction);
       redReq.input('userId', sql.Int, userId);
       redReq.input('ruleId', sql.Int, rule.id);
@@ -628,7 +705,7 @@ class LoyaltyService {
       `);
       const redemptionId = redRes.recordset[0].id;
 
-      // 7. Deduct ONLY available_points & update lifetime_redeemed_points (NEVER reduce qualifying_points_cycle)
+      // 8. Deduct ONLY available_points & update lifetime_redeemed_points (NEVER reduce qualifying_points_cycle)
       const newAvailable = wallet.available_points - rule.points_required;
       const newRedeemed = wallet.lifetime_redeemed_points + rule.points_required;
 
@@ -645,7 +722,11 @@ class LoyaltyService {
         WHERE user_id = @userId
       `);
 
-      // 8. Write immutable point_transactions ledger
+      if (process.env.NODE_ENV === 'test' && options._testFailAt === 'before_point_transaction_insert') {
+        throw new Error('Simulated failure before point transaction insert (test-only)');
+      }
+
+      // 9. Write immutable point_transactions ledger
       const txReq = new sql.Request(transaction);
       txReq.input('userId', sql.Int, userId);
       txReq.input('type', sql.NVarChar(30), 'VOUCHER_REDEMPTION');
@@ -675,6 +756,7 @@ class LoyaltyService {
         voucherName: rule.title,
         pointsSpent: rule.points_required,
         balanceAfter: newAvailable,
+        remainingStock: currentStock - 1,
         expiresInDays: rule.voucher_valid_days,
         fefoDeductions: fefoPlan.deductions
       };
