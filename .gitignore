@@ -10,6 +10,16 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 
+# AI Agent Skills, Rules & Local MCP (Local-only, not for GitHub)
+.agents/
+.agent/
+.claude/
+.cursor/
+.codex/
+skills-lock.json
+.mcp.json
+PROJECT_CONTEXT_FOR_AI.md
+
 # Internal collaboration and IDE settings
 .markdown-collab/
 .gemini/
@@ -34,4 +44,5 @@ dist/
 build/
 tmp/
 scratch/
-
+*.tmp
+audit_summary.json

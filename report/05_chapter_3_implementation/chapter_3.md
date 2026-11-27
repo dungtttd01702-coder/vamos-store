@@ -4,90 +4,95 @@
 
 ## 1. CẤU TRÚC MÃ NGUỒN DỰ ÁN
 
-Hệ thống VAMOS STORE được tổ chức theo mô hình **Kiến trúc phân lớp chuẩn (Layered Architecture)** kết hợp với mô hình MVC của Node.js/Express, đảm bảo tính phân tách trách nhiệm (Separation of Concerns) và khả năng mở rộng cao:
+Hệ thống VAMOS STORE được tổ chức mã nguồn chuẩn mực trên nền tảng Node.js và framework Express.js, kết hợp giữa mô hình phân lớp doanh nghiệp (Service / Repository) cho các giao dịch phức tạp và mô hình trực tiếp (Two-Tier Direct Controller - Database) cho các phân hệ quản trị CRUD:
 
 ```
 vamos-store/
+├── server.js                      # Điểm khởi chạy tiến trình HTTP và kiểm tra kết nối DB
+├── package.json                   # Khai báo phụ thuộc (Node >=22, Express, mssql, pug, bcryptjs)
+├── docker-compose.yml             # Cấu hình đa container (Node.js App + MSSQL Server 2022)
+├── Dockerfile                     # Multi-stage Dockerfile tối ưu kích thước image
 ├── src/
-│   ├── app.js                   # Khởi tạo Express server, cấu hình middlewares & template engine
+│   ├── app.js                     # Cấu hình ứng dụng Express, Middleware bảo mật, Session, CSRF, i18n
 │   ├── config/
-│   │   ├── database.js          # Cấu hình MSSQL Connection Pool (mssql)
-│   │   ├── session.js           # Cấu hình express-session & Cookie bảo mật
-│   │   └── constants.js         # Các hằng số hệ thống (Mã trạng thái đơn, quy tắc kho)
+│   │   ├── app.config.js          # Quản lý biến môi trường, cổng, session và MSSQL connection pool
+│   │   └── database.js            # MSSQL Connection Pool & Query API an toàn
 │   ├── routes/
-│   │   ├── storefront/          # Tuyến đường công khai cho khách hàng (home, shop, cart, checkout)
-│   │   ├── auth/                # Tuyến đường đăng ký, đăng nhập, khôi phục mật khẩu
-│   │   └── admin/               # Tuyến đường bảo mật phân hệ quản trị (dashboard, products, orders, inventory)
+│   │   ├── index.js               # Điểm gắn kết định tuyến trung tâm (/admin, /products, /auth,...)
+│   │   ├── admin.routes.js        # Tuyến đường phân hệ quản trị Admin (28 endpoints bảo vệ bằng requireAdmin)
+│   │   ├── auth.routes.js         # Tuyến đường xác thực (đăng nhập, đăng ký, đăng xuất)
+│   │   ├── product.routes.js      # Tuyến đường duyệt và tìm kiếm sản phẩm cửa hàng
+│   │   ├── cart.routes.js         # Tuyến đường quản lý giỏ hàng trực tuyến
+│   │   ├── checkout.routes.js     # Tuyến đường đặt hàng thanh toán COD
+│   │   ├── account.routes.js      # Tuyến đường hồ sơ cá nhân, sổ địa chỉ và lịch sử đơn hàng
+│   │   ├── home.routes.js         # Tuyến đường trang chủ, danh mục nổi bật, banner
+│   │   ├── info.routes.js         # Tuyến đường thông tin giới thiệu, chính sách, khuyến mãi
+│   │   └── wishlist.routes.js     # Tuyến đường API danh sách sản phẩm yêu thích
 │   ├── controllers/
-│   │   ├── AuthController.js    # Tiếp nhận request xác thực & điều hướng session
-│   │   ├── ProductController.js # Xử lý hiển thị danh sách, bộ lọc & chi tiết sản phẩm
-│   │   ├── CartController.js    # Xử lý thêm, sửa, xóa giỏ hàng
-│   │   ├── OrderController.js   # Xử lý đặt hàng COD & theo dõi tiến trình đơn
-│   │   └── admin/
-│   │       ├── AdminProductController.js   # Quản trị sản phẩm & biến thể Size/Color
-│   │       ├── AdminOrderController.js     # Vận hành đơn & chuyển trạng thái
-│   │       └── AdminInventoryController.js # Quản trị kho & kiểm kê
+│   │   ├── admin.controller.js    # Quản trị viên: Dashboard KPI, SP, Kho, Đơn, Voucher, Khách, Banner (Two-Tier)
+│   │   ├── auth.controller.js     # Xử lý đăng ký (bcryptjs + cấp Cart), đăng nhập, session
+│   │   ├── product.controller.js  # Duyệt danh mục, bộ lọc đa tiêu chí, chi tiết sản phẩm, live search
+│   │   ├── cart.controller.js     # Quản lý giỏ hàng trực tuyến (Two-Tier Direct DB)
+│   │   ├── checkout.controller.js # Điều phối giao diện đặt hàng COD
+│   │   ├── account.controller.js  # Hồ sơ, đổi mật khẩu, sổ địa chỉ, lịch sử đơn, hủy đơn
+│   │   ├── home.controller.js     # Trang chủ, slider banner, sản phẩm mới, top bán chạy
+│   │   └── wishlist.controller.js # Thao tác danh sách yêu thích
 │   ├── services/
-│   │   ├── AuthService.js       # Nghiệp vụ băm mật khẩu bcrypt, kiểm tra đăng nhập
-│   │   ├── OrderService.js      # Nghiệp vụ Transaction đặt hàng COD, khóa bi quan, trừ kho
-│   │   ├── InventoryService.js  # Nghiệp vụ hoàn kho khi hủy đơn, nhật ký kiểm toán kho
-│   │   └── VoucherService.js    # Nghiệp vụ thẩm định điều kiện voucher
-│   ├── repositories/
-│   │   ├── UserRepository.js    # Thao tác CSDL bảng users & addresses
-│   │   ├── ProductRepository.js # Thao tác CSDL bảng products, product_variants, sizes, colors
-│   │   ├── CartRepository.js    # Thao tác CSDL bảng carts & cart_items
-│   │   └── OrderRepository.js   # Thao tác CSDL bảng orders, order_items, order_status_histories
+│   │   ├── order.service.js       # Transaction đặt hàng COD, khóa bi quan, trừ kho, voucher, hoàn hủy
+│   │   ├── product.service.js     # Nghiệp vụ lọc sản phẩm, định dạng hiển thị
+│   │   └── wishlist.service.js    # Nghiệp vụ quản lý danh sách yêu thích
+│   ├── models/
+│   │   └── repositories/
+│   │       ├── product.repository.js  # Thao tác CSDL danh mục và sản phẩm
+│   │       └── wishlist.repository.js # Thao tác CSDL bảng wishlist_items
 │   ├── middlewares/
-│   │   ├── authMiddleware.js    # Kiểm tra session đăng nhập khách hàng
-│   │   ├── adminMiddleware.js   # Kiểm tra quyền quản trị viên Admin (Server-side Enforcement)
-│   │   └── validationMiddleware.js # Kiểm tra tính hợp lệ dữ liệu đầu vào (Joi / Validator)
-│   └── views/                   # Template Engine Pug
-│       ├── layouts/             # Khung layout chính (main.pug, admin.pug)
-│       ├── partials/            # Các thành phần giao diện dùng chung (header, footer, sidebar)
-│       ├── storefront/          # Giao diện khách hàng (home.pug, shop.pug, product-detail.pug, cart.pug, checkout.pug)
-│       └── admin/               # Giao diện quản trị (dashboard.pug, products.pug, orders.pug, inventory.pug)
-├── public/                      # Static assets đã biên dịch
-│   ├── css/style.css            # Stylesheet xuất từ Tailwind CSS
-│   ├── js/                      # JavaScript tương tác phía client (Alpine.js / Vanilla JS)
-│   └── images/                  # Hình ảnh sản phẩm, logo, banner
-├── database/
-│   ├── mssql_schema.sql         # Kịch bản DDL Microsoft SQL Server 2025 khởi tạo 18 bảng
-│   └── seeds.sql                # Dữ liệu mẫu kích cỡ, màu sắc, tài khoản admin mặc định
-├── Dockerfile                   # Cấu hình container cho ứng dụng Node.js
-├── docker-compose.yml           # Điều phối đa container (App + SQL Server)
-├── package.json                 # Khai báo dependencies và scripts
-└── .env.example                 # Mẫu cấu hình biến môi trường
+│   │   ├── auth.middleware.js     # requireAuth, requireAdmin (RBAC), sessionContextMiddleware
+│   │   ├── csrf.middleware.js     # Bảo vệ chống tấn công CSRF (Double Submit Cookie / Header)
+│   │   ├── error.middleware.js    # Bắt và xử lý lỗi tập trung, giao diện 404/500
+│   │   └── i18n.middleware.js     # Hỗ trợ đa ngôn ngữ Server-Side Rendering
+│   ├── utils/
+│   │   └── validator.js           # Bộ tiền kiểm tra dữ liệu đầu vào (email, phone, password, quantity)
+│   ├── views/                     # Template Engine Pug
+│   │   ├── layouts/               # Layout dùng chung (main.pug, admin.pug, customer.pug)
+│   │   ├── pages/                 # Giao diện các trang nghiệp vụ
+│   │   └── partials/              # Header, footer, admin-nav
+│   └── public/                    # Static assets
+│       ├── css/style.css          # Stylesheet biên dịch từ Tailwind CSS
+│       └── js/main.js             # JavaScript tương tác client (live search, modal, filter)
+└── database/
+    ├── mssql_schema.sql           # Kịch bản DDL Microsoft SQL Server 2022
+    └── migrations/                # Các migration tăng cường tính toàn vẹn (001 - 004)
 ```
 
 ---
 
-## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
+## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2022
 
-### 2.1. Cấu hình MSSQL Connection Pool
+### 2.1. Cấu hình MSSQL Connection Pool & Tham số hóa truy vấn
 
-Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mssql` (Tedious) với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
+Hệ thống sử dụng trình điều khiển chính thức `mssql` (Tedious) để kết nối với Microsoft SQL Server 2022. Connection Pool duy trì sẵn tối đa 10 kết nối thường trực, hỗ trợ tự động tái sử dụng và kiểm soát thời gian chờ (timeout):
 
 ```javascript
-// src/config/database.js
-const sql = require("mssql");
-const config = require("./app.config");
+// Trích đoạn: src/config/database.js:1-117
+const sql = require('mssql');
+const config = require('./app.config');
 
 let pool = null;
 
-// Khởi tạo MSSQL Connection Pool
 async function getPool() {
   if (!pool) {
     try {
       pool = await sql.connect(config.db);
+      console.log('✓ [MSSQL]: Kết nối cơ sở dữ liệu Microsoft SQL Server thành công.');
     } catch (err) {
-      console.error("[MSSQL Pool Error]:", err.message);
+      console.error('✗ [MSSQL Pool Error]:', err.message);
       throw err;
     }
   }
   return pool;
 }
 
-// Hàm thực thi truy vấn tham số hóa (Parameterized Query) an toàn
+// Hàm query tham số hóa T-SQL bảo vệ chống SQL Injection tuyệt đối
 async function query(queryStr, params = {}) {
   const currentPool = await getPool();
   const request = currentPool.request();
@@ -102,412 +107,312 @@ module.exports = { sql, getPool, query };
 
 ---
 
-## 3. TRIỂN KHAI CÁC CHỨC NĂNG CỐT LÕI
+## 3. TRIỂN KHAI CÁC MODULE NGHIỆP VỤ CỐT LÕI
 
-### 3.1. Chức năng Đăng ký tài khoản và Băm mật khẩu Bcrypt
+### 3.1. Phân hệ Xác thực & Khởi tạo Giỏ hàng (UC01 - Register)
 
-- **Mô tả xử lý:** Hệ thống tiếp nhận form đăng ký, chuẩn hóa email về chữ thường, kiểm tra email chưa từng tồn tại trong CSDL, sau đó áp dụng hàm băm `bcrypt.hash` với chi phí `saltRounds = 10` trước khi lưu vào bảng `users`.
+Khi khách hàng đăng ký tài khoản thành viên mới, mã nguồn băm mật khẩu an toàn với thư viện `bcryptjs` (salt rounds = 10) và tự động khởi tạo ngay một giỏ hàng cá nhân (`carts`) trong CSDL, bảo đảm quan hệ 1:1 bất biến:
 
 ```javascript
-// src/services/AuthService.js (Trích đoạn Đăng ký tài khoản)
-const bcrypt = require("bcryptjs");
-const UserRepository = require("../repositories/UserRepository");
-
-class AuthService {
-  async registerUser({ fullName, email, password, phone }) {
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // 1. Kiểm tra email đã được đăng ký trước đó chưa
-    const existingUser = await UserRepository.findByEmail(normalizedEmail);
-    if (existingUser) {
-      throw new Error(
-        "Địa chỉ email này đã được sử dụng. Vui lòng chọn email khác!",
-      );
+// Trích đoạn: src/controllers/auth.controller.js:63-145
+async postRegister(req, res, next) {
+  try {
+    const { fullName, email, password, phone } = req.body;
+    
+    // 1. Kiểm tra email đã tồn tại trong CSDL
+    const existing = await query('SELECT id FROM users WHERE email = @email', { email });
+    if (existing.recordset.length > 0) {
+      return res.render('pages/auth/register', { error: 'Email này đã được sử dụng.' });
     }
 
-    // 2. Băm mật khẩu bằng bcrypt (Salt rounds = 10)
+    // 2. Băm mật khẩu bằng bcryptjs
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 3. Tạo bản ghi tài khoản mới với vai trò CUSTOMER mặc định
-    const newUserId = await UserRepository.create({
-      fullName: fullName.trim(),
-      email: normalizedEmail,
-      passwordHash,
-      phone: phone ? phone.trim() : null,
-      role: "CUSTOMER",
-      status: "active",
-    });
+    // 3. Thêm tài khoản mới vào bảng users
+    const userRes = await query(`
+      INSERT INTO users (full_name, email, password_hash, phone, role, status)
+      OUTPUT INSERTED.id
+      VALUES (@fullName, @email, @passwordHash, @phone, 'CUSTOMER', 'active')
+    `, { fullName, email, passwordHash, phone: phone || null });
 
-    // 4. Khởi tạo giỏ hàng trống mặc định cho khách hàng (1 User = 1 Cart)
-    await UserRepository.createCartForUser(newUserId);
+    const newUserId = userRes.recordset[0].id;
 
-    return { userId: newUserId, email: normalizedEmail };
+    // 4. Tự động khởi tạo giỏ hàng cá nhân (1 User = 1 Cart)
+    await query('INSERT INTO carts (user_id) VALUES (@userId)', { userId: newUserId });
+
+    res.redirect('/auth/login?registered=true');
+  } catch (error) {
+    next(error);
   }
 }
-
-module.exports = new AuthService();
 ```
 
 ---
 
-### 3.2. Middleware phân quyền quản trị máy chủ (Server-side Authorization)
+### 3.2. Phân hệ Đặt hàng COD nguyên tử (UC07 - Checkout Transaction)
 
-- **Mô tả xử lý:** Đảm bảo nguyên tắc an toàn máy chủ (Server-side Enforcement), middleware chặn đứng mọi request từ các tài khoản không có quyền `ADMIN` hoặc tài khoản bị khóa.
-
-```javascript
-// src/middlewares/adminMiddleware.js
-function requireAdmin(req, res, next) {
-  // 1. Kiểm tra session đăng nhập của người dùng
-  if (!req.session || !req.session.user) {
-    req.flash("errorMessage", "Vui lòng đăng nhập để tiếp tục.");
-    return res.redirect(
-      "/auth/login?redirect=" + encodeURIComponent(req.originalUrl),
-    );
-  }
-
-  // 2. Kiểm tra vai trò quyền hạn (Role) và trạng thái tài khoản
-  const currentUser = req.session.user;
-  if (currentUser.role !== "ADMIN" || currentUser.status === "locked") {
-    // Ghi log cảnh báo truy cập trái phép
-    console.warn(
-      `[SECURITY ALERT] Truy cập trái phép trang Admin từ User ID: ${currentUser.id}`,
-    );
-    return res.status(403).render("errors/403.pug", {
-      title: "403 - Quyền truy cập bị từ chối",
-    });
-  }
-
-  // 3. Hợp lệ, cho phép đi tiếp vào Controller quản trị
-  next();
-}
-
-module.exports = requireAdmin;
-```
-
----
-
-### 3.3. Chức năng Đặt hàng COD với Database Transaction và Khóa bi quan
-
-- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MSSQL Database Transaction (T-SQL)**.
+Đây là quy trình nghiệp vụ quan trọng nhất của hệ thống, đòi hỏi tính toàn vẹn giao dịch tuyệt đối (ACID Integrity). Toàn bộ luồng được thực thi bên trong một `sql.Transaction`, áp dụng Table Hint khóa dòng bi quan `WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server để loại bỏ hoàn toàn nguy cơ bán vượt tồn kho (Overselling):
 
 ```javascript
-// src/services/order.service.js (Trích đoạn Đặt hàng COD an toàn ACID với UPDLOCK, ROWLOCK)
-const { pool } = require("../config/database");
+// Trích đoạn: src/services/order.service.js:15-285
+async createCodOrder({ userId, recipientName, recipientPhone, deliveryAddress, customerNote, voucherCode }) {
+  const pool = await getPool();
+  const transaction = new sql.Transaction(pool);
+  await transaction.begin(); // BẮT ĐẦU GIAO DỊCH NGUYÊN TỬ T-SQL
 
-class OrderService {
-  async checkoutCOD({
-    userId,
-    recipientName,
-    phone,
-    deliveryAddress,
-    voucherCode,
-    customerNote,
-  }) {
-    const connection = await pool.getConnection();
-    try {
-      // BẮT ĐẦU GIAO DỊCH DATABASE (ACID TRANSACTION)
-      await connection.beginTransaction();
+  try {
+    // 1. Đọc và khóa các mặt hàng trong giỏ của khách hàng
+    const cartReq = new sql.Request(transaction);
+    cartReq.input('userId', userId);
+    const cartItems = await cartReq.query(`
+      SELECT ci.id AS cart_item_id, ci.quantity, ci.variant_id,
+             p.name AS product_name, pv.sku, s.size_name, c.color_name,
+             p.base_price, p.sale_price
+      FROM cart_items ci
+      JOIN carts ct ON ci.cart_id = ct.id
+      JOIN product_variants pv ON ci.variant_id = pv.id
+      JOIN products p ON pv.product_id = p.id
+      JOIN sizes s ON pv.size_id = s.id
+      JOIN colors c ON pv.color_id = c.id
+      WHERE ct.user_id = @userId
+    `);
 
-      // 1. Lấy danh sách sản phẩm trong giỏ hàng của khách
-      const [cartRows] = await connection.execute(
-        `SELECT ci.variant_id, ci.quantity, pv.stock_quantity, pv.sku,
-                        p.name as product_name, p.base_price, p.sale_price,
-                        s.size_name, c.color_name
-                 FROM cart_items ci
-                 JOIN carts ct ON ci.cart_id = ct.id
-                 JOIN product_variants pv ON ci.variant_id = pv.id
-                 JOIN products p ON pv.product_id = p.id
-                 JOIN sizes s ON pv.size_id = s.id
-                 JOIN colors c ON pv.color_id = c.id
-                 WHERE ct.user_id = ?`,
-        [userId],
-      );
+    if (cartItems.recordset.length === 0) {
+      throw new Error('Giỏ hàng của bạn đang trống.');
+    }
 
-      if (cartRows.length === 0) {
-        throw new Error("Giỏ hàng của bạn đang trống.");
-      }
+    // 2. Tính toán tổng tiền tạm tính (Subtotal)
+    let subtotal = 0;
+    for (const item of cartItems.recordset) {
+      const price = item.sale_price !== null ? item.sale_price : item.base_price;
+      subtotal += price * item.quantity;
+    }
 
-      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... WITH (UPDLOCK, ROWLOCK))
-      let subtotal = 0;
-      const orderItemsData = [];
-
-      for (const item of cartRows) {
-        const [lockedRows] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-          [item.variant_id],
-        );
-
-        const currentStock = lockedRows[0].stock_quantity;
-        if (currentStock < item.quantity) {
-          throw new Error(
-            `Sản phẩm "${item.product_name}" (Cỡ: ${item.size_name}, Màu: ${item.color_name}) chỉ còn ${currentStock} đôi trong kho. Vui lòng điều chỉnh lại số lượng!`,
-          );
-        }
-
-        // Xác định đơn giá thực tế tại thời điểm mua (ưu tiên sale_price)
-        const unitPrice =
-          item.sale_price !== null ? item.sale_price : item.base_price;
-        const lineTotal = Number(unitPrice) * item.quantity;
-        subtotal += lineTotal;
-
-        orderItemsData.push({
-          variantId: item.variant_id,
-          productName: item.product_name,
-          sku: item.sku,
-          size: item.size_name,
-          color: item.color_name,
-          unitPrice,
-          quantity: item.quantity,
-          lineTotal,
-          oldStock: currentStock,
-        });
-      }
-
-      // 3. Xử lý Voucher giảm giá nếu có
-      let discountAmount = 0;
-      let voucherId = null;
-      let voucherCodeSnapshot = null;
-
-      if (voucherCode) {
-        const [vouchers] = await connection.execute(
-          `SELECT * FROM vouchers 
-                     WHERE code = ? AND is_active = TRUE 
-                       AND NOW() BETWEEN start_date AND end_date
-                       AND (usage_limit = 0 OR used_count < usage_limit)
-                       AND min_order_value <= ? WITH (UPDLOCK, ROWLOCK)`,
-          [voucherCode.trim().toUpperCase(), subtotal],
-        );
-
-        if (vouchers.length > 0) {
-          const voucher = vouchers[0];
+    // 3. Khóa và thẩm định mã giảm giá Voucher (nếu có)
+    let voucherId = null, discountAmount = 0, voucherCodeSnapshot = null;
+    if (voucherCode) {
+      const vouchReq = new sql.Request(transaction);
+      vouchReq.input('code', voucherCode.trim().toUpperCase());
+      const vouchRes = await vouchReq.query(`
+        SELECT * FROM vouchers WITH (UPDLOCK, ROWLOCK)
+        WHERE code = @code AND is_active = 1 AND start_date <= GETDATE() AND end_date >= GETDATE()
+      `);
+      
+      const voucher = vouchRes.recordset[0];
+      if (voucher && subtotal >= voucher.min_order_value && (voucher.usage_limit === 0 || voucher.used_count < voucher.usage_limit)) {
+        // Thực thi Quy tắc Q8: Mỗi khách hàng chỉ được dùng 1 lần duy nhất
+        const usageReq = new sql.Request(transaction);
+        usageReq.input('vId', voucher.id);
+        usageReq.input('uId', userId);
+        const usedCheck = await usageReq.query(`
+          SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK) WHERE voucher_id = @vId AND user_id = @uId
+        `);
+        if (usedCheck.recordset.length === 0) {
           voucherId = voucher.id;
           voucherCodeSnapshot = voucher.code;
-
-          if (voucher.discount_type === "percentage") {
-            discountAmount = Math.round(
-              (subtotal * Number(voucher.discount_value)) / 100,
-            );
-            if (
-              voucher.max_discount_amount &&
-              discountAmount > Number(voucher.max_discount_amount)
-            ) {
-              discountAmount = Number(voucher.max_discount_amount);
-            }
-          } else {
-            discountAmount = Number(voucher.discount_value);
-          }
-
-          // Tăng số lượt đã sử dụng của voucher
-          await connection.execute(
-            `UPDATE vouchers SET used_count = used_count + 1 WHERE id = ?`,
-            [voucher.id],
-          );
+          discountAmount = voucher.discount_type === 'percentage'
+            ? Math.min((subtotal * voucher.discount_value) / 100, voucher.max_discount_amount || Infinity)
+            : Math.min(voucher.discount_value, subtotal);
+          
+          // Cập nhật số lượt đã dùng của voucher
+          const updateVouch = new sql.Request(transaction);
+          updateVouch.input('vId', voucher.id);
+          await updateVouch.query('UPDATE vouchers SET used_count = used_count + 1 WHERE id = @vId');
         }
       }
+    }
 
-      const shippingFee = subtotal >= 500000 ? 0 : 30000; // Miễn phí ship cho đơn từ 500k
-      const totalAmount = subtotal - discountAmount + shippingFee;
-      const orderCode =
-        "ORD-" +
-        Date.now().toString().slice(-8) +
-        Math.floor(1000 + Math.random() * 9000);
-
-      // 4. Lưu bản ghi đơn hàng chính orders (trạng thái PENDING)
-      const [orderResult] = await connection.execute(
-        `INSERT INTO orders 
-                 (order_code, user_id, recipient_name_snapshot, recipient_phone_snapshot, 
-                  delivery_address_snapshot, subtotal, discount_amount, shipping_fee, total_amount, 
-                  voucher_id, voucher_code_snapshot, payment_method, payment_status, order_status, customer_note)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'COD', 'UNPAID', 'PENDING', ?)`,
-        [
-          orderCode,
-          userId,
-          recipientName,
-          phone,
-          deliveryAddress,
-          subtotal,
-          discountAmount,
-          shippingFee,
-          totalAmount,
-          voucherId,
-          voucherCodeSnapshot,
-          customerNote || null,
-        ],
-      );
-
-      const orderId = orderResult.insertId;
-
-      // 5. Lưu Snapshot chi tiết từng mặt hàng và trừ tồn kho
-      for (const item of orderItemsData) {
-        // Lưu snapshot bất biến vào order_items
-        await connection.execute(
-          `INSERT INTO order_items 
-                     (order_id, product_variant_id, product_name_snapshot, sku_snapshot, 
-                      size_snapshot, color_snapshot, unit_price, quantity, line_total)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            orderId,
-            item.variantId,
-            item.productName,
-            item.sku,
-            item.size,
-            item.color,
-            item.unitPrice,
-            item.quantity,
-            item.lineTotal,
-          ],
-        );
-
-        // Trừ số lượng tồn kho khả dụng
-        const newStock = item.oldStock - item.quantity;
-        await connection.execute(
-          `UPDATE product_variants SET stock_quantity = ? WHERE id = ?`,
-          [newStock, item.variantId],
-        );
-
-        // Ghi nhật ký kiểm toán biến động kho
-        await connection.execute(
-          `INSERT INTO inventory_transactions 
-                     (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-                     VALUES (?, ?, ?, ?, ?, 'ORDER_PLACED')`,
-          [item.variantId, userId, item.oldStock, newStock, -item.quantity],
-        );
+    // 4. Khóa dòng kiểm tra tồn kho và trừ kho từng biến thể
+    for (const item of cartItems.recordset) {
+      const stockReq = new sql.Request(transaction);
+      stockReq.input('vId', item.variant_id);
+      const stockRes = await stockReq.query(`
+        SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @vId
+      `);
+      const currentStock = stockRes.recordset[0]?.stock_quantity || 0;
+      if (currentStock < item.quantity) {
+        throw new Error(`Sản phẩm "${item.product_name}" (SKU: ${item.sku}) không đủ tồn kho.`);
       }
 
-      // 6. Ghi nhật ký lịch sử trạng thái ban đầu của đơn hàng
-      await connection.execute(
-        `INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-                 VALUES (?, ?, NULL, 'PENDING', 'Khách hàng hoàn tất đặt đơn COD thành công')`,
-        [orderId, userId],
-      );
-
-      // 7. Làm rỗng giỏ hàng của khách sau khi đã đặt thành công
-      await connection.execute(
-        `DELETE ci FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = ?`,
-        [userId],
-      );
-
-      // XÁC NHẬN GIAO DỊCH THÀNH CÔNG (COMMIT)
-      await connection.commit();
-      return { orderId, orderCode, totalAmount };
-    } catch (error) {
-      // NẾU CÓ BẤT KỲ LỖI NÀO -> HỦY TOÀN BỘ THAO TÁC (ROLLBACK)
-      await connection.rollback();
-      throw error;
-    } finally {
-      // Giải phóng kết nối trả về cho Connection Pool
-      connection.release();
+      // Trừ kho và ghi nhật ký thẻ kho
+      const deductReq = new sql.Request(transaction);
+      deductReq.input('vId', item.variant_id);
+      deductReq.input('qty', item.quantity);
+      await deductReq.query('UPDATE product_variants SET stock_quantity = stock_quantity - @qty WHERE id = @vId');
     }
+
+    // 5. Tạo đơn hàng tổng quát và lưu snapshot
+    const totalAmount = Math.max(0, subtotal - discountAmount);
+    const orderCode = `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderReq = new sql.Request(transaction);
+    orderReq.input('orderCode', orderCode);
+    orderReq.input('userId', userId);
+    orderReq.input('name', recipientName);
+    orderReq.input('phone', recipientPhone);
+    orderReq.input('addr', deliveryAddress);
+    orderReq.input('subtotal', subtotal);
+    orderReq.input('discount', discountAmount);
+    orderReq.input('total', totalAmount);
+    orderReq.input('vouchId', voucherId);
+    orderReq.input('vouchCode', voucherCodeSnapshot);
+    orderReq.input('note', customerNote);
+
+    const orderRes = await orderReq.query(`
+      INSERT INTO orders (order_code, user_id, recipient_name_snapshot, recipient_phone_snapshot,
+                          delivery_address_snapshot, subtotal, discount_amount, total_amount,
+                          voucher_id, voucher_code_snapshot, payment_method, payment_status, order_status, customer_note)
+      OUTPUT INSERTED.id
+      VALUES (@orderCode, @userId, @name, @phone, @addr, @subtotal, @discount, @total, @vouchId, @vouchCode, 'COD', 'UNPAID', 'PENDING', @note)
+    `);
+    const newOrderId = orderRes.recordset[0].id;
+
+    // 6. Lưu snapshot chi tiết sản phẩm vào order_items & xóa giỏ hàng
+    for (const item of cartItems.recordset) {
+      const itemPrice = item.sale_price !== null ? item.sale_price : item.base_price;
+      const itemReq = new sql.Request(transaction);
+      itemReq.input('oId', newOrderId);
+      itemReq.input('pvId', item.variant_id);
+      itemReq.input('name', item.product_name);
+      itemReq.input('sku', item.sku);
+      itemReq.input('size', item.size_name);
+      itemReq.input('color', item.color_name);
+      itemReq.input('price', itemPrice);
+      itemReq.input('qty', item.quantity);
+      itemReq.input('lineTotal', itemPrice * item.quantity);
+      await itemReq.query(`
+        INSERT INTO order_items (order_id, product_variant_id, product_name_snapshot, sku_snapshot, size_snapshot, color_snapshot, unit_price, quantity, line_total)
+        VALUES (@oId, @pvId, @name, @sku, @size, @color, @price, @qty, @lineTotal)
+      `);
+    }
+
+    if (voucherId) {
+      const recUsageReq = new sql.Request(transaction);
+      recUsageReq.input('vId', voucherId);
+      recUsageReq.input('uId', userId);
+      recUsageReq.input('oId', newOrderId);
+      await recUsageReq.query('INSERT INTO voucher_usages (voucher_id, user_id, order_id) VALUES (@vId, @uId, @oId)');
+    }
+
+    // Làm trống giỏ hàng
+    const cleanCart = new sql.Request(transaction);
+    cleanCart.input('userId', userId);
+    await cleanCart.query('DELETE ci FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = @userId');
+
+    await transaction.commit(); // COMMIT THÀNH CÔNG GIAO DỊCH NGUYÊN TỬ
+    return { orderId: newOrderId, orderCode };
+  } catch (err) {
+    await transaction.rollback(); // ROLLBACK TOÀN BỘ NẾU CÓ LỖI
+    throw err;
   }
 }
-
-module.exports = new OrderService();
 ```
 
 ---
 
-### 3.4. Chức năng Tự động Hoàn kho khi Hủy đơn hàng
+### 3.3. Quy trình Hủy đơn & Tự động Hoàn kho (UC09 / UC10 Cancellation)
 
-- **Mô tả xử lý:** Khi đơn hàng bị hủy hợp lệ ở trạng thái `PENDING` hoặc `CONFIRMED`, hệ thống chạy Transaction để phục hồi lại số lượng tồn kho cho các biến thể và ghi nhận lý do kiểm toán `ORDER_CANCELLED_RESTOCK`.
+Hệ thống cung cấp logic dùng chung tại `OrderService._executeCancellation` đảm bảo khi đơn hàng bị hủy (khách hàng tự hủy khi `PENDING` hoặc Admin hủy đơn), toàn bộ số lượng tồn kho của các biến thể được hoàn lại nguyên vẹn và quyền sử dụng voucher được phục hồi:
 
 ```javascript
-// src/services/InventoryService.js (Trích đoạn Hoàn kho khi Hủy đơn)
-const { pool } = require("../config/database");
+// Trích đoạn: src/services/order.service.js:340-408
+async _executeCancellation(transaction, orderId, orderCode, actorId, previousStatus, cancelReason, note) {
+  // 1. Đọc danh sách sản phẩm trong đơn để hoàn tồn kho
+  const itemsReq = new sql.Request(transaction);
+  itemsReq.input('orderId', orderId);
+  const itemsRes = await itemsReq.query('SELECT product_variant_id, quantity FROM order_items WHERE order_id = @orderId');
 
-class InventoryService {
-  async restockCancelledOrder(orderId, operatorUserId, cancelReason) {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
+  // 2. Hoàn lại số lượng tồn kho và ghi nhật ký thẻ kho
+  for (const item of itemsRes.recordset) {
+    const restoreReq = new sql.Request(transaction);
+    restoreReq.input('varId', item.product_variant_id);
+    restoreReq.input('qty', item.quantity);
+    await restoreReq.query('UPDATE product_variants SET stock_quantity = stock_quantity + @qty WHERE id = @varId');
 
-      // 1. Kiểm tra đơn hàng có đủ điều kiện hủy không (PENDING hoặc CONFIRMED)
-      const [orders] = await connection.execute(
-        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-        [orderId],
-      );
+    const invReq = new sql.Request(transaction);
+    invReq.input('varId', item.product_variant_id);
+    invReq.input('userId', actorId);
+    invReq.input('qty', item.quantity);
+    invReq.input('reason', cancelReason || `Hoàn tồn kho do hủy đơn hàng #${orderCode}`);
+    await invReq.query(`
+      INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
+      VALUES (@varId, @userId, 0, @qty, @qty, @reason)
+    `);
+  }
 
-      if (orders.length === 0) throw new Error("Không tìm thấy đơn hàng.");
-      const order = orders[0];
+  // 3. Cập nhật trạng thái đơn thành CANCELLED
+  const updateReq = new sql.Request(transaction);
+  updateReq.input('orderId', orderId);
+  await updateReq.query("UPDATE orders SET order_status = 'CANCELLED', updated_at = GETDATE() WHERE id = @orderId");
 
-      if (!["PENDING", "CONFIRMED"].includes(order.order_status)) {
-        throw new Error(
-          `Đơn hàng đang ở trạng thái "${order.order_status}", không được phép hủy.`,
-        );
-      }
+  // 4. Giải phóng lượt dùng voucher và xóa bản ghi voucher_usages (khách có thể dùng lại)
+  const vouchReq = new sql.Request(transaction);
+  vouchReq.input('orderId', orderId);
+  const vouchRes = await vouchReq.query('SELECT voucher_id FROM orders WHERE id = @orderId');
+  const appliedVoucherId = vouchRes.recordset[0]?.voucher_id;
+  if (appliedVoucherId) {
+    const delVu = new sql.Request(transaction);
+    delVu.input('orderId', orderId);
+    await delVu.query('DELETE FROM voucher_usages WHERE order_id = @orderId');
 
-      // 2. Chuyển trạng thái đơn sang CANCELLED
-      await connection.execute(
-        `UPDATE orders SET order_status = 'CANCELLED' WHERE id = ?`,
-        [orderId],
-      );
+    const decVouch = new sql.Request(transaction);
+    decVouch.input('vId', appliedVoucherId);
+    await decVouch.query('UPDATE vouchers SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END WHERE id = @vId');
+  }
 
-      // 3. Lấy danh sách sản phẩm và số lượng cần hoàn trả
-      const [items] = await connection.execute(
-        `SELECT product_variant_id, quantity FROM order_items WHERE order_id = ?`,
-        [orderId],
-      );
+  // 5. Ghi nhận nhật ký trạng thái kiểm toán
+  const histReq = new sql.Request(transaction);
+  histReq.input('orderId', orderId);
+  histReq.input('userId', actorId);
+  histReq.input('prevStatus', previousStatus);
+  histReq.input('note', note || `Hủy đơn hàng #${orderCode}. Đã hoàn tồn kho tự động.`);
+  await histReq.query(`
+    INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
+    VALUES (@orderId, @userId, @prevStatus, 'CANCELLED', @note)
+  `);
+}
+```
 
-      for (const item of items) {
-        const [variants] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-          [item.product_variant_id],
-        );
+---
 
-        const currentStock = variants[0].stock_quantity;
-        const restoredStock = currentStock + item.quantity;
+### 3.4. Mô hình Hai tầng Phân hệ Quản trị (Admin Two-Tier Architecture)
 
-        // Cộng hoàn lại số lượng tồn kho
-        await connection.execute(
-          `UPDATE product_variants SET stock_quantity = ? WHERE id = ?`,
-          [restoredStock, item.product_variant_id],
-        );
+Trong phân hệ quản trị Admin, `AdminController` trực tiếp thực thi các câu lệnh T-SQL thông qua Database Helper `query()`, loại bỏ tầng trung gian không cần thiết:
 
-        // Ghi vết nhật ký hoàn kho kiểm toán
-        await connection.execute(
-          `INSERT INTO inventory_transactions 
-                     (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-                     VALUES (?, ?, ?, ?, ?, 'ORDER_CANCELLED_RESTOCK')`,
-          [
-            item.product_variant_id,
-            operatorUserId,
-            currentStock,
-            restoredStock,
-            item.quantity,
-          ],
-        );
-      }
+```javascript
+// Trích đoạn: src/controllers/admin.controller.js:8-48 (Doanh thu Dashboard & Top 4 bán chạy)
+async getDashboard(req, res, next) {
+  try {
+    const [revRes, topSoldRes, statusCountsRes] = await Promise.all([
+      // Doanh thu thực tế: Đòi hỏi đồng thời 2 điều kiện COMPLETED và PAID
+      query(`
+        SELECT COALESCE(SUM(total_amount), 0) AS total_revenue 
+        FROM orders 
+        WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'
+      `),
+      // Top 4 sản phẩm bán chạy nhất: Xếp hạng theo tổng số lượng bán (total_sold DESC)
+      query(`
+        SELECT TOP 4 oi.product_name_snapshot,
+               SUM(oi.quantity) AS total_sold,
+               SUM(oi.line_total) AS total_revenue,
+               (SELECT TOP 1 pi.image_url FROM product_variants pv JOIN product_images pi ON pi.product_id = pv.product_id
+                WHERE pv.id = MIN(oi.product_variant_id) AND pi.is_primary = 1) AS primary_image
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.order_status = 'COMPLETED'
+        GROUP BY oi.product_name_snapshot
+        ORDER BY total_sold DESC
+      `),
+      query('SELECT order_status, COUNT(*) AS count FROM orders GROUP BY order_status')
+    ]);
 
-      // 4. Hoàn lại 1 lượt dùng cho voucher nếu đơn có sử dụng mã
-      if (order.voucher_id) {
-        await connection.execute(
-          `UPDATE vouchers SET used_count = GREATEST(0, used_count - 1) WHERE id = ?`,
-          [order.voucher_id],
-        );
-      }
-
-      // 5. Ghi nhật ký chuyển trạng thái
-      await connection.execute(
-        `INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-                 VALUES (?, ?, ?, 'CANCELLED', ?)`,
-        [
-          orderId,
-          operatorUserId,
-          order.order_status,
-          cancelReason || "Hủy đơn hàng và hoàn trả tồn kho",
-        ],
-      );
-
-      await connection.commit();
-      return { success: true };
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
+    res.render('pages/admin/dashboard', {
+      totalRevenue: revRes.recordset[0].total_revenue,
+      topProducts: topSoldRes.recordset,
+      statusCounts: statusCountsRes.recordset
+    });
+  } catch (error) {
+    next(error);
   }
 }
-
-module.exports = new InventoryService();
 ```

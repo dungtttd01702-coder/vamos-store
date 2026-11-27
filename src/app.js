@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const config = require('./config/app.config');
 const { sessionContextMiddleware } = require('./middlewares/auth.middleware');
+const { i18nMiddleware } = require('./middlewares/i18n.middleware');
 const csrfMiddleware = require('./middlewares/csrf.middleware');
 const { notFoundHandler, errorHandler } = require('./middlewares/error.middleware');
 const routes = require('./routes');
@@ -52,6 +53,9 @@ app.use(session(config.session));
 
 // Context & User State Middleware for Pug Views
 app.use(sessionContextMiddleware);
+
+// Internationalization (i18n) Engine for SSR
+app.use(i18nMiddleware);
 
 // CSRF Protection Middleware
 app.use(csrfMiddleware);

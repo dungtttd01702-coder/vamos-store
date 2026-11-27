@@ -1,6 +1,7 @@
 const orderService = require('../services/order.service');
 const { query } = require('../config/database');
 const { isValidFullName, isValidPhone } = require('../utils/validator');
+const { voucherLimiter } = require('../middlewares/rateLimit.middleware');
 
 class CheckoutController {
   /**
@@ -110,6 +111,13 @@ class CheckoutController {
         throw new Error('Số điện thoại người nhận không đúng định dạng di động Việt Nam (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
       }
 
+      // Rate limit check for voucher brute-force protection
+      const clientKey = `${req.ip || '127.0.0.1'}_${user.id}`;
+      const codeTrimmed = voucher_code ? voucher_code.trim() : null;
+      if (codeTrimmed && voucherLimiter.isLimited(clientKey)) {
+        throw new Error('Bạn đã thử áp dụng mã giảm giá không hợp lệ quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.');
+      }
+
       // Execute transaction
       const order = await orderService.createCodOrder({
         userId: user.id,
@@ -117,14 +125,21 @@ class CheckoutController {
         recipientPhone: recipient_phone.trim(),
         deliveryAddress: deliveryAddress.trim(),
         customerNote: customer_note ? customer_note.trim() : '',
-        voucherCode: voucher_code ? voucher_code.trim() : null,
+        voucherCode: codeTrimmed,
       });
 
-      // Clear session cart count
+      // Clear session cart count & reset rate limiter on success
+      if (codeTrimmed) {
+        voucherLimiter.reset(clientKey);
+      }
       req.session.cartCount = 0;
 
       res.redirect(`/checkout/success/${order.id}`);
     } catch (error) {
+      if (req.body?.voucher_code && error.message && error.message.includes('Mã giảm giá')) {
+        const clientKey = `${req.ip || '127.0.0.1'}_${req.session?.user?.id || 'guest'}`;
+        voucherLimiter.recordAttempt(clientKey);
+      }
       try {
         const user = req.session?.user;
         const cartRes = await query(`
@@ -174,6 +189,60 @@ class CheckoutController {
       } catch (innerErr) {
         next(error);
       }
+    }
+  }
+
+  /**
+   * Read-only Voucher Preview at Checkout (AJAX JSON, never consumes voucher)
+   * POST /checkout/apply-voucher
+   */
+  async postApplyVoucher(req, res) {
+    try {
+      const user = req.session?.user;
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để áp dụng voucher.' });
+      }
+
+      const rawCode = req.body?.voucher_code;
+      const codeTrimmed = typeof rawCode === 'string' ? rawCode.trim() : '';
+      if (!codeTrimmed) {
+        return res.status(400).json({ success: false, message: 'Vui lòng nhập mã voucher muốn áp dụng.' });
+      }
+
+      const clientKey = `${req.ip || '127.0.0.1'}_${user.id}`;
+      if (voucherLimiter.isLimited(clientKey)) {
+        return res.status(429).json({
+          success: false,
+          message: 'Bạn đã thử áp dụng mã giảm giá không hợp lệ quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.',
+        });
+      }
+
+      const preview = await orderService.previewCheckoutVoucher({
+        userId: user.id,
+        voucherCode: codeTrimmed,
+      });
+
+      voucherLimiter.reset(clientKey);
+
+      const message =
+        preview.discountType === 'free_shipping'
+          ? `Áp dụng thành công mã "${preview.voucherCode}". Giảm ${preview.shippingDiscountAmount.toLocaleString('vi-VN')} đ phí vận chuyển.`
+          : `Áp dụng thành công mã "${preview.voucherCode}". Giảm ${preview.discountAmount.toLocaleString('vi-VN')} đ tiền hàng.`;
+
+      return res.json({
+        success: true,
+        message,
+        data: preview,
+      });
+    } catch (error) {
+      if (error.message && error.message.includes('Mã giảm giá')) {
+        const clientKey = `${req.ip || '127.0.0.1'}_${req.session?.user?.id || 'guest'}`;
+        voucherLimiter.recordAttempt(clientKey);
+      }
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Không thể áp dụng mã voucher này.',
+      });
     }
   }
 

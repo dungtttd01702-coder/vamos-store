@@ -1,0 +1,107 @@
+@startuml AD04_PROFILE_ADDRESS
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: QUẢN LÝ HỒ SƠ & SỔ ĐỊA CHỈ (AD04 — PROFILE & ADDRESS)\nHỆ THỐNG VAMOS STORE
+
+|Khách hàng (Customer)|
+start
+:Truy cập Trung tâm Tài khoản (/account);
+
+|Hệ thống (Web App)|
+:Xác thực phiên làm việc (requireAuth middleware);
+if (Đã đăng nhập hợp lệ?) then ([Chưa])
+  :Chuyển hướng đến /auth/login;
+  stop
+else ([Hợp lệ])
+  :Hiển thị tùy chọn: Xem/Sửa Hồ Sơ hoặc Sổ Địa Chỉ;
+endif
+
+|Khách hàng (Customer)|
+if (Thao tác muốn thực hiện?) then ([Cập nhật Hồ sơ cá nhân])
+  :Truy cập trang /account/profile;
+
+  |Hệ thống (Web App)|
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT id, email, full_name, phone, role, created_at\nFROM users WHERE id = @userId;
+
+  |Hệ thống (Web App)|
+  :Hiển thị biểu mẫu thông tin cá nhân;
+
+  |Khách hàng (Customer)|
+  :Chỉnh sửa Họ tên và Số điện thoại;
+  :Nhấn "Lưu thay đổi";
+
+  |Hệ thống (Web App)|
+  :Kiểm tra tính hợp lệ dữ liệu (Server validation):
+  - Họ tên: 2-100 ký tự
+  - Số điện thoại: 10 chữ số chuẩn mạng di động VN;
+
+  if (Dữ liệu hợp lệ?) then ([Không])
+    :Báo lỗi 400 (Dữ liệu không đúng định dạng);
+    stop
+  else ([Hợp lệ])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :UPDATE users SET full_name = @name, phone = @phone,\nupdated_at = GETDATE() WHERE id = @userId;
+
+    |Hệ thống (Web App)|
+    :Cập nhật full_name, phone vào req.session.user;
+    :Chuyển hướng về /account/profile?success=true;
+    |Khách hàng (Customer)|
+    :Xem thông báo cập nhật hồ sơ thành công;
+    stop
+  endif
+
+else ([Quản lý Sổ địa chỉ giao hàng])
+  |Khách hàng (Customer)|
+  :Truy cập /account/addresses;
+
+  |Hệ thống (Web App)|
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT * FROM addresses WHERE user_id = @userId\nORDER BY is_default DESC, id DESC;
+
+  |Hệ thống (Web App)|
+  :Hiển thị danh sách địa chỉ nhận hàng;
+
+  |Khách hàng (Customer)|
+  :Nhập biểu mẫu thêm địa chỉ mới:
+  - Tên người nhận
+  - Số điện thoại người nhận
+  - Tỉnh/Thành phố, Quận/Huyện, Phường/Xã
+  - Địa chỉ chi tiết (số nhà, tên đường)
+  - Chọn cờ "Đặt làm địa chỉ mặc định";
+  :Nhấn "Lưu địa chỉ";
+
+  |Hệ thống (Web App)|
+  :Kiểm tra bắt buộc các trường, định dạng tên và SĐT;
+  if (Dữ liệu địa chỉ hợp lệ?) then ([Không])
+    :Báo lỗi 400 (Vui lòng điền đầy đủ và đúng định dạng);
+    stop
+  else ([Hợp lệ])
+    if (Người dùng chọn Đặt làm mặc định (is_default = 1)?) then ([Có])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :UPDATE addresses SET is_default = 0\nWHERE user_id = @userId;
+    else ([Không])
+    endif
+
+    |Cơ sở Dữ liệu (SQL Server)|
+    :INSERT INTO addresses (user_id, recipient_name, phone,\nprovince, district, ward, detail_address, is_default)\nVALUES (...);
+    note right
+      Chỉ mục lọc **uq_user_default_address**
+      bảo đảm mỗi khách hàng chỉ có tối đa
+      1 địa chỉ có is_default = 1
+    end note
+
+    |Hệ thống (Web App)|
+    :Chuyển hướng về /account/addresses;
+    |Khách hàng (Customer)|
+    :Xem danh sách địa chỉ đã được bổ sung;
+    stop
+  endif
+endif
+
+@enduml
+

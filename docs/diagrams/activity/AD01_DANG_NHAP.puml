@@ -1,0 +1,58 @@
+@startuml
+title Sơ đồ hoạt động — Đăng nhập hệ thống (AD01/AD02)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Người dùng|
+start
+:Mở trang đăng nhập;
+:Nhập email và mật khẩu;
+:Nhấn nút "Đăng nhập";
+
+|Hệ thống|
+:Tiếp nhận thông tin tài khoản;
+:Kiểm tra tài khoản tồn tại và khớp mật khẩu bcrypt;
+
+if (Thông tin đăng nhập hợp lệ?) then (Đúng)
+  |Hệ thống|
+  :Khởi tạo phiên đăng nhập (Express Session);
+  :Phân quyền người dùng (Khách hàng / Quản trị viên);
+  :Chuyển hướng đến trang chủ hoặc trang quản trị;
+  |Người dùng|
+  :Truy cập hệ thống thành công;
+  stop
+else (Sai)
+  |Hệ thống|
+  :Hiển thị thông báo lỗi sai email hoặc mật khẩu;
+  |Người dùng|
+  :Nhập lại thông tin đăng nhập;
+  stop
+endif
+@enduml

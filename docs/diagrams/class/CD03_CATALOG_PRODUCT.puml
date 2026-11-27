@@ -1,0 +1,342 @@
+@startuml CD03_CATALOG_PRODUCT
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD03: CATALOG & PRODUCT BROWSING CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp phân hệ Duyệt sản phẩm, Trang chủ, Bộ lọc danh mục & Live Search</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+legend right
+    <b>CHÚ DẪN KÝ HIỆU & QUY ƯỚC UML 2.5</b>
+    ----
+    <b>Phân loại Classifiers & Modules:</b>
+      * <b><<controller>></b>: JavaScript Class điều phối HTTP request/response danh mục & sản phẩm
+      * <b><<controller module>></b>: CommonJS Object Module điều phối trang chủ & đổi ngôn ngữ
+      * <b><<service>></b>: JavaScript Class xử lý logic nghiệp vụ và điều phối dữ liệu
+      * <b><<repository>></b>: JavaScript Class đóng gói các truy vấn SQL Server T-SQL
+      * <b><<router>></b>: Express Router phân cấp định tuyến URL
+      * <b><<database helper>></b>: CommonJS Module quản lý Connection Pool & Query API
+      * <b><<entity>></b>: Lớp thực thể dữ liệu ánh xạ bảng vật lý SQL Server (Partial View từ CD01)
+    ----
+    <b>Quan hệ & Ký hiệu:</b>
+      * <b>A ..> B : <<use>></b>: Phụ thuộc hàm / gọi API (Dependency)
+      * <b>Whole *-- Part</b>: Composition (Quan hệ sở hữu sinh mệnh)
+      * <b>A -- B</b>: Association (Liên kết thực thể dữ liệu)
+    ----
+    <b>Quy ước:</b>
+      * Các Controller/Service/Repository dùng Implicit Default Constructor, xuất Singleton instance
+      * Kiến trúc 3 tầng chuẩn: Controller -> Service -> Repository -> Database
+      * Banner là thực thể độc lập, không có ràng buộc Foreign Key với Product
+      * Browser Client Integration (main.js) is outside the backend classifier scope
+end legend
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' ==============================================================================
+package "Presentation & Routing Layer" as pkg_presentation #EFF6FF {
+
+    class "app" as app <<entry point>> {
+        .. Application Entry & Routing ..
+        + app.use('/', routes) [src/app.js:64]
+    }
+
+    class "rootRoutes" as rootRoutes <<router>> {
+        -- Module: src/routes/index.js --
+        + router.use('/', homeRoutes) [line 16]
+        + router.use('/products', productRoutes) [line 17]
+        + router.get('/api/products/search', productController.liveSearch) [line 27]
+    }
+
+    class "homeRoutes" as homeRoutes <<router>> {
+        -- Module: src/routes/home.routes.js (prefix /) --
+        + GET / [homeController.index]
+        + GET /set-locale/:lang [homeController.setLocale]
+    }
+
+    class "productRoutes" as productRoutes <<router>> {
+        -- Module: src/routes/product.routes.js (prefix /products) --
+        + GET / [productController.index]
+        + GET /live-search [productController.liveSearch]
+        + GET /api/search [productController.liveSearch]
+        + GET /:slug [productController.detail]
+    }
+
+    class "homeController" as homeController <<controller module>> {
+        .. CommonJS Module Functions ..
+        + index(req: Request, res: Response, next: NextFunction): Promise<void>
+        + setLocale(req: Request, res: Response): void
+    }
+
+    class "ProductController" as ProductController <<controller>> {
+        .. Instance Methods (JavaScript Class) ..
+        + index(req: Request, res: Response, next: NextFunction): Promise<void>
+        + detail(req: Request, res: Response, next: NextFunction): Promise<void>
+        + liveSearch(req: Request, res: Response, next: NextFunction): Promise<Response>
+    }
+}
+
+' ==============================================================================
+' MIDDLE ROW: APPLICATION SERVICE (LEFT) | DATA ACCESS & PERSISTENCE (RIGHT)
+' ==============================================================================
+package "Application Service Layer" as pkg_service #FAF5FF {
+
+    class "ProductService" as ProductService <<service>> {
+        .. Instance Methods (JavaScript Class) ..
+        + getCatalog(filters: Object): Promise<Object>
+        + getProductBySlug(slug: string): Promise<Object>
+        + getAllCategories(): Promise<Array<Object>>
+        + getHomeBanners(): Promise<Array<Object>>
+        + getLatestProducts(limit: number = 8): Promise<Array<Object>>
+        + getFlashSaleProducts(limit: number = 4): Promise<Array<Object>>
+        + searchLive(keyword: string, limit: number = 8): Promise<Array<Object>>
+    }
+}
+
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "ProductRepository" as ProductRepository <<repository>> {
+        .. Instance Methods (JavaScript Class) ..
+        + findAll(filters: Object): Promise<Object>
+        + findBySlug(slug: string): Promise<Object>
+        + getCategories(): Promise<Array<Object>>
+        + getBanners(): Promise<Array<Object>>
+        + getLatestProducts(limit: number = 8): Promise<Array<Object>>
+        + getFlashSaleProducts(limit: number = 4): Promise<Array<Object>>
+        + searchLive(keyword: string, limit: number = 8): Promise<Array<Object>>
+    }
+
+    class "database" as database <<database helper>> {
+        .. Exported Connection & Query API ..
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>>
+        + getPool(): Promise<sql.ConnectionPool>
+        + closePool(): Promise<void>
+        + testDbConnection(): Promise<boolean>
+    }
+}
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (CATALOG SCOPE - FROM CD01)
+' ==============================================================================
+package "Domain Entities (Data Model - Product Catalog Scope)" as pkg_domain #F0FDF4 {
+
+    class "Category" as Category <<entity>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+
+    class "Brand" as Brand <<entity>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + created_at: DATETIME2
+    }
+
+    class "Size" as Size <<entity>> {
+        + id: INT <<PK>>
+        --
+        + size_name: NVARCHAR(20) <<UQ>>
+        + display_order: INT = 0
+    }
+
+    class "Color" as Color <<entity>> {
+        + id: INT <<PK>>
+        --
+        + color_name: NVARCHAR(50) <<UQ>>
+        + hex_code: NVARCHAR(10) [0..1]
+    }
+
+    class "Product" as Product <<entity>> {
+        + id: INT <<PK>>
+        + category_id: INT <<FK>>
+        + brand_id: INT [0..1] <<FK>>
+        --
+        + product_code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(200)
+        + slug: NVARCHAR(255) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + gender_target: NVARCHAR(20) = 'UNISEX'
+        + base_price: DECIMAL(12,0)
+        + sale_price: DECIMAL(12,0) [0..1]
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "ProductImage" as ProductImage <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        --
+        + image_url: NVARCHAR(1000)
+        + is_primary: BIT = 0
+        + display_order: INT = 0
+        .. Filtered Unique Index ..
+        {unique filtered: product_id WHERE is_primary = 1}
+    }
+
+    class "ProductVariant" as ProductVariant <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        + size_id: INT <<FK>>
+        + color_id: INT <<FK>>
+        --
+        + sku: NVARCHAR(100) <<UQ>>
+        + stock_quantity: INT = 0
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Composite Unique ..
+        {unique(product_id, size_id, color_id)}
+    }
+
+    class "Banner" as Banner <<entity>> {
+        + id: INT <<PK>>
+        --
+        + title: NVARCHAR(150)
+        + image_url: NVARCHAR(255)
+        + link_url: NVARCHAR(255) [0..1]
+        + display_order: INT = 0
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01)
+' ==============================================================================
+Category "1" -- "0..*" Product : "fk_products_category\n(classifies)"
+Brand "0..1" -- "0..*" Product : "fk_products_brand\n(brands)"
+
+Product "1" *-- "0..*" ProductImage : "fk_product_images_product\n(contains)"
+Product "1" *-- "0..*" ProductVariant : "fk_variants_product\n(has SKUs)"
+
+Size "1" -- "0..*" ProductVariant : "fk_variants_size\n(defines size)"
+Color "1" -- "0..*" ProductVariant : "fk_variants_color\n(defines color)"
+
+' ==============================================================================
+' PACKAGE LAYOUT RELATIONS
+' ==============================================================================
+pkg_presentation -[hidden]down-> pkg_service
+pkg_service -[hidden]right-> pkg_data
+pkg_service -[hidden]down-> pkg_domain
+pkg_data -[hidden]down-> pkg_domain
+
+' ==============================================================================
+' DEPENDENCY & INTERACTION RELATIONSHIPS
+' ==============================================================================
+' Router Hierarchy Mounting
+app ..> rootRoutes : "mounts at '/' (src/app.js:64)"
+rootRoutes ..> homeRoutes : "mounts at '/' (src/routes/index.js:16)"
+rootRoutes ..> productRoutes : "mounts at '/products' (src/routes/index.js:17)"
+rootRoutes ..> ProductController : "direct route /api/products/search"
+
+' Routes to Controllers
+homeRoutes ..> homeController : "delegates to"
+productRoutes ..> ProductController : "delegates to"
+
+' Controller to Service (3-tier Architecture)
+homeController ..> ProductService : "calls getHomeBanners,\ngetAllCategories, getLatestProducts,\ngetFlashSaleProducts"
+ProductController ..> ProductService : "calls getCatalog,\ngetProductBySlug, searchLive,\ngetFlashSaleProducts"
+
+' Service to Repository
+ProductService ..> ProductRepository : "delegates all\ncatalog queries"
+
+' Repository to Database Helper
+ProductRepository ..> database : "executes parameterized T-SQL"
+
+' Repository to Domain Entities (Data mapping & Query dependencies)
+ProductRepository ..> Product : "queries active products"
+ProductRepository ..> ProductVariant : "joins stock, SKU"
+ProductRepository ..> ProductImage : "queries primary & gallery"
+ProductRepository ..> Category : "queries category & counts"
+ProductRepository ..> Brand : "joins brand name"
+ProductRepository ..> Banner : "queries active banners"
+ProductRepository ..> Size : "queries size filters and variant details"
+ProductRepository ..> Color : "queries variant color details"
+
+' ==============================================================================
+' UML NOTES & ARCHITECTURE SPECIFICATIONS
+' ==============================================================================
+note right of ProductController
+  <b>Note 1 – Catalog Query & Filter Parameters:</b>
+  ProductController.index tiếp nhận và chuẩn hóa các bộ lọc:
+  * <b>cat</b>: slug danh mục sản phẩm (Category.slug)
+  * <b>gender</b>: giới tính ('MEN', 'WOMEN', 'UNISEX' - whitelist an toàn)
+  * <b>size</b>: kích cỡ giày (Size.size_name qua subquery EXISTS)
+  * <b>sale</b>: lọc sản phẩm giảm giá (sale_price < base_price)
+  * <b>minPrice / maxPrice</b>: khoảng giá (auto-swap nếu min > max)
+  * <b>q</b>: từ khóa tìm kiếm (name hoặc product_code)
+  * <b>sort</b>: 'price_asc' | 'price_desc' | 'name_asc' (mặc định id DESC)
+  * <b>page / limit</b>: phân trang CSDL (mặc định 12 sản phẩm/trang)
+end note
+
+note left of homeController
+  <b>Note 2 – Homepage Data Aggregation:</b>
+  homeController.index sử dụng <b>Promise.all</b> nạp song song:
+  * <b>Banners</b>: Banner quảng cáo slider trang chủ (is_active = 1)
+  * <b>Categories</b>: Danh mục hoạt động kèm số lượng sản phẩm
+  * <b>Latest Products</b>: TOP 8 sản phẩm mới nhất
+  * <b>Flash Sale Products</b>: TOP 4 sản phẩm có tỷ lệ giảm giá sâu nhất
+  <i>(homeController là CommonJS Module, không phải JavaScript Class)</i>
+end note
+
+note bottom of ProductRepository
+  <b>Note 3 – Real-time Live Search Engine:</b>
+  Phương thức <b>searchLive(keyword, limit = 8)</b>:
+  * Endpoint: /products/live-search, /products/api/search, /api/products/search
+  * Tìm kiếm trên 4 trường: product.name, product_code, category.name, brand.name
+  * Sắp xếp theo mức độ khớp: Khớp đầu từ (0) -> Khớp từ (1) -> Khớp chuỗi (2)
+  * Trả về kết quả JSON kèm tính toán tồn kho tổng (total_stock)
+  ----
+  <b>Client Integration:</b>
+  <i>Browser Client Integration (main.js) is outside the backend classifier scope.</i>
+  Phía trình duyệt, main.js gắn debounce (300ms) và AbortController trên input search,
+  gửi request AJAX tới <b>/api/products/search?q=...</b> (hoặc fallback <b>/products/live-search?q=...</b>),
+  nhận JSON và kết xuất dropdown gợi ý bằng DOM APIs an toàn.
+end note
+
+note bottom of pkg_domain
+  <b>Note 4 – Domain Entities & Scope Boundary:</b>
+  * 8 Domain Entities được trích xuất nhất quán 100% từ CD01 (Partial View).
+  * Banner là thực thể độc lập, không có quan hệ Foreign Key với Product.
+  * <b>Phạm vi CD03:</b> Dành riêng cho trải nghiệm duyệt hàng của Khách hàng & Vãng lai (Read-Only).
+  * Nghiệp vụ Admin quản trị (Thêm/Sửa/Xóa sản phẩm, SKU, danh mục, banner) thuộc phạm vi CD06.
+end note
+
+@enduml

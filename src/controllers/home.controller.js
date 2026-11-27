@@ -59,7 +59,49 @@ async function index(req, res, next) {
   }
 }
 
+/**
+ * Controller to switch language (vi / en) via cookie
+ */
+function setLocale(req, res) {
+  const lang = (req.params.lang || '').toLowerCase();
+  const targetLocale = (lang === 'en') ? 'en' : 'vi';
+
+  // Set persistent cookie (1 year)
+  res.cookie('vamos_locale', targetLocale, {
+    maxAge: 365 * 24 * 60 * 60 * 1000,
+    httpOnly: false,
+    sameSite: 'lax',
+    path: '/',
+  });
+
+  // Support JSON/AJAX requests
+  if (req.xhr || req.headers.accept?.includes('application/json')) {
+    return res.json({ success: true, locale: targetLocale });
+  }
+
+  // Safe redirect to referrer preventing open redirect
+  const ref = req.get('Referrer');
+  let redirectUrl = '/';
+  if (ref) {
+    try {
+      if (!ref.startsWith('http://') && !ref.startsWith('https://')) {
+        redirectUrl = ref.startsWith('/') ? ref : '/';
+      } else {
+        const parsed = new URL(ref);
+        if (parsed.hostname === req.hostname) {
+          redirectUrl = parsed.pathname + parsed.search;
+        }
+      }
+    } catch {
+      redirectUrl = '/';
+    }
+  }
+
+  return res.redirect(redirectUrl);
+}
+
 module.exports = {
   index,
+  setLocale,
 };
 

@@ -1,0 +1,323 @@
+extends ../../layouts/main
+
+block content
+  - const rawWalletPoints = Number(wallet && wallet.available_points ? wallet.available_points : 0);
+  - const displayUsablePoints = (wallet && wallet.usable_points !== undefined && wallet.usable_points !== null) ? Number(wallet.usable_points) : rawWalletPoints;
+  //- ── BREADCRUMB NAVIGATION ──
+  section.w-full.bg-slate-50.border-b.border-slate-200
+    .max-w-7xl.mx-auto.px-4.py-3.flex.items-center.justify-between.text-xs(class="lg:px-16")
+      nav.flex.items-center.gap-2.text-gray-500
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        a.transition-colors(class="hover:text-vamos-red" href="/account/profile") Tài khoản cá nhân
+        span /
+        span.text-slate-900.font-bold VAMOS Club &amp; Đổi Voucher
+      .hidden.items-center.gap-2.text-emerald-700.bg-emerald-50.px-3.py-1.rounded-full.font-medium(class="sm:flex")
+        span ✨
+        span Điểm thưởng có hạn 365 ngày • Chu kỳ xét hạng 12 tháng
+
+  //- ── MAIN ACCOUNT CONTAINER ──
+  main.max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-16")
+    if successMsg
+      .mb-6.p-4.rounded-xl.bg-emerald-50.border.border-emerald-200.text-emerald-800.text-xs.font-semibold.flex.items-center.gap-2
+        span.text-lg ✅
+        span= successMsg
+
+    if errorMsg
+      .mb-6.p-4.rounded-xl.bg-red-50.border.border-red-200.text-red-700.text-xs.font-semibold.flex.items-center.gap-2
+        span.text-lg ⚠️
+        span= errorMsg
+
+    .grid.grid-cols-1.gap-8.items-start(class="lg:grid-cols-12")
+
+      //- ── CỘT TRÁI: ACCOUNT SIDEBAR (3 cols) ──
+      aside.space-y-6(class="lg:col-span-3")
+        //- User Profile Card
+        .bg-white.rounded-xl.p-5.border.border-slate-200.shadow-sm
+          .flex.items-center.gap-3.pb-4.border-b.border-slate-100
+            .w-12.h-12.rounded-full.bg-slate-900.text-white.flex.items-center.justify-center.font-bold.text-base.shrink-0
+              = (user && user.full_name ? user.full_name : (user && user.email ? user.email : 'U')).charAt(0).toUpperCase()
+            .overflow-hidden
+              h2.text-sm.font-bold.text-slate-900.truncate= user && user.full_name ? user.full_name : 'Khách hàng VAMOS'
+              p.text-xs.text-slate-400.truncate= user && user.email ? user.email : ''
+              span.inline-flex.items-center.gap-1.text-xs.font-bold.text-vamos-red.mt-1
+                span= wallet ? wallet.tierIcon : '🏅'
+                span= wallet ? wallet.tierName : 'VAMOS Member'
+
+        //- Navigation Menu Links
+        .bg-white.rounded-xl.p-3.border.border-slate-200.shadow-sm
+          nav.space-y-1.text-xs.font-semibold
+            a.flex.items-center.justify-between.px-3.py-2.rounded-lg.bg-red-50.text-vamos-red.font-bold(href="/account/rewards")
+              .flex.items-center.gap-3
+                span 🎁
+                span VAMOS Club (Điểm &amp; Voucher)
+              span.text-xs.bg-red-100.text-vamos-red.px-2.py-1.rounded-full.font-bold= displayUsablePoints.toLocaleString('vi-VN') + ' đ'
+            a.flex.items-center.justify-between.px-3.py-2.rounded-lg.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-vamos-red" href="/account/orders")
+              .flex.items-center.gap-3
+                span 📦
+                span Đơn hàng của tôi
+              span →
+            a.flex.items-center.justify-between.px-3.py-2.rounded-lg.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-vamos-red" href="/account/profile")
+              .flex.items-center.gap-3
+                span 👤
+                span Thông tin tài khoản
+              span →
+            a.flex.items-center.justify-between.px-3.py-2.rounded-lg.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-vamos-red" href="/account/wishlist")
+              .flex.items-center.gap-3
+                span ❤️
+                span Sản phẩm yêu thích
+              span →
+            a.flex.items-center.justify-between.px-3.py-2.rounded-lg.text-slate-700.transition-colors(class="hover:bg-slate-50 hover:text-vamos-red" href="/account/addresses")
+              .flex.items-center.gap-3
+                span 📍
+                span Sổ địa chỉ giao hàng
+              span →
+
+      //- ── CỘT PHẢI: REWARDS CENTER DASHBOARD (9 cols) ──
+      section.space-y-8(class="lg:col-span-9")
+
+        //- ── 1. HERO CARD: VAMOS CLUB MEMBERSHIP TIER & BALANCE ──
+        .relative.rounded-2xl.p-6.bg-gradient-to-br.from-slate-900.via-slate-800.to-black.text-white.shadow-xl.overflow-hidden(class="sm:p-8")
+          .absolute.top-0.right-0.w-96.h-96.bg-red-600.rounded-full.filter.blur-3xl.opacity-15.pointer-events-none
+          .relative.z-10
+            .flex.flex-col.gap-6(class="sm:flex-row sm:items-center sm:justify-between")
+              div
+                .flex.items-center.gap-2.mb-1
+                  span.text-xs.font-black.tracking-widest.text-red-500.uppercase(style="font-family:'Space Grotesk',sans-serif") VAMOS CLUB LOYALTY
+                  span.text-xs.bg-white.bg-opacity-20.text-white.px-2.py-1.rounded-full.font-bold= wallet.tierIcon + ' ' + wallet.tierName
+                h1.text-3xl.font-black.text-white(style="font-family:'Space Grotesk',sans-serif")
+                  = displayUsablePoints.toLocaleString('vi-VN')
+                  span.text-base.font-medium.text-slate-300.ml-2 ĐIỂM CÒN HẠN SỬ DỤNG
+                if rawWalletPoints > displayUsablePoints
+                  p.text-xs.text-amber-300.mt-1
+                    = `Số dư sổ ví: ${rawWalletPoints.toLocaleString('vi-VN')} điểm (có ${(rawWalletPoints - displayUsablePoints).toLocaleString('vi-VN')} điểm đã hết hạn chờ worker đối soát)`
+                p.text-xs.text-slate-400.mt-1
+                  = `Điểm xét hạng chu kỳ: ${Number(wallet.qualifying_points_cycle || 0).toLocaleString('vi-VN')} điểm • Trọn đời đã tích lũy: ${wallet.lifetime_earned_points.toLocaleString('vi-VN')} • Đã đổi: ${wallet.lifetime_redeemed_points.toLocaleString('vi-VN')}`
+                if wallet.cycle_end_at
+                  p.text-xs.text-slate-300.mt-1
+                    = `Chu kỳ ${wallet.cycle_number || 1}: đến ${fmtVnDateTime(wallet.cycle_end_at)}`
+                else
+                  p.text-xs.text-slate-400.mt-1 Chu kỳ xét hạng 12 tháng sẽ kích hoạt từ giao dịch tích điểm hợp lệ đầu tiên
+                if wallet.nextExpiringBatch
+                  p.text-xs.text-amber-300.mt-1
+                    = `Lô điểm sắp hết hạn: ${Number(wallet.nextExpiringBatch.remaining_points || 0).toLocaleString('vi-VN')} điểm vào ${fmtVnDateTime(wallet.nextExpiringBatch.expires_at)}`
+
+              .flex.items-center.gap-3
+                a.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-xl.shadow-lg.transition-all(class="hover:bg-red-700 hover:shadow-red-600/30" href="#rewards-store")
+                  | ĐỔI VOUCHER NGAY ↓
+                a.px-4.py-2.bg-white.bg-opacity-10.text-white.text-xs.font-bold.rounded-xl.border.border-white.border-opacity-20.transition-all(class="hover:bg-opacity-20" href="#my-vouchers")
+                  | KHO VOUCHER CỦA TÔI
+
+            //- Tier Progression Bar
+            .mt-6.pt-6.border-t.border-slate-700
+              .flex.items-center.justify-between.text-xs.mb-2
+                span.text-slate-300
+                  = `Hạng hiện tại: `
+                  strong.text-white= wallet.tierName
+                if wallet.nextTierName
+                  span.text-slate-300
+                    = `Cần thêm `
+                    strong.text-amber-400= wallet.pointsNeeded.toLocaleString('vi-VN') + ' điểm'
+                    = ` để đạt hạng `
+                    strong.text-white= wallet.nextTierName
+                else
+                  span.text-amber-400.font-bold 👑 Bạn đang ở Hạng Thành Viên Cao Nhất!
+              .w-full.bg-slate-700.rounded-full.h-3.overflow-hidden
+                .bg-gradient-to-r.from-amber-400.to-red-500.h-3.rounded-full.transition-all.duration-500(style=`width: ${wallet.progressPercent}%`)
+
+        //- ── 2. CÁCH TÍCH ĐIỂM THƯỞNG ──
+        .grid.grid-cols-1.gap-4(class="md:grid-cols-2")
+          //- Card Review
+          .bg-white.rounded-xl.p-5.border.border-slate-200.shadow-sm.flex.items-start.gap-4
+            .w-12.h-12.rounded-xl.bg-red-50.text-vamos-red.flex.items-center.justify-center.text-2xl.shrink-0
+              | ⭐
+            div
+              .flex.items-center.gap-2
+                h3.text-sm.font-bold.text-slate-900 Đánh Giá Sản Phẩm Đã Mua
+                span.text-xs.bg-red-100.text-vamos-red.font-bold.px-2.py-1.rounded-full Đến +300đ/SP
+              p.text-xs.text-slate-500.mt-1
+                | Nhận +100đ khi chọn sao, +100đ khi viết cảm nhận/chọn tag và +100đ khi đính kèm hình ảnh thực tế.
+              a.inline-flex.items-center.gap-1.text-xs.font-bold.text-vamos-red.mt-2(class="hover:underline" href="/account/orders")
+                | Vào đơn hàng để đánh giá →
+
+          //- Card Purchase 3%
+          .bg-white.rounded-xl.p-5.border.border-slate-200.shadow-sm.flex.items-start.gap-4
+            .w-12.h-12.rounded-xl.bg-emerald-50.text-emerald-600.flex.items-center.justify-center.text-2xl.shrink-0
+              | 🛍️
+            div
+              .flex.items-center.gap-2
+                h3.text-sm.font-bold.text-slate-900 Mua Sắm Tích Lũy 3%
+                span.text-xs.bg-emerald-100.text-emerald-700.font-bold.px-2.py-1.rounded-full Tự động
+              p.text-xs.text-slate-500.mt-1
+                | Tự động cộng 3% giá trị hàng hóa thực tế vào ví điểm ngay khi đơn hàng hoàn thành và giao nhận thành công.
+              a.inline-flex.items-center.gap-1.text-xs.font-bold.text-emerald-700.mt-2(class="hover:underline" href="/products")
+                | Mua sắm ngay hôm nay →
+
+        //- ── 3. REWARDS STORE: CỬA HÀNG ĐỔI THƯỞNG ──
+        #rewards-store.space-y-4
+          .flex.items-center.justify-between
+            div
+              h2.text-lg.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 🎁 CỬA HÀNG ĐỔI VOUCHER ƯU ĐÃI
+              p.text-xs.text-slate-500 Đổi điểm lấy mã giảm giá áp dụng trực tiếp tại bước thanh toán giỏ hàng
+
+          .grid.grid-cols-1.gap-4(class="sm:grid-cols-2 lg:grid-cols-3")
+            each rule in rewardRules
+              - const availableStock = Number(rule.stock_quantity || 0)
+              - const isOutOfStock = availableStock <= 0
+              article.bg-white.rounded-xl.border.p-5.flex.flex-col.justify-between.transition-all(
+                class=rule.is_active && !isOutOfStock ? 'border-slate-200 hover:border-slate-300 shadow-sm' : 'border-slate-100 bg-slate-50 opacity-75'
+              )
+                div
+                  .flex.items-center.justify-between.mb-3
+                    span.text-xs.font-black.px-2.py-1.rounded-full(
+                      class=rule.reward_type === 'FREE_SHIPPING' ? 'bg-purple-100 text-purple-700' : (rule.reward_type === 'PHYSICAL_GIFT' ? 'bg-slate-200 text-slate-700' : 'bg-red-100 text-vamos-red')
+                    )
+                      = rule.reward_type === 'FREE_SHIPPING' ? 'FREESHIP' : (rule.reward_type === 'PHYSICAL_GIFT' ? 'QUÀ VẬT LÝ' : 'VOUCHER')
+                    span.text-sm.font-black.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                      = rule.points_required.toLocaleString('vi-VN') + ' ĐIỂM'
+
+                  h3.text-sm.font-bold.text-slate-900= rule.title
+                  p.text-xs.text-slate-500.mt-1.leading-relaxed= rule.description
+
+                  .mt-4.pt-3.border-t.border-slate-100.text-xs.text-slate-500.space-y-1
+                    if rule.min_order_amount > 0
+                      p
+                        span.text-slate-400 Đơn tối thiểu: 
+                        strong.text-slate-700= rule.min_order_amount.toLocaleString('vi-VN') + ' đ'
+                    p
+                      span.text-slate-400 Thời hạn: 
+                      strong.text-slate-700= rule.voucher_valid_days + ' ngày kể từ khi đổi'
+                    if rule.is_active
+                      p
+                        span.text-slate-400= 'Số lượng còn lại: '
+                        if isOutOfStock
+                          strong.text-red-600 HẾT LƯỢT ĐỔI
+                        else
+                          strong.text-slate-700= `Còn ${availableStock.toLocaleString('vi-VN')} lượt đổi`
+
+                .mt-5.pt-4
+                  if !rule.is_active
+                    button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-200.text-slate-500.cursor-not-allowed(disabled)
+                      | 🔒 SẮP MỞ ĐỔI QUÀ
+                  else if isOutOfStock
+                    button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-200.text-slate-500.cursor-not-allowed(disabled)
+                      | HẾT LƯỢT ĐỔI
+                  else if displayUsablePoints < rule.points_required
+                    button.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-slate-100.text-slate-400.cursor-not-allowed(disabled)
+                      = `Thiếu ${(rule.points_required - displayUsablePoints).toLocaleString('vi-VN')} điểm còn hạn`
+                  else
+                    form(action="/account/rewards/redeem" method="POST" onsubmit="return confirmRedemption(this, '" + rule.title + "', " + rule.points_required + ")")
+                      input(type="hidden" name="_csrf" value=csrfToken)
+                      input(type="hidden" name="reward_rule_id" value=rule.id)
+                      button.btn-redeem.w-full.py-2.px-4.rounded-xl.text-xs.font-bold.bg-vamos-red.text-white.shadow-sm.transition-all(
+                        class="hover:bg-red-700 hover:shadow-md"
+                        type="submit"
+                      )
+                        | ĐỔI VOUCHER NGAY
+
+        //- ── 4. KHO VOUCHER CỦA TÔI (MY REDEEMED VOUCHERS) ──
+        #my-vouchers.space-y-4
+          .flex.items-center.justify-between
+            div
+              h2.text-lg.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 🎟️ KHO VOUCHER CỦA BẠN
+              p.text-xs.text-slate-500 Các mã voucher cá nhân được tạo từ điểm thưởng, sẵn sàng sử dụng tại giỏ hàng
+
+          if myVouchers && myVouchers.length > 0
+            .grid.grid-cols-1.gap-4(class="sm:grid-cols-2")
+              each v in myVouchers
+                .bg-white.rounded-xl.border.border-slate-200.p-4.shadow-sm.flex.flex-col.justify-between
+                  div
+                    .flex.items-center.justify-between.mb-2
+                      span.text-xs.font-bold.text-slate-500= v.rule_title
+                      if v.redemption_status === 'AVAILABLE'
+                        span.text-xs.font-bold.px-2.py-1.rounded-full.bg-emerald-100.text-emerald-700 CHƯA SỬ DỤNG
+                      else if v.redemption_status === 'USED'
+                        span.text-xs.font-bold.px-2.py-1.rounded-full.bg-slate-100.text-slate-500 ĐÃ DÙNG
+                      else
+                        span.text-xs.font-bold.px-2.py-1.rounded-full.bg-amber-100.text-amber-700 HẾT HẠN
+
+                    .flex.items-center.justify-between.bg-slate-50.rounded-lg.p-2.border.border-dashed.border-slate-300.my-2
+                      code.text-sm.font-black.text-vamos-red.tracking-wider(style="font-family:'Space Grotesk',sans-serif")= v.voucher_code
+                      button.copy-btn.text-xs.font-bold.text-slate-600.bg-white.px-2.py-1.rounded.border.border-slate-200.transition-colors(
+                        class="hover:bg-slate-100 hover:text-slate-900"
+                        type="button"
+                        onclick="copyVoucherCode(this, '" + v.voucher_code + "')"
+                      ) Sao chép
+
+                    p.text-xs.text-slate-500
+                      if v.discount_type === 'percentage'
+                        = `Giảm ${v.discount_value}% (Tối đa ${v.max_discount_amount ? Number(v.max_discount_amount).toLocaleString('vi-VN') + ' đ' : 'không giới hạn'})`
+                      else if v.discount_type === 'free_shipping'
+                        = `Giảm tối đa ${Number(v.max_discount_amount || v.discount_value).toLocaleString('vi-VN')} đ phí vận chuyển cho đơn từ ${Number(v.min_order_value).toLocaleString('vi-VN')} đ`
+                      else
+                        = `Giảm ${Number(v.discount_value).toLocaleString('vi-VN')} đ cho đơn từ ${Number(v.min_order_value).toLocaleString('vi-VN')} đ`
+
+                  .mt-3.pt-2.border-t.border-slate-100.text-xs.text-slate-400.flex.items-center.justify-between
+                    span= `Đổi lúc: ${fmtVnDateTime(v.redeemed_at)}`
+                    span= `HSD: ${fmtVnVoucherEnd(v.end_date)}`
+          else
+            .bg-white.rounded-xl.border.border-slate-200.p-8.text-center.shadow-sm
+              span.text-3xl 🎟️
+              p.text-xs.text-slate-500.mt-2 Bạn chưa đổi mã voucher nào. Hãy tích điểm và đổi ngay ưu đãi hấp dẫn!
+
+        //- ── 5. LỊCH SỬ GIAO DỊCH ĐIỂM (TRANSACTION LEDGER) ──
+        #point-history.space-y-4
+          .flex.items-center.justify-between
+            div
+              h2.text-lg.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 📜 LỊCH SỬ TÍCH &amp; ĐỔI ĐIỂM
+              p.text-xs.text-slate-500 Minh bạch tuyệt đối mọi giao dịch cộng và trừ điểm trong tài khoản
+
+          .bg-white.rounded-xl.border.border-slate-200.shadow-sm.overflow-hidden
+            if history && history.length > 0
+              .overflow-x-auto
+                table.w-full.text-left.border-collapse.text-xs
+                  thead.bg-slate-50.border-b.border-slate-200.text-slate-500
+                    tr
+                      th.py-3.px-4.font-bold Thời gian
+                      th.py-3.px-4.font-bold Loại giao dịch
+                      th.py-3.px-4.font-bold Diễn giải
+                      th.py-3.px-4.font-bold.text-right Thay đổi
+                      th.py-3.px-4.font-bold.text-right Số dư sau
+                  tbody.divide-y.divide-slate-100
+                    each tx in history
+                      tr.transition-colors(class="hover:bg-slate-50")
+                        td.py-3.px-4.text-slate-400= fmtVnDateTime(tx.created_at, { withSeconds: true })
+                        td.py-3.px-4
+                          if tx.transaction_type === 'REVIEW_REWARD'
+                            span.px-2.py-1.rounded-full.bg-red-100.text-vamos-red.font-bold Đánh giá SP
+                          else if tx.transaction_type === 'ORDER_PURCHASE'
+                            span.px-2.py-1.rounded-full.bg-emerald-100.text-emerald-700.font-bold Mua sắm (3%)
+                          else if tx.transaction_type === 'VOUCHER_REDEMPTION'
+                            span.px-2.py-1.rounded-full.bg-amber-100.text-amber-800.font-bold Đổi Voucher
+                          else if tx.transaction_type === 'POINT_EXPIRATION'
+                            span.px-2.py-1.rounded-full.bg-slate-200.text-slate-700.font-bold Hết hạn điểm
+                          else
+                            span.px-2.py-1.rounded-full.bg-slate-100.text-slate-600.font-bold= tx.transaction_type
+                        td.py-3.px-4.text-slate-700= tx.description
+                        td.py-3.px-4.text-right.font-black(style="font-family:'Space Grotesk',sans-serif" class=tx.amount > 0 ? 'text-emerald-600' : 'text-slate-900')
+                          = (tx.amount > 0 ? '+' : '') + tx.amount.toLocaleString('vi-VN')
+                        td.py-3.px-4.text-right.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                          = tx.balance_after.toLocaleString('vi-VN')
+            else
+              .p-8.text-center.text-xs.text-slate-400
+                | Chưa có giao dịch tích điểm nào được ghi nhận.
+
+  //- ── CLIENT JAVASCRIPT FOR REWARDS CENTER ──
+  script.
+    function copyVoucherCode(btn, code) {
+      navigator.clipboard.writeText(code).then(function() {
+        var orig = btn.innerText;
+        btn.innerText = 'Đã chép!';
+        btn.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+        setTimeout(function() {
+          btn.innerText = orig;
+          btn.classList.remove('bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+        }, 2000);
+      }).catch(function() {
+        alert('Mã voucher: ' + code);
+      });
+    }
+
+    function confirmRedemption(form, title, points) {
+      return confirm('Xác nhận dùng ' + points.toLocaleString('vi-VN') + ' điểm để đổi "' + title + '"? Thao tác này sẽ trừ điểm trong tài khoản và tạo mã voucher cá nhân cho bạn.');
+    }

@@ -254,6 +254,8 @@ node tests/regression_suite.js
 
 ## 📑 Tài Liệu Kỹ Thuật Đầy Đủ
 
+- **Hồ sơ báo cáo phân tích & thiết kế hệ thống:** [`report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/`](report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/)
+- **Cẩm nang nghiên cứu chi tiết ERD & Cơ sở dữ liệu:** [`report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/05_TAI_LIEU_NGHIEN_CUU_ERD/`](report/HO_SO_BAO_CAO_PHAN_TICH_THIET_KE_VAMOS_STORE/05_TAI_LIEU_NGHIEN_CUU_ERD/)
 - **Báo cáo kiểm toán kỹ thuật:** [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md)
 - **Báo cáo kiểm toán bảo mật:** [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md)
 - **Báo cáo kết quả kiểm thử toàn diện:** [`docs/TEST_REPORT.md`](docs/TEST_REPORT.md)
@@ -264,6 +266,7 @@ node tests/regression_suite.js
 - **Đặc tả yêu cầu & Phân tích nghiệp vụ:** [`docs/analysis/`](docs/analysis/)
 - **Kiến trúc hệ thống & Thiết kế bảo mật:** [`docs/architecture/`](docs/architecture/)
 - **Thiết kế cơ sở dữ liệu & Data Dictionary:** [`docs/database/`](docs/database/)
+- **Hệ thống sơ đồ thiết kế (PlantUML & PNG):** [`docs/diagrams/`](docs/diagrams/)
 - **Hệ thống thiết kế UI & Wireframes:** [`docs/ui/`](docs/ui/)
 
 ---

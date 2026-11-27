@@ -1,0 +1,62 @@
+@startuml
+title Sơ đồ hoạt động — Đặt hàng thanh toán khi nhận hàng COD (AD05/AD08)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Người dùng|
+start
+:Mở trang thanh toán, nhập địa chỉ nhận hàng và chọn phương thức COD;
+:Nhập mã voucher giảm giá (nếu có);
+:Nhấn nút "Xác nhận đặt hàng";
+
+|Hệ thống|
+:Tiếp nhận đơn hàng và kích hoạt giao dịch CSDL (Transaction);
+:Khóa dòng kiểm tra tồn kho tức thời của các biến thể SKU;
+:Kiểm tra điều kiện áp dụng mã voucher;
+
+if (Đủ tồn kho tất cả sản phẩm và voucher hợp lệ?) then (Đúng)
+  |Hệ thống|
+  :Tạo đơn hàng mới ở trạng thái Chờ xử lý (PENDING);
+  :Khóa giá mua snapshot từng sản phẩm vào chi tiết đơn;
+  :Trừ tồn kho biến thể và ghi sổ cái thẻ kho (inventory_transactions);
+  :Tăng lượt sử dụng voucher và làm trống giỏ hàng;
+  :Cam kết giao dịch (Commit) và hiển thị trang đặt hàng thành công;
+  |Người dùng|
+  :Nhận mã đơn hàng và theo dõi tiến trình đơn hàng;
+  stop
+else (Sai)
+  |Hệ thống|
+  :Hủy giao dịch (Rollback) để bảo toàn dữ liệu;
+  :Hiển thị thông báo lỗi hết hàng hoặc voucher không hợp lệ;
+  |Người dùng|
+  :Kiểm tra lại giỏ hàng và điều chỉnh thông tin đặt hàng;
+  stop
+endif
+@enduml

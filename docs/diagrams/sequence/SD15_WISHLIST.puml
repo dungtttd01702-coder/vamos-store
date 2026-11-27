@@ -1,0 +1,112 @@
+@startuml SD15_WISHLIST
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: QUẢN LÝ DANH SÁCH YÊU THÍCH (SD15 - WISHLIST MANAGEMENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Người dùng\n(Guest / Customer / Admin)" as User
+participant "Trình duyệt & Client JS\n(Browser / main.js)" as Browser
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Wishlist Router\n(wishlist.routes.js)" as Router
+participant "Customer Guard\n(requireCustomer)" as AuthGuard
+participant "Wishlist Controller\n(wishlist.controller.js)" as WishCtrl
+participant "Wishlist Service\n(wishlist.service.js)" as WishService
+participant "Wishlist Repository\n(wishlist.repository.js)" as WishRepo
+participant "Database Pool\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+note over Browser, AuthGuard #FEF3C7
+  <b>QUY TẮC THỨ TỰ MIDDLEWARE (EXPRESS PIPELINE):</b>
+  1. <b>csrfMiddleware</b> (Toàn cục tại app.js:61) thực thi ĐẦU TIÊN: Nếu thiếu hoặc sai token -> trả về HTTP 403 Forbidden và kết thúc ngay (áp dụng cho mọi Actor: Guest / Admin / Customer).
+  2. <b>requireCustomer</b> (Tại wishlist.routes.js:7) thực thi TIẾP THEO (chỉ khi CSRF hợp lệ):
+     - Guest: Nhận HTTP 401 Unauthorized JSON.
+     - Admin: Nhận HTTP 403 Forbidden JSON (sai phân quyền nghiệp vụ).
+     - Customer: Được cấp quyền đi tiếp vào Controller.
+end note
+
+User -> Browser : Nhấp vào icon Trái tim trên thẻ sản phẩm hoặc trang chi tiết
+Browser -> Browser : main.js chuẩn bị request fetch POST /api/wishlist/toggle\nkèm headers X-CSRF-Token và body { productId, _csrf }
+Browser -> CsrfMid : POST /api/wishlist/toggle { productId, _csrf }
+
+CsrfMid -> CsrfMid : Kiểm tra token _csrf hoặc header X-CSRF-Token so với req.session.csrfToken
+alt [Tầng 1 - CSRF Protection] Token CSRF không hợp lệ hoặc thiếu (Bất kể là Guest, Admin hay Customer)
+    CsrfMid --> Browser : HTTP 403 Forbidden\n{ success: false, message: 'CSRF verification failed' }
+    Browser --> User : Hiển thị Toast lỗi: Phiên bảo mật của biểu mẫu đã hết hạn (Dừng luồng)
+else [Tầng 1 - CSRF Protection] Token CSRF hợp lệ (Đã vượt qua bảo vệ CSRF)
+    CsrfMid -> Router : Chuyển tiếp request vào wishlist.routes.js
+    Router -> AuthGuard : router.use(requireCustomer): Kiểm tra định danh phiên người dùng (req.session.user)
+    
+    alt [Tầng 2 - Role Guard] Người dùng là KHÁCH VÃNG LAI (Guest - Đã qua CSRF, chưa đăng nhập)
+        AuthGuard --> Browser : HTTP 401 Unauthorized\n{ success: false, message: 'Vui lòng đăng nhập để tiếp tục' }
+        Browser -> Browser : main.js bắt mã 401, hiển thị Toast cảnh báo kèm nút điều hướng\nđến /auth/login?returnUrl=...
+        Browser --> User : Thông báo yêu cầu đăng nhập để lưu danh sách yêu thích
+    else [Tầng 2 - Role Guard] Người dùng là QUẢN TRỊ VIÊN (Admin - Đã qua CSRF, sai phân quyền)
+        AuthGuard --> Browser : HTTP 403 Forbidden\n{ success: false, message: 'Tài khoản Quản trị viên không thể thực hiện thao tác này' }
+        Browser -> Browser : main.js hiển thị Toast từ chối: Admin không được phép lưu yêu thích
+        Browser --> User : Thông báo Admin không tham gia tính năng mua sắm
+    else [Tầng 2 - Role Guard] Người dùng là KHÁCH HÀNG HỢP LỆ (Customer - Đã qua CSRF, role CUSTOMER & active)
+        AuthGuard -> WishCtrl : toggleItem(req, res)
+        WishCtrl -> WishCtrl : Trích xuất an toàn userId = req.session.user.id\n(TUYỆT ĐỐI KHÔNG lấy userId từ request body)
+        WishCtrl -> WishService : toggleItem(userId, productId)
+        
+        WishService -> WishService : Kiểm tra tính hợp lệ của productId (Số nguyên dương > 0)
+        alt Mã sản phẩm không hợp lệ (productId <= 0 hoặc NaN)
+            WishService --> WishCtrl : Ném lỗi 400: "Mã sản phẩm không hợp lệ"
+            WishCtrl --> Browser : HTTP 400 Bad Request { success: false, message }
+        else Mã sản phẩm hợp lệ
+            WishService -> WishRepo : findProductById(parsedId)
+            WishRepo -> DbPool : query("SELECT id, name, slug, product_code, base_price, sale_price, status FROM products WHERE id = @productId")
+            DbPool -> SqlDb : SELECT FROM products WHERE id = @productId
+            SqlDb --> DbPool : productRecord
+            DbPool --> WishRepo : productRecord
+            WishRepo --> WishService : productRecord
+            
+            alt Sản phẩm không tồn tại hoặc đã ngừng kinh doanh (status != 'active')
+                WishService --> WishCtrl : Ném lỗi 404: "Sản phẩm không tồn tại hoặc ngừng kinh doanh"
+                WishCtrl --> Browser : HTTP 404 Not Found { success: false, message }
+            else Sản phẩm tồn tại và đang hoạt động (active)
+                WishService -> WishRepo : isInWishlist(userId, parsedId)
+                WishRepo -> DbPool : query("SELECT 1 AS exists_flag FROM wishlist_items WHERE user_id = @userId AND product_id = @productId")
+                DbPool -> SqlDb : Kiểm tra sự tồn tại trong bảng wishlist_items
+                SqlDb --> DbPool : existsRecord
+                DbPool --> WishRepo : existsRecord
+                WishRepo --> WishService : exists (true / false)
+                
+                alt Đã có trong Wishlist (exists === true) -> BỎ LƯU (REMOVE)
+                    WishService -> WishRepo : removeItem(userId, parsedId)
+                    WishRepo -> DbPool : query("DELETE FROM wishlist_items WHERE user_id = @userId AND product_id = @productId")
+                    DbPool -> SqlDb : Thực thi DELETE FROM wishlist_items
+                    SqlDb --> DbPool : Xác nhận xóa thành công
+                    WishService -> WishService : Thiết lập action = 'removed', inWishlist = false
+                else Chưa có trong Wishlist (exists === false) -> THÊM MỚI (ADD)
+                    WishService -> WishRepo : addItem(userId, parsedId)
+                    WishRepo -> DbPool : query("IF NOT EXISTS (...) INSERT INTO wishlist_items (user_id, product_id, created_at) VALUES (@userId, @productId, GETDATE())")
+                    DbPool -> SqlDb : Thực thi INSERT INTO wishlist_items (Bảo vệ bởi UQ_wishlist_user_product)
+                    SqlDb --> DbPool : Xác nhận thêm mới thành công
+                    WishService -> WishService : Thiết lập action = 'added', inWishlist = true
+                end
+                
+                WishService -> WishRepo : countByUserId(userId)
+                WishRepo -> DbPool : query("SELECT COUNT(*) AS total FROM wishlist_items w INNER JOIN products p ON w.product_id = p.id WHERE w.user_id = @userId AND p.status = 'active'")
+                DbPool -> SqlDb : Đếm lại tổng số sản phẩm yêu thích còn hoạt động
+                SqlDb --> DbPool : countRecord
+                DbPool --> WishRepo : count
+                WishRepo --> WishService : totalCount
+                
+                WishService --> WishCtrl : { success: true, action, inWishlist, count: totalCount, product }
+                WishCtrl --> Browser : HTTP 200 OK\n{ success: true, action, inWishlist, count, product, message }
+                
+                Browser -> Browser : main.js nhận JSON, cập nhật bộ nhớ đệm wishlistCache,\ntạo hiệu ứng nảy nút (animate-bounce), cập nhật màu sắc nút Trái tim,\ncập nhật badge số lượng trên header và hiển thị Toast phản hồi
+                Browser --> User : Trái tim đổi màu tức thì và hiển thị thông báo thành công
+            end
+        end
+    end
+end
+
+@enduml

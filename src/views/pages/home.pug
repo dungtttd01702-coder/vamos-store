@@ -113,7 +113,7 @@ block content
                   img.w-full.h-full.object-contain.mix-blend-multiply(src=prod.imageUrl alt=prod.name)
                   if prod.discountPercent > 0
                     span.badge-sale.absolute.top-2.left-2= `-${prod.discountPercent}%`
-                  button.btn-wishlist.absolute.top-2.right-2.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
+                  button.btn-wishlist.absolute.top-2.right-2.z-10.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
                     class="hover:text-red-600 hover:scale-110 active:scale-95"
                     type="button"
                     title="Thêm vào yêu thích"
@@ -197,7 +197,7 @@ block content
                   span.badge-sale= `-${prod.discountPercent}%`
                 if prod.isNew
                   span.badge-new MỚI
-              button.btn-wishlist.absolute.top-3.right-3.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
+              button.btn-wishlist.absolute.top-3.right-3.z-10.w-8.h-8.rounded-full.bg-white.shadow-sm.flex.items-center.justify-center.text-slate-400.transition-all(
                 class="hover:text-red-600 hover:scale-110 active:scale-95"
                 type="button"
                 title="Thêm vào yêu thích"

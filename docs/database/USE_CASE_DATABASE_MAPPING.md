@@ -1,0 +1,70 @@
+# MA TRẬN ÁNH XẠ USE CASE VÀ CƠ SỞ DỮ LIỆU (USE CASE TO DATABASE MAPPING)
+
+## HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ BÁN GIÀY VAMOS STORE
+
+> **Hệ quản trị CSDL:** Microsoft SQL Server (T-SQL)  
+> **Phiên bản tài liệu:** v2.0 (Kiểm toán đối soát trực tiếp 16 Use Case với 20 Bảng nghiệp vụ CSDL)  
+> **Cập nhật ngày:** 14/11/2026
+
+---
+
+## 1. Giới thiệu Ma trận Ánh xạ
+
+Ma trận Ánh xạ Use Case $\leftrightarrow$ Cơ sở dữ liệu chứng minh tính nhất quán giữa các yêu cầu chức năng nghiệp vụ (Use Cases đã chốt tại Giai đoạn 1) với cấu trúc các bảng dữ liệu vật lý trong SQL Server. Mỗi ánh xạ đều được kiểm chứng thông qua các câu lệnh SQL thực tế trong các Controller và Domain Service của mã nguồn.
+
+Hệ thống phân định rõ:
+
+- **Thao tác C (Create):** Thực thi lệnh `INSERT` dữ liệu mới.
+- **Thao tác R (Read):** Thực thi lệnh `SELECT` tra cứu, lọc hoặc kết xuất báo cáo.
+- **Thao tác U (Update):** Thực thi lệnh `UPDATE` sửa đổi trạng thái, số lượng tồn kho.
+- **Thao tác D (Delete):** Thực thi lệnh `DELETE` gỡ bỏ dòng dữ liệu.
+- **Khóa giao dịch (Concurrency Lock):** Áp dụng `WITH (UPDLOCK, ROWLOCK)` hoặc `WITH (UPDLOCK, HOLDLOCK)` trên các giao dịch kiểm tra tồn kho và voucher nhằm ngăn chặn hiện tượng Race Condition.
+
+---
+
+## 2. Bảng Ma trận Ánh xạ Toàn diện (16 Use Case $\leftrightarrow$ 20 Bảng CSDL)
+
+|  Mã UC   | Tên Use Case chuẩn hóa                           | Bảng CSDL sử dụng                                                                                                                                                        |                               Thao tác CRUD                                |                           Khóa giao dịch (Lock Hint)                            | Bằng chứng mã nguồn (File & Dòng)                                                                                                                                                                        |
+| :------: | :----------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **UC01** | Đăng ký tài khoản                                | `users`<br>`carts`<br>`cart_items`                                                                                                                                       |                             R, C<br>C<br>C, U                              |                              Database Transaction                               | `src/controllers/auth.controller.js:210-312`<br>- Insert `users`, Insert `carts`<br>- Gộp giỏ `cart.controller.js:686-745`                                                                               |
+| **UC02** | Đăng nhập hệ thống                               | `users`<br>`carts`<br>`cart_items`                                                                                                                                       |                             R<br>R, C<br>C, U                              |                                   Không dùng                                    | `src/controllers/auth.controller.js:70-158`<br>- Select `users`<br>- Check/create `carts`<br>- Merge guest cart vào `cart_items`                                                                         |
+| **UC03** | Khôi phục mật khẩu _(Designed Only)_             | `users`<br>`password_reset_tokens`                                                                                                                                       |                  R, U _(Dự kiến)_<br>C, R, U _(Dự kiến)_                   |                             Dự kiến trong thiết kế                              | `database/mssql_schema.sql:187-196`<br>`src/views/pages/auth/login.pug:37`<br>_(Backend chưa triển khai)_                                                                                                |
+| **UC04** | Quản lý hồ sơ & sổ địa chỉ                       | `users`<br>`addresses`                                                                                                                                                   |                             R, U<br>R, C, U, D                             |                                   Không dùng                                    | `src/controllers/account.controller.js:14-180`<br>- Update `users.full_name, phone`<br>- CRUD `addresses` & reset `is_default`                                                                           |
+| **UC05** | Tìm kiếm & xem sản phẩm                          | `products`<br>`product_variants`<br>`colors`<br>`sizes`<br>`product_images`<br>`categories`<br>`brands`                                                                  |                      R<br>R<br>R<br>R<br>R<br>R<br>R                       |                        Không dùng (Truy vấn phân trang)                         | `src/controllers/product.controller.js:15-176`<br>- Select phân trang `products`<br>- Live search API `products`<br>- Join `colors, sizes, product_images`                                               |
+| **UC06** | Quản lý giỏ hàng                                 | `carts`<br>`cart_items`<br>`product_variants`<br>`products`                                                                                                              |                        R, C<br>R, C, U, D<br>R<br>R                        |                         Không dùng (Kiểm tra realtime)                          | `src/controllers/cart.controller.js:28-315, 520-680`<br>- Guest: Session `guestCart`, chỉ Select DB để Live Sync<br>- Customer: CRUD `cart_items`                                                        |
+| **UC07** | Đặt hàng COD                                     | `orders`<br>`order_items`<br>`product_variants`<br>`inventory_transactions`<br>`order_status_histories`<br>`vouchers`<br>`voucher_usages`<br>`cart_items`<br>`addresses` |             C<br>C<br>R, U<br>C<br>C<br>R, U<br>R, C<br>D<br>R             | **ACID Transaction**<br>`WITH (UPDLOCK, ROWLOCK)`<br>`WITH (UPDLOCK, HOLDLOCK)` | `src/services/order.service.js:36-255`<br>- Khóa & trừ kho `product_variants`<br>- Ghi audit `inventory_transactions`<br>- Khóa voucher & check `voucher_usages`<br>- Snapshot vào `orders, order_items` |
+| **UC08** | Tra cứu & theo dõi đơn hàng                      | `orders`<br>`order_items`<br>`order_status_histories`                                                                                                                    |                                R<br>R<br>R                                 |                                   Không dùng                                    | `src/controllers/account.controller.js:185-270`<br>- Select `orders WHERE user_id = @id`<br>- Select `order_items` snapshot<br>- Select timeline `order_status_histories`                                |
+| **UC09** | Hủy đơn hàng tự phục vụ                          | `orders`<br>`order_items`<br>`product_variants`<br>`inventory_transactions`<br>`order_status_histories`                                                                  |                        R, U<br>R<br>R, U<br>C<br>C                         |                **ACID Transaction**<br>`WITH (UPDLOCK, ROWLOCK)`                | `src/services/order.service.js:415-460, 335-364`<br>- Khóa đơn hàng, check status PENDING<br>- Khóa biến thể, cộng hoàn trả tồn kho<br>- Ghi `inventory_transactions, histories`                         |
+| **UC10** | Xử lý & cập nhật đơn hàng                        | `orders`<br>`order_items`<br>`order_status_histories`<br>`product_variants`<br>`inventory_transactions`                                                                  |            R, U<br>R<br>C<br>R, U _(Khi hủy)_<br>C _(Khi hủy)_             |                **ACID Transaction**<br>`WITH (UPDLOCK, ROWLOCK)`                | `src/services/order.service.js:470-555`<br>- Check `VALID_TRANSITIONS`<br>- COMPLETED: Đổi `PAID`, không trừ kho<br>- Hủy: Hoàn trả tồn kho tự động                                                      |
+| **UC11** | Quản lý tồn kho                                  | `product_variants`<br>`inventory_transactions`<br>`products`                                                                                                             |                             R, U<br>C, R<br>R                              |                **ACID Transaction**<br>`WITH (UPDLOCK, ROWLOCK)`                | `src/controllers/admin.controller.js:560-660`<br>- Lọc `stock_quantity <= 5`<br>- Điều chỉnh tồn kho, kiểm tra >= 0<br>- Ghi nhật ký `inventory_transactions`                                            |
+| **UC12** | Quản lý danh mục, thương hiệu, sản phẩm & banner | `categories`<br>`brands`<br>`products`<br>`product_variants`<br>`product_images`<br>`colors`<br>`sizes`<br>`banners`<br>`inventory_transactions`                         | R, C, U<br>R, C<br>R, C, U<br>C, U<br>C, U, D<br>R<br>R<br>R, C, U, D<br>C |                **ACID Transaction** khi tạo sản phẩm đa biến thể                | `src/controllers/admin.controller.js:665-1048`<br>- CRUD `categories, brands`<br>- Tạo sản phẩm & ma trận SKU<br>- Ghi số dư ban đầu `inventory_transactions`<br>- CRUD `banners` slider                 |
+| **UC13** | Quản lý mã giảm giá                              | `vouchers`<br>`voucher_usages`                                                                                                                                           |                                R, C, U<br>R                                |                                   Không dùng                                    | `src/controllers/admin.controller.js:380-450`<br>- Tạo voucher, cấu hình hạn dùng<br>- Bật/tắt trạng thái `vouchers`<br>- Thống kê lượt dùng từ `voucher_usages`                                         |
+| **UC14** | Báo cáo doanh thu & KPI Dashboard                | `orders`<br>`order_items`<br>`product_variants`<br>`users`                                                                                                               |                              R<br>R<br>R<br>R                              |                        Không dùng (Truy vấn Aggregation)                        | `src/controllers/admin.controller.js:25-95`<br>- `SUM(total_amount)` WHERE status COMPLETED and PAID<br>- Top 5 bán chạy từ `order_items`<br>- Cảnh báo kho từ `product_variants`                        |
+| **UC15** | Quản lý danh sách yêu thích (Wishlist)           | `wishlist_items`<br>`products`<br>`product_images`                                                                                                                       |                             R, C, D<br>R<br>R                              |                      Không dùng (Unique Constraint bảo vệ)                      | `src/controllers/wishlist.controller.js:15-115`<br>`src/services/wishlist.service.js:10-95`<br>- Toggle 1 chạm: Check `wishlist_items`, Insert hoặc Delete                                               |
+| **UC16** | Quản lý tài khoản khách hàng                     | `users`<br>`orders`<br>`addresses`                                                                                                                                       |                               R, U<br>R<br>R                               |                                   Không dùng                                    | `src/controllers/admin.controller.js:460-555`<br>- Khóa/mở khóa `users.status`<br>- Chặn khóa tài khoản role ADMIN<br>- Xem lịch sử mua sắm từ `orders`                                                  |
+
+---
+
+## 3. Phân tích Các Trường hợp Đặc biệt về Dữ liệu
+
+### 3.1. Phân định Giỏ hàng Khách vãng lai (Guest Cart) và Bảng `carts`
+
+- **Khách vãng lai (Guest):** Hoàn toàn **KHÔNG có bản ghi** nào trong bảng `carts` hay `cart_items`. Dữ liệu giỏ hàng của Guest được lưu trữ hoàn toàn trong bộ nhớ phiên làm việc trên máy chủ (`req.session.guestCart`). Hệ thống chỉ thực hiện các truy vấn `SELECT` vào bảng `product_variants` và `products` để đồng bộ giá và tồn kho thời gian thực.
+- **Khách hàng thành viên (Customer):** Khi đăng nhập hoặc đăng ký thành công, hệ thống mới khởi tạo bản ghi trong bảng `carts` (liên kết 1-1 với `users.id`) và ghi nhận các mặt hàng vào bảng `cart_items`.
+
+### 3.2. Cơ chế Giao dịch Phức tạp trong UC07 (Đặt hàng COD)
+
+Use Case UC07 là Use Case có độ phức tạp cao nhất về thao tác CSDL, tác động đồng thời lên **9 bảng dữ liệu** trong một Transaction nguyên tử duy nhất:
+
+1. Đọc và kiểm tra địa chỉ nhận hàng từ `addresses`.
+2. Khóa dòng kiểm tra giỏ hàng: `carts` và `cart_items` với `WITH (UPDLOCK, HOLDLOCK)`.
+3. Duyệt từng mặt hàng, khóa dòng kiểm tra số lượng tồn: `SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK)`.
+4. Nếu có áp dụng mã voucher: Khóa dòng `vouchers WITH (UPDLOCK, ROWLOCK)` kiểm tra hạn và lượt dùng; truy vấn `voucher_usages WITH (UPDLOCK, ROWLOCK)` để đảm bảo khách chưa từng dùng mã này.
+5. INSERT bản ghi vào bảng `orders` (trạng thái `PENDING`).
+6. INSERT các dòng mặt hàng vào `order_items` lưu snapshot giá và tên biến thể.
+7. UPDATE trừ tồn kho trong `product_variants`.
+8. INSERT bản ghi nhật ký xuất kho vào `inventory_transactions`.
+9. INSERT ghi nhận lượt dùng voucher vào `voucher_usages`.
+10. INSERT lịch sử trạng thái ban đầu vào `order_status_histories`.
+11. DELETE toàn bộ các mặt hàng đã mua khỏi bảng `cart_items`.
+12. Commit Transaction. Nếu có bất kỳ lỗi nào ở bất kỳ bước nào (ví dụ thiếu tồn kho hoặc voucher hết hạn), toàn bộ các thao tác trên lập tức bị Rollback hoàn toàn.

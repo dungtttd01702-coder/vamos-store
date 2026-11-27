@@ -809,7 +809,37 @@ Dữ liệu mẫu được khởi tạo độc lập cho VAMOS STORE:
 
 ---
 
-# 15. NGUỒN THAM KHẢO VÀ BẢN QUYỀN
+---
+
+# 16. MODULE VAMOS CLUB -- LOYALTY, REVIEW-TO-EARN & POINTS-TO-VOUCHER SYSTEM
+
+## 16.1. Mục Tiêu & Cơ Chế Nghiệp Vụ
+Module **VAMOS CLUB** được tích hợp trực tiếp vào hệ thống VAMOS STORE để tăng mức độ tương tác và khuyến khích khách hàng quay lại mua sắm:
+1. **Review-to-Earn:** Khách hàng sau khi nhận hàng và thanh toán COD thành công (`COMPLETED`) có thể đánh giá sản phẩm để nhận tới 300 điểm thưởng:
+   - +100 điểm: Đánh giá số sao (1-5 sao).
+   - +100 điểm: Bình luận chi tiết (>= 50 ký tự) HOẶC chọn thẻ nhanh Quick Tag hợp lệ.
+   - +100 điểm: Đính kèm hình ảnh thực tế (tối đa 5 ảnh, định dạng JPG/PNG/WEBP, dung lượng <= 5MB/ảnh qua Multer an toàn).
+   - Giới hạn: Tối đa 300 điểm/đánh giá; chống trùng lặp đánh giá trên cùng cặp `(order_id, product_id)`.
+2. **Tích lũy chi tiêu 3%:** Tự động tích lũy 3% giá trị sản phẩm hợp lệ (`subtotal - discount_amount`) của mỗi đơn hàng `COMPLETED` vào ví điểm (loại trừ phí vận chuyển, áp dụng idempotent key `ORDER_PURCHASE_{orderId}`).
+3. **Đổi Điểm Lấy Voucher Cá Nhân:** Khách hàng đổi điểm tích lũy lấy các mã giảm giá cá nhân trong danh mục `point_reward_rules`. Mã voucher được sinh ngẫu nhiên `VAMOSCLUB-{HEX}`, chỉ tài khoản người đổi mới được áp dụng khi đặt hàng.
+4. **Vòng đời Voucher cá nhân:** Khi đặt hàng, voucher chuyển sang trạng thái `USED`. Khi khách hàng hoặc Admin hủy đơn (`CANCELLED`), hệ thống tự động hoàn trả voucher về trạng thái `AVAILABLE`.
+
+## 16.2. Cấu Trúc Bảng CSDL (Migration 005)
+- `reviews`: Lưu đánh giá sản phẩm của khách hàng (rating, comment, quick_tags, points_earned, status).
+- `review_media`: Lưu ảnh minh chứng đính kèm (media_url, original_filename, file_size).
+- `user_points_wallets`: Ví điểm thành viên (available_points, lifetime_earned_points, lifetime_redeemed_points, tier_code).
+- `point_transactions`: Sổ cái biến động điểm bất biến (REVIEW_REWARD, ORDER_PURCHASE, VOUCHER_REDEMPTION, REWARD_REVERSAL, ADMIN_ADJUSTMENT) kèm khóa `idempotency_key`.
+- `point_reward_rules`: Cấu hình danh mục đổi thưởng (points_required, discount_type, discount_value, min_order_amount, is_active).
+- `voucher_redemptions`: Quản lý voucher cá nhân đã đổi (user_id, reward_rule_id, voucher_id, points_spent, status).
+
+## 16.3. Kiến Trúc Bảo Mật & Concurrency
+- Phân quyền nghiêm ngặt qua session `vamos_sid` và middleware `requireCustomer`.
+- Giao dịch điểm và đổi voucher được bao bọc trong SQL Server ACID Transaction với khóa bi quan `WITH (UPDLOCK, ROWLOCK)`, chống triệt để race condition và tấn công double-spending.
+- Điểm khả dụng không bao giờ âm (`CHECK (available_points >= 0)`).
+
+---
+
+# 17. NGUỒN THAM KHẢO VÀ BẢN QUYỀN
 
 - Website tham khảo mô hình thương mại điện tử: https://bitis.com.vn/
 - Tham khảo: Cách tổ chức danh mục, bộ lọc giới tính, chọn size/màu và các bước đặt hàng trực tuyến phổ biến.

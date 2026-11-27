@@ -1,4 +1,6 @@
 const { sql, getPool, query } = require('../config/database');
+const loyaltyService = require('./loyalty.service');
+const { getVietnameseOrderDatePrefix } = require('../utils/dateTime');
 
 /**
  * State Transition Matrix for VAMOS STORE
@@ -15,6 +17,182 @@ const VALID_TRANSITIONS = {
 
 class OrderService {
   /**
+   * Authoritative Money & Voucher Calculation (Pure Integer VND Math)
+   * Shared by Checkout preview and Atomic Order Creation.
+   */
+  calculateOrderPricing({ subtotal, shippingFee, voucher = null }) {
+    const cleanSubtotal = Math.max(0, Math.round(Number(subtotal) || 0));
+    const cleanShippingFee = Math.max(0, Math.round(Number(shippingFee) || 0));
+
+    if (!voucher) {
+      return {
+        subtotal: cleanSubtotal,
+        shippingFee: cleanShippingFee,
+        discountAmount: 0,
+        shippingDiscountAmount: 0,
+        finalShippingFee: cleanShippingFee,
+        totalAmount: cleanSubtotal + cleanShippingFee,
+      };
+    }
+
+    const codeDisplay = voucher.code || '';
+    const minOrder = Math.max(0, Math.round(Number(voucher.min_order_value || 0)));
+    if (cleanSubtotal < minOrder) {
+      throw new Error(`Mã giảm giá "${codeDisplay}" yêu cầu đơn hàng tối thiểu từ ${minOrder.toLocaleString('vi-VN')} đ.`);
+    }
+
+    let discountAmount = 0;
+    let shippingDiscountAmount = 0;
+
+    if (voucher.discount_type === 'free_shipping') {
+      if (cleanShippingFee <= 0) {
+        throw new Error('Đơn hàng của bạn đã được miễn phí vận chuyển. Voucher này không thể áp dụng.');
+      }
+      const capSource =
+        voucher.max_discount_amount !== null && voucher.max_discount_amount !== undefined
+          ? Number(voucher.max_discount_amount)
+          : Number(voucher.discount_value || 0);
+      const shippingCap = Math.max(0, Math.round(capSource || 0));
+      shippingDiscountAmount = Math.min(cleanShippingFee, shippingCap);
+      discountAmount = 0;
+    } else if (voucher.discount_type === 'fixed_amount') {
+      discountAmount = Math.min(Math.max(0, Math.round(Number(voucher.discount_value || 0))), cleanSubtotal);
+      shippingDiscountAmount = 0;
+    } else if (voucher.discount_type === 'percentage') {
+      const calc = Math.round((cleanSubtotal * Number(voucher.discount_value || 0)) / 100);
+      const capped = voucher.max_discount_amount
+        ? Math.min(calc, Math.max(0, Math.round(Number(voucher.max_discount_amount))))
+        : calc;
+      discountAmount = Math.min(Math.max(0, capped), cleanSubtotal);
+      shippingDiscountAmount = 0;
+    } else {
+      throw new Error('Loại chiết khấu voucher không hợp lệ.');
+    }
+
+    const finalShippingFee = Math.max(0, cleanShippingFee - shippingDiscountAmount);
+    const totalAmount = Math.max(0, cleanSubtotal - discountAmount + finalShippingFee);
+
+    return {
+      subtotal: cleanSubtotal,
+      shippingFee: cleanShippingFee,
+      discountAmount,
+      shippingDiscountAmount,
+      finalShippingFee,
+      totalAmount,
+    };
+  }
+
+  /**
+   * Shared server-side voucher lookup & validation (read-only for preview, locked for checkout transaction)
+   */
+  async _validateAndCalculateVoucher(executor, { voucherCode, userId, subtotal, shippingFee, lockRows = false }) {
+    const codeTrim = voucherCode.trim().toUpperCase();
+    const lockHint = lockRows ? 'WITH (UPDLOCK, ROWLOCK)' : '';
+
+    const vouchReq = new sql.Request(executor);
+    vouchReq.input('code', codeTrim);
+    const vouchRes = await vouchReq.query(`
+      SELECT id, code, name, discount_type, discount_value, min_order_value, max_discount_amount, is_active, start_date, end_date, usage_limit, used_count
+      FROM vouchers ${lockHint}
+      WHERE code = @code AND is_active = 1
+        AND start_date <= SYSUTCDATETIME() AND end_date > SYSUTCDATETIME()
+    `);
+
+    if (vouchRes.recordset.length === 0) {
+      throw new Error(`Mã giảm giá "${codeTrim}" không tồn tại hoặc đã hết hạn.`);
+    }
+
+    const v = vouchRes.recordset[0];
+    if (v.usage_limit > 0 && v.used_count >= v.usage_limit) {
+      throw new Error(`Mã giảm giá "${codeTrim}" đã hết lượt sử dụng.`);
+    }
+
+    // Rule Q8: Enforce max 1 usage per Customer
+    const vuCheckReq = new sql.Request(executor);
+    vuCheckReq.input('vouchId', v.id);
+    vuCheckReq.input('userId', userId);
+    const vuRes = await vuCheckReq.query(`
+      SELECT 1 FROM voucher_usages ${lockHint}
+      WHERE voucher_id = @vouchId AND user_id = @userId
+    `);
+    if (vuRes.recordset.length > 0) {
+      throw new Error(`Bạn đã từng sử dụng mã giảm giá "${codeTrim}" trước đây. Theo quy định (Q8), mỗi tài khoản chỉ được áp dụng mã này 1 lần.`);
+    }
+
+    // Rule: Personal Voucher Ownership & Availability check (VAMOS Club Redemptions)
+    const vrCheckReq = new sql.Request(executor);
+    vrCheckReq.input('vouchId', v.id);
+    const vrRes = await vrCheckReq.query(`
+      SELECT user_id, status FROM voucher_redemptions ${lockHint}
+      WHERE voucher_id = @vouchId
+    `);
+    if (vrRes.recordset.length > 0) {
+      const redemption = vrRes.recordset[0];
+      if (redemption.user_id !== userId) {
+        throw new Error(`Mã giảm giá "${codeTrim}" không hợp lệ hoặc không áp dụng được cho tài khoản của bạn.`);
+      }
+      if (redemption.status !== 'AVAILABLE') {
+        throw new Error(`Mã giảm giá "${codeTrim}" đã được sử dụng hoặc không còn khả dụng.`);
+      }
+    }
+
+    const pricing = this.calculateOrderPricing({ subtotal, shippingFee, voucher: v });
+    return { voucher: v, ...pricing };
+  }
+
+  /**
+   * Read-only Checkout Voucher Preview (never consumes voucher or creates usage records)
+   */
+  async previewCheckoutVoucher({ userId, voucherCode }) {
+    if (!userId) {
+      throw new Error('Yêu cầu đăng nhập tài khoản khách hàng.');
+    }
+    if (!voucherCode || typeof voucherCode !== 'string' || voucherCode.trim() === '') {
+      throw new Error('Vui lòng nhập mã voucher muốn áp dụng.');
+    }
+
+    const pool = await getPool();
+    const cartReq = new sql.Request(pool);
+    cartReq.input('userId', userId);
+    const cartItemsRes = await cartReq.query(`
+      SELECT (COALESCE(p.sale_price, p.base_price) * ci.quantity) AS line_total
+      FROM carts ct
+      JOIN cart_items ci ON ci.cart_id = ct.id
+      JOIN product_variants pv ON ci.variant_id = pv.id
+      JOIN products p ON pv.product_id = p.id
+      WHERE ct.user_id = @userId
+    `);
+
+    const cartItems = cartItemsRes.recordset;
+    if (!cartItems || cartItems.length === 0) {
+      throw new Error('Giỏ hàng của bạn đang trống.');
+    }
+
+    const subtotal = cartItems.reduce((sum, item) => sum + Math.round(Number(item.line_total) || 0), 0);
+    const shippingFee = subtotal >= 500000 ? 0 : 30000;
+
+    const validated = await this._validateAndCalculateVoucher(pool, {
+      voucherCode,
+      userId,
+      subtotal,
+      shippingFee,
+      lockRows: false,
+    });
+
+    return {
+      voucherCode: validated.voucher.code,
+      voucherName: validated.voucher.name,
+      discountType: validated.voucher.discount_type,
+      subtotal: validated.subtotal,
+      shippingFee: validated.shippingFee,
+      discountAmount: validated.discountAmount,
+      shippingDiscountAmount: validated.shippingDiscountAmount,
+      finalShippingFee: validated.finalShippingFee,
+      totalAmount: validated.totalAmount,
+    };
+  }
+
+  /**
    * Create COD Order inside Atomic Transaction with Row Locks & Stock Deduction
    */
   async createCodOrder({
@@ -24,6 +202,7 @@ class OrderService {
     deliveryAddress,
     customerNote = '',
     voucherCode = null,
+    shippingFeeOverride = undefined,
   }) {
     if (!userId) {
       throw new Error('Yêu cầu định danh khách hàng (userId required).');
@@ -65,59 +244,32 @@ class OrderService {
       }
 
       const cartId = cartItems[0].cart_id;
-      const subtotal = cartItems.reduce((sum, item) => sum + Number(item.line_total), 0);
-      const shippingFee = subtotal >= 500000 ? 0 : 30000;
+      const subtotal = cartItems.reduce((sum, item) => sum + Math.round(Number(item.line_total) || 0), 0);
+      const shippingFee =
+        process.env.NODE_ENV === 'test' && shippingFeeOverride !== undefined && Number.isFinite(Number(shippingFeeOverride))
+          ? Math.max(0, Math.round(Number(shippingFeeOverride)))
+          : (subtotal >= 500000 ? 0 : 30000);
       let discountAmount = 0;
+      let shippingDiscountAmount = 0;
+      let totalAmount = subtotal + shippingFee;
       let voucherId = null;
       let appliedVoucherCode = null;
 
       // 2. Lock & Validate Voucher inside Transaction if provided
       if (voucherCode && voucherCode.trim() !== '') {
-        const codeTrim = voucherCode.trim().toUpperCase();
-        const vouchReq = new sql.Request(transaction);
-        vouchReq.input('code', codeTrim);
-        const vouchRes = await vouchReq.query(`
-          SELECT id, code, discount_type, discount_value, min_order_value, max_discount_amount, is_active, start_date, end_date, usage_limit, used_count
-          FROM vouchers WITH (UPDLOCK, ROWLOCK)
-          WHERE code = @code AND is_active = 1
-            AND start_date <= GETDATE() AND end_date >= GETDATE()
-        `);
+        const validated = await this._validateAndCalculateVoucher(transaction, {
+          voucherCode,
+          userId,
+          subtotal,
+          shippingFee,
+          lockRows: true,
+        });
 
-        if (vouchRes.recordset.length === 0) {
-          throw new Error(`Mã giảm giá "${codeTrim}" không tồn tại hoặc đã hết hạn.`);
-        }
-
-        const v = vouchRes.recordset[0];
-        const minOrder = Number(v.min_order_value || 0);
-        if (subtotal < minOrder) {
-          throw new Error(`Mã giảm giá "${codeTrim}" yêu cầu đơn hàng tối thiểu từ ${minOrder.toLocaleString('vi-VN')} đ.`);
-        }
-
-        if (v.usage_limit > 0 && v.used_count >= v.usage_limit) {
-          throw new Error(`Mã giảm giá "${codeTrim}" đã hết lượt sử dụng.`);
-        }
-
-        // Rule Q8: Enforce max 1 usage per Customer
-        const vuCheckReq = new sql.Request(transaction);
-        vuCheckReq.input('vouchId', v.id);
-        vuCheckReq.input('userId', userId);
-        const vuRes = await vuCheckReq.query(`
-          SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK)
-          WHERE voucher_id = @vouchId AND user_id = @userId
-        `);
-        if (vuRes.recordset.length > 0) {
-          throw new Error(`Bạn đã từng sử dụng mã giảm giá "${codeTrim}" trước đây. Theo quy định (Q8), mỗi tài khoản chỉ được áp dụng mã này 1 lần.`);
-        }
-
-        // Calculate discount
-        voucherId = v.id;
-        appliedVoucherCode = v.code;
-        if (v.discount_type === 'fixed_amount') {
-          discountAmount = Math.min(Number(v.discount_value), subtotal);
-        } else if (v.discount_type === 'percentage') {
-          const calc = (subtotal * Number(v.discount_value)) / 100;
-          discountAmount = v.max_discount_amount ? Math.min(calc, Number(v.max_discount_amount)) : calc;
-        }
+        voucherId = validated.voucher.id;
+        appliedVoucherCode = validated.voucher.code;
+        discountAmount = validated.discountAmount;
+        shippingDiscountAmount = validated.shippingDiscountAmount;
+        totalAmount = validated.totalAmount;
 
         // Conditional atomic update of voucher used_count
         const vUpdReq = new sql.Request(transaction);
@@ -129,18 +281,16 @@ class OrderService {
         `);
 
         if (vUpdRes.rowsAffected[0] === 0) {
-          throw new Error(`Mã giảm giá "${codeTrim}" vừa hết lượt sử dụng trong thời gian thực.`);
+          throw new Error(`Mã giảm giá "${appliedVoucherCode}" vừa hết lượt sử dụng trong thời gian thực.`);
         }
       }
-
-      const totalAmount = Math.max(0, subtotal - discountAmount + shippingFee);
 
       // 3. Generate Order Code with Collision Handling
       let orderCode = null;
       let orderId = null;
 
       for (let attempt = 0; attempt < 5; attempt++) {
-        const orderDateStr = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+        const orderDateStr = getVietnameseOrderDatePrefix();
         const randomSuffix = Math.floor(1000 + Math.random() * 9000);
         const candidateCode = `VAM${orderDateStr}-${randomSuffix}`;
 
@@ -191,7 +341,7 @@ class OrderService {
         deductReq.input('qty', item.quantity);
         await deductReq.query(`
           UPDATE product_variants 
-          SET stock_quantity = stock_quantity - @qty, updated_at = GETDATE()
+          SET stock_quantity = stock_quantity - @qty, updated_at = SYSUTCDATETIME()
           WHERE id = @varId
         `);
 
@@ -209,7 +359,7 @@ class OrderService {
         `);
       }
 
-      // 5. Insert into orders table (Preserve recipient & address snapshot)
+      // 5. Insert into orders table (Preserve recipient, address, product discount, and shipping discount snapshots)
       const orderReq = new sql.Request(transaction);
       orderReq.input('orderCode', orderCode);
       orderReq.input('userId', userId);
@@ -219,6 +369,7 @@ class OrderService {
       orderReq.input('subtotal', subtotal);
       orderReq.input('discount', discountAmount);
       orderReq.input('shipFee', shippingFee);
+      orderReq.input('shipDiscount', shippingDiscountAmount);
       orderReq.input('total', totalAmount);
       orderReq.input('voucherId', voucherId);
       orderReq.input('vouchCode', appliedVoucherCode);
@@ -231,14 +382,14 @@ class OrderService {
         INSERT INTO orders (
           order_code, user_id, recipient_name_snapshot, recipient_phone_snapshot,
           delivery_address_snapshot, subtotal, discount_amount, shipping_fee,
-          total_amount, voucher_id, voucher_code_snapshot, payment_method,
+          shipping_discount_amount, total_amount, voucher_id, voucher_code_snapshot, payment_method,
           payment_status, order_status, customer_note
         )
         OUTPUT INSERTED.id, INSERTED.order_code
         VALUES (
           @orderCode, @userId, @recName, @recPhone,
           @address, @subtotal, @discount, @shipFee,
-          @total, @voucherId, @vouchCode, @payMethod,
+          @shipDiscount, @total, @voucherId, @vouchCode, @payMethod,
           @payStatus, @orderStatus, @note
         )
       `);
@@ -253,7 +404,17 @@ class OrderService {
         vuInsReq.input('orderId', orderId);
         await vuInsReq.query(`
           INSERT INTO voucher_usages (voucher_id, user_id, order_id, used_at)
-          VALUES (@vouchId, @userId, @orderId, GETDATE())
+          VALUES (@vouchId, @userId, @orderId, SYSUTCDATETIME())
+        `);
+
+        // Mark personal voucher redemption as USED if applicable
+        const vrUpdReq = new sql.Request(transaction);
+        vrUpdReq.input('vouchId', voucherId);
+        vrUpdReq.input('userId', userId);
+        await vrUpdReq.query(`
+          UPDATE voucher_redemptions 
+          SET status = 'USED', used_at = SYSUTCDATETIME()
+          WHERE voucher_id = @vouchId AND user_id = @userId
         `);
       }
 
@@ -309,6 +470,7 @@ class OrderService {
         subtotal,
         shippingFee,
         discountAmount,
+        shippingDiscountAmount,
         totalAmount,
       };
     } catch (err) {
@@ -349,7 +511,7 @@ class OrderService {
         restoreReq.input('newStock', newStock);
         await restoreReq.query(`
           UPDATE product_variants 
-          SET stock_quantity = @newStock, updated_at = GETDATE() 
+          SET stock_quantity = @newStock, updated_at = SYSUTCDATETIME()
           WHERE id = @varId
         `);
 
@@ -372,7 +534,7 @@ class OrderService {
     updateReq.input('orderId', orderId);
     await updateReq.query(`
       UPDATE orders 
-      SET order_status = 'CANCELLED', updated_at = GETDATE() 
+      SET order_status = 'CANCELLED', updated_at = SYSUTCDATETIME()
       WHERE id = @orderId
     `);
 
@@ -392,6 +554,15 @@ class OrderService {
         UPDATE vouchers
         SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END
         WHERE id = @vouchId
+      `);
+
+      // Restore personal voucher redemption status to AVAILABLE
+      const vrRestoreReq = new sql.Request(transaction);
+      vrRestoreReq.input('vouchId', appliedVoucherId);
+      await vrRestoreReq.query(`
+        UPDATE voucher_redemptions
+        SET status = 'AVAILABLE', used_at = NULL
+        WHERE voucher_id = @vouchId
       `);
     }
 
@@ -492,7 +663,7 @@ class OrderService {
       const orderReq = new sql.Request(transaction);
       orderReq.input('orderId', orderId);
       const orderRes = await orderReq.query(`
-        SELECT id, order_code, order_status, payment_status
+        SELECT id, order_code, user_id, order_status, payment_status, subtotal, discount_amount, shipping_fee, shipping_discount_amount, total_amount
         FROM orders WITH (UPDLOCK, ROWLOCK)
         WHERE id = @orderId
       `);
@@ -535,6 +706,14 @@ class OrderService {
       let newPaymentStatus = currentOrder.payment_status;
       if (newStatus === 'COMPLETED') {
         newPaymentStatus = 'PAID';
+
+        // 5b. VAMOS Club Loyalty: Award 3% purchase points on eligible merchandise amount (subtotal - discount)
+        const eligibleAmount = Math.max(0, Number(currentOrder.subtotal || 0) - Number(currentOrder.discount_amount || 0));
+        await loyaltyService.awardOrderPurchasePoints(transaction, {
+          orderId: currentOrder.id,
+          userId: currentOrder.user_id,
+          eligibleAmount
+        });
       }
 
       // 6. Update orders table
@@ -544,7 +723,7 @@ class OrderService {
       updateReq.input('payStatus', newPaymentStatus);
       await updateReq.query(`
         UPDATE orders 
-        SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() 
+        SET order_status = @newStatus, payment_status = @payStatus, updated_at = SYSUTCDATETIME()
         WHERE id = @orderId
       `);
 

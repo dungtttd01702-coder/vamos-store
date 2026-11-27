@@ -1,3 +1,4 @@
+include ../partials/date-helpers
 doctype html
 html(lang="vi")
   head
@@ -13,9 +14,23 @@ html(lang="vi")
     link(href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet")
     //- Compiled Tailwind CSS
     link(rel="stylesheet" href="/css/style.css")
+
+    //- Inline theme initialization script to avoid FOUC
+    script.
+      (function() {
+        try {
+          var theme = localStorage.getItem('vamos_theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+
     block styles
 
-  body.min-h-screen.flex.flex-col.bg-white
+  body.min-h-screen.flex.flex-col.bg-white.text-slate-900.transition-colors(class="dark:bg-slate-950 dark:text-slate-100")
     //- Header
     include ../partials/header
 
@@ -56,8 +71,8 @@ html(lang="vi")
               svg.w-4.h-4(fill="currentColor" viewBox="0 0 24 24")
                 path(d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z")
             div
-              h3#modal-wishlist-title.text-sm.font-black.text-slate-900.uppercase.tracking-wide(style="font-family:'Space Grotesk',sans-serif") Danh Sách Yêu Thích
-              p.text-xxs.text-slate-500 Đã lưu vào bộ nhớ trình duyệt
+              h3#modal-wishlist-title.text-sm.font-black.text-slate-900.uppercase.tracking-wide(style="font-family:'Space Grotesk',sans-serif")= t('wishlist.title', 'Danh Sách Yêu Thích')
+              p.text-xxs.text-slate-500= t('wishlist.subtitle', 'Đã lưu vào bộ nhớ trình duyệt')
           .flex.items-center.gap-2
             span#wishlist-modal-count.px-2.bg-red-100.text-red-700.text-xs.font-black.rounded-full(class="py-0.5") 0 món
             button#btn-close-wishlist-modal.w-8.h-8.rounded-full.bg-slate-200.text-slate-500.flex.items-center.justify-center.transition-colors(class="hover:bg-slate-300 hover:text-slate-800" type="button" aria-label="Đóng")
@@ -68,10 +83,8 @@ html(lang="vi")
         #wishlist-guest-banner.px-4.bg-gradient-to-r.from-red-50.to-amber-50.border-b.border-red-100.flex.items-center.justify-between.gap-3.hidden(class="py-2.5")
           .flex.items-center.gap-2.min-w-0
             span.text-xs 💡
-            p.text-2xs.text-slate-700.truncate
-              strong Khách vãng lai: 
-              | Đăng nhập để lưu vĩnh viễn & nhận voucher 100K!
-          a#btn-wishlist-guest-login.bg-red-600.text-white.text-2xs.font-bold.rounded-md.shrink-0(class="px-2.5 py-1 hover:bg-red-700 transition-colors" href="/auth/login") Đăng nhập
+            p.text-2xs.text-slate-700.truncate= t('wishlist.guest_prompt', 'Khách vãng lai: Đăng nhập để lưu vĩnh viễn & nhận voucher 100K!')
+          a#btn-wishlist-guest-login.bg-red-600.text-white.text-2xs.font-bold.rounded-md.shrink-0(class="px-2.5 py-1 hover:bg-red-700 transition-colors" href="/auth/login")= t('nav.login', 'Đăng nhập')
 
         //- Modal Scrollable Body
         #wishlist-modal-body.p-4.overflow-y-auto.flex-1.space-y-3(class="max-h-[50vh]")
@@ -83,24 +96,26 @@ html(lang="vi")
             .w-16.h-16.mx-auto.mb-3.rounded-full.bg-slate-100.flex.items-center.justify-center.text-slate-400
               svg.w-8.h-8(fill="none" stroke="currentColor" viewBox="0 0 24 24")
                 path(stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
-            h4.text-sm.font-bold.text-slate-800 Danh sách yêu thích đang trống
-            p.text-xs.text-slate-500.mt-1 Hãy nhấn nút ❤️ trên các sản phẩm để lưu lại tại đây!
+            h4.text-sm.font-bold.text-slate-800= t('wishlist.empty', 'Danh sách yêu thích đang trống')
+            p.text-xs.text-slate-500.mt-1= t('wishlist.empty_desc', 'Hãy nhấn nút ❤️ trên các sản phẩm để lưu lại tại đây!')
             a.inline-flex.items-center.mt-4.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-lg(class="gap-1.5 hover:bg-red-700 shadow-sm transition-all" href="/products")
-              span Khám phá sản phẩm ngay
+              span= t('wishlist.explore_cta', 'Khám phá sản phẩm ngay')
               svg(class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24")
                 path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7")
 
         //- Modal Footer
         .p-4.border-t.border-slate-100.bg-slate-50.flex.items-center.justify-between.gap-3
-          button#btn-clear-all-wishlist.text-xs.font-bold.text-slate-500.transition-colors(class="hover:text-red-600" type="button")
-            | Xóa tất cả
-          button#btn-dismiss-wishlist-modal.px-4.py-2.bg-slate-900.text-white.text-xs.font-bold.rounded-lg.transition-colors(class="hover:bg-slate-800" type="button")
-            | Đóng
+          button#btn-clear-all-wishlist.text-xs.font-bold.text-slate-500.transition-colors(class="hover:text-red-600" type="button")= t('wishlist.clear_all', 'Xóa tất cả')
+          button#btn-dismiss-wishlist-modal.px-4.py-2.bg-slate-900.text-white.text-xs.font-bold.rounded-lg.transition-colors(class="hover:bg-slate-800" type="button")= t('wishlist.close', 'Đóng')
 
     //- Global Injected State
     script.
       window.IS_AUTHENTICATED = !{Boolean(isAuthenticated)};
+      window.IS_ADMIN = !{Boolean(isAdmin)};
+      window.IS_CUSTOMER = !{Boolean(isCustomer)};
       window.CURRENT_USER_ID = !{user ? user.id : 'null'};
+      window.CURRENT_LOCALE = '#{currentLocale || "vi"}';
+      window.CSRF_TOKEN = '#{csrfToken || ""}';
 
     //- Client Scripts
     script(src="/js/main.js?v=3.3.0")

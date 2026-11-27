@@ -1,7 +1,6 @@
-extends ../../layouts/main
+extends ../../layouts/admin
 
 block content
-  include ../../partials/admin-nav
 
   .vamos-container.py-8.space-y-6
     //- CARD HEADER: Urgency & Order Identifier (Stitch Focus Header)
@@ -13,7 +12,7 @@ block content
           .flex.items-center.gap-2
             if order.order_status === 'PENDING'
               span.px-2.rounded.bg-vamos-red.text-white.text-2xs.font-bold.animate-pulse(class="py-0.5") CẦN XỬ LÝ GẤP
-            span.text-xs.text-gray-400= `Đặt lúc ${new Date(order.created_at).toLocaleString('vi-VN')}`
+            span.text-xs.text-gray-400= `Đặt lúc ${fmtVnDateTime(order.created_at)}`
           h1.text-xl.font-black.tracking-tight.text-white.mt-1.flex.items-center.gap-3(style="font-family:'Space Grotesk',sans-serif")
             = `ĐƠN HÀNG #${order.order_code}`
             span.text-xs.font-bold.text-red-300.bg-red-950.px-2.rounded.border.border-red-800(class="py-0.5")
@@ -135,7 +134,7 @@ block content
                     .font-bold.text-slate-900= `Trạng thái: ${h.new_status}`
                     if h.note
                       p.text-gray-600= h.note
-                    span.text-2xs.text-gray-400= new Date(h.created_at).toLocaleString('vi-VN')
+                    span.text-2xs.text-gray-400= fmtVnDateTime(h.created_at)
 
       //- RIGHT 5 COLUMNS: Immutable Order Snapshot (Receipt Canvas)
       .bg-white.p-6.rounded-vamos-xl.border.border-vamos-border.shadow-vamos-card.flex.flex-col.justify-between(class="lg:col-span-5")
@@ -173,15 +172,20 @@ block content
               span Tạm tính tiền hàng:
               span.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                 = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
+            if Number(order.discount_amount || 0) > 0
+              .flex.justify-between.items-center.text-vamos-red.py-1.px-2.rounded.bg-red-50.border.border-red-100
+                span.font-bold Giảm giá sản phẩm (Voucher):
+                span.font-black(style="font-family:'Space Grotesk',sans-serif")
+                  = `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
             .flex.justify-between.text-gray-500
               span Phí vận chuyển tiêu chuẩn (COD):
               span.font-bold.text-emerald-600
                 = order.shipping_fee === 0 ? 'MIỄN PHÍ' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
-            if order.discount_amount > 0
-              .flex.justify-between.items-center.text-vamos-red.py-1.px-2.rounded.bg-red-50.border.border-red-100
-                span.font-bold Voucher giảm giá:
+            if Number(order.shipping_discount_amount || 0) > 0
+              .flex.justify-between.items-center.text-emerald-700.py-1.px-2.rounded.bg-emerald-50.border.border-emerald-200
+                span.font-bold Giảm phí vận chuyển (Voucher):
                 span.font-black(style="font-family:'Space Grotesk',sans-serif")
-                  = `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
+                  = `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_discount_amount)}`
 
         //- Final Grand Total COD
         .mt-6.pt-4.border-t-2.border-gray-100

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>HƯỚNG DẪN THUYẾT TRÌNH BẢO VỆ CHUYÊN ĐỀ VAMOS STORE</title>
+<style>
+@page {
+    size: A4 portrait;
+    margin: 20mm 20mm 20mm 20mm;
+    @bottom-right {
+        content: counter(page);
+        font-family: 'Times New Roman', serif;
+        font-size: 10pt;
+        color: #64748B;
+    }
+    @top-left {
+        content: "VAMOS STORE — CẨM NANG THUYẾT TRÌNH BẢO VỆ CHUYÊN ĐỀ";
+        font-family: 'Times New Roman', serif;
+        font-size: 9pt;
+        color: #94A3B8;
+        font-style: italic;
+    }
+}
+
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 1.45;
+    color: #1E293B;
+    background: #FFFFFF;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #1E3A8A;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #1E3A8A;
+    margin-top: 22px;
+    margin-bottom: 8px;
+    border-bottom: 1.5px solid #CBD5E1;
+    padding-bottom: 4px;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 12.5pt;
+    font-weight: bold;
+    color: #334155;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+}
+
+p {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    text-align: justify;
+}
+
+blockquote {
+    margin: 10px 0;
+    padding: 8px 14px;
+    background-color: #F8FAFC;
+    border-left: 4px solid #3B82F6;
+    font-style: italic;
+    color: #1E293B;
+    border-radius: 0 4px 4px 0;
+    page-break-inside: avoid;
+}
+
+blockquote p {
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 11pt;
+    page-break-inside: avoid;
+}
+
+th {
+    background-color: #1E3A8A;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 7px 10px;
+    border: 1px solid #CBD5E1;
+    text-align: left;
+}
+
+td {
+    padding: 6px 10px;
+    border: 1px solid #CBD5E1;
+    vertical-align: top;
+}
+
+tr:nth-child(even) td {
+    background-color: #F8FAFC;
+}
+
+ul, ol {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding-left: 22px;
+}
+
+li {
+    margin-bottom: 3px;
+    text-align: justify;
+}
+
+code {
+    font-family: Consolas, monospace;
+    font-size: 10.5pt;
+    color: #C2410C;
+    background-color: #F1F5F9;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #E2E8F0;
+    margin: 16px 0;
+}
+
+.header-meta {
+    text-align: center;
+    font-size: 11pt;
+    color: #475569;
+    margin-bottom: 20px;
+}
+</style>
+</head>
+<body>
+<h1>HƯỚNG DẪN THUYẾT TRÌNH BẢO VỆ CHUYÊN ĐỀ</h1>
+<h1>PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG VAMOS STORE</h1>
+<p><strong>Đơn vị đào tạo:</strong> Trường Cao đẳng Thực hành FPT Polytechnic<br />
+<strong>Chuyên ngành:</strong> Phát triển Phần mềm / Công nghệ Thông tin<br />
+<strong>Dự án:</strong> VAMOS STORE – Website Thương mại Điện tử Bán Giày Dép<br />
+<strong>Tài liệu:</strong> Cẩm nang Hướng dẫn Trình bày 4 Trụ cột Phân tích &amp; Thiết kế Hệ thống  </p>
+<hr />
+<h2>1. MỤC TIÊU VÀ NGUYÊN TẮC KHI BÁO CÁO TRƯỚC HỘI ĐỒNG</h2>
+<h3>1.1. Mục tiêu cốt lõi</h3>
+<p>Khi đứng trước Hội đồng Giảng viên thẩm định đồ án CNTT tại FPT Polytechnic, sinh viên cần hiểu rõ: <strong>Hội đồng không chỉ chấm điểm việc website có chạy được hay không, mà chấm điểm tư duy kỹ thuật phần mềm (Software Engineering Mindset)</strong>. Điều đó thể hiện ở việc:
+1. Bạn có hiểu rõ nghiệp vụ thực tế mình đang giải quyết hay không?
+2. Mô hình Use Case có xác định đúng ranh giới hệ thống và trách nhiệm của từng tác nhân hay không?
+3. Cấu trúc dữ liệu ERD có chuẩn hóa, toàn vẹn và tối ưu cho truy vấn hay không?
+4. Quy trình xử lý (Activity Diagram) có kiểm soát chặt chẽ các điều kiện biên, giao dịch ACID và trạng thái đơn hàng hay không?
+5. Giao diện người dùng (UI) có hiện thực hóa đúng đắn các yêu cầu nghiệp vụ đã phân tích hay không?</p>
+<h3>1.3. Bảng tóm lược khung kế hoạch thuyết trình 4 trụ cột</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Trụ cột</th>
+<th>Tên phần</th>
+<th>Mục tiêu phân tích &amp; thiết kế</th>
+<th>Sơ đồ &amp; Minh họa chính</th>
+<th>Điểm mấu chốt kỹ thuật cần nhấn mạnh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Trụ cột 1</strong></td>
+<td><strong>Use Case Diagram</strong></td>
+<td>Xác định phạm vi 14 Use Case, ranh giới hệ thống và trách nhiệm của 3 Actor.</td>
+<td>Hình 1, Hình 2, Hình 3</td>
+<td>Quan hệ kế thừa <code>Customer -|&gt; Guest</code>, không có Staff, <code>&lt;&lt;include&gt;&gt;</code> kiểm tra tồn kho, <code>&lt;&lt;extend&gt;&gt;</code> áp voucher.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Trụ cột 2</strong></td>
+<td><strong>Sơ đồ ERD &amp; CSDL</strong></td>
+<td>Mô hình hóa cấu trúc dữ liệu quan hệ 20 bảng chuẩn 3NF trên Microsoft SQL Server 2022.</td>
+<td>Hình 4, Hình 6, Hình 8</td>
+<td>Bảng trung tâm <code>product_variants</code> (Size x Màu), <code>delivery_address_snapshot</code> trong orders, Filtered Unique Index <code>uq_user_default_address</code>, Thẻ kho <code>inventory_transactions</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Trụ cột 3</strong></td>
+<td><strong>Activity Diagram</strong></td>
+<td>Kiểm soát luồng xử lý giao dịch ACID, trừ kho tức thời và máy trạng thái đơn hàng FSM.</td>
+<td>Hình 13, Hình 14, Hình 15</td>
+<td>2 Swimlanes (Người dùng - Hệ thống VAMOS STORE) đơn giản, trực quan, rollback khi hết hàng, trừ kho ngay khi đặt (<code>OUT_SALE</code>), hoàn kho tự động (<code>IN_CANCEL</code>), FSM 6 trạng thái.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>Trụ cột 4</strong></td>
+<td><strong>Thiết kế Giao diện (UI)</strong></td>
+<td>Hiện thực hóa trải nghiệm người dùng với kiến trúc Server-Side Rendering (Pug + Tailwind CSS).</td>
+<td>Hình 20, Hình 24, Hình 29, Hình 31</td>
+<td>Bộ chọn Size/Màu cập nhật tồn kho SKU thời gian thực, Form Checkout COD, Phân quyền Admin đa lớp (route middleware), Thẻ kho trực quan.</td>
+</tr>
+</tbody>
+</table>
+<h3>1.2. Ba nguyên tắc vàng khi thuyết trình</h3>
+<ul>
+<li><strong>Nguyên tắc 1: Bám sát thực tế sản phẩm (Grounded in Code &amp; DDL):</strong> Nói những gì hệ thống thực sự có. Không nói quá, không bịa đặt các công nghệ "đao to búa lớn" nếu trong code không triển khai (ví dụ: hệ thống dùng Express Session lưu trong RAM với cookie <code>vamos_sid</code>, mật khẩu mã hóa <code>bcryptjs</code> 10 salt rounds — hãy tự tin bảo vệ giải pháp này là phù hợp với quy mô vừa và nhỏ của đồ án, thay vì nói dối là dùng JWT hay Microservices).</li>
+<li><strong>Nguyên tắc 2: Tự tin chỉ vào sơ đồ và giải thích luồng (Visual-driven Explanation):</strong> Luôn dùng tay hoặc con trỏ chuột hướng về sơ đồ chiếu trên màn hình. Mỗi khi nói một câu, hãy chỉ đúng vào Actor, Use Case, bảng CSDL hoặc nút hành động trên giao diện tương ứng.</li>
+<li><strong>Nguyên tắc 3: Chuyển tiếp mượt mà và logic (Seamless Transition):</strong> 4 phần không phải là 4 ốc đảo rời rạc. Use Case đặt ra yêu cầu -&gt; ERD thiết kế nơi lưu trữ dữ liệu -&gt; Activity Diagram quy định các bước xử lý dữ liệu -&gt; UI là nơi người dùng trực tiếp thao tác với quy trình đó.</li>
+</ul>
+<hr />
+<h2>2. HƯỚNG DẪN MỞ ĐẦU THUYẾT TRÌNH (INTRODUCTION)</h2>
+<h3>2.1. Chiến thuật mở đầu</h3>
+<p>Tránh mở đầu bằng những lời sáo rỗng dài dòng ("Kính thưa quý thầy cô, trong thời đại 4.0 công nghệ bùng nổ..."). Hãy đi thẳng vào trọng tâm với phong thái tự tin, tôn trọng và chuyên nghiệp.</p>
+<h3>2.2. Lời thoại mẫu mở đầu (Sinh viên luyện tập)</h3>
+<blockquote>
+<p><em>"Kính thưa Thầy/Cô trong Hội đồng thẩm định!</em><br />
+<em>Em tên là [Tên sinh viên], đại diện cho nhóm sinh viên thực hiện đề tài xây dựng Website bán giày dép trực tuyến <strong>VAMOS STORE</strong>.</em><br />
+<em>Hôm nay, nhóm chúng em xin phép được báo cáo chuyên sâu về phần <strong>Phân tích và Thiết kế hệ thống</strong> — giai đoạn nền tảng quyết định chất lượng kỹ thuật của toàn bộ dự án.</em><br />
+<em>Phần trình bày của chúng em được cấu trúc chặt chẽ qua đúng <strong>4 trụ cột cốt lõi</strong>:</em><br />
+<em>1. Sơ đồ trường hợp sử dụng (Use Case Diagram) để xác định rõ phạm vi và phân quyền người dùng.</em><br />
+<em>2. Sơ đồ thực thể liên kết (ERD) với 20 bảng nghiệp vụ chuẩn trên Microsoft SQL Server 2022.</em><br />
+<em>3. Sơ đồ hoạt động (Activity Diagram) mô tả chi tiết các luồng xử lý giao dịch và máy trạng thái đơn hàng FSM.</em><br />
+<em>4. Thiết kế giao diện (UI) hiện thực hóa trải nghiệm thực tế cho từng vai trò người dùng.</em><br />
+<em>Sau đây, em xin phép bắt đầu với phần đầu tiên: Sơ đồ Use Case của hệ thống VAMOS STORE."</em></p>
+</blockquote>
+<hr />
+<h2>3. HƯỚNG DẪN TRÌNH BÀY PHẦN 1: USE CASE DIAGRAM</h2>
+<h3>3.1. Các điểm cốt lõi cần làm nổi bật</h3>
+<ol>
+<li><strong>Ranh giới hệ thống (System Boundary):</strong> VAMOS STORE là website thương mại điện tử B2C chuyên biệt cho mặt hàng giày dép, xử lý trọn gói từ duyệt danh mục, chọn biến thể (Size/Màu), giỏ hàng, đặt hàng COD đến quản trị vận hành đơn hàng và thẻ kho.</li>
+<li><strong>3 Tác nhân chính (3 Primary Actors):</strong></li>
+<li><code>Guest (Khách vãng lai)</code>: Người dùng chưa đăng nhập, chỉ có quyền xem, tìm kiếm, đăng ký, đăng nhập.</li>
+<li><code>Customer (Khách hàng thành viên)</code>: Kế thừa toàn bộ quyền của <code>Guest</code> (<code>Customer</code> generalization <code>Guest</code>), bổ sung các quyền: quản lý giỏ hàng, đặt hàng COD, sổ địa chỉ, xem lịch sử và hủy đơn <code>PENDING</code>.</li>
+<li><code>Admin (Quản trị viên)</code>: Toàn quyền vận hành: sản phẩm, biến thể SKU, danh mục, kho hàng, voucher, đơn hàng và báo cáo.</li>
+<li><em>Lưu ý quan trọng:</em> Dự án <strong>không có vai trò Staff riêng</strong>, chỉ có 2 vai trò lưu trong cột <code>users.role</code> là <code>CUSTOMER</code> và <code>ADMIN</code>. Tác nhân <code>Email Service</code> là Actor phụ trợ thiết kế cho Use Case khôi phục mật khẩu.</li>
+<li><strong>Danh mục 14 Use Case chuẩn:</strong> Đọc đúng mã từ <code>UC01</code> đến <code>UC14</code>.</li>
+<li><strong>Nhấn mạnh Use Case then chốt:</strong></li>
+<li><code>UC07 — Đặt hàng COD</code>: Đây là Use Case cốt lõi nhất, có quan hệ <code>&lt;&lt;include&gt;&gt;</code> với kiểm tra tồn kho và xác thực giỏ hàng, có quan hệ <code>&lt;&lt;extend&gt;&gt;</code> với áp dụng voucher giảm giá.</li>
+<li><code>UC09 — Hủy đơn hàng</code>: Chỉ cho phép khi đơn ở trạng thái <code>PENDING</code>.</li>
+<li><code>UC03 — Khôi phục mật khẩu</code>: Trình bày trung thực rằng bảng CSDL <code>password_reset_tokens</code> đã thiết kế hoàn chỉnh token hash và thời hạn, nhưng nghiệp vụ gửi mail SMTP thực tế đang được để dành cho giai đoạn mở rộng tiếp theo.</li>
+</ol>
+<h3>3.2. Lời thoại mẫu phần Use Case</h3>
+<blockquote>
+<p><em>"Kính thưa Thầy/Cô, nhìn vào <strong>Sơ đồ Use Case tổng quát (Hình 1)</strong> trên màn hình, hệ thống VAMOS STORE phân định rõ ranh giới trách nhiệm thông qua 3 tác nhân chính:</em><br />
+<em>Đầu tiên là <strong>Guest</strong> — khách vãng lai khi truy cập website. Guest có thể thực hiện tìm kiếm, xem chi tiết sản phẩm qua UC05, cũng như Đăng ký (UC01) và Đăng nhập (UC02).</em><br />
+<em>Thứ hai là <strong>Customer</strong> — khách hàng đã đăng nhập. Như Thầy/Cô có thể thấy mũi tên hình tam giác rỗng hướng từ Customer về Guest, Customer kế thừa toàn bộ các hành vi của Guest, đồng thời được mở rộng các chức năng giao dịch riêng như Quản lý giỏ hàng (UC06), Đặt hàng COD (UC07), Sổ địa chỉ (UC04), Theo dõi đơn hàng (UC08) và Hủy đơn hàng (UC09).</em><br />
+<em>Tác nhân thứ ba độc lập là <strong>Admin</strong> — người quản trị và vận hành toàn bộ cửa hàng, nắm giữ các Use Case từ UC10 đến UC14 như Xử lý đơn hàng, Quản lý kho, Quản lý danh mục sản phẩm, Voucher và Báo cáo doanh thu.</em><br />
+<em>Đặc biệt, tại phân hệ Mua hàng COD (Hình 2), khi khách hàng thực hiện UC07 Đặt hàng, hệ thống bắt buộc phải <code>&lt;&lt;include&gt;&gt;</code> luồng kiểm tra số lượng tồn kho khả dụng để bảo đảm tính toàn vẹn, và có thể <code>&lt;&lt;extend&gt;&gt;</code> luồng áp dụng mã giảm giá nếu khách hàng có voucher hợp lệ."</em></p>
+</blockquote>
+<h3>3.3. Bí quyết đối đáp các câu hỏi bẫy về Use Case</h3>
+<ul>
+<li><strong>Hỏi:</strong> <em>Tại sao mũi tên giữa Customer và Guest lại là kế thừa (Generalization) mà không phải là Include hay Extend?</em><br />
+<strong>Đáp:</strong> <em>Thưa Thầy/Cô, Generalization là quan hệ giữa 2 Actor (tác nhân), thể hiện rằng Customer là một dạng người dùng đặc biệt của Guest nhưng có danh tính xác thực. Mọi nơi Guest có thể truy cập (như trang chủ, xem sản phẩm) thì Customer đều truy cập được. Còn <code>&lt;&lt;include&gt;&gt;</code> và <code>&lt;&lt;extend&gt;&gt;</code> là quan hệ giữa Use Case với Use Case, không dùng cho quan hệ giữa các Actor.</em></li>
+<li><strong>Hỏi:</strong> <em>Khác biệt giữa <code>&lt;&lt;include&gt;&gt;</code> và <code>&lt;&lt;extend&gt;&gt;</code> trong sơ đồ này là gì?</em><br />
+<strong>Đáp:</strong> <em>Dạ, <code>&lt;&lt;include&gt;&gt;</code> là quan hệ bắt buộc — Use Case chính muốn thành công thì Use Case được include bắt buộc phải chạy (ví dụ Đặt hàng bắt buộc phải kiểm tra tồn kho). Còn <code>&lt;&lt;extend&gt;&gt;</code> là quan hệ mở rộng tùy chọn, chỉ kích hoạt khi thỏa mãn một điều kiện mở rộng cụ thể (ví dụ: chỉ khi khách có mã voucher và nhập mã thì luồng Áp dụng voucher mới được thực thi, nếu không có voucher thì khách vẫn hoàn tất đặt hàng bình thường).</em></li>
+</ul>
+<hr />
+<h2>4. HƯỚNG DẪN CHUYỂN TIẾP TỪ USE CASE SANG ERD</h2>
+<h3>Câu chuyển tiếp mẫu:</h3>
+<blockquote>
+<p><em>"Sau khi đã phân tích đầy đủ các chức năng và ranh giới nghiệp vụ qua 14 Use Case, câu hỏi kỹ thuật quan trọng tiếp theo là: <strong>Hệ thống cần tổ chức và lưu trữ dữ liệu như thế nào để phục vụ tối ưu cho các Use Case đó?</strong> Để trả lời câu hỏi này, em xin kính mời Thầy/Cô cùng chuyển sang <strong>Phần 2: Sơ đồ thực thể liên kết (ERD) và Thiết kế Cơ sở dữ liệu của VAMOS STORE</strong>."</em></p>
+</blockquote>
+<hr />
+<h2>5. HƯỚNG DẪN TRÌNH BÀY PHẦN 2: ERD &amp; CƠ SỞ DỮ LIỆU</h2>
+<h3>5.1. Các điểm cốt lõi cần làm nổi bật</h3>
+<ol>
+<li><strong>Quy mô và Hệ quản trị:</strong> 20 bảng nghiệp vụ chuẩn trên Microsoft SQL Server 2022 (không tính bảng kỹ thuật <code>schema_migrations</code>). Đạt chuẩn chuẩn hóa 3NF (Third Normal Form).</li>
+<li><strong>Phân chia 5 nhóm bảng logic:</strong></li>
+<li>Nhóm 1: Người dùng &amp; Xác thực (<code>users</code>, <code>addresses</code>, <code>password_reset_tokens</code>).</li>
+<li>Nhóm 2: Danh mục, Thương hiệu &amp; Biến thể sản phẩm (<code>categories</code>, <code>brands</code>, <code>products</code>, <code>product_images</code>, <code>sizes</code>, <code>colors</code>, <code>product_variants</code>).</li>
+<li>Nhóm 3: Giỏ hàng &amp; Tiếp thị (<code>carts</code>, <code>cart_items</code>, <code>wishlist_items</code>, <code>vouchers</code>, <code>voucher_usages</code>, <code>banners</code>).</li>
+<li>Nhóm 4: Đơn hàng &amp; Lịch sử trạng thái (<code>orders</code>, <code>order_items</code>, <code>order_status_histories</code>).</li>
+<li>Nhóm 5: Quản lý kho hàng (<code>inventory_transactions</code>).</li>
+<li><strong>Quyết định thiết kế kiến trúc đắt giá nhất:</strong></li>
+<li><strong>Tại sao cần bảng <code>product_variants</code> riêng?</strong> Sản phẩm giày dép có đặc thù phân mảnh thuộc tính Size và Màu. Mỗi đôi giày cùng tên nhưng khác Size hoặc khác Màu sẽ có SKU riêng, giá riêng và số lượng tồn kho riêng. Bảng <code>products</code> lưu thông tin chung (tên, slug, mô tả, danh mục, thương hiệu), còn <code>product_variants</code> đóng vai trò thực thể liên kết giữa <code>products</code>, <code>sizes</code>, <code>colors</code> và lưu <code>stock_quantity</code>.</li>
+<li><strong>Tại sao có <code>delivery_address_snapshot</code> trong bảng <code>orders</code>?</strong> Để bảo toàn dữ liệu lịch sử hóa đơn. Nếu khách hàng sau này sửa hoặc xóa địa chỉ trong sổ địa chỉ (<code>addresses</code>), thông tin địa chỉ trên các đơn hàng đã đặt trong quá khứ vẫn giữ nguyên vẹn (<code>NVARCHAR(255)</code>).</li>
+<li><strong>Ràng buộc Filtered Unique Index:</strong> Index <code>uq_user_default_address</code> trên bảng <code>addresses</code> (<code>WHERE is_default = 1</code>) bảo đảm tại một thời điểm, mỗi khách hàng chỉ có tối đa một địa chỉ mặc định, ngăn chặn hoàn toàn lỗi logic nghiệp vụ ở tầng CSDL.</li>
+<li><strong>Thẻ kho <code>inventory_transactions</code>:</strong> Quản lý xuất nhập tồn theo mô hình Ledger (sổ cái). Mọi biến động tăng giảm kho đều ghi nhật ký với các mã loại: <code>IN_IMPORT</code> (nhập hàng), <code>OUT_SALE</code> (bán hàng), <code>IN_CANCEL</code> (hoàn kho khi hủy đơn), <code>ADJUST</code> (kiểm kê điều chỉnh).</li>
+</ol>
+<h3>5.2. Khung 4 câu hỏi vàng để giải thích bất kỳ bảng nào trong 20 bảng ERD</h3>
+<p>Khi giảng viên chỉ vào bất kỳ bảng nào trong sơ đồ ERD (Hình 4), sinh viên hãy bình tĩnh trả lời tuần tự theo đúng 4 câu hỏi cốt lõi sau:
+1. <strong>Bảng này dùng để làm gì?</strong> (Nêu ngắn gọn vai trò thực tế).
+2. <strong>Vì sao hệ thống cần bảng này?</strong> (Nêu lý do nếu thiếu bảng này thì hệ thống gặp vấn đề gì).
+3. <strong>Bảng có những thuộc tính quan trọng nào và lưu thông tin gì?</strong> (Nêu tên cột, kiểu dữ liệu, ý nghĩa nghiệp vụ).
+4. <strong>Bảng liên kết với các bảng khác như thế nào?</strong> (Khóa chính PK, khóa ngoại FK, quan hệ 1-1, 1-N hay N-N).</p>
+<p><em>(Lưu ý: Để tra cứu chi tiết toàn bộ 20 bảng và 153 thuộc tính, sinh viên hãy xem tài liệu độc lập tại <code>05_TAI_LIEU_NGHIEN_CUU_ERD/PHAN_TICH_CHI_TIET_ERD_VAMOS_STORE.md</code>).</em></p>
+<h4>Ví dụ mẫu 1: Trả lời về bảng <code>product_variants</code> (Bảng trung tâm cốt lõi)</h4>
+<blockquote>
+<p><em>"Thưa Thầy/Cô, bảng <code>product_variants</code> là bảng <strong>Biến thể sản phẩm</strong>:</em>
+<em>1. <strong>Dùng để làm gì:</strong> Lưu trữ thông tin chi tiết của từng phiên bản cụ thể cho mỗi đôi giày (kết hợp giữa Kích cỡ và Màu sắc).</em>
+<em>2. <strong>Vì sao cần:</strong> Ngành giày dép có đặc thù phân mảnh Size và Màu. Một mẫu giày như Hunter X có Size 40, 41, 42 với màu Đen, Trắng. Mỗi cặp Size-Màu có số lượng tồn kho riêng, giá bán riêng và mã vạch SKU riêng. Nếu không có bảng này, hệ thống không thể kiểm soát được khách mua size nào và kho còn size đó hay không.</em>
+<em>3. <strong>Thuộc tính quan trọng:</strong> Khóa chính <code>id</code>, mã định danh thương mại <code>sku</code>, giá bán <code>price</code>, giá gốc <code>original_price</code>, số lượng tồn khả dụng <code>stock_quantity</code>, cùng cờ trạng thái <code>is_active</code>.</em>
+<em>4. <strong>Liên kết:</strong> Bảng này liên kết N-1 với <code>products</code> (qua <code>product_id</code>), N-1 với <code>sizes</code> (qua <code>size_id</code>), N-1 với <code>colors</code> (qua <code>color_id</code>), và liên kết 1-N tới <code>cart_items</code>, <code>order_items</code>, <code>inventory_transactions</code>."</em></p>
+</blockquote>
+<h4>Ví dụ mẫu 2: Trả lời về bảng <code>orders</code> và cột <code>delivery_address_snapshot</code></h4>
+<blockquote>
+<p><em>"Thưa Thầy/Cô, bảng <code>orders</code> là bảng <strong>Đơn hàng</strong>:</em>
+<em>1. <strong>Dùng để làm gì:</strong> Lưu thông tin giao dịch mua hàng của khách.</em>
+<em>2. <strong>Vì sao cần:</strong> Để quản lý quy trình giao nhận, theo dõi tổng tiền, trạng thái đơn hàng FSM và xuất hóa đơn.</em>
+<em>3. <strong>Thuộc tính quan trọng:</strong> Khóa chính <code>id</code>, mã đơn <code>order_code</code>, tổng tiền hàng <code>total_amount</code>, tiền giảm <code>discount_amount</code>, phí vận chuyển <code>shipping_fee</code>, tiền thanh toán cuối <code>final_amount</code>, trạng thái đơn <code>status</code> (PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED), và đặc biệt là cột <code>delivery_address_snapshot</code>.</em>
+<em>4. <strong>Ý nghĩa của cột <code>delivery_address_snapshot</code>:</strong> Đây là chuỗi địa chỉ giao hàng được 'chụp lại' cố định dạng văn bản tại thời điểm khách bấm đặt hàng. Dù sau này người dùng có đổi tên, đổi số điện thoại hay cập nhật lại sổ địa chỉ trong bảng <code>addresses</code>, thì địa chỉ ghi trên đơn hàng cũ vẫn giữ nguyên vẹn, đảm bảo tính pháp lý và không làm sai lệch lịch sử giao hàng."</em></p>
+</blockquote>
+<h3>5.3. Lời thoại mẫu phần ERD tổng quan</h3>
+<blockquote>
+<p><em>"Kính thưa Thầy/Cô, cơ sở dữ liệu của VAMOS STORE được thiết kế chuẩn mực trên hệ quản trị Microsoft SQL Server 2022 với <strong>20 bảng nghiệp vụ</strong> như hiển thị trên <strong>Sơ đồ ERD tổng thể (Hình 4)</strong>.</em><br />
+<em>Điểm mấu chốt đầu tiên trong thiết kế của nhóm chúng em là giải quyết bài toán đặc thù của ngành giày dép thông qua bảng trung tâm <strong>product_variants (Biến thể sản phẩm)</strong>.</em><br />
+<em>Một sản phẩm cha trong bảng <code>products</code> có thể có nhiều biến thể. Mỗi bản ghi trong <code>product_variants</code> là giao điểm giữa sản phẩm với một kích cỡ trong bảng <code>sizes</code> và một màu sắc trong bảng <code>colors</code>. Mỗi biến thể này có mã định danh thương mại riêng là SKU, quản lý giá bán riêng và số lượng tồn kho khả dụng <code>stock_quantity</code> riêng biệt.</em><br />
+<em>Khi khách hàng thêm sản phẩm vào giỏ, bảng <code>cart_items</code> sẽ liên kết trực tiếp tới <code>variant_id</code> chứ không liên kết tới <code>product_id</code>. Điều này bảo đảm khách hàng chọn đúng chính xác size và màu mình cần mua.</em><br />
+<em>Điểm mấu chốt thứ hai là tính toàn vẹn và lịch sử hóa dữ liệu trong phân hệ Đơn hàng:</em><br />
+<em>Trong bảng <code>orders</code>, chúng em thiết kế cột <code>delivery_address_snapshot</code> kiểu <code>NVARCHAR(255)</code>. Khi chốt đơn, toàn bộ chuỗi địa chỉ giao hàng được chụp lại cố định. Dù sau này người dùng có đổi tên, đổi số điện thoại hay cập nhật lại địa chỉ trong bảng <code>addresses</code>, hóa đơn pháp lý của đơn hàng vẫn được giữ nguyên vẹn.</em><br />
+<em>Đồng thời, bảng <code>order_status_histories</code> ghi nhận nhật ký kiểm toán (audit log) mỗi khi trạng thái đơn hàng thay đổi, lưu rõ ai đổi, đổi từ trạng thái nào sang trạng thái nào và thời điểm đổi."</em></p>
+</blockquote>
+<hr />
+<h2>6. HƯỚNG DẪN CHUYỂN TIẾP TỪ ERD SANG ACTIVITY DIAGRAM</h2>
+<h3>Câu chuyển tiếp mẫu:</h3>
+<blockquote>
+<p><em>"Một cơ sở dữ liệu dù được thiết kế chuẩn hóa và toàn vẹn đến đâu cũng chỉ là dữ liệu tĩnh ở trạng thái nghỉ. Để dữ liệu đó vận hành chính xác và an toàn, hệ thống cần những quy trình nghiệp vụ rõ ràng, kiểm soát chặt chẽ điều kiện rẽ nhánh và giao dịch.</em><br />
+<em>Ngay sau đây, em xin kính mời Thầy/Cô cùng theo dõi <strong>Phần 3: Sơ đồ hoạt động (Activity Diagram)</strong> để thấy cách hệ thống VAMOS STORE điều phối dữ liệu qua từng bước xử lý thực tế."</em></p>
+</blockquote>
+<hr />
+<h2>7. HƯỚNG DẪN TRÌNH BÀY PHẦN 3: ACTIVITY DIAGRAM</h2>
+<h3>7.1. Các điểm cốt lõi cần làm nổi bật</h3>
+<ol>
+<li><strong>Cấu trúc phân làn đơn giản hóa (2 Swimlanes) theo yêu cầu giảng viên:</strong>
+   Toàn bộ sơ đồ hoạt động đã được chuẩn hóa thành đúng <strong>2 cột Swimlane trực quan</strong>:</li>
+<li>Cột 1: <code>Người dùng / Khách hàng / Quản trị viên</code> — Thực hiện hành động nhập liệu, lựa chọn hoặc bấm nút trên giao diện.</li>
+<li>Cột 2: <code>Hệ thống VAMOS STORE</code> — Tiếp nhận dữ liệu, kiểm tra hợp lệ, xử lý nghiệp vụ CSDL và phản hồi kết quả.</li>
+<li>
+<p>Luồng chạy thẳng từ trên xuống dưới, rẽ nhánh rõ ràng qua hình thoi Quyết định (Decision) với 2 nhánh [Đúng / Hợp lệ] và [Sai / Lỗi], giúp giảng viên và người nghe nắm bắt quy trình ngay trong 30 giây mà không bị rối bởi các chi tiết kỹ thuật quá sâu.</p>
+</li>
+<li>
+<p><strong>Cách trình bày quy trình Đăng nhập (AD02) theo sơ đồ tối giản:</strong></p>
+</li>
+<li>Người dùng nhập Email và Mật khẩu -&gt; Nhấn nút 'Đăng nhập'.</li>
+<li>Hệ thống VAMOS STORE tiếp nhận thông tin và kiểm tra tài khoản.</li>
+<li>
+<p>Điểm quyết định:</p>
+<ul>
+<li>Nếu thông tin sai hoặc tài khoản bị khóa -&gt; Báo lỗi và yêu cầu nhập lại.</li>
+<li>Nếu thông tin chính xác -&gt; Cấp phiên làm việc, hợp nhất giỏ hàng tạm thời và chuyển hướng vào hệ thống.</li>
+</ul>
+</li>
+<li>
+<p><strong>Quy trình Đặt hàng COD nguyên tử (AD08 — Trọng tâm bảo vệ):</strong></p>
+</li>
+<li>Khách hàng điền thông tin giao hàng, chọn thanh toán COD -&gt; Nhấn 'Đặt hàng'.</li>
+<li>Hệ thống mở giao dịch CSDL, kiểm tra tồn kho khả dụng của từng mã giày.</li>
+<li>Điểm quyết định:<ul>
+<li>Nếu bất kỳ sản phẩm nào hết hàng -&gt; Hủy giao dịch (Rollback), thông báo cho khách hàng chọn lại.</li>
+<li>Nếu đủ hàng -&gt; Tạo đơn hàng trạng thái <code>PENDING</code>, <strong>trừ tồn kho tức thời (<code>OUT_SALE</code>)</strong>, xóa giỏ hàng và hiển thị màn hình 'Đặt hàng thành công'.</li>
+</ul>
+</li>
+<li>
+<p><em>Điểm nhấn thuyết trình:</em> Nhấn mạnh cơ chế trừ kho ngay lập tức để chống bán vượt số lượng thực tế (Overselling).</p>
+</li>
+<li>
+<p><strong>Quy trình Hủy đơn và Hoàn kho (AD10 &amp; AD11):</strong></p>
+</li>
+<li>Khách hàng chỉ được hủy khi đơn ở trạng thái <code>PENDING</code>.</li>
+<li>Admin có quyền hủy khi đơn ở <code>PENDING</code> hoặc <code>CONFIRMED</code>.</li>
+<li>Khi hủy thành công: Hệ thống tự động kích hoạt giao dịch hoàn kho (<code>IN_CANCEL</code>), cộng trả lại số lượng tồn kho và hoàn trả lượt sử dụng voucher.</li>
+<li><strong>Quy trình Đặt hàng COD (Hình 13 — Trọng tâm số 1):</strong></li>
+<li>Bước 1: Khách hàng xác nhận thông tin giao hàng tại trang Checkout.</li>
+<li>Bước 2: Server mở một <strong>Database Transaction</strong>.</li>
+<li>Bước 3: Kiểm tra tồn kho khả dụng của từng biến thể (<code>stock_quantity &gt;= quantity</code>). Nếu có bất kỳ món nào hết hàng -&gt; Rollback transaction, thông báo lỗi.</li>
+<li>Bước 4: Kiểm tra và khóa lượt dùng voucher (nếu có).</li>
+<li>Bước 5: Chèn bản ghi vào bảng <code>orders</code> và <code>order_items</code>.</li>
+<li>Bước 6: <strong>Trừ số lượng tồn kho ngay tại thời điểm tạo đơn (<code>OUT_SALE</code>)</strong> và ghi nhật ký thẻ kho <code>inventory_transactions</code>.</li>
+<li>Bước 7: Xóa các món đã mua khỏi bảng <code>cart_items</code>.</li>
+<li>Bước 8: Commit transaction, trả về trạng thái <code>PENDING</code> cho đơn hàng.</li>
+<li><strong>Quy trình Hủy đơn và Hoàn kho (Hình 14 &amp; Hình 15 — Trọng tâm số 2):</strong></li>
+<li><strong>Điều kiện hủy của Khách hàng:</strong> Khách hàng chỉ được quyền tự hủy đơn khi đơn hàng đang ở trạng thái sơ khởi <code>PENDING</code>. Nếu đơn đã được chuyển sang <code>CONFIRMED</code> hoặc đang giao, nút hủy sẽ bị vô hiệu hóa.</li>
+<li><strong>Quyền hủy của Admin:</strong> Admin có quyền hủy đơn ở cả 2 trạng thái <code>PENDING</code> và <code>CONFIRMED</code>.</li>
+<li><strong>Cơ chế hoàn kho tự động:</strong> Khi hủy đơn hợp lệ, hệ thống mở Transaction hoàn lại số lượng sản phẩm vào <code>product_variants.stock_quantity</code>, đồng thời tạo bản ghi thẻ kho mới với mã <code>IN_CANCEL</code>, và phục hồi số lượt sử dụng voucher nếu đơn có áp dụng voucher.</li>
+<li><strong>Máy trạng thái đơn hàng (FSM):</strong> Khẳng định 6 trạng thái chuẩn mực: <code>PENDING</code> -&gt; <code>CONFIRMED</code> -&gt; <code>PROCESSING</code> -&gt; <code>SHIPPING</code> -&gt; <code>COMPLETED</code>, và nhánh rẽ <code>CANCELLED</code>. Nhấn mạnh: VAMOS STORE không bao giờ trừ kho lần thứ hai khi chuyển trạng thái sang <code>COMPLETED</code>, tránh lỗi trừ đúp (Double Deduction).</li>
+</ol>
+<h3>7.2. Lời thoại mẫu phần Activity Diagram</h3>
+<blockquote>
+<p><em>"Kính thưa Thầy/Cô, để minh họa cho khả năng kiểm soát giao dịch của hệ thống, em xin phép phân tích sâu vào <strong>Sơ đồ hoạt động Đặt hàng COD (Hình 13)</strong>.</em><br />
+<em>Sơ đồ này được tổ chức theo 3 phân làn rõ rệt: Khách hàng, Hệ thống Web Node.js và Cơ sở dữ liệu SQL Server.</em><br />
+<em>Khi Khách hàng nhấn 'Xác nhận đặt hàng', tầng Service lập tức khởi tạo một MSSQL Transaction. Bước quan trọng nhất diễn ra ở nút điều kiện: Server kiểm tra tồn kho tức thời của từng mã SKU trong giỏ hàng.</em><br />
+<em>Nếu có sản phẩm vừa bị người khác mua hết, hệ thống lập tức Rollback toàn bộ, giữ nguyên trạng thái dữ liệu và báo cho người dùng.</em><br />
+<em>Nếu đủ hàng, hệ thống tiến hành tạo đơn hàng với trạng thái <code>PENDING</code>, đồng thời <strong>trừ tồn kho ngay lập tức (<code>OUT_SALE</code>)</strong> và tạo bản ghi thẻ kho tương ứng.</em><br />
+<em>Việc trừ tồn kho ngay khi đặt hàng là giải pháp kỹ thuật tối ưu để ngăn chặn hiện tượng Overselling (bán quá số lượng thực tế).</em><br />
+<em>Và nếu sau đó khách hàng quyết định hủy đơn (Hình 14), điều kiện kiểm tra chỉ cho phép hủy khi đơn còn là <code>PENDING</code>. Khi hủy thành công, một Transaction hoàn kho sẽ kích hoạt: số lượng giày được cộng trả lại kho, một giao dịch nhập hoàn <code>IN_CANCEL</code> được ghi vào thẻ kho, bảo đảm tính cân bằng kế toán kho hàng 100%."</em></p>
+</blockquote>
+<hr />
+<h2>8. HƯỚNG DẪN CHUYỂN TIẾP TỪ ACTIVITY DIAGRAM SANG UI</h2>
+<h3>Câu chuyển tiếp mẫu:</h3>
+<blockquote>
+<p><em>"Một quy trình nghiệp vụ được thiết kế chặt chẽ trên giấy chỉ thực sự mang lại giá trị khi được chuyển hóa thành những màn hình trực quan, thân thiện và bảo mật cho người dùng cuối.</em><br />
+<em>Sau đây, em xin kính mời Thầy/Cô cùng đến với <strong>Phần 4: Thiết kế Giao diện Người dùng (UI)</strong> để trải nghiệm cách VAMOS STORE hiện thực hóa toàn bộ các Use Case và quy trình đã phân tích."</em></p>
+</blockquote>
+<hr />
+<h2>9. HƯỚNG DẪN TRÌNH BÀY PHẦN 4: USER INTERFACE (UI)</h2>
+<h3>9.1. Các điểm cốt lõi cần làm nổi bật</h3>
+<ol>
+<li><strong>Kiến trúc công nghệ UI:</strong> Server-Side Rendering (SSR) sử dụng template engine <strong>Pug</strong> kết hợp với <strong>Tailwind CSS</strong>. Không phải Single Page Application giả lập, mà là giao diện web chuẩn SEO, tối ưu tốc độ tải trang ban đầu và bảo vệ logic xác thực an toàn trên máy chủ.</li>
+<li><strong>Cấu trúc trình bày 4 bước cho từng màn hình:</strong></li>
+<li><strong>Mục đích:</strong> Màn hình này phục vụ ai và giải quyết Use Case nào?</li>
+<li><strong>Thành phần giao diện:</strong> Có những khu vực chức năng nào (Header, Bộ lọc, Bảng dữ liệu, Modal)?</li>
+<li><strong>Thao tác người dùng:</strong> Người dùng có thể click, chọn, nhập liệu những gì?</li>
+<li><strong>Kết quả &amp; Liên hệ:</strong> Hệ thống xử lý gì ở phía sau (gọi API nào, tác động bảng CSDL nào)?</li>
+<li><strong>Phân nhóm 3 vai trò giao diện:</strong></li>
+<li><strong>Khách vãng lai (Guest):</strong> Trang chủ (Hero banner, sản phẩm mới), Cửa hàng &amp; Bộ lọc đa tiêu chí, Chi tiết sản phẩm &amp; Bộ chọn thuộc tính Size/Màu, Đăng nhập, Đăng ký.</li>
+<li><strong>Khách hàng (Customer):</strong> Giỏ hàng tương tác, Trang chốt đơn Checkout COD, Lịch sử và chi tiết đơn hàng, Danh sách yêu thích.</li>
+<li><strong>Quản trị viên (Admin):</strong> Dashboard chỉ số kinh doanh, Quản lý danh mục &amp; thương hiệu, Quản lý sản phẩm ma trận SKU, Quản lý đơn hàng FSM, Quản lý tồn kho &amp; thẻ kho chi tiết, Quản lý voucher, Quản lý người dùng, Quản lý banner.</li>
+</ol>
+<h3>9.2. Lời thoại mẫu phần UI</h3>
+<blockquote>
+<p><em>"Kính thưa Thầy/Cô, giao diện của VAMOS STORE được thiết kế hiện đại, tinh gọn theo nguyên tắc phân quyền người dùng.</em><br />
+<em>Ở phân hệ Khách hàng, em xin giới thiệu <strong>Màn hình Chi tiết sản phẩm (Hình 20)</strong>. Đây là nơi hiện thực hóa mối quan hệ giữa sản phẩm cha và các biến thể. Người dùng chọn Màu sắc và Kích cỡ giày qua các nút bấm trực quan. Giao diện sẽ tự động cập nhật số lượng tồn kho khả dụng của đúng mã SKU đó. Nếu kích cỡ đó đã hết hàng trong bảng <code>product_variants</code>, nút 'Thêm vào giỏ' sẽ tự động bị mờ đi và chuyển sang trạng thái Hết hàng, giúp khách hàng không bao giờ đặt nhầm món hàng không có sẵn.</em><br />
+<em>Chuyển sang phân hệ Quản trị, em xin nhấn mạnh <strong>Màn hình Quản lý Đơn hàng (Hình 29)</strong> và <strong>Màn hình Thẻ kho (Hình 31)</strong>:</em><br />
+<em>Tại màn hình Đơn hàng, Admin có thể theo dõi tiến trình 6 trạng thái FSM. Các nút hành động như 'Xác nhận đơn', 'Chuyển sang đóng gói' hay 'Bắt đầu giao hàng' được kiểm soát chặt chẽ bằng logic backend, chỉ hiển thị đúng các bước chuyển tiếp hợp lệ.</em><br />
+<em>Đồng thời, tại màn hình Thẻ kho, mỗi biến động xuất nhập tồn từ quy trình Đặt hàng hay Hủy đơn đều được hiển thị minh bạch dưới dạng bảng nhật ký số lượng kèm mã đơn hàng tham chiếu, giúp thủ kho đối soát số liệu chính xác bất kỳ lúc nào."</em></p>
+</blockquote>
+<hr />
+<h2>10. HƯỚNG DẪN KẾT THÚC BÁO CÁO VÀ CHUYỂN SANG PHẦN Q&amp;A</h2>
+<h3>Lời thoại mẫu kết thúc:</h3>
+<blockquote>
+<p><em>"Kính thưa quý Thầy/Cô trong Hội đồng thẩm định!</em><br />
+<em>Qua 4 phần báo cáo vừa rồi từ <strong>Use Case Diagram</strong>, <strong>ERD Cơ sở dữ liệu</strong>, <strong>Activity Diagram</strong> đến <strong>Giao diện người dùng UI</strong>, nhóm chúng em đã chứng minh được tính đồng bộ, nhất quán và chặt chẽ trong toàn bộ quá trình phân tích và thiết kế hệ thống VAMOS STORE.</em><br />
+<em>Mỗi Use Case đều có bảng CSDL tương ứng lưu trữ, mỗi thao tác người dùng đều có sơ đồ luồng kiểm soát dữ liệu, và mỗi giao diện đều phản ánh trung thực mã nguồn đã triển khai.</em><br />
+<em>Nhóm chúng em xin chân thành cảm ơn sự chú ý lắng nghe của quý Thầy/Cô, và chúng em rất mong nhận được những nhận xét, góp ý quý báu cũng như các câu hỏi của Hội đồng để giúp dự án hoàn thiện hơn nữa! Em xin trân trọng cảm ơn!"</em></p>
+</blockquote>
+</body>
+</html>

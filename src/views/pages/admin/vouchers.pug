@@ -1,7 +1,6 @@
-extends ../../layouts/main
+extends ../../layouts/admin
 
 block content
-  include ../../partials/admin-nav
 
   .vamos-container.py-8
     .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
@@ -32,7 +31,7 @@ block content
                     span.font-black.text-vamos-red.tracking-wider= v.code
                   td.py-3.px-4.font-medium.text-vamos-dark= v.name
                   td.py-3.px-4.text-gray-600
-                    = v.discount_type === 'percentage' ? 'Phần trăm (%)' : 'Số tiền cố định'
+                    = v.discount_type === 'percentage' ? 'Phần trăm (%)' : (v.discount_type === 'free_shipping' ? 'Miễn phí vận chuyển' : 'Số tiền cố định')
                   td.py-3.px-4.font-bold.text-vamos-dark
                     if v.discount_type === 'percentage'
                       = `${v.discount_value}%`
@@ -44,7 +43,7 @@ block content
                     span.font-bold= `${v.used_count || 0}`
                     span.text-gray-400= ` / ${v.usage_limit > 0 ? v.usage_limit : 'Không giới hạn'}`
                   td.py-3.px-4.text-gray-400
-                    = `${new Date(v.start_date).toLocaleDateString('vi-VN')} - ${new Date(v.end_date).toLocaleDateString('vi-VN')}`
+                    = `${fmtVnDateTime(v.start_date)} - ${fmtVnVoucherEnd(v.end_date)}`
                   td.py-3.px-4
                     if v.is_active
                       span.rounded.font-bold(class="px-2 py-0.5 bg-green-100 text-green-800 text-2xs") Kích hoạt

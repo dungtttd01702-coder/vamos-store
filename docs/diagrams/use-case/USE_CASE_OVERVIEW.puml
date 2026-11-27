@@ -1,0 +1,99 @@
+@startuml USE_CASE_OVERVIEW
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #2563EB
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F8FAFC
+skinparam UsecaseBorderColor #2563EB
+skinparam UsecaseBackgroundColor #EFF6FF
+skinparam RectangleBorderColor #64748B
+skinparam RectangleBackgroundColor #FFFFFF
+
+left to right direction
+
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Customer)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+actor "Dịch vụ Email\n(Email Service)\n*(Dự kiến trong thiết kế)*" as EmailService <<Secondary>>
+
+' Kế thừa tác nhân: Customer kế thừa toàn bộ quyền duyệt của Guest
+Customer -up-|> Guest
+
+rectangle "Hệ thống Quản lý Bán giày VAMOS STORE" {
+
+  package "Phân hệ Tài khoản & Xác thực" {
+    usecase "UC01: Đăng ký tài khoản" as UC01
+    usecase "UC02: Đăng nhập hệ thống" as UC02
+    usecase "UC03: Khôi phục mật khẩu\n*(Designed Only - Chưa có SMTP)*" as UC03
+    usecase "UC04: Quản lý hồ sơ & sổ địa chỉ" as UC04
+    usecase "UC16: Quản lý tài khoản khách hàng" as UC16
+  }
+
+  package "Phân hệ Mua sắm & Khách hàng" {
+    usecase "UC05: Tìm kiếm & xem sản phẩm" as UC05
+    usecase "UC06: Quản lý giỏ hàng\n*(Guest Session & Customer DB)*" as UC06
+    usecase "UC15: Quản lý danh sách yêu thích\n(Wishlist)" as UC15
+  }
+
+  package "Phân hệ Đơn hàng & Vận chuyển" {
+    usecase "UC07: Đặt hàng COD" as UC07
+    usecase "UC08: Tra cứu & theo dõi đơn hàng" as UC08
+    usecase "UC09: Hủy đơn hàng tự phục vụ" as UC09
+  }
+
+  package "Phân hệ Quản trị & Vận hành" {
+    usecase "UC10: Xử lý & cập nhật đơn hàng" as UC10
+    usecase "UC11: Quản lý tồn kho" as UC11
+    usecase "UC12: Quản lý danh mục, thương hiệu,\nsản phẩm & banner" as UC12
+    usecase "UC13: Quản lý mã giảm giá" as UC13
+    usecase "UC14: Báo cáo doanh thu & KPI Dashboard" as UC14
+  }
+
+  ' Quan hệ nội bộ giữa các Use Case
+  usecase "Khóa & trừ tồn kho biến thể" as UC_StockLock
+  usecase "Áp dụng mã giảm giá" as UC_ApplyVoucher
+
+  UC07 ..> UC_StockLock : <<include>>
+  UC07 <.. UC_ApplyVoucher : <<extend>>
+  UC08 <.. UC09 : <<extend>>\n(Trạng thái PENDING)
+}
+
+' Liên kết Tác nhân - Use Case
+Guest --> UC01
+Guest --> UC02
+Guest --> UC03
+Guest --> UC05
+Guest --> UC06
+UC03 ..> EmailService : <<interact>>
+
+Customer --> UC04
+Customer --> UC06
+Customer --> UC15
+Customer --> UC07
+Customer --> UC08
+
+Admin --> UC02
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC16
+
+note right of UC06
+  - Guest: Giỏ hàng tạm lưu trong Session.
+  - Customer: Giỏ hàng bền vững trên CSDL.
+  - Tự động gộp giỏ hàng khi đăng nhập (UC02).
+end note
+
+note bottom of UC12
+  Bao gồm đầy đủ 4 module đã triển khai:
+  - Danh mục (Categories)
+  - Thương hiệu (Brands)
+  - Sản phẩm & Biến thể SKU (Products)
+  - Banners quảng cáo (Banners)
+end note
+
+@enduml

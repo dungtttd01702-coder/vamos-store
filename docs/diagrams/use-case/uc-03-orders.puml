@@ -1,0 +1,78 @@
+@startuml uc-03-orders
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #2563EB
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F8FAFC
+skinparam UsecaseBorderColor #2563EB
+skinparam UsecaseBackgroundColor #EFF6FF
+skinparam RectangleBorderColor #64748B
+skinparam RectangleBackgroundColor #FFFFFF
+
+left to right direction
+
+actor "Khách hàng\n(Customer)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "Phân hệ Quản lý Đơn hàng & Vận chuyển (VAMOS STORE)" {
+
+  usecase "UC07: Đặt hàng COD" as UC07
+  usecase "Chọn địa chỉ nhận hàng" as SelectAddress
+  usecase "Khóa bi quan & Trừ tồn kho biến thể\n(UPDLOCK, ROWLOCK Transaction)" as DeductStock
+  usecase "Tạo Snapshot thông tin đơn hàng" as CreateSnapshot
+  usecase "Xác nhận phương thức COD" as ConfirmCOD
+  usecase "Áp dụng mã giảm giá (Voucher)\n(Kiểm tra 1 lần dùng/khách qua voucher_usages)" as ApplyVoucher
+
+  usecase "UC08: Tra cứu & theo dõi đơn hàng" as UC08
+  usecase "Xem Timeline tiến trình đơn hàng\n(PENDING -> ... -> COMPLETED)" as ViewTimeline
+  usecase "Xem Snapshot mặt hàng & địa chỉ" as ViewSnapshot
+
+  usecase "UC09: Hủy đơn hàng tự phục vụ" as UC09
+  usecase "Hoàn trả tồn kho tự động\n& Chống hoàn kho lặp (Anti-Double Restitution)" as AutoRestock
+  usecase "Ghi vết lịch sử trạng thái\n(order_status_histories)" as LogAudit
+
+  usecase "UC10: Xử lý & cập nhật đơn hàng" as UC10
+  usecase "Chuyển trạng thái theo State Machine\n(PENDING -> CONFIRMED -> PROCESSING -> SHIPPING -> COMPLETED)" as MoveState
+  usecase "Cập nhật thanh toán PAID khi COMPLETED\n(Tuyệt đối KHÔNG trừ kho lại lần 2)" as MarkPaid
+  usecase "Hủy đơn nội bộ kèm hoàn kho\n(Nhập lý do bắt buộc & Hoàn kho 1 lần)" as AdminCancel
+
+  ' Quan hệ UC07
+  UC07 ..> SelectAddress : <<include>>
+  UC07 ..> DeductStock : <<include>>
+  UC07 ..> CreateSnapshot : <<include>>
+  UC07 ..> ConfirmCOD : <<include>>
+  UC07 <.. ApplyVoucher : <<extend>>
+
+  ' Quan hệ UC08
+  UC08 ..> ViewTimeline : <<include>>
+  UC08 ..> ViewSnapshot : <<include>>
+
+  ' Quan hệ UC09 extend UC08
+  UC08 <.. UC09 : <<extend>>\n(Điều kiện: Đơn ở trạng thái PENDING)
+  UC09 ..> AutoRestock : <<include>>
+  UC09 ..> LogAudit : <<include>>
+
+  ' Quan hệ UC10
+  UC10 ..> MoveState : <<include>>
+  UC10 ..> MarkPaid : <<include>>
+  UC10 <.. AdminCancel : <<extend>>\n(Điều kiện: Đơn PENDING hoặc CONFIRMED)
+  AdminCancel ..> AutoRestock : <<include>>
+}
+
+Customer --> UC07
+Customer --> UC08
+
+Admin --> UC10
+
+note bottom of DeductStock
+  **Bằng chứng kiểm chứng mã nguồn:**
+  - **Trừ kho lúc đặt hàng:** `src/services/order.service.js:160-196`.
+  - **Hoàn kho khi hủy:** `src/services/order.service.js:335-364`.
+  - **Chống hoàn kho lặp:** `src/services/order.service.js:435-438`.
+  - **Không trừ kho khi COMPLETED:** `src/services/order.service.js:534-550`.
+  - **Voucher 1 lần/khách:** `order.service.js:104-108` & `uq_voucher_user`.
+end note
+
+@enduml

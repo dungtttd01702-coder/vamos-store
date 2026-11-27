@@ -7,8 +7,11 @@
 @layer base {
   html { scroll-behavior: smooth; }
   body {
-    @apply bg-white text-vamos-dark antialiased;
+    @apply bg-white text-vamos-dark antialiased transition-colors duration-200;
     font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  }
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
@@ -133,6 +136,32 @@
   .price-no-sale {
     font-family: 'Space Grotesk', sans-serif;
     @apply text-lg font-bold text-vamos-dark;
+  }
+
+  /* ═══ DARK MODE COMPONENT ADAPTATIONS ═══ */
+  .dark .product-card {
+    @apply bg-slate-900 border-slate-800 text-slate-100 hover:border-red-900/60;
+  }
+  .dark .product-card-img {
+    mix-blend-mode: normal;
+  }
+  .dark .form-input {
+    @apply bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-red-500;
+  }
+  .dark .form-label {
+    @apply text-slate-200;
+  }
+  .dark .price-no-sale {
+    @apply text-slate-100;
+  }
+  .dark .section-title {
+    @apply text-slate-100;
+  }
+  .dark .size-box {
+    @apply bg-slate-900 border-slate-700 text-slate-200 hover:border-red-500 hover:text-red-400;
+  }
+  .dark .size-box.out-of-stock {
+    @apply bg-slate-950 text-slate-600 border-slate-800;
   }
 
   /* ═══ ANNOUNCEMENT TICKER ═══ */

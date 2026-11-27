@@ -1,0 +1,74 @@
+@startuml AD05_SEARCH_PRODUCT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: TÌM KIẾM & XEM SẢN PHẨM (AD05 — SEARCH & VIEW PRODUCT)\nHỆ THỐNG VAMOS STORE
+
+|Khách hàng (Guest / Customer)|
+start
+:Truy cập Storefront hoặc nhập từ khóa tìm kiếm (q);
+:Tùy chọn lọc: Danh mục, Thương hiệu, Giới tính, Khoảng giá, Sắp xếp;
+
+|Hệ thống (Web App)|
+:Xây dựng câu lệnh truy vấn động với các tham số lọc;
+
+|Cơ sở Dữ liệu (SQL Server)|
+:SELECT p.id, p.name, p.slug, p.base_price, p.sale_price,\n       c.name AS category_name, b.name AS brand_name,\n       pi.image_url\nFROM products p\nJOIN categories c ON p.category_id = c.id\nLEFT JOIN brands b ON p.brand_id = b.id\nLEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1\nWHERE p.status = 'active' AND ...\nORDER BY ... OFFSET ... FETCH NEXT ...;
+
+|Hệ thống (Web App)|
+if (Tìm thấy kết quả?) then ([Không])
+  :Hiển thị giao diện "Không tìm thấy sản phẩm phù hợp";
+  |Khách hàng (Guest / Customer)|
+  :Thử lại với từ khóa hoặc bộ lọc khác;
+  stop
+else ([Có kết quả])
+  :Hiển thị danh sách sản phẩm dạng lưới (Grid);\nKèm hình ảnh, giá gốc, giá khuyến mãi và nhãn giảm giá;
+endif
+
+|Khách hàng (Guest / Customer)|
+:Nhấp vào một sản phẩm để xem chi tiết (/products/:slug);
+
+|Hệ thống (Web App)|
+|Cơ sở Dữ liệu (SQL Server)|
+:Truy vấn chi tiết sản phẩm:
+1. Thông tin sản phẩm chính (products)
+2. Album hình ảnh (product_images)
+3. Danh sách các biến thể khả dụng (product_variants),
+   kết nối với bảng kích cỡ (sizes) và màu sắc (colors);
+
+|Hệ thống (Web App)|
+if (Sản phẩm tồn tại và đang kinh doanh (active)?) then ([Không])
+  :Hiển thị trang lỗi 404 - "Sản phẩm không tồn tại hoặc đã ngừng kinh doanh";
+  stop
+else ([Hợp lệ])
+  :Tổng hợp ma trận Kích cỡ (sizes) và Màu sắc (colors);\nHiển thị trang chi tiết sản phẩm;
+endif
+
+|Khách hàng (Guest / Customer)|
+:Xem hình ảnh, mô tả sản phẩm, bảng quy đổi kích cỡ;
+:Chọn Màu sắc (Color) và Kích cỡ (Size);
+
+|Hệ thống (Web App)|
+:Tìm kiếm biến thể SKU tương ứng với tổ hợp (Size + Color);
+if (Tổ hợp biến thể có tồn tại trong CSDL?) then ([Không])
+  :Hiển thị: "Tổ hợp kích cỡ và màu sắc này không có sẵn";
+  :Vô hiệu hóa nút "Thêm vào giỏ hàng";
+else ([Tồn tại])
+  if (Số lượng tồn kho (stock_quantity) > 0?) then ([Còn hàng])
+    :Hiển thị số lượng tồn kho còn lại;
+    :Kích hoạt nút "Thêm vào giỏ hàng" và "Mua ngay";
+    |Khách hàng (Guest / Customer)|
+    :Sẵn sàng thực hiện thêm vào giỏ hàng hoặc mua ngay;
+    stop
+  else ([Hết hàng: stock_quantity == 0])
+    :Hiển thị nhãn: "TẠM HẾT HÀNG";
+    :Vô hiệu hóa nút "Thêm vào giỏ hàng";
+    stop
+  endif
+endif
+
+@enduml
+

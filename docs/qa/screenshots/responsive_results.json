@@ -1,0 +1,467 @@
+[
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Homepage",
+    "file": "desktop-01-home.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Mobile Menu",
+    "file": "desktop-08-mobile-menu.png",
+    "overflow": false,
+    "details": {
+      "isMenuVisible": true
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Catalog",
+    "file": "desktop-02-catalog.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Product Detail",
+    "file": "desktop-03-detail.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Login",
+    "file": "desktop-04-login.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Register",
+    "file": "desktop-05-register.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Cart",
+    "file": "desktop-06-cart.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Guest",
+    "page": "Wishlist Modal",
+    "file": "desktop-07-wishlist-modal.png",
+    "overflow": false,
+    "details": {}
+  },
+  {
+    "vp": "desktop",
+    "role": "Customer",
+    "page": "Checkout COD",
+    "file": "desktop-09-checkout.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Customer",
+    "page": "Order History",
+    "file": "desktop-10-account-orders.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Admin",
+    "page": "Admin Dashboard",
+    "file": "desktop-11-admin-dashboard.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Admin",
+    "page": "Admin Products",
+    "file": "desktop-12-admin-products.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 1440,
+      "winWidth": 1440,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "desktop",
+    "role": "Admin",
+    "page": "Admin Orders",
+    "file": "desktop-13-admin-orders.png",
+    "overflow": false
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Homepage",
+    "file": "tablet-01-home.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Mobile Menu",
+    "file": "tablet-08-mobile-menu.png",
+    "overflow": false,
+    "details": {
+      "isMenuVisible": true
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Catalog",
+    "file": "tablet-02-catalog.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Product Detail",
+    "file": "tablet-03-detail.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Login",
+    "file": "tablet-04-login.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Register",
+    "file": "tablet-05-register.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Cart",
+    "file": "tablet-06-cart.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Guest",
+    "page": "Wishlist Modal",
+    "file": "tablet-07-wishlist-modal.png",
+    "overflow": false,
+    "details": {}
+  },
+  {
+    "vp": "tablet",
+    "role": "Customer",
+    "page": "Checkout COD",
+    "file": "tablet-09-checkout.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Customer",
+    "page": "Order History",
+    "file": "tablet-10-account-orders.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Admin",
+    "page": "Admin Dashboard",
+    "file": "tablet-11-admin-dashboard.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Admin",
+    "page": "Admin Products",
+    "file": "tablet-12-admin-products.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 768,
+      "winWidth": 768,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "tablet",
+    "role": "Admin",
+    "page": "Admin Orders",
+    "file": "tablet-13-admin-orders.png",
+    "overflow": false
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Homepage",
+    "file": "mobile-01-home.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Mobile Menu",
+    "file": "mobile-08-mobile-menu.png",
+    "overflow": false,
+    "details": {
+      "isMenuVisible": true
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Catalog",
+    "file": "mobile-02-catalog.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Product Detail",
+    "file": "mobile-03-detail.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Login",
+    "file": "mobile-04-login.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Register",
+    "file": "mobile-05-register.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Cart",
+    "file": "mobile-06-cart.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Guest",
+    "page": "Wishlist Modal",
+    "file": "mobile-07-wishlist-modal.png",
+    "overflow": false,
+    "details": {}
+  },
+  {
+    "vp": "mobile",
+    "role": "Customer",
+    "page": "Checkout COD",
+    "file": "mobile-09-checkout.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Customer",
+    "page": "Order History",
+    "file": "mobile-10-account-orders.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Admin",
+    "page": "Admin Dashboard",
+    "file": "mobile-11-admin-dashboard.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Admin",
+    "page": "Admin Products",
+    "file": "mobile-12-admin-products.png",
+    "overflow": false,
+    "details": {
+      "maxScroll": 390,
+      "winWidth": 390,
+      "hasOverflow": false,
+      "culprits": []
+    }
+  },
+  {
+    "vp": "mobile",
+    "role": "Admin",
+    "page": "Admin Orders",
+    "file": "mobile-13-admin-orders.png",
+    "overflow": false
+  }
+]

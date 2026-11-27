@@ -54,8 +54,20 @@ block content
               span#product-sku-display.text-xs.text-gray-400= `Mã SKU: ${product.variants && product.variants.length > 0 ? product.variants[0].sku : product.product_code}`
 
             //- Title
-            h1.text-2xl.font-black.text-vamos-dark.leading-tight.mb-4(class="md:text-3xl" style="font-family:'Space Grotesk',sans-serif")
+            h1.text-2xl.font-black.text-vamos-dark.leading-tight.mb-2(class="md:text-3xl" style="font-family:'Space Grotesk',sans-serif")
               = product.name
+
+            //- Rating Overview Snippet
+            if reviewsData && reviewsData.summary
+              .flex.items-center.gap-2.mb-4
+                .flex.items-center.text-amber-400.text-sm
+                  - const ratingVal = reviewsData.summary.avgRating || 5
+                  each s in [1, 2, 3, 4, 5]
+                    span= s <= Math.round(ratingVal) ? '★' : '☆'
+                span.text-xs.font-bold.text-vamos-dark= reviewsData.summary.avgRating ? reviewsData.summary.avgRating.toFixed(1) : '5.0'
+                span.text-xs.text-gray-400= `(${reviewsData.summary.totalReviews || 0} đánh giá)`
+                span.text-gray-300 |
+                a.text-xs.text-vamos-red.font-semibold(class="hover:underline" href="#product-reviews-section") Xem đánh giá &amp; nhận điểm VAMOS Club
 
             //- Pricing Card
             .flex.items-baseline.gap-3.mb-6.p-4.bg-vamos-bg-light.rounded-vamos-lg.border.border-gray-100
@@ -197,25 +209,33 @@ block content
                   })();
 
               //- Action Buttons
-              .flex.flex-col.gap-3.mb-6(class="sm:flex-row")
-                button#btn-add-to-cart.flex-1.btn-outline-red.text-xs(class="py-3.5 transition-all" type="submit")
-                  svg.w-4.h-4.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
-                  | Thêm Vào Giỏ Hàng
-                button#btn-buy-now.flex-1.btn-primary.text-xs(class="py-3.5 transition-all" type="submit" formaction="/cart/buy-now")
-                  | Mua Ngay (COD)
-                button.btn-wishlist.w-full.h-12.rounded-lg.border.border-slate-200.flex.items-center.justify-center.text-slate-400.transition-all(
-                  class="sm:w-12 hover:text-red-600 hover:border-red-200 hover:bg-red-50 hover:scale-105 active:scale-95"
-                  type="button"
-                  title="Thêm vào danh sách yêu thích"
-                  data-product-id=product.id
-                  data-product-name=product.name
-                  data-product-slug=product.slug
-                  data-product-price=(product.sale_price || product.base_price)
-                  data-product-img=(images && images.length ? images[0].image_url : '/images/placeholder-shoe.png')
-                )
-                  svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
-                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
+              if isAdmin
+                .p-4.rounded-xl.bg-amber-50.border.border-amber-200.text-amber-900.text-xs.font-bold.flex.flex-col.gap-2.mb-6(class="sm:flex-row sm:items-center sm:justify-between dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-200")
+                  .flex.items-center.gap-2
+                    span 👁️
+                    span Chế độ xem trước sản phẩm dành cho Quản trị viên (Không hỗ trợ mua hàng)
+                  a.px-3.py-2.bg-slate-900.text-white.rounded-lg.transition-colors.text-center(class="hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700" href=`/admin/products`)
+                    | ✏️ Quản lý trong Admin
+              else
+                .flex.flex-col.gap-3.mb-6(class="sm:flex-row")
+                  button#btn-add-to-cart.flex-1.btn-outline-red.text-xs(class="py-3.5 transition-all" type="submit")
+                    svg.w-4.h-4.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z")
+                    | Thêm Vào Giỏ Hàng
+                  button#btn-buy-now.flex-1.btn-primary.text-xs(class="py-3.5 transition-all" type="submit" formaction="/cart/buy-now")
+                    | Mua Ngay (COD)
+                  button.btn-wishlist.w-full.h-12.rounded-lg.border.border-slate-200.flex.items-center.justify-center.text-slate-400.transition-all(
+                    class="sm:w-12 hover:text-red-600 hover:border-red-200 hover:bg-red-50 hover:scale-105 active:scale-95"
+                    type="button"
+                    title="Thêm vào danh sách yêu thích"
+                    data-product-id=product.id
+                    data-product-name=product.name
+                    data-product-slug=product.slug
+                    data-product-price=(product.sale_price || product.base_price)
+                    data-product-img=(images && images.length ? images[0].image_url : '/images/placeholder-shoe.png')
+                  )
+                    svg.w-5.h-5(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                      path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z")
 
           //- COD Guarantees Callout
           .border-t.border-gray-100.pt-5.grid.grid-cols-2.gap-3.text-xs.text-gray-600
@@ -286,6 +306,103 @@ block content
           p • 
             strong Bảo quản giữ phom: 
             | Giữ lót đệm khô ráo, nhét giấy mềm hoặc túi hút ẩm chuyên dụng vào lòng giày khi cất trong hộp để giữ dáng giày luôn chuẩn form.
+
+    //- ── PRODUCT REVIEWS & VAMOS CLUB RATING SECTION ──
+    section#product-reviews-section.mt-10.bg-white.rounded-vamos-xl.border.border-vamos-border.p-6.shadow-vamos-card(class="lg:p-10")
+      .flex.flex-col.gap-4.border-b.border-gray-100.pb-6(class="md:flex-row md:items-center md:justify-between")
+        div
+          span.text-xs.font-bold.text-vamos-red.uppercase.tracking-wider VAMOS CLUB REVIEW-TO-EARN
+          h2.text-xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif") ĐÁNH GIÁ TỪ KHÁCH HÀNG THỰC TẾ
+        .flex.items-center.gap-2.bg-red-50.border.border-red-100.rounded-xl.p-3.text-xs.text-vamos-dark
+          span.text-lg 🎁
+          div
+            span.font-bold Đánh giá sau khi mua hàng:
+            |  Nhận ngay đến 
+            span.text-vamos-red.font-black +300 Điểm VAMOS Club
+            |  đổi voucher!
+
+      //- Reviews Summary & Breakdown
+      - const summary = reviewsData && reviewsData.summary ? reviewsData.summary : { avgRating: 0, totalReviews: 0, starCounts: {}, starPercentages: {} }
+      - const reviewsList = reviewsData && reviewsData.reviews ? reviewsData.reviews : []
+      
+      .grid.grid-cols-1.gap-8.py-6.border-b.border-gray-100(class="lg:grid-cols-12")
+        //- Rating Score Overview (4 cols)
+        .flex.flex-col.items-center.justify-center.p-6.bg-slate-50.rounded-xl.text-center(class="lg:col-span-4")
+          .text-5xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
+            = summary.avgRating ? summary.avgRating.toFixed(1) : '5.0'
+          .flex.items-center.gap-1.text-amber-400.text-xl.my-2
+            - const avgRounded = Math.round(summary.avgRating || 5)
+            each s in [1, 2, 3, 4, 5]
+              span= s <= avgRounded ? '★' : '☆'
+          p.text-xs.text-gray-500
+            | Dựa trên 
+            strong.text-vamos-dark= summary.totalReviews || 0
+            |  đánh giá xác thực
+
+        //- Star Breakdown (8 cols)
+        .space-y-2.justify-center.flex.flex-col(class="lg:col-span-8")
+          each star in [5, 4, 3, 2, 1]
+            - const pct = (summary.starPercentages && summary.starPercentages[star]) || 0
+            - const count = (summary.starCounts && summary.starCounts[star]) || 0
+            .flex.items-center.gap-3.text-xs
+              .w-12.font-semibold.text-gray-600.flex.items-center.gap-1
+                span= star
+                span.text-amber-400 ★
+              .flex-1.h-2.bg-gray-100.rounded-full.overflow-hidden
+                .h-full.bg-amber-400.rounded-full(style=`width: ${pct}%`)
+              .w-16.text-right.text-gray-400= `${pct}% (${count})`
+
+      //- Review Feed
+      .mt-6
+        if reviewsList.length === 0
+          .text-center.py-12.bg-gray-50.rounded-xl.border.border-dashed.border-gray-200
+            .text-4xl.mb-2 💬
+            h3.text-sm.font-bold.text-vamos-dark Chưa có đánh giá nào cho sản phẩm này
+            p.text-xs.text-gray-500.mt-1.max-w-md.mx-auto
+              | Hãy là người đầu tiên trải nghiệm và chia sẻ cảm nhận sau khi mua hàng để nhận ngay đến 300 điểm thưởng VAMOS Club!
+        else
+          .space-y-6
+            each rev in reviewsList
+              .p-5.rounded-xl.border.border-gray-100.bg-white.shadow-sm.space-y-3
+                .flex.items-start.justify-between.gap-3
+                  - const customerName = typeof rev.customer_name === 'string' && rev.customer_name.trim() ? rev.customer_name.trim() : 'Khách hàng VAMOS'
+                  .flex.items-center.gap-3
+                    .w-10.h-10.rounded-full.bg-slate-900.text-white.flex.items-center.justify-center.font-bold.text-sm
+                      = customerName.charAt(0).toUpperCase()
+                    div
+                      .flex.items-center.gap-2
+                        h4.text-sm.font-bold.text-slate-900= customerName
+                        span.text-xs.bg-emerald-50.text-emerald-700.px-2.rounded-full.font-semibold(class="py-0.5 border border-emerald-200")
+                          | ✓ Đã mua hàng
+                      .flex.items-center.gap-2.text-xs.text-gray-400.mt-1
+                        .flex.text-amber-400.text-xs
+                          each s in [1, 2, 3, 4, 5]
+                            span= s <= rev.rating ? '★' : '☆'
+                        span •
+                        span= rev.created_at ? fmtVnDate(rev.created_at) : ''
+                  if rev.points_earned && rev.points_earned > 0
+                    span.inline-flex.items-center.gap-1.text-xs.font-bold.text-red-600.bg-red-50.px-2.rounded-full.border.border-red-100(class="py-0.5")
+                      span 🏅
+                      = `+${rev.points_earned}đ`
+
+                //- Quick Tags if any (pre-parsed tagsList from loyaltyService.getProductReviews)
+                - const tags = Array.isArray(rev.tagsList) ? rev.tagsList.map(t => (typeof t === 'string' ? t.trim() : '')).filter(Boolean) : []
+                if tags.length > 0
+                  .flex.flex-wrap.gap-2.pt-1
+                    each tag in tags
+                      span.inline-flex.items-center.text-xs.bg-slate-100.text-slate-700.px-2.rounded-md.font-medium(class="py-0.5")
+                        = `✓ ${tag}`
+
+                //- Comment Text
+                if rev.comment
+                  p.text-xs.text-gray-700.leading-relaxed.whitespace-pre-line= rev.comment
+
+                //- Review Media Images
+                if rev.media && rev.media.length > 0
+                  .flex.flex-wrap.gap-2.pt-2
+                    each m in rev.media
+                      a.w-20.h-20.rounded-lg.overflow-hidden.border.border-gray-200.bg-slate-50.block.cursor-pointer(class="hover:opacity-90 hover:border-vamos-red transition" href=m.media_url target="_blank")
+                        img.w-full.h-full.object-cover(src=m.media_url alt="Ảnh đánh giá từ khách hàng")
 
     //- ── RELATED PRODUCTS SECTION (Stitch C-DET-02) ──
     if relatedProducts && relatedProducts.length > 0

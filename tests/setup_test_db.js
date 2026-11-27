@@ -3,7 +3,7 @@
  * Creates and migrates `vamos_store_test_db` on MSSQL
  */
 
-process.env.NODE_ENV = 'test';
+require('./test_bootstrap');
 
 const { init } = require('../database/init_mssql');
 const { closePool } = require('../src/config/database');

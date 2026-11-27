@@ -6,12 +6,16 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     name: Build & Test (Node.js ${{ matrix.node-version }})
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [ '22.x', '24.x' ]
 
@@ -20,9 +24,10 @@ jobs:
       DB_SERVER: 127.0.0.1
       DB_PORT: 1433
       DB_USER: sa
-      DB_PASSWORD: 'YourStrongPassword123!'
+      DB_PASSWORD: ${{ secrets.CI_MSSQL_SA_PASSWORD }}
       DB_TEST_NAME: vamos_store_test_db
-      SESSION_SECRET: 'ci_test_session_secret_vamos_store_2026_random_key'
+      ADMIN_DEFAULT_PASSWORD: ${{ secrets.ADMIN_DEFAULT_PASSWORD }}
+      SESSION_SECRET: ${{ secrets.CI_SESSION_SECRET }}
       DB_ENCRYPT: 'false'
       DB_TRUST_SERVER_CERTIFICATE: 'true'
 
@@ -31,11 +36,11 @@ jobs:
         image: mcr.microsoft.com/mssql/server:2022-latest
         env:
           ACCEPT_EULA: 'Y'
-          MSSQL_SA_PASSWORD: 'YourStrongPassword123!'
+          MSSQL_SA_PASSWORD: ${{ secrets.CI_MSSQL_SA_PASSWORD }}
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrongPassword123!' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrongPassword123!' -Q 'SELECT 1'"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -53,8 +58,17 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Install Playwright Chromium browser
+        run: ./node_modules/.bin/playwright install --with-deps chromium
+
       - name: Verify Pug template compilation
         run: node tests/validate_pug.js
+
+      - name: Validate Docker Compose configuration
+        env:
+          SESSION_SECRET: ci_validation_placeholder_secret_32chars_min
+          DB_PASSWORD: CiValidationPlaceholder!123
+        run: docker compose --profile loyalty-worker config --quiet
 
       - name: Build Tailwind CSS
         run: npm run build:css

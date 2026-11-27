@@ -1,0 +1,77 @@
+@startuml AD12_INVENTORY_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN QUẢN LÝ KHO HÀNG & ĐIỀU CHỈNH TỒN KHO (AD12 — INVENTORY MANAGEMENT)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Quản lý Kho hàng (/admin/inventory);
+
+|Hệ thống (Web App)|
+:Kiểm tra quyền truy cập (requireAdmin middleware);
+if (Quyền ADMIN hợp lệ?) then ([Không])
+  :Từ chối truy cập (403 Forbidden / Chuyển hướng /auth/login);
+  stop
+else ([Hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Truy vấn danh sách SKU biến thể kèm tồn kho:\nSELECT pv.id, pv.sku, pv.stock_quantity, pv.status,\np.name AS product_name, s.size_name, c.color_name\nFROM product_variants pv JOIN products p ...;
+  |Hệ thống (Web App)|
+  :Hiển thị giao diện Quản lý Kho:\n- Bảng tồn kho từng SKU (size, màu)\n- Lọc hàng sắp hết (stock_quantity <= 5)\n- Tìm kiếm theo SKU / tên sản phẩm;
+endif
+
+|Quản trị viên (Admin)|
+if (Hành động?) then ([Xem lịch sử biến động])
+  :Nhấp "Lịch sử kho" (/admin/inventory/history);
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT TOP 50 it.*, pv.sku, p.name, u.full_name\nFROM inventory_transactions it ... ORDER BY it.id DESC;
+  |Hệ thống (Web App)|
+  :Hiển thị bảng kiểm toán lịch sử điều chỉnh tồn kho\n(Thời gian, Người thực hiện, Tồn cũ, Tồn mới, Thay đổi, Lý do);
+  stop
+else ([Điều chỉnh tồn kho])
+  :Chọn SKU cần điều chỉnh tồn;\nNhập số lượng thay đổi (change_quantity: +/-);\nNhập lý do điều chỉnh bắt buộc (reason);\nNhấn "Xác nhận điều chỉnh";
+endif
+
+|Hệ thống (Web App)|
+:Nhận request POST /admin/inventory/adjust;\nKiểm tra dữ liệu đầu vào (admin.controller.js):;
+if (Lý do trống HOẶC Số lượng thay đổi = 0 / NaN?) then ([Dữ liệu không hợp lệ])
+  :Báo lỗi validation (Lý do và số lượng thay đổi là bắt buộc);
+  stop
+else ([Dữ liệu hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  partition "SQL Server Transaction (ACID)" {
+    :BEGIN TRANSACTION;
+
+    :Khóa dòng biến thể chống xung đột đồng thời:\nSELECT id, stock_quantity, sku\nFROM product_variants WITH (UPDLOCK, ROWLOCK)\nWHERE id = @variantId;
+
+    if (Biến thể tồn tại?) then ([Không])
+      :ROLLBACK TRANSACTION;\nNém lỗi "Biến thể kho không tồn tại";
+      stop
+    else ([Tồn tại])
+      :Tính toán tồn kho mới:\nnewStock = currentStock + changeQty;
+      if (newStock < 0?) then ([Tồn kho mới âm])
+        :ROLLBACK TRANSACTION;\nBáo lỗi: "Số lượng tồn kho không thể âm.\nHiện có: currentStock, yêu cầu giảm: changeQty";
+        stop
+      else ([Hợp lệ >= 0])
+        :Cập nhật tồn kho biến thể:\nUPDATE product_variants\nSET stock_quantity = @newStock, updated_at = GETDATE()\nWHERE id = @variantId;
+
+        :Ghi log kiểm toán kho (Audit Trail):\nINSERT INTO inventory_transactions\n(variant_id, user_id, old_quantity, new_quantity,\nchange_quantity, reason)\nVALUES (@variantId, @adminId, @currentStock,\n@newStock, @changeQty, @reason);
+
+        :COMMIT TRANSACTION;
+      endif
+    endif
+  }
+endif
+
+|Hệ thống (Web App)|
+:Chuyển hướng về /admin/inventory?success=adjusted;\nHiển thị thông báo cập nhật kho thành công;
+
+|Quản trị viên (Admin)|
+:Quan sát số lượng tồn kho mới được cập nhật trên giao diện;
+stop
+
+@enduml
+

@@ -1,0 +1,70 @@
+@startuml
+title Sơ đồ hoạt động — Quản trị viên xử lý đơn hàng (AD07/AD11)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Quản trị viên (Admin)|
+start
+:Mở danh sách quản lý đơn hàng;
+:Xem chi tiết đơn hàng và chọn trạng thái chuyển tiếp tiếp theo;
+:Nhấn nút "Cập nhật trạng thái";
+
+|Hệ thống|
+:Tiếp nhận trạng thái mới;
+:Kiểm tra quy tắc máy trạng thái hợp lệ (FSM Validation);
+note right
+Quy tắc chuyển trạng thái hợp lệ:
+- PENDING -> CONFIRMED hoặc CANCELLED
+- CONFIRMED -> PROCESSING hoặc CANCELLED
+- PROCESSING -> SHIPPING
+- SHIPPING -> COMPLETED
+end note
+
+if (Bước chuyển trạng thái tuân thủ quy tắc FSM?) then (Đúng)
+  |Hệ thống|
+  :Kích hoạt giao dịch cập nhật trạng thái đơn;
+  if (Trạng thái chuyển sang Đã hủy (CANCELLED)?) then (Có)
+    :Hoàn lại số lượng tồn kho và ghi nhật ký thẻ kho;
+  endif
+  if (Trạng thái chuyển sang Hoàn thành (COMPLETED)?) then (Có)
+    :Tự động cập nhật trạng thái thanh toán COD thành Đã thanh toán (PAID);
+  endif
+  :Lưu lịch sử thay đổi trạng thái và gửi thông báo thành công;
+  |Quản trị viên (Admin)|
+  :Xem thông tin đơn hàng đã được cập nhật thành công;
+  stop
+else (Sai)
+  |Hệ thống|
+  :Từ chối cập nhật và hiển thị cảnh báo vi phạm quy trình xử lý đơn;
+  |Quản trị viên (Admin)|
+  :Thực hiện lại thao tác theo đúng trình tự nghiệp vụ;
+  stop
+endif
+@enduml

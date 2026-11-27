@@ -1,0 +1,86 @@
+@startuml uc-04-admin
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #2563EB
+skinparam ActorBorderColor #1E293B
+skinparam ActorBackgroundColor #F8FAFC
+skinparam UsecaseBorderColor #2563EB
+skinparam UsecaseBackgroundColor #EFF6FF
+skinparam RectangleBorderColor #64748B
+skinparam RectangleBackgroundColor #FFFFFF
+
+left to right direction
+
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "Phân hệ Quản trị & Vận hành Hệ thống (VAMOS STORE)" {
+
+  usecase "UC10: Xử lý & cập nhật đơn hàng" as UC10
+
+  usecase "UC11: Quản lý tồn kho" as UC11
+  usecase "Cảnh báo hàng sắp hết (Tồn <= 5)" as LowStockAlert
+  usecase "Điều chỉnh tồn kho thủ công\n(Bắt buộc nhập lý do & ghi log)" as AdjustStock
+  usecase "Xem lịch sử biến động kho\n(/admin/inventory/history)" as ViewInventoryHistory
+
+  usecase "UC12: Quản lý danh mục, thương hiệu,\nsản phẩm & banner" as UC12
+  usecase "Quản lý Danh mục sản phẩm\n(Thêm mới, Bật/Tắt trạng thái)" as ManageCategory
+  usecase "Quản lý Thương hiệu / Bộ sưu tập\n(Tạo mới thương hiệu & Đếm sản phẩm)" as ManageBrand
+  usecase "Quản lý Sản phẩm & Ma trận biến thể\n(Size x Màu x SKU, Giá, Ảnh)" as ManageProductVariant
+  usecase "Quản lý Banner slider trang chủ\n(Thêm mới, Bật/Tắt, Xóa)" as ManageBanners
+
+  usecase "UC13: Quản lý mã giảm giá" as UC13
+  usecase "Tạo mới voucher khuyến mãi\n(% hoặc tiền mặt, hạn dùng, min order)" as CreateVoucher
+  usecase "Bật / Tắt kích hoạt voucher" as ToggleVoucher
+
+  usecase "UC14: Báo cáo doanh thu & KPI Dashboard" as UC14
+  usecase "Tổng hợp doanh thu thực tế\n(CHỈ TÍNH đơn COMPLETED + PAID)" as CalcRevenue
+  usecase "Thống kê đơn theo từng trạng thái" as StatsOrderStatus
+  usecase "Top 5 sản phẩm bán chạy nhất" as TopSellingProducts
+
+  usecase "UC16: Quản lý tài khoản khách hàng" as UC16
+  usecase "Xem danh sách & lịch sử mua hàng" as ViewCustomerList
+  usecase "Khóa / Mở khóa tài khoản khách hàng\n(Chặn khóa tài khoản Admin)" as ToggleCustomerLock
+
+  ' Quan hệ UC11
+  UC11 ..> LowStockAlert : <<include>>
+  UC11 <.. AdjustStock : <<extend>>
+  UC11 <.. ViewInventoryHistory : <<extend>>
+
+  ' Quan hệ UC12
+  UC12 <.. ManageCategory : <<extend>>
+  UC12 <.. ManageBrand : <<extend>>
+  UC12 <.. ManageProductVariant : <<extend>>
+  UC12 <.. ManageBanners : <<extend>>
+
+  ' Quan hệ UC13
+  UC13 <.. CreateVoucher : <<extend>>
+  UC13 <.. ToggleVoucher : <<extend>>
+
+  ' Quan hệ UC14
+  UC14 ..> CalcRevenue : <<include>>
+  UC14 ..> StatsOrderStatus : <<include>>
+  UC14 ..> TopSellingProducts : <<include>>
+
+  ' Quan hệ UC16
+  UC16 ..> ViewCustomerList : <<include>>
+  UC16 <.. ToggleCustomerLock : <<extend>>
+}
+
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC16
+
+note bottom of UC12
+  **Bằng chứng triển khai UC12:**
+  - Danh mục: `GET /admin/categories`, `POST /admin/categories/create`, `toggle`
+  - Thương hiệu: `POST /admin/brands/create` (tại `src/routes/admin.routes.js:35`)
+  - Sản phẩm: `GET/POST /admin/products/*`
+  - Banner: `GET/POST /admin/banners/*` (`get`, `create`, `toggle`, `delete`)
+end note
+
+@enduml

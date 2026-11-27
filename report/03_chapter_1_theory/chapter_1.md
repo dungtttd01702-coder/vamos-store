@@ -21,7 +21,7 @@ Mô hình Client - Server (Máy khách - Máy chủ) là một kiến trúc mạ
 Trong hệ thống VAMOS STORE, mô hình Client - Server được ứng dụng theo cơ chế **Server-Side Rendering (SSR)**:
 
 - Khi khách hàng truy cập xem danh sách giày dép hoặc bấm đặt hàng, trình duyệt gửi request về Node.js Server.
-- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2025 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
+- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2022 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
 - **Ưu điểm áp dụng:** Giúp trang web tải nhanh, tối ưu hóa công cụ tìm kiếm (SEO) vượt trội cho các sản phẩm giày, đồng thời bảo mật tuyệt đối mã nguồn xử lý giá và logic kho phía máy chủ.
 
 ---
@@ -34,7 +34,7 @@ JavaScript là ngôn ngữ lập trình thông dịch bậc cao, hướng đối
 
 - Cú pháp `async/await` và `Promise` giúp xử lý các tác vụ bất đồng bộ một cách trực quan, tránh hiện tượng "Callback Hell".
 - `Arrow functions`, `Destructuring assignment`, `Spread/Rest operator` giúp viết mã ngắn gọn, rõ ràng và dễ bảo trì.
-- `Classes` và cú pháp module `import/export` hỗ trợ lập trình hướng đối tượng chuẩn mực.
+- `Classes` và cú pháp module `import/export` hoặc `CommonJS` hỗ trợ lập trình hướng đối tượng và module hóa chuẩn mực.
 
 ### 2.2. Nền tảng Node.js
 
@@ -53,19 +53,19 @@ Node.js là một môi trường thực thi mã JavaScript đa nền tảng, mã
 Express.js là một web framework mã nguồn mở tối giản (minimalist), linh hoạt và phổ biến hàng đầu dành cho Node.js. Express.js cung cấp một tập hợp các tính năng cốt lõi mạnh mẽ để phát triển các ứng dụng web và API:
 
 - **Hệ thống định tuyến (Routing):** Quản lý điều hướng URL request (GET, POST, PUT, DELETE) đến các controller xử lý tương ứng một cách mạch lạc.
-- **Cơ chế Middleware:** Là các hàm trung gian có quyền truy cập vào đối tượng request (`req`), response (`res`) và hàm `next()` trong chu trình xử lý. Middleware được dùng để xác thực quyền đăng nhập, ghi log, phân tích dữ liệu form (`body-parser`), quản lý cookie và xử lý lỗi tập trung.
-- **Tích hợp Template Engine linh hoạt:** Hỗ trợ kết nối liền mạch với Pug, EJS, Handlebars để kết xuất giao diện HTML phía máy chủ.
+- **Cơ chế Middleware:** Là các hàm trung gian có quyền truy cập vào đối tượng request (`req`), response (`res`) và hàm `next()` trong chu trình xử lý. Middleware được dùng để xác thực quyền đăng nhập, ghi log, phân tích dữ liệu form (`body-parser`), quản lý phiên và xử lý lỗi tập trung.
+- **Tích hợp Template Engine linh hoạt:** Hỗ trợ kết nối liền mạch với Pug để kết xuất giao diện HTML phía máy chủ.
 
 ### 3.2. Vai trò trong dự án VAMOS STORE
 
 Express.js đóng vai trò là "bộ xương sống" kết nối toàn bộ hệ thống VAMOS STORE:
 
 - Phân tách mạch lạc giữa các route công khai cho khách hàng (`/products`, `/cart`, `/checkout`) và các route quản trị bảo mật (`/admin/products`, `/admin/orders`, `/admin/inventory`).
-- Cung cấp các Middleware kiểm tra vai trò: ngăn chặn khách vãng lai chưa đăng nhập truy cập trang thanh toán, ngăn chặn khách hàng thông thường truy cập trái phép vào các trang quản trị của Admin.
+- Cung cấp các Middleware kiểm tra vai trò (`requireAdmin`, `sessionContextMiddleware`): ngăn chặn khách vãng lai chưa đăng nhập truy cập trang thanh toán, ngăn chặn khách hàng thông thường truy cập trái phép vào các trang quản trị của Admin.
 
 ---
 
-## 4. MÔ HÌNH MVC VÀ KIẾN TRÚC PHÂN LỚP (LAYERED ARCHITECTURE)
+## 4. MÔ HÌNH MVC VÀ KIẾN TRÚC THỰC THI (APPLICATION ARCHITECTURE)
 
 ### 4.1. Khái niệm Model - View - Controller (MVC)
 
@@ -80,26 +80,25 @@ Mô hình MVC là một mẫu kiến trúc phần mềm kinh điển trong công
   <p><em>Hình 2: Mô hình kiến trúc MVC phân lớp</em></p>
 </div>
 
-
 <div align="center">
   <img src="images/hinh_03_mvc_flow.png" alt="Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><em>Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp</em></p>
 </div>
 
-### 4.2. Kiến trúc phân lớp mở rộng trong VAMOS STORE
+### 4.2. Hiện thực Kiến trúc thực tế trong VAMOS STORE
 
-Để tránh hiện tượng "Fat Controller" (Controller chứa quá nhiều logic nghiệp vụ phức tạp khiến mã nguồn khó kiểm thử và khó bảo trì), dự án VAMOS STORE áp dụng **Kiến trúc phân lớp chuẩn doanh nghiệp (Layered Architecture)**:
+Để vừa đảm bảo tính module hóa cao vừa tối ưu hóa hiệu năng, hệ thống VAMOS STORE áp dụng mô hình kiến trúc thực thi kết hợp linh hoạt, phù hợp với từng phân hệ nghiệp vụ:
 
-- **Lớp Trình diễn (Presentation Layer - Views):** Sử dụng các file template Pug và Tailwind CSS để xây dựng giao diện người dùng.
-- **Lớp Điều khiển (Controller Layer):** Tiếp nhận HTTP Request, kiểm tra tính hợp lệ sơ bộ của tham số đầu vào (Input Validation), sau đó chuyển tiếp cho tầng Service.
-- **Lớp Dịch vụ nghiệp vụ (Service Layer):** Nơi chứa 100% logic nghiệp vụ cốt lõi: tính toán giảm giá voucher, quản lý Database Transaction, điều phối khóa dòng kiểm tra tồn kho khi đặt hàng COD, kích hoạt hoàn kho khi hủy đơn.
-- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MSSQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
+- **Mô hình Ba tầng (Three-Tier Service / Repository Pattern):** Được áp dụng cho các phân hệ nghiệp vụ phức tạp đòi hỏi xử lý giao dịch nguyên tử (ACID Transaction) và quản lý dữ liệu lớn:
+  - *Phân hệ Đặt hàng & Hủy đơn:* `OrderService` (`src/services/order.service.js`) quản lý Transaction nguyên tử, khóa bi quan trừ kho, kiểm tra Rule Q8 voucher, tính toán snapshot và kích hoạt hoàn kho.
+  - *Phân hệ Danh mục & Sản phẩm:* `ProductService` và `ProductRepository` phụ trách truy vấn dữ liệu sản phẩm, phân trang, lọc đa tiêu chí.
+  - *Phân hệ Danh sách yêu thích:* `WishlistService` và `WishlistRepository` quản lý lưu trữ bền vững phía máy chủ.
+- **Mô hình Hai tầng trực tiếp (Two-Tier Direct Controller - Database Pattern):** Được áp dụng cho phân hệ Quản trị (`AdminController`) và Giỏ hàng (`CartController`). Bộ điều khiển trực tiếp thực thi các câu lệnh T-SQL tham số hóa thông qua Database Helper (`src/config/database.js`). Mô hình này giúp loại bỏ các lớp bọc (wrapper) trung gian không cần thiết, tăng tốc độ truy vấn và đơn giản hóa việc bảo trì mã nguồn cho các thao tác CRUD quản trị viên.
 
 <div align="center">
   <img src="images/hinh_04_mvc_layers.png" alt="Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><em>Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE</em></p>
 </div>
-
 
 ---
 
@@ -139,16 +138,17 @@ Khác với các CSS framework truyền thống cung cấp sẵn các component 
 
 ---
 
-## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
+## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2022
 
-### 7.1. Tổng quan về Microsoft SQL Server 2025
+### 7.1. Tổng quan về Microsoft SQL Server 2022
 
-Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft. Phiên bản Microsoft SQL Server 2025 mang lại nhiều cải tiến và độ tin cậy vượt bậc:
+Microsoft SQL Server 2022 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft, được triển khai chính thức trong dự án qua Docker image `mcr.microsoft.com/mssql/server:2022-latest`:
 
 - **Chuẩn hóa giao dịch ACID toàn diện:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity, Consistency, Isolation, Durability) qua các giao dịch T-SQL an toàn.
 - **Khóa bi quan cấp dòng với gợi ý bảng (Table Hints):** Hỗ trợ cú pháp `SELECT ... WITH (UPDLOCK, ROWLOCK)`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition (bán vượt tồn kho).
-- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server 2025 kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
+- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
 - **Bảng mã Unicode `NVARCHAR`:** Hỗ trợ lưu trữ hoàn hảo văn bản tiếng Việt có dấu và bộ ký tự quốc tế.
+- **Chỉ mục có điều kiện (Filtered Unique Indexes):** Cho phép tạo ràng buộc duy nhất trên tập con dữ liệu, ví dụ bảo đảm mỗi người dùng chỉ có tối đa một địa chỉ giao hàng mặc định (`WHERE is_default = 1`).
 
 ---
 
@@ -158,11 +158,11 @@ Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ d
 
 Hệ thống VAMOS STORE sử dụng thư viện `express-session` để duy trì trạng thái đăng nhập của người dùng:
 
-- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MSSQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
-- Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite=Strict` (chống tấn công giả mạo yêu cầu CSRF).
-- Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
+- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (MemoryStore) và cấp một mã định danh phiên ngẫu nhiên (Session ID mang tên cookie `vamos_sid`).
+- Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly: true` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite: 'lax'` (cân bằng giữa trải nghiệm điều hướng và bảo vệ chống tấn công giả mạo yêu cầu CSRF).
+- Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server (`sessionContextMiddleware`) sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
 
-### 8.2. Kỹ thuật băm mật khẩu một chiều với Bcrypt
+### 8.2. Kỹ thuật băm mật khẩu một chiều với Bcryptjs
 
 - **Nguyên tắc an toàn:** Tuyệt đối không lưu mật khẩu của người dùng dưới dạng văn bản thuần (plaintext) trong cơ sở dữ liệu.
 - **Thuật toán Bcrypt:** Là hàm băm mật khẩu thích ứng (adaptive hash function), tích hợp cơ chế tự động sinh chuỗi muối ngẫu nhiên (Salt) và cấu hình chi phí tính toán (Work factor / Salt rounds >= 10). Thuật toán này có khả năng làm chậm tốc độ tính toán của máy tính kẻ tấn công, vô hiệu hóa hoàn toàn các kỹ thuật tấn công tra cứu bảng cầu vồng (Rainbow Table) hoặc tấn công vét cạn (Brute-force).
@@ -181,6 +181,6 @@ Docker là nền tảng ảo hóa mức hệ điều hành (Containerization) ch
 
 Docker Compose là công cụ giúp định nghĩa và vận hành ứng dụng đa container (Multi-container applications) thông qua file cấu hình `docker-compose.yml`:
 
-- **Web Service:** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
-- **Database Service:** Container chạy hệ quản trị CSDL Microsoft SQL Server 2025, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
+- **Web Service (`vamos_store_app`):** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
+- **Database Service (`vamos_store_mssql`):** Container chạy hệ quản trị CSDL Microsoft SQL Server 2022 (`mcr.microsoft.com/mssql/server:2022-latest`), cấu hình ổ cứng gắn ngoài (Docker Volume `mssql_data`) để lưu trữ dữ liệu bền vững ngay cả khi container bị khởi động lại.
 - **Lợi ích ứng dụng:** Đảm bảo tính nhất quán tuyệt đối của môi trường chạy ứng dụng giữa các máy tính của các thành viên trong nhóm phát triển và máy chủ triển khai ("Build once, run anywhere").

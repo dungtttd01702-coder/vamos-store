@@ -71,13 +71,17 @@ block content
           .flex.justify-between
             span.text-gray-500 Tiền hàng:
             span.font-bold= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
-          if order.discount_amount > 0
+          if Number(order.discount_amount || 0) > 0
             .flex.justify-between.text-vamos-red
-              span Giảm giá voucher:
+              span Giảm giá sản phẩm (Voucher):
               span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
           .flex.justify-between
             span.text-gray-500 Phí vận chuyển:
             span.font-bold= order.shipping_fee === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
+          if Number(order.shipping_discount_amount || 0) > 0
+            .flex.justify-between.text-emerald-700
+              span Giảm phí vận chuyển (Voucher):
+              span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_discount_amount)}`
           .border-t.border-gray-100.pt-2.flex.justify-between.items-baseline.text-sm
             span.font-bold.text-vamos-dark Tổng thanh toán COD:
             span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")

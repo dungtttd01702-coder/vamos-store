@@ -1,0 +1,61 @@
+@startuml
+title Sơ đồ hoạt động — Tìm kiếm & Lọc sản phẩm (AD03/AD05)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Người dùng|
+start
+:Truy cập trang danh mục sản phẩm;
+:Nhập từ khóa hoặc chọn bộ lọc (size, giá, giới tính, thương hiệu);
+:Nhấn nút "Tìm kiếm" hoặc áp dụng bộ lọc;
+
+|Hệ thống|
+:Tiếp nhận tiêu chí tìm kiếm và lọc;
+:Truy vấn danh mục sản phẩm theo điều kiện;
+
+if (Có sản phẩm thỏa mãn điều kiện?) then (Có)
+  |Hệ thống|
+  :Phân trang và hiển thị danh sách sản phẩm;
+  |Người dùng|
+  :Xem danh sách và chọn sản phẩm ưng ý;
+  |Hệ thống|
+  :Hiển thị trang chi tiết sản phẩm (ảnh, bảng size, tồn kho);
+  |Người dùng|
+  :Xem thông tin chi tiết sản phẩm;
+  stop
+else (Không)
+  |Hệ thống|
+  :Hiển thị thông báo không tìm thấy sản phẩm phù hợp;
+  :Gợi ý các mẫu giày sneaker nổi bật;
+  |Người dùng|
+  :Điều chỉnh lại từ khóa hoặc xóa bớt bộ lọc;
+  stop
+endif
+@enduml

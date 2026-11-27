@@ -1,0 +1,105 @@
+@startuml LAYERED_ARCHITECTURE
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title KIẾN TRÚC PHÂN TẦNG (LAYERED ARCHITECTURE)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "1. TẦNG TRÌNH DIỄN (PRESENTATION LAYER)" #F1F5F9 {
+  [Pug 3.0.3 Template Engine\n(layouts/main.pug, layouts/admin.pug, partials/, pages/)] as PugView
+  [Client-Side Web Assets\nTailwind CSS 3.4.17 + Vanilla JS (main.js)] as ClientAssets
+  [Giao thức Tương tác Client\n- SSR Form Submit (POST with _csrf)\n- REST API AJAX (Fetch API for Live Search, Wishlist)] as ClientComm
+  
+  PugView -right-> ClientAssets
+  ClientAssets -down-> ClientComm
+}
+
+package "2. TẦNG ĐIỀU TUYẾN & TRUNG GIAN (ROUTING & MIDDLEWARE LAYER)" #EFF6FF {
+  [Hệ thống Router Phân hệ\nhome, product, auth, cart, checkout, account, admin, info, wishlist] as Routers
+  
+  package "Chuỗi Middleware Xử lý (Sequential Middleware Pipeline)" #DBEAFE {
+    [1. Security Headers Middleware (nosniff, SAMEORIGIN, XSS-Protection)] as MidSec
+    [2. CORS & Body Parsers (express.json, express.urlencoded)] as MidBody
+    [3. Session Middleware (express-session, cookie: vamos_sid, 7 ngày)] as MidSession
+    [4. Context & State Middleware (sessionContextMiddleware: user, cartCount)] as MidContext
+    [5. Đa ngôn ngữ (i18nMiddleware: t(), vamos_locale cookie)] as MidI18n
+    [6. Bảo vệ CSRF (csrfMiddleware: token check on POST/PUT/DELETE)] as MidCsrf
+    [7. Bảo vệ Phân quyền (requireAuth, requireCustomer, requireAdmin)] as MidAuth
+    [8. Xử lý Lỗi tập trung (notFoundHandler, errorHandler)] as MidError
+  }
+  
+  ClientComm -down-> MidSec
+  MidSec -> MidBody
+  MidBody -> MidSession
+  MidSession -> MidContext
+  MidContext -> MidI18n
+  MidI18n -> MidCsrf
+  MidCsrf -> MidAuth
+  MidAuth -down-> Routers
+}
+
+package "3. TẦNG ĐIỀU KHIỂN NGHIỆP VỤ (CONTROLLER LAYER)" #F0FDF4 {
+  [auth.controller.js\nĐăng ký, Đăng nhập, Hợp nhất giỏ] as AuthCtrl
+  [product.controller.js\nCatalog, Lọc giá, Chi tiết, Live Search] as ProdCtrl
+  [cart.controller.js\nThêm/Sửa/Xóa giỏ hàng, Live DB Sync] as CartCtrl
+  [wishlist.controller.js\nToggle yêu thích, danh sách, xóa] as WishCtrl
+  [checkout.controller.js\nKiểm tra checkout, đặt hàng COD] as CheckCtrl
+  [account.controller.js\nHồ sơ, Sổ địa chỉ, Xem/Hủy đơn] as AccCtrl
+  [admin.controller.js\nCatalog, Kho, Đơn hàng, Voucher, Dashboard] as AdminCtrl
+  [home.controller.js\nTrang chủ, Chuyển ngôn ngữ] as HomeCtrl
+  
+  Routers -down-> AuthCtrl
+  Routers -down-> ProdCtrl
+  Routers -down-> CartCtrl
+  Routers -down-> WishCtrl
+  Routers -down-> CheckCtrl
+  Routers -down-> AccCtrl
+  Routers -down-> AdminCtrl
+  Routers -down-> HomeCtrl
+}
+
+package "4. TẦNG DỊCH VỤ NGHIỆP VỤ (SERVICE LAYER)" #FEF3C7 {
+  [order.service.js\n- createCodOrder (ACID Transaction, Trừ kho, Snapshot)\n- cancelOrder (Hoàn kho, Giải phóng voucher)\n- updateOrderStatusByAdmin (State Machine, COD Auto-Paid)] as OrderService
+  [product.service.js\n- getCatalog (Điều phối lọc danh mục, giá, giới tính)\n- getProductBySlug, getFlashSaleProducts, searchLive] as ProdService
+  [wishlist.service.js\n- toggleItem (1-click toggle, đồng bộ DB)\n- getWishlist (Định hình dữ liệu hiển thị)] as WishService
+  
+  CheckCtrl -down-> OrderService
+  AccCtrl -down-> OrderService
+  AdminCtrl -down-> OrderService
+  ProdCtrl -down-> ProdService
+  HomeCtrl -down-> ProdService
+  WishCtrl -down-> WishService
+}
+
+package "5. TẦNG TRUY XUẤT DỮ LIỆU & REPOSITORY (DATA ACCESS LAYER)" #EEF2FF {
+  [product.repository.js\nTruy vấn SQL Catalog, Lọc, Chi tiết, Banners] as ProdRepo
+  [wishlist.repository.js\nTruy vấn SQL bảng wishlist_items] as WishRepo
+  [Database Module (src/config/database.js)\n- Connection Pool: mssql (0 - 10 connections)\n- query(sqlStr, params): Parameterized Queries\n- withTransaction(cb) & sql.Transaction: ACID Transactions] as DbModule
+  
+  ProdService -down-> ProdRepo
+  WishService -down-> WishRepo
+  ProdRepo -down-> DbModule
+  WishRepo -down-> DbModule
+  OrderService -down-> DbModule : Thực thi Transaction & UPDLOCK
+  CartCtrl -down-> DbModule : Truy vấn trực tiếp
+  AuthCtrl -down-> DbModule : Truy vấn trực tiếp
+  AdminCtrl -down-> DbModule : Truy vấn trực tiếp
+  AccCtrl -down-> DbModule : Truy vấn trực tiếp
+}
+
+package "6. TẦNG CƠ SỞ DỮ LIỆU (DATABASE LAYER)" #FFF1F2 {
+  database "Microsoft SQL Server 2019/2022 (vamos_store_db)" as SqlDb {
+    [21 Bảng Dữ liệu Quan hệ] as Tables
+    [Ràng buộc Toàn vẹn: PK, FK, CHECK, DEFAULT] as Constraints
+    [Chỉ mục Lọc: uq_user_default_address, uq_product_primary_image] as FilteredIdx
+    [Bộ khóa Dòng CSDL: UPDLOCK, HOLDLOCK, ROWLOCK] as Locks
+  }
+  
+  DbModule <--> SqlDb : Kết nối TCP 1433 / TDS Protocol
+}
+
+Routers -left-> MidError : Bắt ngoại lệ
+MidError -up-> PugView : Render trang 404 / 500
+@enduml

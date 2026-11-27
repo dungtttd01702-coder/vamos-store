@@ -1,0 +1,244 @@
+@startuml CD06_ADMIN_MANAGEMENT
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 12
+    FontStyle bold
+    AttributeFontSize 11
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 11
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 11
+}
+
+title
+    <size:16><b>VAMOS STORE — CD06: ADMIN MANAGEMENT ARCHITECTURE OVERVIEW</b></size>
+    <size:12>Sơ đồ tổng quan kiến trúc phân hệ Quản trị Admin: Bootstrap, Routing, Bảo mật RBAC/CSRF, Điều phối Controller & Truy cập Dữ liệu</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+package "Bootstrap & Application Configuration" as pkg_bootstrap #F1F5F9 {
+    class "csrfMiddleware" as csrfMiddleware <<middleware function>> {
+        -- Function: src/middlewares/csrf.middleware.js:8-44 --
+        + csrfMiddleware(req: Request, res: Response, next: NextFunction): void
+        .. App-Level Security (src/app.js:61) ..
+        {safe methods exempted: GET, HEAD, OPTIONS}
+        {verifies token on state-mutating: POST, PUT, PATCH, DELETE}
+        {sources: req.body._csrf, req.headers['x-csrf-token'], req.headers['csrf-token']}
+    }
+
+    class "app" as app <<application>> {
+        -- Express Application Instance: src/app.js:14-72 --
+        - app: Application
+        .. Global Middleware Pipeline ..
+        + app.disable('x-powered-by') [line 17]
+        + app.use(sessionContextMiddleware) [line 55]
+        + app.use(csrfMiddleware) [line 61]
+        + app.use('/', routes) [line 64]
+    }
+
+    class "server.js" as server <<bootstrap>> {
+        -- Process Entry Point: server.js:1-32 --
+        - PORT: number = config.app.port [line 5]
+        - server: http.Server [line 8]
+        .. Script Responsibilities ..
+        {imports Express app from src/app.js [line 1]}
+        {calls app.listen(PORT, callback) to start HTTP server [line 8]}
+        {imports & calls testDbConnection() from database.js [lines 3, 16]}
+        {registers process.on('SIGTERM', callback) handler [line 26]}
+        {calls server.close() on graceful shutdown [line 28]}
+    }
+}
+
+server .left.> app : "bootstraps & listens on PORT\n[server.js:1, 8]"
+app .left.> csrfMiddleware : "app.use(csrfMiddleware)\n[src/app.js:61]"
+
+package "Presentation & Routing Layer (/admin)" as pkg_routing #EFF6FF {
+    class "rootRoutes" as rootRoutes <<router>> {
+        -- Express Router Instance: src/routes/index.js --
+        + router.use('/', homeRoutes) [line 16]
+        + router.use('/admin', adminRoutes) [line 22]
+        + router.get('/health', healthHandler) [lines 30-37]
+    }
+
+    class "adminRoutes" as adminRoutes <<router>> {
+        -- Express Router Instance: src/routes/admin.routes.js (prefix /admin) --
+        + router.use(requireAdmin) [line 7]
+        .. 28 Mounted Admin Endpoints (lines 10-52) ..
+        + GET /dashboard [adminController.getDashboard]
+        + GET/POST /orders/* [3 routes: list, detail, update status]
+        + GET/POST /products/* [6 routes: list, create, edit, toggle]
+        + GET/POST /inventory/* [3 routes: list, adjust, history]
+        + GET/POST /categories/*, /brands/* [4 routes: list, create, toggle]
+        + GET/POST /vouchers/* [4 routes: list, create, toggle]
+        + GET/POST /customers/* [3 routes: list, detail, toggle-status]
+        + GET/POST /banners/* [4 routes: list, create, toggle, delete]
+    }
+
+    class "AdminController" as AdminController <<controller>> {
+        -- File: src/controllers/admin.controller.js:4-1049 --
+        .. 8 Functional Groups — 28 Methods (Representative Methods) ..
+        + Dashboard & Analytics (UC-14): getDashboard() [lines 8-92]
+        + Order Operations (UC-10) [Delegated to OrderService]:
+          getOrders(), getOrderDetail(), postUpdateOrderStatus() [lines 97-199]
+        + Product Catalog (UC-12) [Direct DB]:
+          getProducts(), postCreateProduct(), postEditProduct(), postToggleProductStatus() [lines 204-517]
+        + Inventory & Audit Trail (UC-11) [Direct DB]:
+          getInventory(), postAdjustInventory(), getInventoryHistory() [lines 521-660]
+        + Categories & Brands (UC-12) [Direct DB]:
+          getCategories(), postCreateCategory(), postToggleCategory(), postCreateBrand() [lines 665-771]
+        + Voucher Management (UC-13) [Direct DB]:
+          getVouchers(), postCreateVoucher(), postToggleVoucher() [lines 776-888]
+        + Customer Accounts [Direct DB]:
+          getCustomers(), getCustomerDetail(), postToggleCustomerStatus() [lines 893-980]
+        + Hero Banners [Direct DB]:
+          getBanners(), postCreateBanner(), postToggleBanner(), postDeleteBanner() [lines 985-1048]
+    }
+
+    class "requireAdmin" as requireAdmin <<middleware function>> {
+        -- Function: src/middlewares/auth.middleware.js:132-158 --
+        + requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void>
+        .. RBAC Route Guard (src/routes/admin.routes.js:7) ..
+        {unauthenticated -> redirect /auth/login (302)}
+        {wrong role -> HTTP 403 Forbidden}
+        {inactive/revoked in DB -> destroy session, clear cookie, redirect /auth/login (302)}
+        {DB transient error -> fail-open: calls next() [lines 153-157]}
+    }
+}
+
+app .down.> rootRoutes : "app.use('/', routes)\n[src/app.js:64]"
+rootRoutes .down.> adminRoutes : "mounts at '/admin'\n[src/routes/index.js:22]"
+adminRoutes .right.> requireAdmin : "router.use(requireAdmin)\n[src/routes/admin.routes.js:7]"
+adminRoutes .down.> AdminController : "dispatches 28 admin endpoints\n[src/routes/admin.routes.js:11-52]"
+
+package "Application Service Layer" as pkg_service #FAF5FF {
+    class "OrderService" as OrderService <<service, partial view>> {
+        -- File: src/services/order.service.js:1-649 --
+        .. Admin Order Processing & State Transitions (UC-10) ..
+        + updateOrderStatusByAdmin(params: Object): Promise<Object> [lines 465-572]
+        .. Shared Operations (Customer & Admin) ..
+        + getOrderDetails(orderIdentifier: number|string, userId: number = null): Promise<Object|null> [lines 598-644]
+        .. Internal Cancellation Engine (ACID Restitution) ..
+        - _executeCancellation(transaction: sql.Transaction, params: Object): Promise<void> [lines 323-411]
+    }
+}
+
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+    class "database" as database <<database helper>> {
+        -- CommonJS Module: src/config/database.js:1-117 --
+        + sql: Object (mssql driver instance) [lines 1, 111]
+        + getPool(): Promise<sql.ConnectionPool> [lines 11-32, 112]
+        + closePool(): Promise<void> [lines 36-49, 113]
+        + testDbConnection(): Promise<boolean> [lines 55-66, 114]
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>> [lines 75-86, 115]
+    }
+}
+
+AdminController ..> OrderService : "delegates order state transitions & details\n[src/controllers/admin.controller.js:157, 188]"
+AdminController ..> database : "executes direct T-SQL & sql.Transaction\nfor Catalog, Inventory, Vouchers, Customers\n[src/controllers/admin.controller.js:10, 287, 564]"
+OrderService ..> database : "executes parameterized T-SQL &\nsql.Transaction (ACID with row locks)\n[src/services/order.service.js:476, 546]"
+requireAdmin .down.> database : "verifies active admin status in DB\n[src/middlewares/auth.middleware.js:145]"
+server .down.> database : "imports & calls testDbConnection()\n[server.js:3, 16]"
+
+pkg_service -right[hidden]-> pkg_data
+app -down[hidden]-> rootRoutes
+pkg_bootstrap -down[hidden]-> pkg_routing
+
+' ==============================================================================
+' ARCHITECTURAL NOTES (5 TARGETED NOTES)
+' ==============================================================================
+note top of server
+  <b>Note 1 – Server Bootstrap vs Application Instance:</b>
+  * <b>Trách nhiệm của server.js (Bootstrap Script):</b>
+    1. Import Express application (<i>src/app.js</i>) [dòng 1].
+    2. Gọi <i>app.listen(PORT, callback)</i> khởi chạy HTTP server tại cổng cấu hình [dòng 8].
+    3. Import và gọi <i>testDbConnection()</i> từ Database Helper xác thực kết nối CSDL lúc khởi động [dòng 3, 16].
+       (Hàm <i>closePool</i> nằm trong <i>database.js</i> nhưng không được import bởi <i>server.js</i>).
+    4. Đăng ký xử lý tín hiệu hệ thống <i>process.on('SIGTERM')</i> [dòng 26].
+    5. Gọi <i>server.close()</i> để thực hiện graceful shutdown an toàn [dòng 28].
+  * <b>Vai trò của src/app.js:</b> Tạo instance Express, cấu hình middleware bảo mật (CSRF, session),
+    view engine Pug và mount các modular routes.
+end note
+
+note top of csrfMiddleware
+  <b>Note 2 – CSRF Security Pipeline:</b>
+  * Đăng ký cấp ứng dụng: <i>app.use(csrfMiddleware)</i> tại <i>src/app.js:61</i>.
+  * Miễn trừ các phương thức an toàn: <b>GET, HEAD, OPTIONS</b>.
+  * Bắt buộc xác thực trên: <b>POST, PUT, PATCH, DELETE</b> từ 3 nguồn:
+    <i>req.body._csrf</i>, <i>req.headers['x-csrf-token']</i>, <i>req.headers['csrf-token']</i>.
+  * Thiếu hoặc sai token: Chặn ngay với mã lỗi <b>HTTP 403 Forbidden</b>.
+end note
+
+note right of requireAdmin
+  <b>Note 3 – Admin RBAC, Real-time Verification & Fail-Open Behavior:</b>
+  * <b>Gắn tại router:</b> <i>router.use(requireAdmin)</i> bảo vệ toàn bộ 28 routes tại <i>/admin/*</i>.
+  * <b>Chưa đăng nhập:</b> Redirect về <i>/auth/login?returnUrl=...</i> (HTTP 302).
+  * <b>Sai quyền:</b> Chặn với <b>HTTP 403 Forbidden</b> nếu <i>role !== 'ADMIN'</i>.
+  * <b>Xác thực CSDL thời gian thực:</b> Truy vấn <i>SELECT status, role FROM users WHERE id = @id</i>.
+    Nếu tài khoản bị khóa hoặc giáng quyền: Ngay lập tức hủy session, xóa cookie và chuyển hướng về đăng nhập (HTTP 302).
+  * <b>Hành vi Fail-Open (catch err):</b> Đây là hành vi fail-open hiện tại: khi truy vấn
+    xác minh CSDL gặp lỗi, middleware bỏ qua lỗi và tiếp tục gọi <i>next()</i>.
+    Đây là một điểm cần lưu ý khi đánh giá bảo mật.
+end note
+
+note right of AdminController
+  <b>Note 4 – Two-Tier Direct DB Architecture & Order Delegation:</b>
+  * <b>Two-Tier Direct DB:</b> AdminController gọi trực tiếp <i>database</i> helper (<i>query, getPool, sql.Transaction</i>)
+    cho 7 phân hệ: Dashboard, Sản phẩm, Tồn kho, Danh mục/Thương hiệu, Voucher, Khách hàng, Banners.
+    <i>Hoàn toàn KHÔNG CÓ CatalogService, InventoryRepository hay VoucherService.</i>
+  * <b>Order Delegation:</b> Thao tác Đơn hàng (chi tiết & chuyển trạng thái) được ủy thác cho <i>OrderService</i>.
+  * <b>Phân rã chi tiết bộ sơ đồ CD06:</b>
+    - <b>CD06 Overview (Hiện tại):</b> Kiến trúc tổng thể, luồng điều hướng & phân tầng.
+    - <b>CD06A:</b> Chi tiết xử lý Đơn hàng, State Matrix & Dashboard Analytics.
+    - <b>CD06B:</b> Chi tiết Quản lý Danh mục, Sản phẩm & Điều chỉnh Tồn kho có khóa dòng.
+    - <b>CD06C:</b> Chi tiết Quản lý Voucher, Tài khoản Khách hàng & Hero Banners.
+end note
+
+note bottom of OrderService
+  <b>Note 5 – Service Layer & ACID Invariant:</b>
+  * Hệ thống hoàn toàn <b>KHÔNG CÓ OrderRepository</b> hay <i>AdminOrderService</i> riêng biệt.
+  * <i>OrderService</i> là partial view quản lý các giao dịch ACID đơn hàng:
+    khởi tạo <i>sql.Transaction</i>, khóa dòng bằng <b>WITH (UPDLOCK, ROWLOCK)</b>,
+    kiểm soát ma trận chuyển trạng thái và tự động hoàn trả tồn kho khi đơn bị hủy (<i>CANCELLED</i>).
+end note
+
+legend bottom
+    <b>CHÚ DẪN PHÂN LOẠI & QUY ƯỚC KIẾN TRÚC UML 2.5</b>
+    ----
+    <b>Phân loại Classifiers theo Hiện thực Source Code:</b>
+      * <b><<bootstrap>></b>: CommonJS entry point script khởi chạy HTTP server (server.js)
+      * <b><<application>></b>: Express Application Instance cấu hình middleware & routes (src/app.js)
+      * <b><<router>></b>: Express Router Instance định tuyến URL phân cấp (/ và /admin)
+      * <b><<middleware function>></b>: Middleware Function xử lý bảo mật CSRF (csrfMiddleware) & phân quyền RBAC (requireAdmin)
+      * <b><<controller>></b>: JavaScript ES6 Class điều phối 8 phân hệ nghiệp vụ quản trị (AdminController)
+      * <b><<service, partial view>></b>: JavaScript ES6 Class xử lý giao dịch ACID đơn hàng (OrderService)
+      * <b><<database helper>></b>: CommonJS Module quản lý Connection Pool, Transaction & Query API (src/config/database.js)
+    ----
+    <b>Đặc thù Kiến trúc Phân hệ Admin:</b>
+      * <b>Hai cơ chế xử lý nghiệp vụ:</b>
+        1. <i>Order Operations:</i> Ủy thác cho OrderService thực hiện giao dịch ACID với khóa UPDLOCK/ROWLOCK.
+        2. <i>Catalog, Inventory, Voucher, Customer, Banner:</i> AdminController thao tác trực tiếp Database Helper (Two-Tier Direct DB).
+      * <b>Tham chiếu Domain Model:</b> Toàn bộ bảng CSDL vật lý được định nghĩa chi tiết tại <b>CD01 Domain Model</b>.
+        Chi tiết nghiệp vụ từng miền được phân rã tại các sơ đồ: <b>CD06A</b> (Orders/Dashboard), <b>CD06B</b> (Catalog/Kho), <b>CD06C</b> (Vouchers/Khách hàng/Banner).
+end legend
+
+@enduml

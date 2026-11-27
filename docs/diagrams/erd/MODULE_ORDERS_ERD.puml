@@ -1,0 +1,99 @@
+@startuml MODULE_ORDERS_ERD
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam linetype ortho
+skinparam ArrowColor #1E293B
+skinparam ClassBorderColor #334155
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #FFF1F2
+
+title SƠ ĐỒ ERD PHÂN HỆ ĐƠN HÀNG, KHUYẾN MÃI & VẬN HÀNH (ORDERS & VOUCHERS CLUSTER ERD)\nHỆ THỐNG VAMOS STORE
+
+entity "orders" as orders {
+  * **id** : INT [PK, IDENTITY]
+  --
+  order_code : NVARCHAR(50) [UQ]
+  * user_id : INT [FK -> users.id]
+  recipient_name_snapshot : NVARCHAR(100)
+  recipient_phone_snapshot : NVARCHAR(20)
+  delivery_address_snapshot : NVARCHAR(255)
+  subtotal : DECIMAL(12,0) [CK >= 0]
+  discount_amount : DECIMAL(12,0) [CK >= 0]
+  shipping_fee : DECIMAL(12,0) [CK >= 0]
+  total_amount : DECIMAL(12,0) [CK >= 0]
+  voucher_id : INT [FK -> vouchers.id, NULL]
+  voucher_code_snapshot : NVARCHAR(50)
+  payment_method : NVARCHAR(20) [CK: COD]
+  payment_status : NVARCHAR(20) [CK: UNPAID/PAID]
+  order_status : NVARCHAR(20) [CK]
+  customer_note : NVARCHAR(500)
+  admin_note : NVARCHAR(500)
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+entity "order_items" as order_items {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * order_id : INT [FK -> orders.id]
+  * product_variant_id : INT [FK -> product_variants.id]
+  product_name_snapshot : NVARCHAR(200)
+  sku_snapshot : NVARCHAR(100)
+  size_snapshot : NVARCHAR(20)
+  color_snapshot : NVARCHAR(50)
+  unit_price : DECIMAL(12,0) [CK >= 0]
+  quantity : INT [CK > 0]
+  line_total : DECIMAL(12,0) [CK >= 0]
+  --
+  [UQ: order_id, product_variant_id]
+}
+
+entity "order_status_histories" as order_status_histories {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * order_id : INT [FK -> orders.id]
+  * changed_by : INT [FK -> users.id]
+  previous_status : NVARCHAR(50)
+  new_status : NVARCHAR(50)
+  note : NVARCHAR(255)
+  created_at : DATETIME2
+}
+
+entity "vouchers" as vouchers {
+  * **id** : INT [PK, IDENTITY]
+  --
+  code : NVARCHAR(50) [UQ]
+  name : NVARCHAR(100)
+  discount_type : NVARCHAR(20) [CK]
+  discount_value : DECIMAL(12,0) [CK > 0]
+  min_order_value : DECIMAL(12,0) [CK >= 0]
+  max_discount_amount : DECIMAL(12,0)
+  start_date : DATETIME2
+  end_date : DATETIME2 [CK >= start_date]
+  usage_limit : INT [CK >= 0]
+  used_count : INT [CK >= 0]
+  is_active : BIT
+  created_at : DATETIME2
+}
+
+entity "voucher_usages" as voucher_usages {
+  * **id** : INT [PK, IDENTITY]
+  --
+  * voucher_id : INT [FK -> vouchers.id]
+  * user_id : INT [FK -> users.id]
+  * order_id : INT [FK -> orders.id]
+  used_at : DATETIME2
+  --
+  [UQ: voucher_id, user_id]
+}
+
+orders ||--|{ order_items : "ON DELETE CASCADE\nfk_order_items_order"
+orders ||--o{ order_status_histories : "ON DELETE CASCADE\nfk_order_histories_order"
+orders ||--o{ voucher_usages : "ON DELETE CASCADE\nFK_voucher_usages_order"
+vouchers ||--o{ orders : "ON DELETE SET NULL\nfk_orders_voucher"
+vouchers ||--o{ voucher_usages : "ON DELETE NO ACTION\nFK_voucher_usages_voucher"
+
+@enduml
+

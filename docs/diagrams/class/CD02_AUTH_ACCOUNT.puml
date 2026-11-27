@@ -1,0 +1,392 @@
+@startuml CD02_AUTH_ACCOUNT
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD02: AUTHENTICATION & ACCOUNT CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp phân hệ Xác thực, Phiên làm việc, Hồ sơ khách hàng & Sổ địa chỉ</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+legend right
+    <b>CHÚ DẪN KÝ HIỆU & QUY ƯỚC UML 2.5</b>
+    ----
+    <b>Phân loại Classifiers & Modules:</b>
+      * <b>Primary JavaScript Classes</b>: AuthController, AccountController (2 classes chính)
+      * <b>Collaborator Class</b>: CartController (Partial view - 1 collaborator class ngoài phạm vi chính)
+      * <b><<router>></b>: Express Router (rootRoutes, authRoutes, accountRoutes)
+      * <b><<middleware>></b>: CommonJS Module kiểm soát luồng, phiên & bảo mật
+      * <b><<helper>> / <<database helper>></b>: CommonJS Module tiện ích & kết nối CSDL
+      * <b><<entity>></b>: Lớp thực thể dữ liệu ánh xạ bảng vật lý SQL Server
+      * <b><<external middleware-managed state>></b>: Dữ liệu phiên lưu tại MemoryStore (Server RAM)
+      * <b><<http cookie>></b>: Cookie HTTP lưu Session ID tại Browser
+    ----
+    <b>Quan hệ & Ký hiệu:</b>
+      * <b>A ..> B : <<use>></b>: Phụ thuộc hàm / gọi API (Dependency)
+      * <b>Whole *-- Part</b>: Composition (Quan hệ sở hữu sinh mệnh)
+      * <b>A -- B</b>: Association (Liên kết thực thể dữ liệu)
+      * <b>{static}</b>: Phương thức tĩnh (Static Method)
+    ----
+    <b>Quy ước:</b>
+      * Router Mounting: app đăng ký rootRoutes tại '/', rootRoutes mount authRoutes tại '/auth' và accountRoutes tại '/account'
+      * Các Controller dùng Implicit Default Constructor, xuất dưới dạng Singleton instance
+      * getSafeReturnUrl là hàm độc lập gắn vào instance (<<attached function>>), không nằm trong class body
+end legend
+
+' ==============================================================================
+' TOP ROW: MIDDLEWARE & SECURITY (LEFT) | PRESENTATION LAYER (RIGHT)
+' ==============================================================================
+package "Middleware & Security Layer" as pkg_middleware #FAF5FF {
+
+    class "app" as app <<entry point>> {
+        .. Relevant Middleware Subset (Auth & Account Scope) ..
+        1. Security Headers (nosniff, SAMEORIGIN, X-XSS-Protection)
+        2. Body Parsers (express.json, express.urlencoded)
+        3. express-session (MemoryStore) -> sets Cookie "vamos_sid"
+        4. sessionContextMiddleware (binds session user to res.locals)
+        5. csrfMiddleware (validates token on mutating methods)
+        6. Mount Root Router: app.use('/', routes) [src/app.js:64]
+        -- Out-of-Scope Middlewares Omitted --
+        * Morgan, CORS, express.static, i18nMiddleware, error handling
+    }
+
+    class "csrfMiddleware" as csrfMiddleware <<middleware>> {
+        .. Exported Middleware Function ..
+        + csrfMiddleware(req: Request, res: Response, next: NextFunction): void
+        -- Security Specification (src/middlewares/csrf.middleware.js) --
+        * Safe read-only methods bypass: GET, HEAD, OPTIONS [lines 22-25]
+        * Protected mutating methods: POST, PUT, PATCH, DELETE [line 4]
+        * Exact Token Sources (line 33):
+          - req.body?._csrf
+          - req.headers['x-csrf-token']
+          - req.headers['csrf-token']
+        * Failure: status 403 Forbidden forwarded via next(err) [lines 35-39]
+    }
+
+    class "authMiddleware" as authMiddleware <<middleware>> {
+        .. Exported Middleware Functions ..
+        + sessionContextMiddleware(req: Request, res: Response, next: NextFunction): void
+        + requireAuth(req: Request, res: Response, next: NextFunction): Promise<void>
+        + requireGuest(req: Request, res: Response, next: NextFunction): void
+        + requireCustomer(req: Request, res: Response, next: NextFunction): Promise<void>
+        + requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+}
+
+package "Presentation Layer (Routes & Controllers)" as pkg_presentation #EFF6FF {
+
+    class "rootRoutes" as rootRoutes <<router>> {
+        -- Module: src/routes/index.js --
+        + router.use('/auth', authRoutes) [line 18]
+        + router.use('/account', accountRoutes) [line 21]
+        -- Other Routes Mounted at Root (Out of Scope) --
+        * '/', '/products', '/cart', '/checkout', '/admin', etc.
+    }
+
+    class "authRoutes" as authRoutes <<router>> {
+        -- Module: src/routes/auth.routes.js (prefix /auth) --
+        + GET /auth/login [requireGuest]
+        + POST /auth/login [requireGuest]
+        + GET /auth/register [requireGuest]
+        + POST /auth/register [requireGuest]
+        + POST /auth/logout [requireAuth]
+    }
+
+    class "accountRoutes" as accountRoutes <<router>> {
+        -- Module: src/routes/account.routes.js (prefix /account) --
+        * router.use(requireCustomer) [line 7: Router-level guard]
+        -- Endpoints --
+        + GET /account/profile
+        + POST /account/profile
+        + GET /account/addresses
+        + POST /account/addresses
+    }
+
+    class "AuthController" as AuthController <<controller>> {
+        .. Instance Methods (Declared in Class) ..
+        + getLogin(req: Request, res: Response): void
+        + postLogin(req: Request, res: Response, next: NextFunction): Promise<void>
+        + getRegister(req: Request, res: Response): void
+        + postRegister(req: Request, res: Response, next: NextFunction): Promise<void>
+        + postLogout(req: Request, res: Response, next: NextFunction): void
+    }
+
+    class "AccountController" as AccountController <<controller>> {
+        .. Profile & Address Methods (In Scope) ..
+        + getProfile(req: Request, res: Response, next: NextFunction): Promise<void>
+        + postProfile(req: Request, res: Response, next: NextFunction): Promise<void>
+        + getAddresses(req: Request, res: Response, next: NextFunction): Promise<void>
+        + postAddAddress(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+}
+
+' ==============================================================================
+' MIDDLE ROW: EXTERNAL DEPENDENCIES & SESSION STATE (LEFT) | INFRASTRUCTURE (RIGHT)
+' ==============================================================================
+package "External Dependencies & Session State" as pkg_external #FFFBEB {
+
+    class "ClientCookie" as ClientCookie <<http cookie>> {
+        -- Stored in Client Browser --
+        + name: "vamos_sid"
+        + value: signed Session ID
+        -- Security Flags (app.config.js) --
+        + httpOnly: true
+        + sameSite: "lax"
+        + secure: boolean (true in production)
+        + maxAge: 7 days (604800000 ms)
+    }
+
+    class "SessionState" as SessionState <<external middleware-managed state>> {
+        -- Runtime Storage: MemoryStore (Server RAM) --
+        + user?: Object
+          * id: number
+          * email: string
+          * full_name: string
+          * role: string ('CUSTOMER' | 'ADMIN')
+          * cartId: number
+          * phone?: string
+        + cartCount?: number = 0
+        + guestCart?: Array<Object> = []
+        + csrfToken?: string
+        + flash?: Object
+          * success_msg?: string
+          * error_msg?: string
+          * warning_msg?: string
+        -- Express Session Runtime API --
+        + regenerate(callback: Function): void
+        + destroy(callback: Function): void
+        + save(callback: Function): void
+    }
+
+    class "bcryptjs" as bcryptjs <<external library>> {
+        + hash(data: string, saltOrRounds: number): Promise<string>
+        + compare(data: string, encrypted: string): Promise<boolean>
+    }
+
+    class "CartController (Collaborator - Partial)" as CartControllerRef <<controller>> {
+        {static} + mergeGuestCart(cartId: number, guestCart: Array): Promise<number>
+    }
+}
+
+package "Infrastructure & Helpers" as pkg_infrastructure #F8FAFC {
+
+    class "validator" as validator <<helper>> {
+        .. Exported Functions (Auth & Account Scope) ..
+        + isValidEmail(email: string): boolean
+        + isValidPhone(phone: string): boolean
+        + isValidPassword(password: string): boolean
+        + isValidFullName(name: string): boolean
+    }
+
+    class "database" as database <<database helper>> {
+        .. Exported Connection & Query API ..
+        + getPool(): Promise<sql.ConnectionPool>
+        + closePool(): Promise<void>
+        + testDbConnection(): Promise<boolean>
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>>
+        + withTransaction(callback: Function): Promise<any>
+        + sql: mssql
+    }
+}
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN MODEL (RELEVANT ENTITIES FROM CD01)
+' ==============================================================================
+package "Domain Entities (Data Model - Identity & Profile)" as pkg_domain #F0FDF4 {
+
+    class "User" as User <<entity>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + password_hash: NVARCHAR(255)
+        + phone: NVARCHAR(20) [0..1]
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "Address" as Address <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + recipient_name: NVARCHAR(100)
+        + phone: NVARCHAR(20)
+        + province: NVARCHAR(100)
+        + district: NVARCHAR(100)
+        + ward: NVARCHAR(100)
+        + detail_address: NVARCHAR(255)
+        + is_default: BIT = 0
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Filtered Unique Index ..
+        {unique filtered: user_id WHERE is_default = 1}
+    }
+
+    class "Cart" as Cart <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK, UQ>>
+        --
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "PasswordResetToken" as PasswordResetToken <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + token: NVARCHAR(255) <<UQ>>
+        + expires_at: DATETIME2
+        + used_at: DATETIME2 [0..1]
+        + created_at: DATETIME2
+    }
+}
+
+' ==============================================================================
+' PACKAGE LAYOUT RELATIONS
+' ==============================================================================
+pkg_middleware -[hidden]right-> pkg_presentation
+pkg_middleware -[hidden]down-> pkg_external
+pkg_presentation -[hidden]down-> pkg_infrastructure
+pkg_external -[hidden]down-> pkg_domain
+pkg_infrastructure -[hidden]down-> pkg_domain
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (CONSISTENT WITH CD01)
+' ==============================================================================
+User "1" *-- "0..*" Address : "fk_addresses_user\n(owns)"
+User "1" *-- "0..1" Cart : "fk_carts_user\n(owns)"
+User "1" -- "0..*" PasswordResetToken : "fk_pwd_reset_user\n(requests)"
+
+' ==============================================================================
+' DEPENDENCY & INTERACTION RELATIONSHIPS
+' ==============================================================================
+' Application Boot & Pipeline
+app ..> csrfMiddleware : "registers"
+app ..> authMiddleware : "registers sessionContext"
+app ..> SessionState : "mounts express-session"
+app ..> rootRoutes : "mounts at '/' (src/app.js:64)"
+ClientCookie .right.> SessionState : "identifies server session\nvia Session ID"
+
+' Router Hierarchy Mounting
+rootRoutes ..> authRoutes : "mounts at '/auth' (src/routes/index.js:18)"
+rootRoutes ..> accountRoutes : "mounts at '/account' (src/routes/index.js:21)"
+
+' Route to Middleware & Controllers
+authRoutes ..> AuthController : "delegates to"
+authRoutes ..> authMiddleware : "guards (requireGuest, requireAuth)"
+
+accountRoutes ..> AccountController : "delegates to"
+accountRoutes ..> authMiddleware : "guards (requireCustomer)"
+
+' AuthController Dependencies
+AuthController ..> validator : "validates"
+AuthController ..> database : "queries users, tx (user+cart)"
+AuthController ..> bcryptjs : "compare / hash"
+AuthController ..> SessionState : "regenerates, sets user"
+AuthController ..> CartControllerRef : "calls mergeGuestCart"
+AuthController ..> User : "reads / inserts"
+AuthController ..> Cart : "inserts on register"
+
+' AccountController Dependencies
+AccountController ..> validator : "validates"
+AccountController ..> database : "queries users, addresses"
+AccountController ..> SessionState : "reads & updates user session"
+AccountController ..> User : "reads / updates"
+AccountController ..> Address : "reads / inserts"
+
+' Middlewares Dependencies
+csrfMiddleware ..> SessionState : "reads/creates csrfToken"
+authMiddleware ..> SessionState : "reads user, binds res.locals"
+authMiddleware ..> database : "queries user status"
+
+' ==============================================================================
+' UML NOTES & APPLICATION INVARIANTS
+' ==============================================================================
+note bottom of AuthController
+  <b><<attached function>> getSafeReturnUrl(returnUrl: string): string</b>
+  * Hàm độc lập (dòng 16, auth.controller.js) được gán vào singleton instance:
+    <b>authController.getSafeReturnUrl = getSafeReturnUrl</b> (dòng 334).
+  * Không nằm trong class body; không phải instance method hay static method.
+  * Kiểm tra URL bắt đầu bằng '/' và chặn '//' hoặc '/\\' (chống Open Redirect).
+  ----
+  <b>Session Fixation Defense:</b>
+  * Đăng nhập / đăng ký thành công bắt buộc gọi <b>req.session.regenerate()</b>
+    để cấp phát Session ID mới, phòng chống tấn công Session Fixation (OWASP).
+end note
+
+note bottom of SessionState
+  <b>Note 2 – Session Storage & Cookie Separation:</b>
+  - Cookie <b>vamos_sid</b> chỉ chứa Session ID được ký (signed Session ID).
+  - Toàn bộ dữ liệu phiên (user, cart, csrf) lưu tại <b>MemoryStore</b>
+    phía server (default store của express-session, không dùng Redis).
+  - req.session.user chỉ chứa metadata cần thiết, không lưu password_hash.
+end note
+
+note bottom of database
+  <b>Note 3 – Database Transaction API:</b>
+  - <b>withTransaction</b> được khai báo (dòng 91) và export (dòng 116) trong database.js.
+  - Tuy nhiên, AuthController.postRegister tự khởi tạo transaction trực tiếp
+    bằng <b>new sql.Transaction(pool)</b> để kiểm soát chi tiết commit/rollback.
+end note
+
+note bottom of User
+  <b>Note 4 – Roles & Status:</b>
+  - User.role chỉ gồm: <b>'CUSTOMER'</b> và <b>'ADMIN'</b>.
+  - User.status chỉ gồm: <b>'active'</b> và <b>'locked'</b>.
+  - Khách vãng lai (Guest) là phiên chưa xác thực, không phải Entity.
+  - Không có role 'Staff' và không có kế thừa subclass.
+end note
+
+note bottom of Cart
+  <b>Note 5 – Registration Invariant:</b>
+  Mỗi khi khách hàng đăng ký thành công (postRegister),
+  hệ thống tạo User và tự động INSERT 1 Cart trong cùng transaction.
+  Application Invariant: <b>User 1 — 1 Cart</b>.
+  (Schema Multiplicity trong CD01: <b>1 to 0..1</b> do UNIQUE user_id).
+end note
+
+note bottom of PasswordResetToken
+  <b>Note 6 – Password Reset Status:</b>
+  Entity tồn tại hoàn chỉnh trong CSDL (migration 001),
+  tuy nhiên Express route/controller chưa được cài đặt.
+  Trạng thái: <b>DESIGNED ONLY — NOT IMPLEMENTED</b>.
+end note
+
+note top of AccountController
+  <b>Note 7 – AccountController Scope:</b>
+  Partial view of AccountController.
+  Các phương thức quản lý đơn hàng (getOrders, getOrderDetail, postCancelOrder)
+  được phân tách thuộc phạm vi CD05 (Orders & Transactions).
+end note
+
+@enduml

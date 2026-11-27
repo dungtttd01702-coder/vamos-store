@@ -4,7 +4,7 @@
  * Target Database: Isolated Test Database `vamos_store_test_db`
  */
 
-process.env.NODE_ENV = 'test';
+const { getTestAdminPassword, getTestCustomerCredentials } = require('./test_bootstrap');
 
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -103,22 +103,24 @@ async function runSuite() {
     assert(csrfAcceptedPost, 'SEC-08', 'CSRF middleware accepts mutating POST request with matching anti-CSRF token');
 
     // Password hash verification in DB
+    const adminPassword = getTestAdminPassword();
     const adminRes = await query("SELECT id, email, password_hash, role, status FROM users WHERE email = 'admin@vamos.vn'");
     assert(adminRes.recordset.length === 1, 'AUTH-01', 'Admin user exists in database');
     if (adminRes.recordset.length > 0) {
       const admin = adminRes.recordset[0];
-      const match = await bcrypt.compare('123456', admin.password_hash);
-      assert(match, 'AUTH-02', 'Admin bcrypt password hash verified against "123456"');
+      const match = await bcrypt.compare(adminPassword, admin.password_hash);
+      assert(match, 'AUTH-02', 'Admin bcrypt password hash verified against configured ADMIN_DEFAULT_PASSWORD');
       assert(admin.role === 'ADMIN', 'AUTH-03', 'Admin user has role ADMIN');
       assert(admin.status.toLowerCase() === 'active', 'AUTH-04', 'Admin account is in active status');
     }
 
-    const custRes = await query("SELECT id, email, password_hash, role, status FROM users WHERE email = 'khachhang@vamos.vn'");
+    const custCreds = getTestCustomerCredentials();
+    const custRes = await query("SELECT id, email, password_hash, role, status FROM users WHERE email = @email", { email: custCreds.email });
     assert(custRes.recordset.length === 1, 'AUTH-05', 'Customer user exists in database');
     if (custRes.recordset.length > 0) {
       const cust = custRes.recordset[0];
-      const match = await bcrypt.compare('123456', cust.password_hash);
-      assert(match, 'AUTH-06', 'Customer bcrypt password hash verified against "123456"');
+      const match = await bcrypt.compare(custCreds.password, cust.password_hash);
+      assert(match, 'AUTH-06', 'Customer bcrypt password hash verified against seeded customer fixture');
       assert(cust.role === 'CUSTOMER', 'AUTH-07', 'Customer user has role CUSTOMER');
     }
 
@@ -225,7 +227,7 @@ async function runSuite() {
       SELECT id FROM vouchers 
       WHERE code = 'EXPIRED_CODE' 
         AND is_active = 1 
-        AND start_date <= GETDATE() AND end_date >= GETDATE()
+        AND start_date <= SYSUTCDATETIME() AND end_date > SYSUTCDATETIME()
     `);
     assert(expiredRes.recordset.length === 0, 'VOUCH-05', 'Expired or non-existent voucher code rejected');
 
@@ -1089,6 +1091,11 @@ async function runSuite() {
       await query("DELETE FROM product_variants WHERE id IN (@v1, @v2)", { v1: tempVarId, v2: vouchVarId });
       await query("DELETE FROM products WHERE id = @id", { id: tempProdId });
       await query("DELETE FROM vouchers WHERE code IN (@vc, @q8vc)", { vc: testVoucherCode, q8vc: q8VoucherCode });
+      await query("DELETE FROM loyalty_point_batches WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM point_transactions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM reviews WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM voucher_redemptions WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
+      await query("DELETE FROM user_points_wallets WHERE user_id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
       await query("DELETE FROM users WHERE id IN (@u1, @u2, @tu, @gu)", { u1: uid1, u2: uid2, tu: testUserId, gu: guestUserId });
     } catch (cleanupErr) {
       console.warn('  (Cleanup notice):', cleanupErr.message);

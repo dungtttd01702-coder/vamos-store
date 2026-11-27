@@ -1,0 +1,60 @@
+@startuml AUTH_COMPONENT_DIAGRAM
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN: PHÂN HỆ XÁC THỰC & TÀI KHOẢN (AUTH COMPONENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Tầng Giao diện Người dùng (Presentation)" #F1F5F9 {
+  component [Trang Đăng nhập (views/pages/auth/login.pug)] as ViewLogin
+  component [Trang Đăng ký (views/pages/auth/register.pug)] as ViewRegister
+}
+
+package "Tầng Điều khiển & Bảo mật (Controller & Security Engine)" #EFF6FF {
+  component [Auth Router\n(src/routes/auth.routes.js)] as AuthRouter
+  component [Auth Controller\n(src/controllers/auth.controller.js)] as AuthCtrl
+  component [Cart Controller\n(src/controllers/cart.controller.js)] as CartCtrl
+  component [Bộ kiểm tra dữ liệu\n(src/utils/validator.js)] as Validator
+  component [Mã hóa Mật khẩu\n(bcryptjs - 10 salt rounds)] as BcryptEngine
+  component [Quản lý Phiên làm việc\n(express-session & session.regenerate)] as SessionMgr
+  
+  AuthRouter --> AuthCtrl : GET/POST /login, /register, /logout
+  AuthCtrl --> Validator : Kiểm tra định dạng (Email, SĐT, Mật khẩu)
+  AuthCtrl --> BcryptEngine : hash() / compare()
+  AuthCtrl --> SessionMgr : Tái tạo session ID chống Session Fixation
+  AuthCtrl --> CartCtrl : mergeGuestCart(cartId, guestCart)
+}
+
+ViewLogin --> AuthRouter : Gửi thông tin đăng nhập
+ViewRegister --> AuthRouter : Gửi thông tin đăng ký
+
+package "Tầng Dữ liệu & Kết nối CSDL (Data Access)" #FEF3C7 {
+  component [Database Connection Pool & Helpers\n(src/config/database.js)] as DbEngine
+  AuthCtrl --> DbEngine : query() / withTransaction()
+  CartCtrl --> DbEngine : sql.Transaction (Gộp giỏ hàng)
+}
+
+package "Tầng Lưu trữ CSDL (Microsoft SQL Server)" #FFF1F2 {
+  database [SQL Server (vamos_store_db)] as SqlDb {
+    [Bảng users\n(id, email, password_hash, role, status)] as TableUsers
+    [Bảng carts\n(id, user_id, created_at)] as TableCarts
+    [Bảng cart_items\n(id, cart_id, variant_id, quantity)] as TableCartItems
+    [Bảng password_reset_tokens\n(token_hash, expires_at, is_used)] as TablePwdTokens
+  }
+  
+  DbEngine <--> TableUsers : Đọc/ghi tài khoản
+  DbEngine <--> TableCarts : Khởi tạo giỏ hàng người dùng
+  DbEngine <--> TableCartItems : Lưu các món giỏ hàng hợp nhất
+}
+
+note bottom of TablePwdTokens #FFF1F2
+  **GHI CHÚ HỌC THUẬT (DESIGNED ONLY):**
+  Bảng CSDL **password_reset_tokens** đã sẵn sàng.
+  Route, Controller và dịch vụ SMTP gửi mail
+  chưa triển khai trong phiên bản hiện tại.
+end note
+
+@enduml

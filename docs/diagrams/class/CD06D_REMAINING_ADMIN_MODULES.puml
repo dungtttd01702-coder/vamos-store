@@ -1,0 +1,270 @@
+@startuml CD06D_REMAINING_ADMIN_MODULES
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD06D: REMAINING ADMIN MODULES CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp chi tiết phân hệ Quản lý Khách hàng (Customer Accounts) và Quản lý Banner Trang chủ (Hero Banners)</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' Sắp xếp 3 thành phần ngang hàng: requireAdmin (trái) - adminRoutes (giữa) - AdminController (phải)
+' ==============================================================================
+package "Presentation & Routing Layer (/admin)" as pkg_routing #EFF6FF {
+
+    class "requireAdmin" as requireAdmin <<middleware function>> {
+        -- Function: src/middlewares/auth.middleware.js:132-158 --
+        + requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void>
+        .. Route Guard & DB Verification ..
+        {verifies session.user.role === 'ADMIN'}
+        {queries DB: SELECT status, role FROM users WHERE id = @id}
+        {fail-open on DB transient error: calls next() [lines 153-157]}
+    }
+
+    class "adminRoutes" as adminRoutes <<router, partial view>> {
+        -- Module: src/routes/admin.routes.js (Customer & Banner Scope) --
+        + router.use(requireAdmin) [line 7]
+        .. Customer Accounts Management Routes (lines 44-46) ..
+        + GET /customers [adminController.getCustomers] [line 44]
+        + GET /customers/:id [adminController.getCustomerDetail] [line 45]
+        + POST /customers/:id/toggle-status [adminController.postToggleCustomerStatus] [line 46]
+        .. Hero Banners Management Routes (lines 49-52) ..
+        + GET /banners [adminController.getBanners] [line 49]
+        + POST /banners/create [adminController.postCreateBanner] [line 50]
+        + POST /banners/:id/toggle [adminController.postToggleBanner] [line 51]
+        + POST /banners/:id/delete [adminController.postDeleteBanner] [line 52]
+    }
+
+    class "AdminController" as AdminController <<controller, partial view>> {
+        -- File: src/controllers/admin.controller.js (Customer & Banner Methods) --
+        .. Customer Accounts Management (Direct DB Queries) ..
+        + getCustomers(req: Request, res: Response, next: NextFunction): Promise<void> [lines 893-923]
+        + getCustomerDetail(req: Request, res: Response, next: NextFunction): Promise<void> [lines 928-953]
+        + postToggleCustomerStatus(req: Request, res: Response, next: NextFunction): Promise<void> [lines 958-980]
+        .. Hero Banners Management (Direct DB Queries) ..
+        + getBanners(req: Request, res: Response, next: NextFunction): Promise<void> [lines 985-996]
+        + postCreateBanner(req: Request, res: Response, next: NextFunction): Promise<void> [lines 1001-1020]
+        + postToggleBanner(req: Request, res: Response, next: NextFunction): Promise<void> [lines 1025-1038]
+        + postDeleteBanner(req: Request, res: Response, next: NextFunction): Promise<void> [lines 1040-1048]
+    }
+}
+
+adminRoutes .left.> requireAdmin : "router.use(requireAdmin)\n[src/routes/admin.routes.js:7]"
+adminRoutes .right.> AdminController : "dispatches 3 customer & 4 banner routes\n[src/routes/admin.routes.js:44-46, 49-52]"
+
+' ==============================================================================
+' MIDDLE ROW: DATA ACCESS & PERSISTENCE LAYER
+' ==============================================================================
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "database" as database <<database helper>> {
+        -- CommonJS Module: src/config/database.js:1-117 --
+        + sql: Object (mssql driver instance) [lines 1, 111]
+        + getPool(): Promise<sql.ConnectionPool> [lines 11-32, 112]
+        + closePool(): Promise<void> [lines 36-49, 113]
+        + testDbConnection(): Promise<boolean> [lines 55-66, 114]
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>> [lines 75-86, 115]
+    }
+}
+
+requireAdmin .down.> database : "verifies active admin status in DB\n[src/middlewares/auth.middleware.js:145]"
+AdminController .down.> database : "executes direct T-SQL for Customer queries & Banner CRUD\n[src/controllers/admin.controller.js:904, 931, 969, 987, 1006, 1028, 1043]"
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (REFERENCE DATA MODEL - CUSTOMER & BANNER SCOPE)
+' ==============================================================================
+package "Domain Entities (Reference Data Model — Customer & Banner Scope)" as pkg_domain #F0FDF4 {
+
+    class "User" as User <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + password_hash: NVARCHAR(255)
+        + phone: NVARCHAR(20) [0..1]
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Table Constraints ..
+        {chk_users_role: role IN ('ADMIN', 'CUSTOMER')}
+        {chk_users_status: status IN ('active', 'locked')}
+    }
+
+    class "Address" as Address <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + recipient_name: NVARCHAR(100)
+        + phone: NVARCHAR(20)
+        + province: NVARCHAR(100)
+        + district: NVARCHAR(100)
+        + ward: NVARCHAR(100)
+        + detail_address: NVARCHAR(255)
+        + is_default: BIT = 0
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Filtered Unique Index ..
+        {unique filtered: user_id WHERE is_default = 1}
+    }
+
+    class "Order" as Order <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + order_code: NVARCHAR(50) <<UQ>>
+        + total_amount: DECIMAL(12,0)
+        + payment_status: NVARCHAR(20) = 'UNPAID'
+        + order_status: NVARCHAR(20) = 'PENDING'
+        + created_at: DATETIME2
+        .. Aggregated Metrics (in getCustomers) ..
+        {order_count: COUNT(*)}
+        {total_spent: SUM(total_amount) WHERE order_status = 'COMPLETED'}
+    }
+
+    class "Banner" as Banner <<entity, from DDL & CD01>> {
+        + id: INT <<PK>>
+        --
+        + title: NVARCHAR(150)
+        + image_url: NVARCHAR(1000)
+        + link_url: NVARCHAR(255) [0..1]
+        + display_order: INT = 0
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+        .. Display Priority ..
+        {ORDER BY display_order ASC, id DESC}
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01 DOMAIN MODEL & DDL)
+' 1 Composition (*--) + 1 Association (--) = 2 Domain Relationships
+' Banner is standalone (no foreign keys in DDL)
+' ==============================================================================
+User "1" *-- "0..*" Address : "fk_addresses_user\n(owns [ON DELETE CASCADE])"
+User "1" -- "0..*" Order : "fk_orders_user\n(places)"
+
+Order -right[hidden]-> Banner
+pkg_data -down[hidden]-> pkg_domain
+
+' ==============================================================================
+' ARCHITECTURAL NOTES (6 TARGETED NOTES)
+' ==============================================================================
+note top of adminRoutes
+  <b>Note 1 – Customer Accounts Management Lifecycle (UC-04 & Admin Scope):</b>
+  * <b>Danh sách khách hàng:</b> <i>getCustomers</i> [lines 893-923] truy vấn toàn bộ người dùng có
+    <i>role = 'CUSTOMER'</i>, hỗ trợ tìm kiếm theo <i>q</i> (khớp <i>full_name, email, phone</i>).
+    Đồng thời tính toán 2 chỉ số phân tích qua subquery:
+    - <i>order_count</i>: <i>(SELECT COUNT(*) FROM orders WHERE user_id = u.id)</i>
+    - <i>total_spent</i>: <i>(SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE user_id = u.id AND order_status = 'COMPLETED')</i>
+  * <b>Xem chi tiết khách hàng:</b> <i>getCustomerDetail</i> [lines 928-953] truy vấn đồng thời qua <i>Promise.all</i>:
+    1. Thông tin hồ sơ cá nhân (kiểm tra <i>id = @id AND role = 'CUSTOMER'</i>, trả về 404 nếu không tìm thấy).
+    2. Sổ địa chỉ giao hàng (sắp xếp <i>is_default DESC, id DESC</i>).
+    3. Lịch sử đơn hàng (sắp xếp <i>id DESC</i>, hiển thị mã đơn, tổng tiền, trạng thái đơn và thanh toán).
+  * <b>Khóa / Mở khóa tài khoản:</b> <i>postToggleCustomerStatus</i> [lines 958-980] chuyển đổi trạng thái nguyên tử:
+    <i>status = CASE WHEN status = 'active' THEN 'locked' ELSE 'active' END</i>.
+end note
+
+note top of AdminController
+  <b>Note 2 – Cơ chế Bảo vệ Tài khoản Quản trị & Guard Invariants:</b>
+  * <b>Bảo vệ chống tự khóa ADMIN:</b> Trong <i>postToggleCustomerStatus</i> [lines 964-967], mã nguồn
+    thực thi truy vấn kiểm tra vai trò: <i>SELECT role FROM users WHERE id = @id</i>.
+    Nếu tài khoản mang vai trò <b>ADMIN</b>, hệ thống chủ động ném lỗi:
+    <i>throw new Error('Tuyệt đối không được khóa tài khoản Quản trị viên (ADMIN).')</i>.
+  * <b>Bảo vệ Endpoint Phân hệ Quản trị:</b> Toàn bộ 7 routes thuộc CD06D đều được bảo vệ bởi
+    middleware <i>requireAdmin</i> (gắn tại <i>router.use(requireAdmin)</i> [line 7]).
+    Nếu tài khoản bị khóa trong DB, middleware sẽ tự động hủy session và chuyển hướng về <i>/auth/login</i>.
+end note
+
+note top of Banner
+  <b>Note 3 – Quản lý Banner Quảng bá Trang chủ (Hero Banners Lifecycle):</b>
+  * <b>Hiển thị danh sách:</b> <i>getBanners</i> [lines 985-996] truy vấn toàn bộ bản ghi
+    từ bảng <i>banners</i> sắp xếp theo thứ tự hiển thị: <i>ORDER BY display_order ASC, id DESC</i>.
+  * <b>Thêm mới Banner:</b> <i>postCreateBanner</i> [lines 1001-1020] yêu cầu bắt buộc trường
+    <i>image_url</i>; các trường còn lại nhận giá trị mặc định: <i>title || 'Banner VAMOS'</i>,
+    <i>link_url || '/products'</i>, <i>display_order || 1</i>, <i>is_active: 1</i>.
+  * <b>Bật / Tắt trạng thái:</b> <i>postToggleBanner</i> [lines 1025-1038] đảo trạng thái hiển thị:
+    <i>UPDATE banners SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = @id</i>.
+  * <b>Xóa Banner:</b> <i>postDeleteBanner</i> [lines 1040-1048] thực hiện xóa vật lý:
+    <i>DELETE FROM banners WHERE id = @id</i>.
+end note
+
+note right of Banner
+  <b>Note 4 – Giới hạn Hiện thực UI vs Backend Telemetry (Marketing Scope):</b>
+  * <b>Giao diện Pug (banners.pug):</b> Hiển thị dải 4 thẻ KPI (Tổng Banner, CTR trung bình,
+    Views, Tạm ẩn) và cột phân tích CTR 30 ngày để định hướng giao diện chuẩn thương mại điện tử.
+  * <b>Thực tế Mã nguồn & CSDL:</b> Bảng <i>banners</i> trong SQL Server <b>KHÔNG CÓ</b> các trường
+    lưu trữ số lượt hiển thị (views), số lượt click hay tỷ lệ CTR.
+  * Trong <i>banners.pug</i>, hệ thống ghi rõ: <i>"Đang chờ tích hợp Module Telemetry Tracker"</i>
+    và hiển thị <i>N/A</i> cho chỉ số CTR.
+  * <i>Không có Service/Repository Telemetry ngầm định nào tồn tại trong source code.</i>
+end note
+
+note left of database
+  <b>Note 5 – Kiến trúc Hai tầng (Two-Tier Admin Pattern):</b>
+  * Cả hai phân hệ Quản lý Khách hàng và Quản lý Banner trong CD06D đều tuân theo mô hình
+    <b>Kiến trúc Hai tầng (Presentation/Controller -> Database Helper)</b>.
+  * <i>AdminController</i> trực tiếp gọi <i>query(...)</i> trên helper <i>src/config/database.js</i>.
+  * Hoàn toàn không thông qua các tầng Service hay Repository trung gian (nhất quán với các phân hệ
+    Catalog, Inventory, Category, Brand và Voucher của bộ điều khiển Admin).
+end note
+
+note bottom of User
+  <b>Note 6 – Nhất quán Mô hình Dữ liệu & DDL Alignment:</b>
+  * <b>Quan hệ Sở hữu Địa chỉ:</b> Ràng buộc <i>fk_addresses_user</i> có khai báo <i>ON DELETE CASCADE</i>
+    trong DDL (<i>mssql_schema.sql:168</i>), xác lập quan hệ sở hữu vòng đời <b>Composition (*--)</b>
+    giữa <i>User</i> và <i>Address</i>.
+  * <b>Độ dài URL Banner:</b> CSDL DDL quy định <i>image_url NVARCHAR(1000)</i> (<i>mssql_schema.sql:142</i>
+    và <i>migrations/001_initial_schema.sql:96</i>), cho phép lưu trữ URL ảnh CDN độ dài lớn.
+  * <b>Tính Độc lập của Banner:</b> Bảng <i>banners</i> là thực thể độc lập, không có khóa ngoại (FK)
+    nối tới bất kỳ thực thể nào khác trong CSDL.
+end note
+
+legend bottom
+    <b>CHÚ DẪN PHÂN LOẠI & QUY ƯỚC KIẾN TRÚC UML 2.5 (CD06D)</b>
+    ----
+    <b>Phân loại Classifiers theo Hiện thực Source Code:</b>
+      * <b><<router, partial view>></b>: Express Router Instance mount 7 routes quản trị khách hàng và banner (src/routes/admin.routes.js)
+      * <b><<middleware function>></b>: Middleware Function kiểm soát quyền truy cập RBAC quản trị viên (requireAdmin)
+      * <b><<controller, partial view>></b>: Controller điều phối 3 phương thức khách hàng và 4 phương thức banner (AdminController)
+      * <b><<database helper>></b>: CommonJS Module cung cấp kết nối CSDL và Query API (src/config/database.js)
+      * <b><<entity, partial view from CD01>></b>: Bảng dữ liệu quan hệ trong SQL Server tham chiếu từ CD01 Domain Model
+      * <b><<entity, from DDL & CD01>></b>: Thực thể tiếp thị độc lập đại diện cho bảng banners trong SQL Server
+    ----
+    <b>Quan hệ Kiến trúc & Dữ liệu:</b>
+      * <b>Dependency (..>)</b>: Quan hệ sử dụng/phụ thuộc giữa router, middleware, controller và database helper (đường nét đứt có mũi tên)
+      * <b>Composition (*--)</b>: Quan hệ sở hữu vòng đời thực thể dữ liệu kèm ràng buộc xóa tầng (User *-- Address [ON DELETE CASCADE])
+      * <b>Association (--)</b>: Quan hệ liên kết tham chiếu khóa ngoại giữa các bảng CSDL (User -- Order)
+end legend
+
+@enduml

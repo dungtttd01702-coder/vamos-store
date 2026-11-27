@@ -1,5 +1,18 @@
 const config = require('../config/app.config');
 
+const PUBLIC_500_MSG = 'Đã có lỗi xảy ra trên hệ thống.';
+const PUBLIC_503_MSG = 'Hệ thống đang tạm thời gián đoạn. Vui lòng thử lại sau ít phút.';
+
+function expectsJsonResponse(req) {
+  const pathOnly = req.originalUrl ? String(req.originalUrl).split('?')[0] : '';
+  return Boolean(
+    req.xhr ||
+    req.headers?.accept?.includes('application/json') ||
+    (req.baseUrl && req.baseUrl.startsWith('/api')) ||
+    pathOnly.startsWith('/api')
+  );
+}
+
 /**
  * Handle 404 - Resource Not Found
  */
@@ -18,7 +31,12 @@ function errorHandler(err, req, res, next) {
 
   const safeMethod = String(req.method || '').replace(/[\r\n]/g, '');
   const safeUrl = String(req.originalUrl || '').replace(/[\r\n]/g, '');
-  const safeMsg = String(err.message || '').replace(/[\r\n]/g, '');
+  const safeMsg = String(err.message || '')
+    .replace(/[\r\n]/g, '')
+    .replace(/[^\s@]{1,64}@[^\s@.]{1,63}(?:\.[^\s@.]{1,63}){1,8}/g, '[REDACTED_EMAIL]')
+    .replace(/(password|pwd|secret|token|authorization)[ \t]{0,8}=[ \t]{0,8}[^;\s]{1,256}/gi, '$1=[REDACTED]')
+    .replace(/Bearer[ \t]{1,8}[A-Za-z0-9._-]{1,512}/gi, 'Bearer [REDACTED]')
+    .slice(0, 300);
 
   console.error(`[Error ${statusCode}] ${safeMethod} ${safeUrl} - ${safeMsg}`);
   if (isDev && statusCode === 500 && err.stack) {
@@ -29,11 +47,18 @@ function errorHandler(err, req, res, next) {
   res.status(statusCode);
 
   // If request expects JSON (API/AJAX)
-  if (req.xhr || req.headers?.accept?.includes('application/json')) {
+  if (expectsJsonResponse(req)) {
+    let publicMessage = err.message || PUBLIC_500_MSG;
+    if (statusCode === 503) {
+      publicMessage = PUBLIC_503_MSG;
+    } else if (!isDev && statusCode >= 500 && !err.expose) {
+      publicMessage = PUBLIC_500_MSG;
+    }
+
     return res.json({
       success: false,
       status: statusCode,
-      message: err.message || 'Đã có lỗi xảy ra trên hệ thống.',
+      message: publicMessage,
       ...(err.errors ? { errors: err.errors } : {})
     });
   }
@@ -77,6 +102,17 @@ function errorHandler(err, req, res, next) {
     return res.render('pages/errors/404', {
       title: 'Không tìm thấy trang - 404',
       currentUrl: req.originalUrl,
+    });
+  }
+
+  // Handle Service Unavailable (503)
+  if (statusCode === 503) {
+    if (typeof res.setHeader === 'function') {
+      res.setHeader('Retry-After', '30');
+    }
+    return res.render('pages/errors/503', {
+      title: 'Dịch Vụ Tạm Thời Gián Đoạn - 503',
+      message: PUBLIC_503_MSG
     });
   }
 

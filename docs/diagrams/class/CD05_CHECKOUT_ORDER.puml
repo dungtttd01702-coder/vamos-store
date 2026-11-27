@@ -1,0 +1,530 @@
+@startuml CD05_CHECKOUT_ORDER
+!theme plain
+skinparam backgroundColor #FFFFFF
+scale 0.70
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD05: CHECKOUT & ORDER MANAGEMENT CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp phân hệ Đặt hàng COD, Giao dịch ACID, Trừ/Hoàn tồn kho, Lịch sử & Hủy đơn hàng</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+legend right
+    <b>CHÚ DẪN KÝ HIỆU & QUY ƯỚC UML 2.5</b>
+    ----
+    <b>Phân loại Classifiers & Modules:</b>
+      * <b><<controller>></b>: JavaScript Class điều phối HTTP request/response đặt hàng & quản lý đơn
+      * <b><<service>></b>: JavaScript Class xử lý logic giao dịch ACID đơn hàng & quản lý tồn kho
+      * <b><<entry point>></b>: Điểm khởi chạy ứng dụng Express (src/app.js)
+      * <b><<router>></b>: Express Router phân cấp định tuyến URL (/checkout, /account)
+      * <b><<middleware>></b>: Express Middleware (csrfMiddleware cấp app, requireCustomer cấp router)
+      * <b><<utility>></b>: CommonJS Module kiểm tra tính hợp lệ dữ liệu họ tên và số điện thoại
+      * <b><<database helper>></b>: CommonJS Module quản lý Connection Pool, Transaction & Query API
+      * <b><<entity>></b>: Lớp thực thể dữ liệu ánh xạ bảng vật lý SQL Server (Partial View từ CD01)
+    ----
+    <b>Đặc thù Kiến trúc thực tế (Fact-Based Discovery):</b>
+      * <b>Two-Tier Direct DB Architecture:</b> Phân hệ Đơn hàng <b>KHÔNG CÓ OrderRepository</b>.
+        OrderService trực tiếp thực thi các câu lệnh T-SQL thông qua sql.Transaction.
+      * <b>SQL Lock Hints & Concurrency:</b> Phân định chính xác:
+        - <i>WITH (UPDLOCK, ROWLOCK)</i> trên <i>carts, vouchers, voucher_usages, product_variants, orders</i>.
+        - <i>WITH (UPDLOCK, HOLDLOCK)</i> trên <i>cart_items</i> để chống phantom reads trong transaction.
+      * <b>Snapshot Isolation & Integrity:</b> Thông tin người nhận, địa chỉ giao hàng và giá sản phẩm được
+        lưu snapshot độc lập tại orders (delivery_address_snapshot: NVARCHAR(500)) và order_items;
+        không bị biến động khi sửa đổi Profile/Address.
+      * <b>Database Multiplicity vs Application Invariant:</b> Foreign Key cho phép 1 : 0..* giữa Order - OrderItem
+        và Order - OrderStatusHistory; tuy nhiên logic nghiệp vụ bắt buộc 1 : 1..* khi hoàn tất tạo đơn.
+      * <b>Admin Scope Boundary:</b> updateOrderStatusByAdmin() và quy trình duyệt/giao đơn do AdminController
+        điều phối thuộc phân hệ CD06. CD05 chỉ bao gồm Customer Operations và Shared Operations đã xác minh.
+end legend
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' ==============================================================================
+package "Presentation & Routing Layer" as pkg_presentation #EFF6FF {
+
+    class "app" as app <<entry point>> {
+        .. Application Entry & Global Middleware Pipeline ..
+        + app.use(csrfMiddleware) [src/app.js:61]
+        + app.use('/', routes) [src/app.js:64]
+    }
+
+    class "csrfMiddleware" as csrfMiddleware <<middleware>> {
+        -- Module: src/middlewares/csrf.middleware.js:8-44 --
+        + csrfMiddleware(req: Request, res: Response, next: NextFunction): void
+        .. App-Level Security (src/app.js:61) ..
+        {verifies persistent token on state-mutating requests: POST, PUT, PATCH, DELETE}
+        {checks req.body._csrf, req.headers['x-csrf-token'], req.headers['csrf-token']}
+    }
+
+    class "rootRoutes" as rootRoutes <<router>> {
+        -- Module: src/routes/index.js --
+        + router.use('/checkout', checkoutRoutes) [line 20]
+        + router.use('/account', accountRoutes) [line 21]
+    }
+
+    class "authMiddleware" as authMiddleware <<middleware>> {
+        -- Module: src/middlewares/auth.middleware.js:91-127, 164 --
+        + requireCustomer(req: Request, res: Response, next: NextFunction): Promise<void>
+    }
+
+    class "accountRoutes" as accountRoutes <<router>> {
+        -- Module: src/routes/account.routes.js (prefix /account) --
+        + router.use(requireCustomer) [line 7]
+        + GET /orders [accountController.getOrders] [line 9]
+        + GET /orders/:id [accountController.getOrderDetail] [line 10]
+        + POST /orders/:id/cancel [accountController.postCancelOrder] [line 11]
+    }
+
+    class "checkoutRoutes" as checkoutRoutes <<router>> {
+        -- Module: src/routes/checkout.routes.js (prefix /checkout) --
+        + GET / [requireCustomer, checkoutController.getCheckout] [line 7]
+        + POST / [requireCustomer, checkoutController.postCheckout] [line 8]
+        + GET /success/:orderId [requireCustomer, checkoutController.getSuccess] [line 9]
+    }
+
+    class "AccountController" as AccountController <<controller, partial view>> {
+        -- File: src/controllers/account.controller.js --
+        .. Customer Order Operations (CD05 Scope) ..
+        + getOrders(req: Request, res: Response, next: NextFunction): Promise<void> [lines 8-22]
+        + getOrderDetail(req: Request, res: Response, next: NextFunction): Promise<void> [lines 27-45]
+        + postCancelOrder(req: Request, res: Response, next: NextFunction): Promise<void> [lines 50-74]
+    }
+
+    class "CheckoutController" as CheckoutController <<controller>> {
+        -- File: src/controllers/checkout.controller.js --
+        .. Instance Methods (JavaScript Class) ..
+        + getCheckout(req: Request, res: Response, next: NextFunction): Promise<void> [lines 9-72]
+        + postCheckout(req: Request, res: Response, next: NextFunction): Promise<void> [lines 74-181]
+        + getSuccess(req: Request, res: Response, next: NextFunction): Promise<void> [lines 183-205]
+    }
+
+    class "validator" as validator <<utility>> {
+        -- Module: src/utils/validator.js:28-65 --
+        + isValidFullName(name: string): boolean [lines 49-65]
+        + isValidPhone(phone: string): boolean [lines 28-44]
+    }
+}
+
+' ==============================================================================
+' MIDDLE ROW: DATA ACCESS (LEFT) | APPLICATION SERVICE (RIGHT)
+' ==============================================================================
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "database" as database <<database helper>> {
+        -- Module: src/config/database.js:1-117 --
+        + sql: Object (mssql driver) [lines 1, 111]
+        + getPool(): Promise<sql.ConnectionPool> [lines 11-32, 112]
+        + closePool(): Promise<void> [lines 36-49, 113]
+        + testDbConnection(): Promise<boolean> [lines 55-66, 114]
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>> [lines 75-86, 115]
+    }
+}
+
+package "Application Service Layer" as pkg_service #FAF5FF {
+
+    class "OrderService" as OrderService <<service>> {
+        -- File: src/services/order.service.js:1-649 --
+        .. COD Order Placement Transaction (ACID) ..
+        + createCodOrder(params: Object): Promise<Object> [lines 20-316]
+        .. Customer Order Inquiries & Tracking ..
+        + getOrdersByUser(userId: number): Promise<Array<Object>> [lines 574-589]
+        .. Shared Operation (Customer & Admin) ..
+        + getOrderDetails(orderIdentifier: number|string, userId: number = null): Promise<Object|null> [lines 598-644]
+        .. Customer Order Cancellation ..
+        + cancelOrder(orderId: number, userId: number, reason: string = ''): Promise<Object> [lines 413-463]
+        .. Shared Cancellation Execution Engine ..
+        - _executeCancellation(transaction: sql.Transaction, params: Object): Promise<void> [lines 323-411]
+    }
+
+    note left of OrderService
+        <b>Architecture Invariant:</b>
+        Hệ thống hoàn toàn <b>KHÔNG CÓ OrderRepository</b>.
+        OrderService trực tiếp kết nối Database Pool,
+        khởi tạo sql.Transaction, thực thi các truy vấn
+        T-SQL tham số hóa và áp dụng các khóa hàng
+        UPDLOCK, ROWLOCK, HOLDLOCK.
+    end note
+}
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (CHECKOUT & ORDER SCOPE - FROM CD01)
+' ==============================================================================
+package "Domain Entities (Data Model - Checkout & Order Scope)" as pkg_domain #F0FDF4 {
+
+    class "User" as User <<entity>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + phone: NVARCHAR(20) [0..1]
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+    }
+
+    class "Address" as Address <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        --
+        + recipient_name: NVARCHAR(100)
+        + phone: NVARCHAR(20)
+        + province: NVARCHAR(100)
+        + district: NVARCHAR(100)
+        + ward: NVARCHAR(100)
+        + detail_address: NVARCHAR(255)
+        + is_default: BIT = 0
+    }
+
+    class "Order" as Order <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK>>
+        + voucher_id: INT [0..1] <<FK>>
+        --
+        + order_code: NVARCHAR(50) <<UQ>>
+        + recipient_name_snapshot: NVARCHAR(100)
+        + recipient_phone_snapshot: NVARCHAR(20)
+        + delivery_address_snapshot: NVARCHAR(500)
+        + subtotal: DECIMAL(12,0)
+        + discount_amount: DECIMAL(12,0) = 0
+        + shipping_fee: DECIMAL(12,0) = 0
+        + total_amount: DECIMAL(12,0)
+        + voucher_code_snapshot: NVARCHAR(50) [0..1]
+        + payment_method: NVARCHAR(20) = 'COD'
+        + payment_status: NVARCHAR(20) = 'UNPAID'
+        + order_status: NVARCHAR(20) = 'PENDING'
+        + customer_note: NVARCHAR(500) [0..1]
+        + admin_note: NVARCHAR(500) [0..1]
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "OrderItem" as OrderItem <<entity>> {
+        + id: INT <<PK>>
+        + order_id: INT <<FK>>
+        + product_variant_id: INT <<FK>>
+        --
+        + product_name_snapshot: NVARCHAR(200)
+        + sku_snapshot: NVARCHAR(100)
+        + size_snapshot: NVARCHAR(20)
+        + color_snapshot: NVARCHAR(50)
+        + unit_price: DECIMAL(12,0)
+        + quantity: INT
+        + line_total: DECIMAL(12,0)
+    }
+
+    class "OrderStatusHistory" as OrderStatusHistory <<entity>> {
+        + id: INT <<PK>>
+        + order_id: INT <<FK>>
+        + changed_by: INT <<FK>>
+        --
+        + previous_status: NVARCHAR(50) [0..1]
+        + new_status: NVARCHAR(50)
+        + note: NVARCHAR(255) [0..1]
+        + created_at: DATETIME2
+    }
+
+    class "Voucher" as Voucher <<entity>> {
+        + id: INT <<PK>>
+        --
+        + code: NVARCHAR(50) <<UQ>>
+        + discount_type: NVARCHAR(20)
+        + discount_value: DECIMAL(12,0)
+        + min_order_value: DECIMAL(12,0) = 0
+        + max_discount_amount: DECIMAL(12,0) [0..1]
+        + usage_limit: INT = 0
+        + used_count: INT = 0
+        + is_active: BIT = 1
+        + start_date: DATETIME2
+        + end_date: DATETIME2
+    }
+
+    class "VoucherUsage" as VoucherUsage <<entity>> {
+        + id: INT <<PK>>
+        + voucher_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        + order_id: INT <<FK>>
+        --
+        + used_at: DATETIME2
+        .. Composite Unique ..
+        {unique(voucher_id, user_id)}
+    }
+
+    class "ProductVariant" as ProductVariant <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        + size_id: INT <<FK>>
+        + color_id: INT <<FK>>
+        --
+        + sku: NVARCHAR(100) <<UQ>>
+        + stock_quantity: INT = 0
+        + status: NVARCHAR(20) = 'active'
+        .. Composite Unique ..
+        {unique(product_id, size_id, color_id)}
+    }
+
+    class "InventoryTransaction" as InventoryTransaction <<entity>> {
+        + id: INT <<PK>>
+        + variant_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        --
+        + old_quantity: INT
+        + new_quantity: INT
+        + change_quantity: INT
+        + reason: NVARCHAR(255)
+        + created_at: DATETIME2
+    }
+
+    class "Size" as Size <<entity>> {
+        + id: INT <<PK>>
+        --
+        + size_name: NVARCHAR(20) <<UQ>>
+        + display_order: INT = 0
+    }
+
+    class "Color" as Color <<entity>> {
+        + id: INT <<PK>>
+        --
+        + color_name: NVARCHAR(50) <<UQ>>
+        + hex_code: NVARCHAR(10) [0..1]
+    }
+
+    class "Product" as Product <<entity>> {
+        + id: INT <<PK>>
+        --
+        + product_code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(200)
+        + slug: NVARCHAR(255) <<UQ>>
+        + base_price: DECIMAL(12,0)
+        + sale_price: DECIMAL(12,0) [0..1]
+        + status: NVARCHAR(20) = 'active'
+    }
+
+    class "ProductImage" as ProductImage <<entity>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        --
+        + image_url: NVARCHAR(1000)
+        + is_primary: BIT = 0
+        + display_order: INT = 0
+        .. Filtered Unique Index ..
+        {unique filtered: product_id WHERE is_primary = 1}
+    }
+
+    class "Cart" as Cart <<entity>> {
+        + id: INT <<PK>>
+        + user_id: INT <<FK, UQ>>
+    }
+
+    class "CartItem" as CartItem <<entity>> {
+        + id: INT <<PK>>
+        + cart_id: INT <<FK>>
+        + variant_id: INT <<FK>>
+        --
+        + quantity: INT = 1
+        .. Composite Unique ..
+        {unique(cart_id, variant_id)}
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01 DOMAIN MODEL)
+' 7 Compositions (*--) + 12 Associations (--) = 19 Domain Relationships
+' ==============================================================================
+' 7 Compositions (Whole *-- Part, Cascade Lifecycle)
+User "1" *-- "0..*" Address : "fk_addresses_user\n(owns)"
+User "1" *-- "0..1" Cart : "fk_carts_user\n(owns)"
+Product "1" *-- "0..*" ProductVariant : "fk_variants_product\n(has SKUs)"
+Product "1" *-- "0..*" ProductImage : "fk_product_images_product\n(contains)"
+Cart "1" *-- "0..*" CartItem : "fk_cart_items_cart\n(contains)"
+Order "1" *-- "0..*" OrderItem : "fk_order_items_order\n(includes)"
+Order "1" *-- "0..*" OrderStatusHistory : "fk_order_histories_order\n(tracks)"
+
+' 12 Associations (Undirected References / Foreign Keys)
+User "1" -- "0..*" Order : "fk_orders_user\n(places)"
+User "1" -- "0..*" VoucherUsage : "FK_voucher_usages_user\n(records)"
+User "1" -- "0..*" InventoryTransaction : "fk_inv_trans_user\n(operates)"
+User "1" -- "0..*" OrderStatusHistory : "fk_order_histories_user\n(changed_by)"
+
+Size "1" -- "0..*" ProductVariant : "fk_variants_size\n(defines size)"
+Color "1" -- "0..*" ProductVariant : "fk_variants_color\n(defines color)"
+
+ProductVariant "1" -- "0..*" CartItem : "fk_cart_items_variant\n(selected as)"
+ProductVariant "1" -- "0..*" OrderItem : "fk_order_items_variant\n(ordered as)"
+ProductVariant "1" -- "0..*" InventoryTransaction : "fk_inv_trans_variant\n(logs)"
+
+Order "1" -- "0..*" VoucherUsage : "FK_voucher_usages_order\n(applies)"
+Voucher "0..1" -- "0..*" Order : "fk_orders_voucher\n(applied to)"
+Voucher "1" -- "0..*" VoucherUsage : "FK_voucher_usages_voucher\n(logs usage)"
+
+' ==============================================================================
+' PACKAGE LAYOUT RELATIONS
+' ==============================================================================
+validator -[hidden]down-> database
+database -[hidden]right-> OrderService
+AccountController -[hidden]down-> OrderService
+database -[hidden]down-> pkg_domain
+OrderService -[hidden]down-> pkg_domain
+
+' ==============================================================================
+' DEPENDENCY & INTERACTION RELATIONSHIPS (34 DEPENDENCIES)
+' ==============================================================================
+' Application Middleware Pipeline & Router Mounting (4)
+app ..> csrfMiddleware : "app.use(csrfMiddleware)\n[src/app.js:61]"
+app ..> rootRoutes : "app.use('/', routes)\n[src/app.js:64]"
+rootRoutes ..> checkoutRoutes : "mounts at '/checkout'\n[src/routes/index.js:20]"
+rootRoutes ..> accountRoutes : "mounts at '/account'\n[src/routes/index.js:21]"
+
+' Route Guards & Controller Delegations (4)
+checkoutRoutes ..> authMiddleware : "requireCustomer guard\n[src/routes/checkout.routes.js:7-9]"
+checkoutRoutes ..> CheckoutController : "delegates requests\n[src/routes/checkout.routes.js:7-9]"
+accountRoutes ..> authMiddleware : "router.use(requireCustomer)\n[src/routes/account.routes.js:7]"
+accountRoutes ..> AccountController : "delegates order requests\n[src/routes/account.routes.js:9-11]"
+
+' Controller to Utility, Service, Database & Entities (13)
+CheckoutController ..> validator : "validates recipient name & phone\n[src/controllers/checkout.controller.js:84-93]"
+CheckoutController ..> OrderService : "calls createCodOrder, getOrderDetails\n[src/controllers/checkout.controller.js:114, 188]"
+CheckoutController ..> database : "executes SQL queries via helper\n[src/controllers/checkout.controller.js:17, 46, 130, 154]"
+CheckoutController ..> Address : "queries saved recipient addresses\n[src/controllers/checkout.controller.js:46, 154]"
+CheckoutController ..> CartItem : "queries checkout items for order summary\n[src/controllers/checkout.controller.js:18-33, 131-146]"
+CheckoutController ..> Cart : "queries customer cart\n[src/controllers/checkout.controller.js:27, 140]"
+CheckoutController ..> ProductVariant : "queries selected SKU\n[src/controllers/checkout.controller.js:28, 141]"
+CheckoutController ..> Product : "queries product details\n[src/controllers/checkout.controller.js:29, 142]"
+CheckoutController ..> Size : "queries size details\n[src/controllers/checkout.controller.js:30, 143]"
+CheckoutController ..> Color : "queries color details\n[src/controllers/checkout.controller.js:31, 144]"
+AccountController ..> OrderService : "calls getOrdersByUser, getOrderDetails, cancelOrder\n[src/controllers/account.controller.js:12, 31, 69]"
+AccountController ..> database : "resolves orderId from order_code\n[src/controllers/account.controller.js:58-61]"
+AccountController ..> Order : "resolves order ID by order_code\n[src/controllers/account.controller.js:58-61]"
+
+' Service Direct Data Access Helper (1)
+OrderService ..> database : "executes parameterized T-SQL &\nsql.Transaction (ACID with row locks)\n[src/services/order.service.js:40-302, 325-408]"
+
+' OrderService to Domain Entities (12 Verified SQL Dependencies)
+OrderService ..> Order : "creates, updates status, queries details\n[src/services/order.service.js:149, 230, 374, 424, 576, 601]"
+OrderService ..> OrderItem : "inserts items with snapshots, queries items\n[src/services/order.service.js:274, 328, 578, 623]"
+OrderService ..> OrderStatusHistory : "inserts status transition logs, queries history\n[src/services/order.service.js:291, 405, 636]"
+OrderService ..> InventoryTransaction : "records stock deduction & restitution\n[src/services/order.service.js:207, 364]"
+OrderService ..> ProductVariant : "locks & updates stock_quantity\n[src/services/order.service.js:55, 174, 193, 338, 351, 627]"
+OrderService ..> Voucher : "locks & validates quota, updates used_count\n[src/services/order.service.js:80, 126, 392]"
+OrderService ..> VoucherUsage : "records redemption, deletes on cancel\n[src/services/order.service.js:105, 255, 387]"
+OrderService ..> Cart : "locks cart during checkout transaction\n[src/services/order.service.js:53]"
+OrderService ..> CartItem : "reads items & clears cart_items after order\n[src/services/order.service.js:54, 298]"
+OrderService ..> Product : "queries active product status & pricing\n[src/services/order.service.js:56]"
+OrderService ..> ProductImage : "queries product images for order items\n[src/services/order.service.js:624]"
+OrderService ..> User : "joins customer & actor profile in details\n[src/services/order.service.js:605, 638]"
+
+' ==============================================================================
+' UML NOTES & ARCHITECTURE SPECIFICATIONS
+' ==============================================================================
+note right of csrfMiddleware
+  <b>CSRF Pipeline & Execution Order:</b>
+  1. Request đi qua <i>csrfMiddleware</i> (app.use tại src/app.js:61).
+  2. Miễn trừ các phương thức an toàn: <b>GET, HEAD, OPTIONS</b>.
+  3. Phương thức thay đổi trạng thái: <b>POST, PUT, PATCH, DELETE</b>:
+     Xác thực token từ 3 nguồn:
+     - <i>req.body._csrf</i>
+     - <i>req.headers['x-csrf-token']</i>
+     - <i>req.headers['csrf-token']</i>
+     đối chiếu với <i>req.session.csrfToken</i>.
+  4. Nếu thiếu/sai token: Chặn ngay với mã lỗi <b>HTTP 403 Forbidden</b>.
+  5. Nếu hợp lệ: Gọi next() chuyển tiếp tới <i>rootRoutes</i>.
+  6. Tại router: <i>requireCustomer</i> kiểm tra session Customer trước controller.
+  <i>(Checkout dùng GET, POST; Account Orders dùng GET, POST).</i>
+end note
+
+note right of CheckoutController
+  <b>Note 1 – Checkout Pricing & Validation Rules:</b>
+  * <b>Cart Validation:</b> Kiểm tra giỏ hàng trong CSDL có sản phẩm hay không;
+    nếu rỗng tự động chuyển hướng về <i>/cart</i>.
+  * <b>Input Validation:</b> Server-side validator kiểm tra họ tên người nhận (2..100 ký tự)
+    và số điện thoại hợp lệ (10 số di động VN: 03, 05, 07, 08, 09).
+  * <b>Pricing Rules:</b>
+    - <i>Subtotal</i>: Tính từ tổng (unit_price * quantity) của từng cart_item.
+    - <i>Shipping Fee</i>: <b>30.000₫</b>; Miễn phí vận chuyển nếu <b>Subtotal >= 500.000₫</b>.
+    - <i>Total Amount</i>: Math.max(0, Subtotal - Discount + ShippingFee).
+  * <b>Phương thức thanh toán:</b> Mặc định hỗ trợ phương thức <b>COD</b> (Thanh toán khi nhận hàng).
+    Trạng thái ban đầu: <i>payment_status = 'UNPAID'</i>, <i>order_status = 'PENDING'</i>.
+end note
+
+note bottom of OrderService
+  <b>Note 2 – COD Order Placement Transaction (ACID Engine):</b>
+  Hàm <b>createCodOrder</b> thực thi trong 1 <b>sql.Transaction</b> nguyên tử:
+  1. <i>Lock Cart & Cart Items</i>: Khóa <i>carts</i> bằng <b>WITH (UPDLOCK, ROWLOCK)</b>;
+     khóa <i>cart_items</i> bằng <b>WITH (UPDLOCK, HOLDLOCK)</b> (chống phantom reads khi tính toán tổng tiền).
+  2. <i>Voucher Verification</i>: Khóa <i>vouchers</i> bằng <b>WITH (UPDLOCK, ROWLOCK)</b> để kiểm tra hạn ngạch;
+     khóa <i>voucher_usages</i> bằng <b>WITH (UPDLOCK, ROWLOCK)</b> (Quy tắc Q8: 1 lần/khách hàng).
+     Tăng nguyên tử: <i>used_count = used_count + 1</i>.
+  3. <i>Inventory Lock & Deduction</i>: Khóa SKU <i>product_variants</i> bằng <b>WITH (UPDLOCK, ROWLOCK)</b>,
+     kiểm tra tồn kho đủ đáp ứng. Trừ trực tiếp <i>stock_quantity = stock_quantity - qty</i>.
+     Ghi nhật ký biến động vào bảng <i>inventory_transactions</i> (change_quantity < 0).
+  4. <i>Order Creation</i>: Sinh mã ngẫu nhiên <i>VAM{YYMMDD}-{XXXX}</i> kèm xử lý va chạm (collision handling).
+     Tạo bản ghi <i>orders</i> lưu các giá trị Snapshot độc lập.
+  5. <i>Voucher Usage Log</i>: Ghi bản ghi vào <i>voucher_usages</i>.
+  6. <i>Order Items</i>: Lặp qua giỏ hàng chèn vào <i>order_items</i> kèm snapshot tên, SKU, size, color, giá.
+  7. <i>Status History</i>: Ghi trạng thái ban đầu PENDING vào <i>order_status_histories</i>.
+  8. <i>Clear Cart</i>: Xóa sạch các mặt hàng trong <i>cart_items</i> của khách hàng.
+  9. Commit Transaction. Cập nhật lại <i>req.session.cartCount = 0</i>.
+end note
+
+note left of AccountController
+  <b>Note 3 – Customer Order Tracking & Cancellation Rules:</b>
+  * <b>Order Tracking:</b>
+    - <i>getOrders</i>: Lấy danh sách đơn hàng đã đặt của khách hàng theo userId.
+    - <i>getOrderDetail</i>: Lấy thông tin chi tiết đơn hàng, danh sách order_items và lịch sử trạng thái
+      order_status_histories. Phân lập dữ liệu an toàn theo userId.
+  * <b>Order Cancellation (cancelOrder):</b>
+    - <b>Điều kiện hủy:</b> Khách hàng <b>chỉ được hủy đơn khi order_status = 'PENDING'</b>.
+    - <b>Chống hủy lặp (Anti-Double Restitution):</b> Từ chối ngay nếu đơn hàng đã ở trạng thái CANCELLED.
+    - <b>Hoàn trả tồn kho:</b> Tự động cộng lại số lượng cho từng SKU:
+      <i>stock_quantity = stock_quantity + quantity</i>, đồng thời ghi log hoàn kho vào <i>inventory_transactions</i>.
+    - <b>Phục hồi Voucher:</b> Xóa bản ghi trong <i>voucher_usages</i> và giảm <i>vouchers.used_count</i>
+      để khách hàng có thể tái sử dụng mã giảm giá cho đơn hàng sau.
+    - <b>Ghi nhận lịch sử:</b> Thêm bản ghi mới vào <i>order_status_histories</i> với new_status = 'CANCELLED'.
+end note
+
+note bottom of OrderItem
+  <b>Application Invariants (Order - OrderItem & History):</b>
+  * <b>Database Multiplicity:</b> DDL và Foreign Key là <b>1 : 0..*</b>
+    (CSDL không ép buộc bản ghi con tại thời điểm tạo bản ghi cha).
+  * <b>Nghiệp vụ (Application Invariant):</b> Đơn hàng tạo thành công (createCodOrder)
+    bắt buộc phải có ít nhất một dòng hàng (1 : 1..*) và được khởi tạo ngay bản ghi
+    lịch sử trạng thái đầu tiên 'PENDING' (1 : 1..*).
+end note
+
+note bottom of pkg_domain
+  <b>Note 4 – Snapshot Architecture & Address Integrity:</b>
+  * <b>Address Snapshot:</b> Trường <i>orders.delivery_address_snapshot: NVARCHAR(500)</i> lưu chuỗi địa chỉ giao hàng tại thời điểm đặt.
+    Không có Foreign Key ràng buộc tới bảng <i>addresses</i> để bảo đảm tính toàn vẹn dữ liệu lịch sử đơn hàng
+    khi khách hàng chỉnh sửa hoặc xóa địa chỉ trong sổ địa chỉ cá nhân.
+  * <b>Admin Lifecycle Boundary (CD06 Scope):</b>
+    Quy trình Quản trị viên duyệt đơn (CONFIRMED -> PROCESSING -> SHIPPING -> COMPLETED), gọi hàm updateOrderStatusByAdmin(),
+    cập nhật payment_status = 'PAID' khi giao hàng thành công, hoặc Admin hủy đơn do khách không nhận hàng sẽ được mô hình hóa chi tiết trong CD06.
+end note
+
+@enduml

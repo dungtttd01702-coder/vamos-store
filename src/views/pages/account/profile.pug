@@ -20,12 +20,18 @@ block content
               .text-xs.font-bold.text-vamos-dark= profile.full_name || 'Khách hàng'
               .text-xs.text-gray-400.truncate= profile.email
           nav.space-y-1.text-xs.font-semibold
+            a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/rewards")
+              span 🎁
+              span VAMOS Club (Điểm &amp; Voucher)
             a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/orders")
               span 📦
               span Đơn hàng của tôi
             a.flex.items-center.gap-2.px-3.py-2.rounded-lg.bg-red-50.text-vamos-red(href="/account/profile")
               span 👤
               span Thông tin tài khoản
+            a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/wishlist")
+              span ❤️
+              span Sản phẩm yêu thích
             a.flex.items-center.gap-2.px-3.py-2.rounded-lg.text-gray-700.transition-colors(class="hover:bg-gray-50 hover:text-vamos-red" href="/account/addresses")
               span 📍
               span Sổ địa chỉ giao hàng

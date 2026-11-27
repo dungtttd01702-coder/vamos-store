@@ -1,0 +1,79 @@
+@startuml AD07_WISHLIST_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: QUẢN LÝ DANH SÁCH YÊU THÍCH (AD07 — WISHLIST)\nHỆ THỐNG VAMOS STORE
+
+|Người dùng (Guest / Customer)|
+start
+:Nhấp biểu tượng Trái tim (Yêu thích)\ntại thẻ sản phẩm hoặc trang chi tiết sản phẩm;
+
+|Hệ thống (Web App)|
+:Nhận request POST /api/wishlist/toggle (productId);
+:Kiểm tra trạng thái xác thực trong phiên làm việc;
+
+if (Người dùng đã đăng nhập?) then ([Chưa đăng nhập (Guest)])
+  :Trả về mã HTTP 401 Unauthorized kèm JSON:
+  {\n  success: false,\n  message: "Vui lòng đăng nhập để tiếp tục",\n  redirect: "/auth/login"\n};
+  |Người dùng (Guest / Customer)|
+  :Nhận thông báo yêu cầu đăng nhập;\nĐược điều hướng đến trang Đăng nhập (/auth/login);
+  stop
+else ([Đã đăng nhập])
+  if (Vai trò là Quản trị viên (ADMIN)?) then ([Admin])
+    |Hệ thống (Web App)|
+    :Trả về mã HTTP 403 Forbidden kèm JSON:
+    {\n  success: false,\n  message: "Tài khoản Quản trị viên không thể thực hiện thao tác này"\n};
+    |Người dùng (Guest / Customer)|
+    :Nhận thông báo từ chối thao tác;
+    stop
+  else ([Khách hàng thành viên (Customer)])
+    |Hệ thống (Web App)|
+    :Lấy userId từ req.session.user.id;
+    :Gọi wishlistService.toggleItem(userId, productId);
+
+    |Cơ sở Dữ liệu (SQL Server)|
+    :SELECT id FROM wishlist_items\nWHERE user_id = @userId AND product_id = @productId;
+
+    |Hệ thống (Web App)|
+    if (Sản phẩm đã có trong danh sách yêu thích?) then ([Đã tồn tại])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :DELETE FROM wishlist_items\nWHERE user_id = @userId AND product_id = @productId;
+      |Hệ thống (Web App)|
+      :Xác định hành động: action = 'removed';\ninWishlist = false;
+    else ([Chưa có])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :INSERT INTO wishlist_items (user_id, product_id, created_at)\nVALUES (@userId, @productId, GETDATE());
+      note right
+        Ràng buộc **uq_wishlist_user_product**
+        chống trùng lặp ở tầng CSDL
+      end note
+      |Hệ thống (Web App)|
+      :Xác định hành động: action = 'added';\ninWishlist = true;
+    endif
+
+    |Cơ sở Dữ liệu (SQL Server)|
+    :SELECT COUNT(*) AS total FROM wishlist_items WHERE user_id = @userId;
+
+    |Hệ thống (Web App)|
+    if (Truy vấn CSDL thành công?) then ([Lỗi kết nối / DB Error])
+      :Trả về mã HTTP 500 kèm JSON:
+      {\n  success: false,\n  message: "Không thể cập nhật danh sách yêu thích. Vui lòng thử lại sau."\n};
+      |Người dùng (Guest / Customer)|
+      :Hiển thị Toast thông báo lỗi hệ thống;\nBiểu tượng Trái tim giữ nguyên trạng thái;
+      stop
+    else ([Thành công])
+      :Trả về HTTP 200 kèm JSON:
+      {\n  success: true,\n  action: action,\n  inWishlist: inWishlist,\n  totalWishlist: total,\n  message: inWishlist ? "Đã thêm vào danh sách yêu thích" : "Đã xóa khỏi danh sách yêu thích"\n};
+
+      |Người dùng (Guest / Customer)|
+      :Cập nhật trạng thái Trái tim trên giao diện (Đỏ = Yêu thích / Trắng = Bỏ);\nCập nhật số đếm badge Wishlist trên Header;
+      stop
+    endif
+  endif
+endif
+
+@enduml
+

@@ -1,0 +1,123 @@
+@startuml SD10_ADMIN_ORDER_PROCESSING
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+autonumber "<b>[00]</b>"
+
+title BIỂU ĐỒ TUẦN TỰ: ADMIN XỬ LÝ & CẬP NHẬT ĐƠN HÀNG (SD10 - ADMIN ORDER PROCESSING)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+actor "Quản trị viên\n(Admin)" as Admin
+participant "Trình duyệt Quản trị\n(Admin Browser)" as Browser
+participant "Admin Router\n(admin.routes.js)" as Router
+participant "Admin Guard\n(requireAdmin)" as AuthGuard
+participant "CSRF Middleware\n(csrf.middleware.js)" as CsrfMid
+participant "Admin Controller\n(admin.controller.js)" as AdminCtrl
+participant "Order Service\n(order.service.js)" as OrderService
+participant "Database Pool & Tx\n(database.js)" as DbPool
+database "Microsoft SQL Server\n(vamos_store_db)" as SqlDb
+
+Admin -> Browser : Chọn trạng thái mới (CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED) & bấm Cập nhật
+Browser -> Router : POST /admin/orders/:id/status\n{ status: newStatus, note, _csrf }
+Router -> AuthGuard : Kiểm tra session.user.role === 'ADMIN' && status === 'active'
+alt Không có quyền Quản trị viên
+    AuthGuard --> Browser : Chuyển hướng đăng nhập hoặc trả về HTTP 403 Forbidden
+else Quyền Admin hợp lệ
+    AuthGuard -> CsrfMid : Kiểm tra token _csrf
+    CsrfMid -> AdminCtrl : postUpdateOrderStatus(req, res, next)
+    AdminCtrl -> OrderService : updateOrderStatusByAdmin({\n  orderId, newStatus, adminUserId: admin.id, note\n})
+    
+    OrderService -> DbPool : getPool() & new sql.Transaction(pool) & transaction.begin()
+    DbPool -> SqlDb : BEGIN TRANSACTION (Bảo đảm tính toàn vẹn State Machine ACID)
+    
+    OrderService -> DbPool : Xác thực quyền Admin trong CSDL:\nSELECT id, role, status FROM users WHERE id = @adminId
+    DbPool -> SqlDb : Kiểm tra admin đang active
+    SqlDb --> DbPool : adminRecord
+    
+    alt Tài khoản không phải ADMIN hoặc bị khóa (status != 'active')
+        OrderService -> DbPool : transaction.rollback()
+        DbPool -> SqlDb : ROLLBACK TRANSACTION
+        OrderService --> AdminCtrl : Ném ngoại lệ: "Tài khoản không có quyền Admin hoặc đã bị khóa"
+        AdminCtrl --> Browser : Báo lỗi từ chối thao tác
+    else Admin hợp lệ
+        OrderService -> DbPool : Khóa đơn hàng CSDL:\nSELECT id, order_code, order_status, payment_status\nFROM orders WITH (UPDLOCK, ROWLOCK) WHERE id = @orderId
+        DbPool -> SqlDb : Khóa bi quan bản ghi đơn hàng
+        SqlDb --> DbPool : currentOrderRecord
+        
+        alt Đơn hàng không tồn tại
+            OrderService -> DbPool : transaction.rollback()
+            DbPool -> SqlDb : ROLLBACK TRANSACTION
+            OrderService --> AdminCtrl : Ném ngoại lệ: "Không tìm thấy đơn hàng"
+            AdminCtrl --> Browser : Hiển thị thông báo lỗi
+        else Đơn hàng tồn tại (Lấy ra oldStatus)
+            alt Trùng trạng thái hiện tại (oldStatus === newStatus)
+                OrderService -> DbPool : transaction.commit()
+                DbPool -> SqlDb : COMMIT TRANSACTION (Tính lũy đẳng - Idempotency)
+                OrderService --> AdminCtrl : Trả về dữ liệu hiện tại
+                AdminCtrl --> Browser : res.redirect('/admin/orders/:id')
+            else Chuyển trạng thái
+                OrderService -> OrderService : Kiểm tra ma trận chuyển trạng thái hợp lệ (VALID_TRANSITIONS):\nPENDING -> CONFIRMED, CANCELLED\nCONFIRMED -> PROCESSING, CANCELLED\nPROCESSING -> SHIPPING\nSHIPPING -> COMPLETED
+                
+                alt Chuyển trạng thái bất hợp pháp (Ví dụ: PENDING -> COMPLETED, hoặc từ CANCELLED chuyển tiếp)
+                    OrderService -> DbPool : transaction.rollback()
+                    DbPool -> SqlDb : ROLLBACK TRANSACTION
+                    OrderService --> AdminCtrl : Ném ngoại lệ ma trận trạng thái: "Luồng chuyển trạng thái không được phép"
+                    AdminCtrl --> Browser : Báo lỗi vi phạm quy trình xử lý đơn
+                else Chuyển trạng thái hợp lệ
+                    alt Trường hợp Admin chọn HỦY ĐƠN (newStatus === 'CANCELLED')
+                        OrderService -> OrderService : Kích hoạt hàm dùng chung _executeCancellation() (Đồng bộ SD09)
+                        OrderService -> DbPool : SELECT product_variant_id, quantity, product_name_snapshot\nFROM order_items WHERE order_id = @orderId
+                        DbPool -> SqlDb : Lấy danh sách các món trong đơn hàng (Khóa ngoại: product_variant_id)
+                        SqlDb --> DbPool : itemsList
+                        
+                        loop Duyệt từng món hàng trong đơn (Hoàn trả tồn kho tự động)
+                            OrderService -> DbPool : Khóa biến thể: SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId
+                            DbPool -> SqlDb : Khóa dòng biến thể
+                            SqlDb --> DbPool : currentStock
+                            
+                            OrderService -> DbPool : UPDATE product_variants SET stock_quantity = @newStock, updated_at = GETDATE() WHERE id = @varId
+                            DbPool -> SqlDb : Tự động hoàn trả số lượng vào tồn kho (newStock = currentStock + quantity)
+                            
+                            OrderService -> DbPool : INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity = +qty, reason)\nVALUES (@varId, @adminId, @oldStock, @newStock, @qty, @reason)
+                            DbPool -> SqlDb : Ghi nhật ký hoàn kho với số lượng dương (+qty)
+                        end
+                        
+                        OrderService -> DbPool : UPDATE orders SET order_status = 'CANCELLED', updated_at = GETDATE() WHERE id = @orderId
+                        DbPool -> SqlDb : Cập nhật đơn sang CANCELLED
+                        
+                        opt Đơn có mã giảm giá (voucher_id != null)
+                            OrderService -> DbPool : DELETE FROM voucher_usages WHERE order_id = @orderId
+                            DbPool -> SqlDb : Xóa bản ghi lịch sử dùng voucher
+                            
+                            OrderService -> DbPool : UPDATE vouchers SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END WHERE id = @vouchId
+                            DbPool -> SqlDb : Giải phóng voucher cho khách
+                        end
+                        
+                        OrderService -> DbPool : INSERT INTO order_status_histories (order_id, changed_by, previous_status=@oldStatus, new_status='CANCELLED', note)\nVALUES (@orderId, @adminId, @oldStatus, 'CANCELLED', @note)
+                        DbPool -> SqlDb : Ghi nhận lịch sử hủy đơn
+                    else Trường hợp chuyển trạng thái tiến hành (CONFIRMED / PROCESSING / SHIPPING / COMPLETED)
+                        OrderService -> OrderService : Áp dụng Quy tắc Thu tiền COD:\nNếu newStatus === 'COMPLETED' -> newPaymentStatus = 'PAID'\n(Ngược lại giữ nguyên payment_status ban đầu, tuyệt đối không trừ kho lần 2)
+                        
+                        OrderService -> DbPool : UPDATE orders SET order_status = @newStatus, payment_status = @payStatus, updated_at = GETDATE() WHERE id = @orderId
+                        DbPool -> SqlDb : Cập nhật đơn hàng (order_status & payment_status)
+                        
+                        OrderService -> DbPool : INSERT INTO order_status_histories (order_id, changed_by, previous_status=@oldStatus, new_status=@newStatus, note)\nVALUES (@orderId, @adminId, @oldStatus, @newStatus, @note)
+                        DbPool -> SqlDb : Ghi lịch sử chuyển trạng thái vào order_status_histories
+                    end
+                    
+                    OrderService -> DbPool : transaction.commit()
+                    DbPool -> SqlDb : COMMIT TRANSACTION (Xác nhận thay đổi)
+                    
+                    OrderService --> AdminCtrl : { id, oldStatus, newStatus, paymentStatus }
+                    AdminCtrl --> Browser : HTTP 302 Redirect về '/admin/orders/:id'
+                    Browser --> Admin : Tải lại trang chi tiết đơn với trạng thái mới và dòng lịch sử vừa ghi nhận
+                end
+            end
+        end
+    end
+end
+
+@enduml

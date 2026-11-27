@@ -1,0 +1,80 @@
+@startuml DASHBOARD_COMPONENT_DIAGRAM
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN: PHÂN HỆ DASHBOARD & BÁO CÁO DOANH THU (DASHBOARD COMPONENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Tầng Giao diện Người dùng (Presentation Tier)" #F1F5F9 {
+  component [Bảng điều khiển Quản trị\n(views/pages/admin/dashboard.pug)] as ViewDashboard
+  
+  folder "Các Khối Thông tin Trực quan" {
+    [Thẻ KPI Doanh thu Thực thu, Đơn hàng, Tồn kho] as KpiCards
+    [Bảng Cảnh báo Hàng sắp hết (stock <= 5)] as LowStockTable
+    [Biểu đồ Cơ cấu Trạng thái Đơn hàng] as StatusChart
+    [Bảng Xếp hạng Top 4 Sản phẩm Bán chạy] as TopProdTable
+    [Danh sách Đơn hàng Gấp cần duyệt (PENDING)] as UrgentTable
+  }
+  
+  ViewDashboard --> KpiCards
+  ViewDashboard --> LowStockTable
+  ViewDashboard --> StatusChart
+  ViewDashboard --> TopProdTable
+  ViewDashboard --> UrgentTable
+}
+
+package "Tầng Điều tuyến & Kiểm soát (Routing & Guard Tier)" #EFF6FF {
+  component [Admin Router\n(src/routes/admin.routes.js)] as AdminRouter
+  component [Admin Authorization Guard\n(src/middlewares/auth.middleware.js - requireAdmin)] as AdminGuard
+  
+  AdminRouter --> AdminGuard : GET /admin/dashboard
+}
+
+ViewDashboard --> AdminRouter : Yêu cầu tải dữ liệu
+
+package "Tầng Điều khiển Báo cáo (Controller Tier)" #F0FDF4 {
+  component [Admin Controller: getDashboard\n(src/controllers/admin.controller.js)] as DashboardCtrl
+  component [Bộ Phân phối Truy vấn Bất đồng bộ\n(Promise.all Parallel Query Dispatcher)] as PromiseDispatcher
+  
+  AdminGuard --> DashboardCtrl
+  DashboardCtrl --> PromiseDispatcher : Kích hoạt đồng thời 9 truy vấn KPI song song
+}
+
+note right of DashboardCtrl #FEF3C7
+  **LƯU Ý KIẾN TRÚC THỰC TẾ:**
+  Trong mã nguồn hiện tại, Dashboard
+  không sử dụng Service riêng mà được điều phối
+  trực tiếp tại **admin.controller.js** để tối ưu hóa
+  hiệu năng và tránh lớp bọc trung gian không cần thiết.
+  Thực thi 9 truy vấn song song qua Promise.all
+  và 1 truy vấn đơn hàng khẩn cấp tuần tự.
+end note
+
+package "Tầng Truy xuất CSDL (Data Access Engine)" #EEF2FF {
+  component [Database Access Engine\n(src/config/database.js - query())] as DbEngine
+  
+  PromiseDispatcher --> DbEngine : Thực thi 9 prepared statements song song\n+ 1 truy vấn đơn hàng khẩn cấp
+}
+
+package "Tầng Cơ sở Dữ liệu (Microsoft SQL Server)" #FFF1F2 {
+  database [SQL Server (vamos_store_db)] as SqlDb {
+    [orders\n(order_status='COMPLETED' AND payment_status='PAID')] as QryRev
+    [orders\n(order_status='PENDING' / CONFIRMED / CANCELLED)] as QryStatus
+    [product_variants\n(stock_quantity <= 5)] as QryLowStock
+    [order_items & orders\n(SUM(quantity), SUM(line_total))] as QryTop
+    [products & product_variants\n(COUNT active)] as QryCatalog
+  }
+  
+  DbEngine <--> QryRev : 1. Tổng doanh thu thực thu
+  DbEngine <--> QryStatus : 2. Tổng đơn, đơn chờ, phân bổ trạng thái
+  DbEngine <--> QryLowStock : 3. Top 8 SKU sắp hết hàng
+  DbEngine <--> QryTop : 4. Top 4 sản phẩm bán chạy nhất
+  DbEngine <--> QryCatalog : 5. Quy mô sản phẩm & SKU đang hoạt động
+}
+
+DashboardCtrl -left-> ViewDashboard : res.render('pages/admin/dashboard', { stats, ... })
+
+@enduml

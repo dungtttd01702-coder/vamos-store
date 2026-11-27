@@ -1,0 +1,333 @@
+@startuml CD06B_PRODUCT_CATALOG_INVENTORY
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI", Arial, sans-serif
+skinparam defaultFontSize 11
+skinparam roundCorner 6
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #334155
+    BorderThickness 1.2
+    HeaderBackgroundColor #E2E8F0
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeIconSize 0
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontSize 10
+}
+
+skinparam legend {
+    BackgroundColor #F1F5F9
+    BorderColor #94A3B8
+    FontSize 10
+}
+
+title
+    <size:16><b>VAMOS STORE — CD06B: PRODUCT CATALOG & INVENTORY MANAGEMENT CLASS DIAGRAM</b></size>
+    <size:12>Sơ đồ lớp chi tiết phân hệ Quản lý Tồn kho (UC-11) và Quản lý Sản phẩm, Danh mục & Thương hiệu (UC-12)</size>
+    <size:10>Git Baseline: fix/master-repair-plan (HEAD: 8135e19) | Chuẩn UML 2.5</size>
+end title
+
+' ==============================================================================
+' TOP ROW: PRESENTATION & ROUTING LAYER
+' ==============================================================================
+package "Presentation & Routing Layer (/admin)" as pkg_routing #EFF6FF {
+
+    class "adminRoutes" as adminRoutes <<router, partial view>> {
+        -- Module: src/routes/admin.routes.js (UC11 & UC12 Scope) --
+        + router.use(requireAdmin) [line 7]
+        .. Product Catalog Routes (UC-12) ..
+        + GET /products [adminController.getProducts] [line 19]
+        + GET /products/create [adminController.getCreateProduct] [line 20]
+        + POST /products/create [adminController.postCreateProduct] [line 21]
+        + GET /products/:id/edit [adminController.getEditProduct] [line 22]
+        + POST /products/:id/edit [adminController.postEditProduct] [line 23]
+        + POST /products/:id/toggle [adminController.postToggleProductStatus] [line 24]
+        .. Inventory & Stock Adjustment Routes (UC-11) ..
+        + GET /inventory [adminController.getInventory] [line 27]
+        + POST /inventory/adjust [adminController.postAdjustInventory] [line 28]
+        + GET /inventory/history [adminController.getInventoryHistory] [line 29]
+        .. Categories & Brands Routes (UC-12) ..
+        + GET /categories [adminController.getCategories] [line 32]
+        + POST /categories/create [adminController.postCreateCategory] [line 33]
+        + POST /categories/:id/toggle [adminController.postToggleCategory] [line 34]
+        + POST /brands/create [adminController.postCreateBrand] [line 35]
+    }
+
+    class "requireAdmin" as requireAdmin <<middleware function>> {
+        -- Function: src/middlewares/auth.middleware.js:132-158 --
+        + requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void>
+        .. Route Guard & DB Verification ..
+        {verifies session.user.role === 'ADMIN'}
+        {queries DB: SELECT status, role FROM users WHERE id = @id}
+        {fail-open on DB transient error: calls next() [lines 153-157]}
+    }
+
+    class "AdminController" as AdminController <<controller, partial view>> {
+        -- File: src/controllers/admin.controller.js:204-771 (13 Methods) --
+        .. Product Management (UC-12) [Direct DB / Transaction] ..
+        + getProducts(req: Request, res: Response, next: NextFunction): Promise<void> [lines 204-254]
+        + getCreateProduct(req: Request, res: Response, next: NextFunction): Promise<void> [lines 259-281]
+        + postCreateProduct(req: Request, res: Response, next: NextFunction): Promise<void> [lines 286-390]
+        + getEditProduct(req: Request, res: Response, next: NextFunction): Promise<void> [lines 395-433]
+        + postEditProduct(req: Request, res: Response, next: NextFunction): Promise<void> [lines 438-497]
+        + postToggleProductStatus(req: Request, res: Response, next: NextFunction): Promise<void> [lines 502-516]
+        .. Inventory Management (UC-11) [Direct DB / Transaction with Row Lock] ..
+        + getInventory(req: Request, res: Response, next: NextFunction): Promise<void> [lines 521-558]
+        + postAdjustInventory(req: Request, res: Response, next: NextFunction): Promise<void> [lines 563-631]
+        + getInventoryHistory(req: Request, res: Response, next: NextFunction): Promise<void> [lines 636-660]
+        .. Categories & Brands Management (UC-12) [Direct DB] ..
+        + getCategories(req: Request, res: Response, next: NextFunction): Promise<void> [lines 665-689]
+        + postCreateCategory(req: Request, res: Response, next: NextFunction): Promise<void> [lines 694-721]
+        + postToggleCategory(req: Request, res: Response, next: NextFunction): Promise<void> [lines 726-739]
+        + postCreateBrand(req: Request, res: Response, next: NextFunction): Promise<void> [lines 744-771]
+    }
+}
+
+adminRoutes .down.> AdminController : "dispatches 13 catalog & inventory routes\n[src/routes/admin.routes.js:19-35]"
+adminRoutes .right.> requireAdmin : "router.use(requireAdmin)\n[src/routes/admin.routes.js:7]"
+
+' ==============================================================================
+' MIDDLE ROW: DATA ACCESS & PERSISTENCE LAYER
+' ==============================================================================
+package "Data Access & Persistence Layer" as pkg_data #F8FAFC {
+
+    class "database" as database <<database helper>> {
+        -- CommonJS Module: src/config/database.js:1-117 --
+        + sql: Object (mssql driver instance) [lines 1, 111]
+        + getPool(): Promise<sql.ConnectionPool> [lines 11-32, 112]
+        + closePool(): Promise<void> [lines 36-49, 113]
+        + testDbConnection(): Promise<boolean> [lines 55-66, 114]
+        + query(queryStr: string, params: object): Promise<sql.IResult<any>> [lines 75-86, 115]
+    }
+}
+
+AdminController ..> database : "executes direct T-SQL & sql.Transaction\nfor Catalog, Inventory, Categories & Brands\n[src/controllers/admin.controller.js:223, 287, 563]"
+requireAdmin .down.> database : "verifies active admin status in DB\n[src/middlewares/auth.middleware.js:145]"
+
+' ==============================================================================
+' BOTTOM ROW: DOMAIN ENTITIES (REFERENCE DATA MODEL - UC11 & UC12 SCOPE)
+' ==============================================================================
+package "Domain Entities (Reference Data Model — UC11 & UC12 Scope)" as pkg_domain #F0FDF4 {
+
+    class "Category" as Category <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + is_active: BIT = 1
+        + created_at: DATETIME2
+    }
+
+    class "Brand" as Brand <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + name: NVARCHAR(100)
+        + slug: NVARCHAR(120) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + created_at: DATETIME2
+    }
+
+    class "Product" as Product <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + category_id: INT <<FK>>
+        + brand_id: INT [0..1] <<FK>>
+        --
+        + product_code: NVARCHAR(50) <<UQ>>
+        + name: NVARCHAR(200)
+        + slug: NVARCHAR(255) <<UQ>>
+        + description: NVARCHAR(MAX) [0..1]
+        + gender_target: NVARCHAR(20) = 'UNISEX'
+        + base_price: DECIMAL(12,0)
+        + sale_price: DECIMAL(12,0) [0..1]
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+    }
+
+    class "ProductImage" as ProductImage <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        --
+        + image_url: NVARCHAR(1000)
+        + is_primary: BIT = 0
+        + display_order: INT = 0
+        .. Filtered Unique Index ..
+        {unique filtered: product_id WHERE is_primary = 1}
+    }
+
+    class "ProductVariant" as ProductVariant <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + product_id: INT <<FK>>
+        + size_id: INT <<FK>>
+        + color_id: INT <<FK>>
+        --
+        + sku: NVARCHAR(100) <<UQ>>
+        + stock_quantity: INT = 0
+        + status: NVARCHAR(20) = 'active'
+        + created_at: DATETIME2
+        + updated_at: DATETIME2
+        .. Composite Unique ..
+        {unique(product_id, size_id, color_id)}
+    }
+
+    class "Size" as Size <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + size_name: NVARCHAR(20) <<UQ>>
+        + display_order: INT = 0
+    }
+
+    class "Color" as Color <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + color_name: NVARCHAR(50) <<UQ>>
+        + hex_code: NVARCHAR(10) [0..1]
+    }
+
+    class "InventoryTransaction" as InventoryTransaction <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        + variant_id: INT <<FK>>
+        + user_id: INT <<FK>>
+        --
+        + old_quantity: INT
+        + new_quantity: INT
+        + change_quantity: INT
+        + reason: NVARCHAR(255)
+        + created_at: DATETIME2
+    }
+
+    class "User" as User <<entity, partial view from CD01>> {
+        + id: INT <<PK>>
+        --
+        + full_name: NVARCHAR(100)
+        + email: NVARCHAR(150) <<UQ>>
+        + role: NVARCHAR(20) = 'CUSTOMER'
+        + status: NVARCHAR(20) = 'active'
+        .. Audit Operator Context ..
+        {operator in UC-11: session.user.role = 'ADMIN'}
+    }
+}
+
+' ==============================================================================
+' DOMAIN RELATIONSHIPS (STRICTLY CONSISTENT WITH CD01 DOMAIN MODEL)
+' 2 Compositions (*--) + 6 Associations (--) = 8 Domain Relationships
+' ==============================================================================
+Product "1" *-- "0..*" ProductImage : "fk_product_images_product\n(contains)"
+Product "1" *-- "0..*" ProductVariant : "fk_variants_product\n(has SKUs)"
+
+Category "1" -- "0..*" Product : "fk_products_category\n(categorizes)"
+Brand "0..1" -- "0..*" Product : "fk_products_brand\n(brands)"
+
+Size "1" -- "0..*" ProductVariant : "fk_variants_size\n(defines size)"
+Color "1" -- "0..*" ProductVariant : "fk_variants_color\n(defines color)"
+
+ProductVariant "1" -- "0..*" InventoryTransaction : "fk_inv_trans_variant\n(logs)"
+User "1" -- "0..*" InventoryTransaction : "fk_inv_trans_user\n(operates)"
+
+pkg_data -down[hidden]-> pkg_domain
+
+' ==============================================================================
+' ARCHITECTURAL NOTES (6 TARGETED NOTES)
+' ==============================================================================
+note right of AdminController
+  <b>Note 1 – Product Creation & Initial SKUs Transaction (UC-12):</b>
+  * <b>Phương thức:</b> <i>postCreateProduct(req, res, next)</i> [lines 286-390]
+  * <b>Thực thi trong nguyên tử sql.Transaction:</b>
+    1. Kiểm tra validation: <i>name, product_code, category_id, base_price > 0</i>;
+       nếu có <i>sale_price</i> thì kiểm tra <i>0 <= sale_price <= base_price</i>.
+    2. Tự động chuẩn hóa slug từ tiếng Việt (xóa dấu tiếng Việt, ký tự đặc biệt).
+    3. Thêm mới bản ghi: <i>INSERT INTO products ... OUTPUT INSERTED.id</i>.
+    4. Nếu có <i>image_url</i>: Thêm ảnh đại diện chính vào <i>product_images (is_primary = 1)</i>.
+    5. Nếu có <i>size_id & color_id</i>: Thêm biến thể SKU khởi tạo đầu tiên vào
+       <i>product_variants (sku = CODE-SIZE-COLOR, status = 'active')</i>.
+    6. <i>await transaction.commit()</i>; Rollback ngay lập tức khi phát sinh lỗi.
+end note
+
+note top of AdminController
+  <b>Note 2 – Product Update & Status Toggle (UC-12):</b>
+  * <b>Chỉnh sửa sản phẩm:</b> <i>postEditProduct</i> [lines 438-497] cập nhật các thuộc tính
+    sản phẩm, giá bán, mô tả, danh mục, thương hiệu và đồng bộ ảnh chính (cập nhật nếu có sẵn,
+    hoặc chèn mới nếu chưa có ảnh chính nào).
+  * <b>Bật/tắt trạng thái:</b> <i>postToggleProductStatus</i> [lines 502-516] đổi trạng thái giữa
+    <b>active</b> và <b>inactive</b>: <i>status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END</i>.
+end note
+
+note left of AdminController
+  <b>Note 3 – Inventory Adjustment & Concurrency Control (UC-11):</b>
+  * <b>Phương thức:</b> <i>postAdjustInventory(req, res, next)</i> [lines 563-631]
+  * <b>Thực thi trong nguyên tử sql.Transaction:</b>
+    1. Bắt buộc nhập lý do điều chỉnh và số lượng thay đổi <i>change_quantity != 0</i> (+ hoặc -).
+    2. Khóa dòng kiểm soát tranh chấp: <i>SELECT id, stock_quantity, sku</i>
+       <i>FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @varId</i>.
+    3. Ngăn chặn số lượng âm: Kiểm tra <i>newStock = currentStock + changeQty >= 0</i>.
+       Nếu âm, throw Error và rollback giao dịch.
+    4. Cập nhật tồn kho: <i>UPDATE product_variants SET stock_quantity = @newStock</i>.
+    5. Ghi nhật ký kiểm toán: <i>INSERT INTO inventory_transactions</i>
+       lưu rõ <i>variant_id, user_id (Admin), old_quantity, new_quantity, change_quantity</i>,
+       kèm lý do chuẩn hóa: <i>'[Admin #id] reason'</i>.
+    6. <i>await transaction.commit()</i>.
+  * <b>Lưu ý về User.role:</b> Giá trị mặc định của cột trong database là <i>CUSTOMER</i>.
+    Tài khoản thực hiện điều chỉnh tồn kho trong nghiệp vụ này phải là Admin hợp lệ;
+    <i>ADMIN</i> là giá trị thực tế của tài khoản thao tác, không phải default của toàn bộ bảng User.
+end note
+
+note left of database
+  <b>Note 4 – Inventory Audit Trail & Low Stock Filter (UC-11):</b>
+  * <b>Danh sách tồn kho:</b> <i>getInventory</i> [lines 521-558] liệt kê biến thể kèm bộ lọc
+    cảnh báo tồn kho thấp <i>pv.stock_quantity <= 5</i> (khi <i>low_stock=true</i>) và tìm kiếm SKU/tên.
+  * <b>Nhật ký biến động kho:</b> <i>getInventoryHistory</i> [lines 636-660] truy vấn TOP 50
+    giao dịch gần nhất với <b>5 JOINs đồng thời</b>: <i>inventory_transactions</i> JOIN
+    <i>product_variants</i>, <i>products</i>, <i>sizes</i>, <i>colors</i> và <i>users</i> (Admin thao tác).
+end note
+
+note bottom of Category
+  <b>Note 5 – Category & Brand Management (UC-12):</b>
+  * <b>Quản lý Danh mục:</b> <i>getCategories</i> liệt kê kèm số lượng sản phẩm liên kết;
+    <i>postCreateCategory</i> tự động chuẩn hóa slug và đặt <i>is_active = 1</i>;
+    <i>postToggleCategory</i> chuyển đổi trạng thái hiển thị <i>is_active = 1 <-> 0</i>.
+  * <b>Quản lý Thương hiệu:</b> <i>postCreateBrand</i> tự động chuẩn hóa slug từ tên thương hiệu.
+    <i>(Lưu ý: Bảng brands trong DDL không có cột status/is_active, chỉ có categories quản lý trạng thái).</i>
+end note
+
+note bottom of database
+  <b>Note 6 – Kiến trúc Two-Tier Direct DB Invariant:</b>
+  * Toàn bộ 13 nghiệp vụ Quản lý Sản phẩm, Tồn kho, Danh mục và Thương hiệu được thực thi trực tiếp
+    bởi <b>AdminController</b> thông qua <b>Database Helper</b> (<i>query, getPool, sql.Transaction</i>).
+  * Trong phạm vi quản trị Admin của CD06B, <b>AdminController</b> thực hiện trực tiếp truy vấn SQL và
+    transaction thông qua Database Helper. Không có <i>ProductService</i> dành riêng cho Admin,
+    <i>InventoryService</i>, <i>CategoryService</i>, <i>BrandService</i> hoặc <i>Repository</i> trung gian
+    được AdminController sử dụng.
+  * <i>Lưu ý phạm vi kiến trúc:</i> Điều này không phủ nhận kiến trúc
+    <b>ProductController → ProductService → ProductRepository</b> đã được thể hiện tại CD03 cho chức năng
+    Catalog phía khách hàng.
+  * Các Entity trong package miền dữ liệu chỉ đóng vai trò <b>Mô hình tham chiếu (Data Model)</b> từ CD01,
+    không phải JavaScript Class được import trong controller code.
+end note
+
+legend bottom
+    <b>CHÚ DẪN PHÂN LOẠI & QUY ƯỚC KIẾN TRÚC UML 2.5 (CD06B)</b>
+    ----
+    <b>Phân loại Classifiers theo Hiện thực Source Code:</b>
+      * <b><<router, partial view>></b>: Express Router Instance mount 13 routes quản trị sản phẩm, kho, danh mục & thương hiệu (src/routes/admin.routes.js)
+      * <b><<middleware function>></b>: Middleware Function kiểm soát quyền truy cập RBAC quản trị viên (requireAdmin)
+      * <b><<controller, partial view>></b>: Controller điều phối 13 phương thức quản lý Catalog & Kho hàng (AdminController)
+      * <b><<database helper>></b>: CommonJS Module cung cấp kết nối CSDL, Transaction & Query API (src/config/database.js)
+      * <b><<entity, partial view from CD01>></b>: Bảng dữ liệu quan hệ trong SQL Server tham chiếu từ CD01 Domain Model
+    ----
+    <b>Quan hệ Kiến trúc & Dữ liệu:</b>
+      * <b>Dependency (..>)</b>: Quan hệ sử dụng/phụ thuộc giữa các module, function, controller và database helper trong mã nguồn (đường nét đứt có mũi tên)
+      * <b>Composition (*--)</b>: Quan hệ sở hữu vòng đời thực thể dữ liệu (Cascade Lifecycle: Product *-- ProductImage, Product *-- ProductVariant)
+      * <b>Association (--)</b>: Quan hệ liên kết tham chiếu khóa ngoại giữa các bảng CSDL (đường nét liền)
+end legend
+
+@enduml

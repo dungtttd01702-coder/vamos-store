@@ -343,8 +343,8 @@ block content
           if totalPages > 1
             .mt-10.flex.justify-center.items-center.gap-2
               each p in Array.from({ length: totalPages }, (_, i) => i + 1)
-                a.w-9.h-9.flex.items-center.justify-center.rounded-lg.text-sm.font-bold.transition-colors(
-                  class=p === page ? 'bg-red-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                a.catalog-filter-link.catalog-pagination-link.w-9.h-9.flex.items-center.justify-center.rounded-lg.text-sm.font-bold.transition-colors(
+                  class=p === page ? 'bg-red-600 text-white shadow-sm pointer-events-none' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
                   href=`/products?page=${p}${selectedFilters.cat ? `&cat=${selectedFilters.cat}` : ''}${selectedFilters.gender ? `&gender=${selectedFilters.gender}` : ''}${selectedFilters.size ? `&size=${selectedFilters.size}` : ''}${selectedFilters.sale ? `&sale=${selectedFilters.sale}` : ''}${selectedFilters.minPrice ? `&minPrice=${selectedFilters.minPrice}` : ''}${selectedFilters.maxPrice ? `&maxPrice=${selectedFilters.maxPrice}` : ''}${selectedFilters.q ? `&q=${encodeURIComponent(selectedFilters.q)}` : ''}${selectedFilters.sort ? `&sort=${selectedFilters.sort}` : ''}`
                 )= p
 

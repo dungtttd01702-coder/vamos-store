@@ -1,0 +1,61 @@
+@startuml
+title Sơ đồ hoạt động — Quản lý tồn kho & Thẻ kho (AD08/AD12)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Quản trị viên (Admin)|
+start
+:Mở bảng quản trị tồn kho sản phẩm;
+:Chọn biến thể SKU cần điều chỉnh (size, màu);
+:Nhập số lượng tồn kho mới và lý do điều chỉnh kiểm kê;
+:Nhấn nút "Lưu thay đổi";
+
+|Hệ thống|
+:Tiếp nhận số lượng mới và lý do điều chỉnh;
+:Kiểm tra số lượng tồn kho nhập vào;
+
+if (Số lượng là số nguyên >= 0 và có lý do điều chỉnh?) then (Đúng)
+  |Hệ thống|
+  :Kích hoạt giao dịch CSDL (Transaction);
+  :Tính mức chênh lệch tồn kho (mới - cũ);
+  :Cập nhật số lượng tồn kho thực tế của biến thể SKU;
+  :Ghi bút toán bất biến vào bảng thẻ kho (inventory_transactions) kèm mã Admin;
+  :Cam kết giao dịch và hiển thị thông báo cập nhật thành công;
+  |Quản trị viên (Admin)|
+  :Xem số lượng tồn mới và lịch sử biến động trên thẻ kho;
+  stop
+else (Sai)
+  |Hệ thống|
+  :Hiển thị thông báo lỗi số lượng âm hoặc thiếu lý do kiểm kê;
+  |Quản trị viên (Admin)|
+  :Nhập lại thông tin số lượng và lý do hợp lệ;
+  stop
+endif
+@enduml

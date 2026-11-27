@@ -1,0 +1,59 @@
+@startuml
+title Sơ đồ hoạt động — Đăng ký tài khoản thành viên (AD01/AD02)
+
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 13
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam ActivityFontSize 13
+skinparam ActivityFontColor #0f172a
+skinparam ActivityBorderColor #334155
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityBackgroundColor #ffffff
+
+skinparam ActivityDiamondFontSize 12
+skinparam ActivityDiamondFontColor #991b1b
+skinparam ActivityDiamondBorderColor #ef4444
+skinparam ActivityDiamondBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #fef2f2
+
+skinparam ArrowColor #2563eb
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #1e293b
+skinparam ArrowThickness 1.5
+
+skinparam SwimlaneTitleFontSize 15
+skinparam SwimlaneTitleFontStyle bold
+skinparam SwimlaneTitleFontColor #0f172a
+skinparam SwimlaneBorderColor #cbd5e1
+skinparam SwimlaneBorderThickness 1.5
+skinparam SwimlaneWidth 380
+
+|Người dùng|
+start
+:Mở trang đăng ký tài khoản;
+:Nhập họ tên, email, số điện thoại và mật khẩu;
+:Nhấn nút "Đăng ký tài khoản";
+
+|Hệ thống|
+:Tiếp nhận dữ liệu form đăng ký;
+:Kiểm tra định dạng email, mật khẩu >= 6 ký tự;
+:Kiểm tra email đã tồn tại trong cơ sở dữ liệu chưa;
+
+if (Dữ liệu hợp lệ và email chưa tồn tại?) then (Đúng)
+  |Hệ thống|
+  :Băm mật khẩu an toàn bằng thuật toán bcrypt;
+  :Tạo tài khoản mới với vai trò Khách hàng (CUSTOMER);
+  :Hiển thị thông báo đăng ký thành công;
+  |Người dùng|
+  :Chuyển đến màn hình đăng nhập để sử dụng;
+  stop
+else (Sai)
+  |Hệ thống|
+  :Hiển thị thông báo lỗi cụ thể (Email trùng hoặc thông tin không hợp lệ);
+  |Người dùng|
+  :Kiểm tra và sửa lại thông tin đăng ký;
+  stop
+endif
+@enduml

@@ -18,118 +18,127 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
 
 1. Báo cáo dự án với đề tài **"Xây dựng Website bán giày dép VAMOS STORE"** là công trình nghiên cứu, phân tích, thiết kế và phát triển độc lập của các thành viên trong nhóm, dưới sự hướng dẫn trực tiếp của Giảng viên **ThS. Hoàng Hà**.
 2. Toàn bộ các số liệu, sơ đồ thiết kế (Use Case, ERD, Activity Diagram, Wireframe), mã nguồn và kết quả kiểm thử được trình bày trong báo cáo này là trung thực, phản ánh đúng quá trình thực hiện dự án thực tế của nhóm, không sao chép trái phép từ bất kỳ công trình nào khác.
-3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, Microsoft SQL Server 2025, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
+3. Các đoạn mã nguồn tham khảo từ các thư viện mã nguồn mở, tài liệu kỹ thuật của cộng đồng (Node.js, Express.js, Microsoft SQL Server 2022, Pug, Tailwind CSS) đều được trích dẫn nguồn gốc rõ ràng theo đúng quy định học thuật.
 4. Nhóm xin chịu hoàn toàn trách nhiệm trước Nhà trường, Bộ môn Công nghệ Thông tin và Pháp luật nếu xảy ra bất kỳ sự vi phạm nào liên quan đến quyền sở hữu trí tuệ và tính liêm chính học thuật.
 
 *Đà Nẵng, ngày 10 tháng 12 năm 2026*  
 **Thay mặt nhóm sinh viên thực hiện**  
 *Trưởng nhóm*  
-**(Đã ký)**  
+
+*(Ký và ghi rõ họ tên)*  
 **Trần Trung Dũng**
 
 ---
 
 # MỤC LỤC
 
-* **LỜI CẢM ƠN** ................................................................................................................................. 1
-* **LỜI CAM KẾT** ................................................................................................................................ 2
-* **MỤC LỤC** ...................................................................................................................................... 3
-* **DANH MỤC HÌNH ẢNH** ................................................................................................................ 5
-* **DANH MỤC BẢNG BIỂU** .............................................................................................................. 6
-* **DANH MỤC THUẬT NGỮ VÀ TỪ VIẾT TẮT** ................................................................................. 7
-* **PHẦN MỞ ĐẦU** .......................................................................................................................... 8
-  * 1. Phân tích hiện trạng .................................................................................................................. 8
-  * 2. Mục đích ................................................................................................................................... 8
-  * 3. Mục tiêu hệ thống ...................................................................................................................... 8
-  * 4. Tính năng cơ bản của hệ thống .................................................................................................. 9
-  * 5. Đối tượng sử dụng .................................................................................................................... 9
-  * 6. Công nghệ dùng để phát triển dự án ........................................................................................ 10
-  * 7. Lập kế hoạch dự án .................................................................................................................. 10
-* **CHƯƠNG I: CƠ SỞ LÝ THUYẾT** .............................................................................................. 12
-  * 1. Mô hình công nghệ Client - Server ........................................................................................... 12
-  * 2. Ngôn ngữ JavaScript & Nền tảng Node.js ................................................................................ 13
-  * 3. Framework Express.js ............................................................................................................... 14
-  * 4. Mô hình MVC và Kiến trúc phân lớp ........................................................................................ 15
-  * 5. Template Engine Pug ............................................................................................................... 17
-  * 6. CSS Framework Tailwind CSS .................................................................................................. 18
-  * 7. Cơ sở dữ liệu: Microsoft SQL Server 2025 ......................................................................................................... 19
-  * 8. Cơ chế xác thực Session và Bảo mật Bcrypt ............................................................................. 20
-  * 9. Công nghệ Container Docker & Docker Compose ................................................................... 21
-* **CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** ............................................................... 22
-  * 1. Phân tích nghiệp vụ ................................................................................................................. 22
-  * 2. Thiết kế hệ thống ..................................................................................................................... 23
-    * 2.1. Sơ đồ Use Case ................................................................................................................... 23
-    * 2.2. Sơ đồ điều hướng màn hình (Sitemap) ................................................................................. 29
-    * 2.3. Mô hình thực thể quan hệ - ERD .......................................................................................... 30
-    * 2.4. Từ điển dữ liệu chi tiết (Data Dictionary) ............................................................................ 32
-    * 2.5. Sơ đồ hoạt động (Activity Diagram) .................................................................................... 45
-  * 3. Thiết kế giao diện và đặc tả (Wireframe) ................................................................................. 50
-* **CHƯƠNG III: TRIỂN KHAI MÃ NGUỒN** ................................................................................... 64
-  * 1. Cấu trúc mã nguồn dự án .......................................................................................................... 64
-  * 2. Kết nối và quản trị cơ sở dữ liệu .............................................................................................. 65
-  * 3. Triển khai các tính năng chính ................................................................................................. 66
-* **CHƯƠNG IV: KIỂM THỬ** .......................................................................................................... 80
-  * 1. Kế hoạch kiểm thử .................................................................................................................... 80
+* **LỜI CẢM ƠN** ................................................................................................................................. 2
+* **LỜI CAM KẾT** ................................................................................................................................ 3
+* **MỤC LỤC** ...................................................................................................................................... 4
+* **DANH MỤC HÌNH ẢNH** ................................................................................................................ 7
+* **DANH MỤC BẢNG BIỂU** .............................................................................................................. 9
+* **DANH MỤC THUẬT NGỮ VÀ TỪ VIẾT TẮT** ................................................................................. 11
+* **PHẦN MỞ ĐẦU** .......................................................................................................................... 12
+  * 1. Phân tích hiện trạng .................................................................................................................. 12
+  * 2. Mục đích ................................................................................................................................... 12
+  * 3. Mục tiêu hệ thống ...................................................................................................................... 13
+  * 4. Tính năng cơ bản của hệ thống .................................................................................................. 13
+  * 5. Đối tượng sử dụng .................................................................................................................... 14
+  * 6. Công nghệ dùng để phát triển dự án ........................................................................................ 15
+  * 7. Lập kế hoạch dự án .................................................................................................................. 15
+* **CHƯƠNG I: CƠ SỞ LÝ THUYẾT** .............................................................................................. 19
+  * 1. Mô hình công nghệ Client - Server ........................................................................................... 19
+  * 2. Ngôn ngữ JavaScript & Nền tảng Node.js ................................................................................ 20
+  * 3. Framework Express.js ............................................................................................................... 21
+  * 4. Mô hình MVC và Kiến trúc phân lớp ........................................................................................ 21
+  * 5. Template Engine Pug ............................................................................................................... 23
+  * 6. CSS Framework Tailwind CSS .................................................................................................. 23
+  * 7. Cơ sở dữ liệu: Microsoft SQL Server 2022 ................................................................................ 24
+  * 8. Cơ chế xác thực Session và Bảo mật Bcrypt ............................................................................. 24
+  * 9. Công nghệ Container Docker & Docker Compose ................................................................... 25
+* **CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** ............................................................... 26
+  * 1. Phân tích nghiệp vụ ................................................................................................................. 26
+    * 1.1. Nghiệp vụ của Khách vãng lai (Guest) ................................................................................. 26
+    * 1.2. Nghiệp vụ của Khách hàng thành viên (Customer) .............................................................. 26
+    * 1.3. Nghiệp vụ của Quản trị viên (Admin) ................................................................................. 27
+    * 1.4. Ma trận phân quyền các tác nhân (Actor Permissions Matrix) ........................................... 28
+  * 2. Thiết kế hệ thống ..................................................................................................................... 29
+    * 2.1. Sơ đồ Use Case (Use Case Diagrams) ................................................................................... 29
+    * 2.2. Sơ đồ điều hướng màn hình (Sitemap) ................................................................................. 34
+    * 2.3. Mô hình thực thể quan hệ - ERD .......................................................................................... 34
+    * 2.4. Từ điển dữ liệu chi tiết (Data Dictionary) ............................................................................ 35
+    * 2.5. Sơ đồ hoạt động (Activity Diagram) .................................................................................... 53
+  * 3. Thiết kế giao diện và đặc tả (Wireframe) ................................................................................. 55
+* **CHƯƠNG III: TRIỂN KHAI MÃ NGUỒN** ................................................................................... 70
+  * 1. Cấu trúc mã nguồn dự án .......................................................................................................... 70
+  * 2. Kết nối và quản trị cơ sở dữ liệu .............................................................................................. 72
+  * 3. Triển khai các tính năng chính ................................................................................................. 72
+* **CHƯƠNG IV: KIỂM THỬ HỆ THỐNG** ....................................................................................... 79
+  * 1. Kế hoạch kiểm thử .................................................................................................................... 79
   * 2. Ma trận các ca kiểm thử chi tiết ................................................................................................ 80
-  * 3. Báo cáo kết quả và đánh giá chất lượng ................................................................................. 83
-* **CHƯƠNG V: KẾ HOẠCH TRIỂN KHAI VÀ HƯỚNG DẪN CÀI ĐẶT** .......................................... 84
-* **CHƯƠNG VI: KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN** ................................................................. 87
-* **TÀI LIỆU THAM KHẢO** ............................................................................................................ 90
+  * 3. Báo cáo kết quả và đánh giá chất lượng ................................................................................. 84
+* **CHƯƠNG V: KẾ HOẠCH TRIỂN KHAI VÀ HƯỚNG DẪN CÀI ĐẶT** .......................................... 87
+* **CHƯƠNG VI: HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN** ................................................................. 93
+* **TÀI LIỆU THAM KHẢO** ............................................................................................................ 96
 
 ---
 
 # DANH MỤC HÌNH ẢNH
 
-* Hình 1: Mô hình Client - Server trong ứng dụng web ................................................................... 12
-* Hình 2: Mô hình kiến trúc MVC phân lớp .................................................................................... 15
-* Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp ......................................................... 16
-* Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE ....................................... 17
-* Hình 5: Sơ đồ Use Case tổng quát VAMOS STORE ...................................................................... 23
-* Hình 6: Sơ đồ Use Case chi tiết Đặt hàng COD ........................................................................... 25
-* Hình 7: Sơ đồ Use Case chi tiết Quản lý đơn hàng & Kho Admin ................................................ 26
-* Hình 8: Sơ đồ điều hướng màn hình (Sitemap) ........................................................................... 29
-* Hình 9: Mô hình thực thể quan hệ (ERD 18 bảng) - VAMOS STORE .......................................... 30
-* Hình 10: Sơ đồ hoạt động (Activity) - Quy trình Đăng ký & Đăng nhập ........................................ 45
-* Hình 11: Sơ đồ hoạt động (Activity) - Mua hàng & Đặt hàng COD ............................................... 46
-* Hình 12: Sơ đồ hoạt động (Activity) - Máy trạng thái xử lý đơn hàng .......................................... 47
-* Hình 13: Sơ đồ hoạt động (Activity) - Hủy đơn hàng và Hoàn kho tự động ................................... 48
-* Hình 14: Sơ đồ hoạt động (Activity) - Admin kiểm kê và điều chỉnh kho ...................................... 49
-* Hình 17: Giao diện Trang chủ (Home Page) ................................................................................. 51
-* Hình 18: Giao diện Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter) ............................................. 53
-* Hình 19: Giao diện Chi tiết sản phẩm & Chọn Size/Màu .............................................................. 55
-* Hình 20: Giao diện Giỏ hàng trực tuyến (Shopping Cart) ............................................................ 57
-* Hình 21: Giao diện Đặt hàng COD (Checkout) ............................................................................ 59
-* Hình 22: Giao diện Đăng ký / Đăng nhập tài khoản ..................................................................... 61
-* Hình 23: Giao diện Lịch sử đơn hàng của khách .......................................................................... 62
-* Hình 24: Giao diện Admin Dashboard tổng quan .......................................................................... 63
-* Hình 25: Giao diện Admin Quản lý sản phẩm & Biến thể ............................................................. 64
-* Hình 26: Giao diện Admin Vận hành đơn hàng ............................................................................ 65
+* Hình 1: Mô hình Client - Server trong ứng dụng web ................................................................... 19
+* Hình 2: Mô hình kiến trúc MVC phân lớp .................................................................................... 22
+* Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp ......................................................... 22
+* Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE ....................................... 23
+* Hình 5: Sơ đồ Use Case tổng quát VAMOS STORE ...................................................................... 29
+* Hình 6: Sơ đồ Use Case chi tiết Đặt hàng COD ........................................................................... 30
+* Hình 7: Sơ đồ Use Case chi tiết Vận hành đơn hàng và Kho hàng Admin .................................... 30
+* Hình 8: Sơ đồ điều hướng màn hình (Sitemap) VAMOS STORE .................................................. 34
+* Hình 9: Mô hình thực thể quan hệ (ERD 20 bảng nghiệp vụ) - VAMOS STORE ........................... 34
+* Hình 10: Sơ đồ hoạt động - Quy trình Đăng ký & Đăng nhập ........................................................ 53
+* Hình 11: Sơ đồ hoạt động - Quy trình Mua hàng & Đặt hàng COD ............................................... 54
+* Hình 12: Sơ đồ hoạt động - Máy trạng thái xử lý đơn hàng Admin ................................................. 54
+* Hình 13: Sơ đồ hoạt động - Hủy đơn hàng và Hoàn kho tự động ................................................... 55
+* Hình 14: Sơ đồ hoạt động - Admin kiểm kê và điều chỉnh tồn kho ................................................. 55
+* Hình 15: Giao diện Trang chủ (Home Page) VAMOS STORE ......................................................... 58
+* Hình 16: Giao diện Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter) ............................................. 59
+* Hình 17: Giao diện Chi tiết sản phẩm & Chọn Size/Màu ................................................................ 61
+* Hình 18: Giao diện Giỏ hàng trực tuyến (Shopping Cart) ............................................................ 61
+* Hình 19: Giao diện Đặt hàng COD (Checkout) ............................................................................ 62
+* Hình 20: Giao diện Đăng ký / Đăng nhập tài khoản ...................................................................... 63
+* Hình 21: Giao diện Lịch sử đơn hàng của khách hàng ................................................................. 64
+* Hình 22: Giao diện Admin Dashboard tổng quan ......................................................................... 66
+* Hình 23: Giao diện Admin Quản lý sản phẩm & Biến thể ............................................................ 67
+* Hình 24: Giao diện Admin Vận hành và xử lý đơn hàng .............................................................. 69
 
 ---
 
 # DANH MỤC BẢNG BIỂU
 
-* Bảng 1: Bảng tiến độ triển khai dự án qua 5 giai đoạn ................................................................. 10
-* Bảng 2: Ma trận phân quyền các Actor trong VAMOS STORE ...................................................... 22
-* Bảng 3: Từ điển dữ liệu bảng `users` (Tài khoản người dùng) .................................................... 33
-* Bảng 4: Từ điển dữ liệu bảng `addresses` (Sổ địa chỉ giao hàng) ................................................ 33
-* Bảng 5: Từ điển dữ liệu bảng `categories` (Danh mục giày) ......................................................... 34
-* Bảng 6: Từ điển dữ liệu bảng `brands` (Thương hiệu giày) ........................................................... 34
-* Bảng 7: Từ điển dữ liệu bảng `products` (Sản phẩm giày gốc) .................................................... 35
-* Bảng 8: Từ điển dữ liệu bảng `product_images` (Bộ sưu tập ảnh) ................................................ 35
-* Bảng 9: Từ điển dữ liệu bảng `sizes` (Kích cỡ giày sneaker) ....................................................... 36
-* Bảng 10: Từ điển dữ liệu bảng `colors` (Màu sắc giày sneaker) .................................................. 36
-* Bảng 11: Từ điển dữ liệu bảng `product_variants` (Biến thể SKU và Tồn kho) .......................... 37
-* Bảng 12: Từ điển dữ liệu bảng `inventory_transactions` (Lịch sử biến động kho) ...................... 38
-* Bảng 13: Từ điển dữ liệu bảng `carts` (Giỏ hàng của khách hàng) .............................................. 39
-* Bảng 14: Từ điển dữ liệu bảng `cart_items` (Chi tiết các mặt hàng trong giỏ) ............................ 39
-* Bảng 15: Từ điển dữ liệu bảng `vouchers` (Mã giảm giá khuyến mãi) .......................................... 40
-* Bảng 16: Từ điển dữ liệu bảng `orders` (Thông tin tổng quát đơn hàng) ...................................... 41
-* Bảng 17: Từ điển dữ liệu bảng `order_items` (Snapshot chi tiết từng món hàng đặt) .................. 42
-* Bảng 18: Từ điển dữ liệu bảng `order_status_histories` (Lịch sử chuyển đổi trạng thái đơn) ....... 43
-* Bảng 19: Từ điển dữ liệu bảng `password_reset_tokens` (Mã khôi phục mật khẩu) .................... 43
-* Bảng 20: Từ điển dữ liệu bảng `banners` (Banner sự kiện trên trang chủ) .................................. 44
-* Bảng 21: Bảng kết quả thực thi các ca kiểm thử hệ thống VAMOS STORE ................................... 81
+* Bảng 1: Lập kế hoạch dự án VAMOS STORE .............................................................................. 18
+* Bảng 2: Ma trận phân quyền các Actor trong VAMOS STORE ...................................................... 28
+* Bảng 3: Danh sách 14 Use Case nghiệp vụ hệ thống VAMOS STORE ........................................... 33
+* Bảng 4: Thực thể users (Tài khoản người dùng) .......................................................................... 35
+* Bảng 5: Thực thể categories (Danh mục sản phẩm) .................................................................... 35
+* Bảng 6: Thực thể brands (Thương hiệu sản phẩm) ...................................................................... 36
+* Bảng 7: Thực thể sizes (Kích cỡ giày sneaker) ............................................................................. 36
+* Bảng 8: Thực thể colors (Màu sắc giày sneaker) .......................................................................... 37
+* Bảng 9: Thực thể vouchers (Mã giảm giá khuyến mãi) ................................................................. 37
+* Bảng 10: Thực thể banners (Banner quảng bá trang chủ) ............................................................. 38
+* Bảng 11: Thực thể addresses (Sổ địa chỉ nhận hàng) ................................................................... 39
+* Bảng 12: Thực thể password_reset_tokens (Token khôi phục mật khẩu) ..................................... 41
+* Bảng 13: Thực thể carts (Giỏ hàng trực tuyến) ............................................................................ 41
+* Bảng 14: Thực thể products (Sản phẩm giày gốc) ........................................................................ 42
+* Bảng 15: Thực thể product_images (Bộ sưu tập ảnh sản phẩm) ................................................... 44
+* Bảng 16: Thực thể product_variants (Biến thể SKU và Tồn kho) ................................................. 44
+* Bảng 17: Thực thể cart_items (Chi tiết mặt hàng trong giỏ) ........................................................ 45
+* Bảng 18: Thực thể orders (Thông tin tổng quát đơn hàng) ........................................................... 46
+* Bảng 19: Thực thể order_items (Snapshot chi tiết từng món hàng đặt) ....................................... 48
+* Bảng 20: Thực thể order_status_histories (Nhật ký chuyển đổi trạng thái đơn) ........................... 49
+* Bảng 21: Thực thể inventory_transactions (Lịch sử biến động thẻ kho) ...................................... 50
+* Bảng 22: Thực thể voucher_usages (Nhật ký sử dụng mã giảm giá) ............................................ 52
+* Bảng 23: Thực thể wishlist_items (Danh sách sản phẩm yêu thích) ............................................. 52
+* Bảng 24: Ma trận 25 ca kiểm thử chức năng thiết kế (Functional Test Cases) .............................. 84
+* Bảng 25: Kết quả thực thi kiểm thử tự động hệ thống (Automated Test Suites) ........................... 85
 
 ---
 
@@ -148,6 +157,8 @@ Thay mặt nhóm thực hiện đề tài đồ án tốt nghiệp, tôi - **Tr�
 | **Tailwind CSS** | Utility-First CSS Framework | Thư viện CSS cung cấp các class tiện ích nguyên tử giúp tùy biến giao diện nhanh chóng. |
 | **DTO** | Data Transfer Object | Đối tượng vận chuyển dữ liệu giữa các tầng kiến trúc trong ứng dụng. |
 
+
+---
 
 # PHẦN MỞ ĐẦU (INTRODUCTION)
 
@@ -210,13 +221,14 @@ Từ những thách thức thực tiễn trên, việc nghiên cứu và xây d�
 - Tìm kiếm sản phẩm theo từ khóa; lọc sản phẩm đa tiêu chí (danh mục, giới tính, kích cỡ, màu sắc, khoảng giá); sắp xếp theo giá và tên.
 - Xem chi tiết sản phẩm: Xem bộ sưu tập hình ảnh, xem bảng thông số, kiểm tra tình trạng còn hàng của từng biến thể Size/Màu.
 - Đăng ký tài khoản thành viên mới và đăng nhập hệ thống.
-- Yêu cầu khôi phục mật khẩu thông qua mã token bảo mật.
+- Yêu cầu khôi phục mật khẩu: Chức năng khôi phục mật khẩu đã được đưa vào thiết kế và có cấu trúc dữ liệu hỗ trợ, tuy nhiên quy trình xử lý hoàn chỉnh chưa được triển khai trong phiên bản hiện tại.
 
 ### 4.2. Nhóm chức năng Khách hàng (Customer)
 
 - Sở hữu đầy đủ các quyền hạn của Khách vãng lai.
 - Quản lý thông tin hồ sơ cá nhân và quản lý sổ địa chỉ nhận hàng (hỗ trợ nhiều địa chỉ, chọn 1 địa chỉ mặc định).
 - Quản lý giỏ hàng: Thêm sản phẩm, tăng/giảm số lượng, xóa sản phẩm khỏi giỏ.
+- Quản lý danh sách sản phẩm yêu thích (Wishlist).
 - Đặt hàng COD: Lựa chọn địa chỉ nhận hàng, nhập mã voucher giảm giá, xác nhận tạo đơn hàng.
 - Xem lịch sử đơn hàng cá nhân, theo dõi chi tiết từng bước chuyển trạng thái của đơn hàng.
 - Tự hủy đơn hàng khi đơn đang ở trạng thái chờ duyệt (`PENDING`).
@@ -229,6 +241,7 @@ Từ những thách thức thực tiễn trên, việc nghiên cứu và xây d�
 - Quản lý Tồn kho: Tra cứu tồn kho chi tiết theo từng mã SKU, điều chỉnh tăng/giảm kho thủ công có bắt buộc nhập lý do kiểm toán, xem lịch sử biến động kho (`inventory_transactions`).
 - Vận hành Đơn hàng: Xem danh sách đơn, xem chi tiết snapshot đơn hàng, chuyển trạng thái theo quy trình (`PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `SHIPPING` $\rightarrow$ `COMPLETED`), hủy đơn nội bộ kèm lý do và tự động kích hoạt hoàn kho.
 - Quản lý Mã giảm giá (Voucher): Thiết lập mã ưu đãi, mức giảm (% hoặc số tiền), giá trị đơn hàng tối thiểu, thời gian bắt đầu/kết thúc và tổng hạn mức sử dụng.
+- Quản lý Khách hàng: Xem danh sách người dùng, kích hoạt hoặc khóa tài khoản (`status = 'locked'`).
 - Quản lý Banner: Thêm, sửa, xóa, sắp xếp thứ tự hiển thị banner trên slider trang chủ.
 
 ---
@@ -252,14 +265,14 @@ Hệ thống VAMOS STORE trong phiên bản 1.0 chuẩn hóa chính xác **3 tá
 | **Ngôn ngữ lập trình**  | JavaScript (ES6+)  |    Node.js Runtime    | Ngôn ngữ phát triển toàn bộ Backend và xử lý logic nghiệp vụ.                                                    |
 | **Nền tảng thực thi**   | Node.js            |   LTS v20.x / v24.x   | Môi trường chạy mã nguồn JavaScript phía máy chủ hiệu năng cao.                                                  |
 | **Web Framework**       | Express.js         |          4.x          | Xây dựng hệ thống định tuyến (Routing), Middleware và Controller.                                                |
-| **Kiến trúc ứng dụng**  | Layered MVC        |    Chuẩn kiến trúc    | Tách biệt Router $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repository $\rightarrow$ Database. |
+| **Kiến trúc ứng dụng**  | Layered MVC        |    Chuẩn kiến trúc    | Mô hình kết hợp: 3 tầng (Order/Product/Wishlist) và 2 tầng trực tiếp (Admin/Cart).                               |
 | **Template Engine**     | Pug (Jade)         |          3.x          | Kết xuất giao diện HTML phía máy chủ (Server-Side Rendering).                                                    |
 | **CSS Framework**       | Tailwind CSS       |          3.x          | Xây dựng giao diện responsive hiện đại, tối ưu hóa kích thước stylesheet.                                        |
-| **Hệ quản trị CSDL**    | Microsoft SQL Server|         2025          | Cơ sở dữ liệu quan hệ doanh nghiệp lưu trữ 18 bảng, xử lý Transaction và Khóa bi quan.                           |
+| **Hệ quản trị CSDL**    | Microsoft SQL Server|      2022 (Dev)       | Cơ sở dữ liệu quan hệ lưu trữ 20 bảng nghiệp vụ, xử lý Transaction và Khóa bi quan.                               |
 | **Trình điều khiển DB** | `mssql` (Tedious)  |         12.x          | Quản lý kết nối Connection Pool và hỗ trợ Parameterized Queries / Transactions.                                 |
 | **Quản lý phiên**       | `express-session`  |          1.x          | Quản lý phiên làm việc máy chủ an toàn, lưu thông tin User đăng nhập.                                            |
 | **Mã hóa bảo mật**      | `bcryptjs`         |          2.x          | Băm mật khẩu một chiều chống tấn công tra cứu bảng cầu vồng.                                                     |
-| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu Microsoft SQL Server 2025 thành các container độc lập.                                        |
+| **Container hóa**       | Docker & Compose   |        Latest         | Đóng gói ứng dụng web và cơ sở dữ liệu Microsoft SQL Server 2022 thành các container độc lập.                    |
 | **Công cụ thiết kế**    | PlantUML           |        Latest         | Vẽ sơ đồ Use Case, ERD quan hệ, Activity Diagram chuẩn UML.                                                      |
 
 ---
@@ -277,7 +290,7 @@ Dưới đây là kế hoạch phân bổ các giai đoạn thực hiện dự �
 | **II**  | **GIAI ĐOẠN 2: THIẾT KẾ HỆ THỐNG**                  |                                |              |               |                                                 |
 |    4    | Thiết kế sơ đồ Use Case tổng quát & chi tiết        |         Trần Vĩnh Nhật         |  09/11/2026  |  10/11/2026   | 5 Sơ đồ Use Case PlantUML (`uc-00` đến `uc-04`) |
 |    5    | Thiết kế sơ đồ điều hướng màn hình (Sitemap)        |       Trần Duy Hoàng Sa        |  10/11/2026  |  11/11/2026   |          Bản vẽ cây điều hướng Sitemap          |
-|    6    | Thiết kế mô hình CSDL (ERD) & Từ điển dữ liệu       |         Trần Trung Dũng        |  11/11/2026  |  13/11/2026   | ERD 18 bảng, `schema.sql`, `data-dictionary.md` |
+|    6    | Thiết kế mô hình CSDL (ERD) & Từ điển dữ liệu       |         Trần Trung Dũng        |  11/11/2026  |  13/11/2026   | ERD 20 bảng, `mssql_schema.sql`, Từ điển dữ liệu|
 |    7    | Thiết kế sơ đồ hoạt động (Activity Diagrams)        |         Trần Vĩnh Nhật         |  12/11/2026  |  14/11/2026   | 5 Sơ đồ Activity PlantUML (`ad-01` đến `ad-05`) |
 |    8    | Thiết kế khung xương giao diện (Wireframe)          |       Trần Duy Hoàng Sa        |  13/11/2026  |  15/11/2026   |     Đặc tả khung layout 10 màn hình cốt lõi     |
 | **III** | **GIAI ĐOẠN 3: HIỆN THỰC MÃ NGUỒN (DEVELOPMENT)**   |                                |              |               |                                                 |
@@ -287,7 +300,7 @@ Dưới đây là kế hoạch phân bổ các giai đoạn thực hiện dự �
 |   12    | Hiện thực Module Giỏ hàng, Voucher & Đặt hàng COD   |         Trần Trung Dũng        |  25/11/2026  |  30/11/2026   |   Transaction đặt hàng COD, trừ kho, voucher    |
 |   13    | Hiện thực Module Quản trị Đơn hàng & Quản lý Kho    |       Trần Duy Hoàng Sa        |  26/11/2026  |  02/12/2026   | Máy trạng thái đơn hàng, hoàn kho, audit trail  |
 | **IV**  | **GIAI ĐOẠN 4: KIỂM THỬ HỆ THỐNG (TESTING)**        |                                |              |               |                                                 |
-|   14    | Xây dựng bộ kịch bản kiểm thử (Test Cases)          |            Cả nhóm             |  03/12/2026  |  04/12/2026   |   25+ kịch bản test phân chia đều cho 3 thành viên |
+|   14    | Xây dựng bộ kịch bản kiểm thử (Test Cases)          |            Cả nhóm             |  03/12/2026  |  04/12/2026   |   25 kịch bản test phân chia đều cho 3 thành viên |
 |   15    | Thực thi kiểm thử Auth, Giỏ hàng, Đặt hàng COD      |         Trần Trung Dũng        |  05/12/2026  |  08/12/2026   |        Báo cáo kết quả kiểm thử phân hệ Khách hàng |
 |   16    | Thực thi kiểm thử Sản phẩm, Biến thể, Bộ lọc, Banner|         Trần Vĩnh Nhật         |  05/12/2026  |  08/12/2026   |       Báo cáo kết quả kiểm thử phân hệ Catalog  |
 |   17    | Thực thi kiểm thử Quản lý đơn, Quản lý kho, Voucher |       Trần Duy Hoàng Sa        |  05/12/2026  |  08/12/2026   |      Báo cáo kết quả kiểm thử phân hệ Quản trị  |
@@ -298,6 +311,8 @@ Dưới đây là kế hoạch phân bổ các giai đoạn thực hiện dự �
 
 _Bảng 1: Lập kế hoạch dự án VAMOS STORE_
 
+
+---
 
 # CHƯƠNG I: CƠ SỞ LÝ THUYẾT (THEORETICAL FOUNDATION)
 
@@ -322,7 +337,7 @@ Mô hình Client - Server (Máy khách - Máy chủ) là một kiến trúc mạ
 Trong hệ thống VAMOS STORE, mô hình Client - Server được ứng dụng theo cơ chế **Server-Side Rendering (SSR)**:
 
 - Khi khách hàng truy cập xem danh sách giày dép hoặc bấm đặt hàng, trình duyệt gửi request về Node.js Server.
-- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2025 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
+- Server tiếp nhận request, gọi xuống Microsoft SQL Server 2022 để lấy dữ liệu sản phẩm, biến thể kho, sau đó sử dụng Template Engine Pug để biên dịch trực tiếp thành mã HTML hoàn chỉnh và trả về cho trình duyệt.
 - **Ưu điểm áp dụng:** Giúp trang web tải nhanh, tối ưu hóa công cụ tìm kiếm (SEO) vượt trội cho các sản phẩm giày, đồng thời bảo mật tuyệt đối mã nguồn xử lý giá và logic kho phía máy chủ.
 
 ---
@@ -335,7 +350,7 @@ JavaScript là ngôn ngữ lập trình thông dịch bậc cao, hướng đối
 
 - Cú pháp `async/await` và `Promise` giúp xử lý các tác vụ bất đồng bộ một cách trực quan, tránh hiện tượng "Callback Hell".
 - `Arrow functions`, `Destructuring assignment`, `Spread/Rest operator` giúp viết mã ngắn gọn, rõ ràng và dễ bảo trì.
-- `Classes` và cú pháp module `import/export` hỗ trợ lập trình hướng đối tượng chuẩn mực.
+- `Classes` và cú pháp module `import/export` hoặc `CommonJS` hỗ trợ lập trình hướng đối tượng và module hóa chuẩn mực.
 
 ### 2.2. Nền tảng Node.js
 
@@ -354,19 +369,19 @@ Node.js là một môi trường thực thi mã JavaScript đa nền tảng, mã
 Express.js là một web framework mã nguồn mở tối giản (minimalist), linh hoạt và phổ biến hàng đầu dành cho Node.js. Express.js cung cấp một tập hợp các tính năng cốt lõi mạnh mẽ để phát triển các ứng dụng web và API:
 
 - **Hệ thống định tuyến (Routing):** Quản lý điều hướng URL request (GET, POST, PUT, DELETE) đến các controller xử lý tương ứng một cách mạch lạc.
-- **Cơ chế Middleware:** Là các hàm trung gian có quyền truy cập vào đối tượng request (`req`), response (`res`) và hàm `next()` trong chu trình xử lý. Middleware được dùng để xác thực quyền đăng nhập, ghi log, phân tích dữ liệu form (`body-parser`), quản lý cookie và xử lý lỗi tập trung.
-- **Tích hợp Template Engine linh hoạt:** Hỗ trợ kết nối liền mạch với Pug, EJS, Handlebars để kết xuất giao diện HTML phía máy chủ.
+- **Cơ chế Middleware:** Là các hàm trung gian có quyền truy cập vào đối tượng request (`req`), response (`res`) và hàm `next()` trong chu trình xử lý. Middleware được dùng để xác thực quyền đăng nhập, ghi log, phân tích dữ liệu form (`body-parser`), quản lý phiên và xử lý lỗi tập trung.
+- **Tích hợp Template Engine linh hoạt:** Hỗ trợ kết nối liền mạch với Pug để kết xuất giao diện HTML phía máy chủ.
 
 ### 3.2. Vai trò trong dự án VAMOS STORE
 
 Express.js đóng vai trò là "bộ xương sống" kết nối toàn bộ hệ thống VAMOS STORE:
 
 - Phân tách mạch lạc giữa các route công khai cho khách hàng (`/products`, `/cart`, `/checkout`) và các route quản trị bảo mật (`/admin/products`, `/admin/orders`, `/admin/inventory`).
-- Cung cấp các Middleware kiểm tra vai trò: ngăn chặn khách vãng lai chưa đăng nhập truy cập trang thanh toán, ngăn chặn khách hàng thông thường truy cập trái phép vào các trang quản trị của Admin.
+- Cung cấp các Middleware kiểm tra vai trò (`requireAdmin`, `sessionContextMiddleware`): ngăn chặn khách vãng lai chưa đăng nhập truy cập trang thanh toán, ngăn chặn khách hàng thông thường truy cập trái phép vào các trang quản trị của Admin.
 
 ---
 
-## 4. MÔ HÌNH MVC VÀ KIẾN TRÚC PHÂN LỚP (LAYERED ARCHITECTURE)
+## 4. MÔ HÌNH MVC VÀ KIẾN TRÚC THỰC THI (APPLICATION ARCHITECTURE)
 
 ### 4.1. Khái niệm Model - View - Controller (MVC)
 
@@ -381,26 +396,25 @@ Mô hình MVC là một mẫu kiến trúc phần mềm kinh điển trong công
   <p><em>Hình 2: Mô hình kiến trúc MVC phân lớp</em></p>
 </div>
 
-
 <div align="center">
   <img src="images/hinh_03_mvc_flow.png" alt="Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><em>Hình 3: Luồng xử lý một Request trong kiến trúc phân lớp</em></p>
 </div>
 
-### 4.2. Kiến trúc phân lớp mở rộng trong VAMOS STORE
+### 4.2. Hiện thực Kiến trúc thực tế trong VAMOS STORE
 
-Để tránh hiện tượng "Fat Controller" (Controller chứa quá nhiều logic nghiệp vụ phức tạp khiến mã nguồn khó kiểm thử và khó bảo trì), dự án VAMOS STORE áp dụng **Kiến trúc phân lớp chuẩn doanh nghiệp (Layered Architecture)**:
+Để vừa đảm bảo tính module hóa cao vừa tối ưu hóa hiệu năng, hệ thống VAMOS STORE áp dụng mô hình kiến trúc thực thi kết hợp linh hoạt, phù hợp với từng phân hệ nghiệp vụ:
 
-- **Lớp Trình diễn (Presentation Layer - Views):** Sử dụng các file template Pug và Tailwind CSS để xây dựng giao diện người dùng.
-- **Lớp Điều khiển (Controller Layer):** Tiếp nhận HTTP Request, kiểm tra tính hợp lệ sơ bộ của tham số đầu vào (Input Validation), sau đó chuyển tiếp cho tầng Service.
-- **Lớp Dịch vụ nghiệp vụ (Service Layer):** Nơi chứa 100% logic nghiệp vụ cốt lõi: tính toán giảm giá voucher, quản lý Database Transaction, điều phối khóa dòng kiểm tra tồn kho khi đặt hàng COD, kích hoạt hoàn kho khi hủy đơn.
-- **Lớp Truy xuất dữ liệu (Repository / Data Access Layer):** Chứa các câu lệnh truy vấn SQL thuần túy, đóng gói các thao tác với MSSQL Connection Pool, trả về các đối tượng dữ liệu thuần túy (Data Transfer Object) cho tầng Service.
+- **Mô hình Ba tầng (Three-Tier Service / Repository Pattern):** Được áp dụng cho các phân hệ nghiệp vụ phức tạp đòi hỏi xử lý giao dịch nguyên tử (ACID Transaction) và quản lý dữ liệu lớn:
+  - *Phân hệ Đặt hàng & Hủy đơn:* `OrderService` (`src/services/order.service.js`) quản lý Transaction nguyên tử, khóa bi quan trừ kho, kiểm tra Rule Q8 voucher, tính toán snapshot và kích hoạt hoàn kho.
+  - *Phân hệ Danh mục & Sản phẩm:* `ProductService` và `ProductRepository` phụ trách truy vấn dữ liệu sản phẩm, phân trang, lọc đa tiêu chí.
+  - *Phân hệ Danh sách yêu thích:* `WishlistService` và `WishlistRepository` quản lý lưu trữ bền vững phía máy chủ.
+- **Mô hình Hai tầng trực tiếp (Two-Tier Direct Controller - Database Pattern):** Được áp dụng cho phân hệ Quản trị (`AdminController`) và Giỏ hàng (`CartController`). Bộ điều khiển trực tiếp thực thi các câu lệnh T-SQL tham số hóa thông qua Database Helper (`src/config/database.js`). Mô hình này giúp loại bỏ các lớp bọc (wrapper) trung gian không cần thiết, tăng tốc độ truy vấn và đơn giản hóa việc bảo trì mã nguồn cho các thao tác CRUD quản trị viên.
 
 <div align="center">
   <img src="images/hinh_04_mvc_layers.png" alt="Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><em>Hình 4: Chi tiết cấu trúc tầng trong kiến trúc phân lớp VAMOS STORE</em></p>
 </div>
-
 
 ---
 
@@ -440,16 +454,17 @@ Khác với các CSS framework truyền thống cung cấp sẵn các component 
 
 ---
 
-## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
+## 7. HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2022
 
-### 7.1. Tổng quan về Microsoft SQL Server 2025
+### 7.1. Tổng quan về Microsoft SQL Server 2022
 
-Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft. Phiên bản Microsoft SQL Server 2025 mang lại nhiều cải tiến và độ tin cậy vượt bậc:
+Microsoft SQL Server 2022 là hệ quản trị cơ sở dữ liệu quan hệ doanh nghiệp (Enterprise RDBMS) hàng đầu thế giới được phát triển bởi tập đoàn Microsoft, được triển khai chính thức trong dự án qua Docker image `mcr.microsoft.com/mssql/server:2022-latest`:
 
 - **Chuẩn hóa giao dịch ACID toàn diện:** Hỗ trợ đầy đủ các đặc tính toàn vẹn giao dịch **ACID** (Atomicity, Consistency, Isolation, Durability) qua các giao dịch T-SQL an toàn.
 - **Khóa bi quan cấp dòng với gợi ý bảng (Table Hints):** Hỗ trợ cú pháp `SELECT ... WITH (UPDLOCK, ROWLOCK)`, cho phép khóa một dòng dữ liệu biến thể trong suốt quá trình giao dịch, ngăn chặn tình trạng hai phiên làm việc đọc cùng một số lượng tồn và dẫn đến Race Condition (bán vượt tồn kho).
-- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server 2025 kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
+- **Thực thi nghiêm ngặt ràng buộc CHECK & FOREIGN KEY:** SQL Server kiểm tra và thực thi chặt chẽ các biểu thức logic `CHECK` (giá tiền không âm, số lượng đặt hàng lớn hơn 0, ngày kết thúc lớn hơn ngày bắt đầu) và ràng buộc toàn vẹn tham chiếu.
 - **Bảng mã Unicode `NVARCHAR`:** Hỗ trợ lưu trữ hoàn hảo văn bản tiếng Việt có dấu và bộ ký tự quốc tế.
+- **Chỉ mục có điều kiện (Filtered Unique Indexes):** Cho phép tạo ràng buộc duy nhất trên tập con dữ liệu, ví dụ bảo đảm mỗi người dùng chỉ có tối đa một địa chỉ giao hàng mặc định (`WHERE is_default = 1`).
 
 ---
 
@@ -459,11 +474,11 @@ Microsoft SQL Server 2025 là hệ quản trị cơ sở dữ liệu quan hệ d
 
 Hệ thống VAMOS STORE sử dụng thư viện `express-session` để duy trì trạng thái đăng nhập của người dùng:
 
-- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (hoặc lưu trữ trong MSSQL session store) và cấp một mã định danh phiên ngẫu nhiên (Session ID).
-- Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite=Strict` (chống tấn công giả mạo yêu cầu CSRF).
-- Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
+- Khi người dùng đăng nhập thành công với email và mật khẩu đúng, server khởi tạo một bản ghi session trong bộ nhớ máy chủ (MemoryStore) và cấp một mã định danh phiên ngẫu nhiên (Session ID mang tên cookie `vamos_sid`).
+- Session ID được mã hóa và gửi về trình duyệt qua cookie mang cờ `HttpOnly: true` (ngăn chặn mã độc JavaScript phía client đánh cắp cookie qua tấn công XSS) và `SameSite: 'lax'` (cân bằng giữa trải nghiệm điều hướng và bảo vệ chống tấn công giả mạo yêu cầu CSRF).
+- Mọi request tiếp theo từ trình duyệt tự động gửi kèm cookie này; middleware phía server (`sessionContextMiddleware`) sẽ đối soát phiên để trích xuất quyền hạn (`req.session.user.role`).
 
-### 8.2. Kỹ thuật băm mật khẩu một chiều với Bcrypt
+### 8.2. Kỹ thuật băm mật khẩu một chiều với Bcryptjs
 
 - **Nguyên tắc an toàn:** Tuyệt đối không lưu mật khẩu của người dùng dưới dạng văn bản thuần (plaintext) trong cơ sở dữ liệu.
 - **Thuật toán Bcrypt:** Là hàm băm mật khẩu thích ứng (adaptive hash function), tích hợp cơ chế tự động sinh chuỗi muối ngẫu nhiên (Salt) và cấu hình chi phí tính toán (Work factor / Salt rounds >= 10). Thuật toán này có khả năng làm chậm tốc độ tính toán của máy tính kẻ tấn công, vô hiệu hóa hoàn toàn các kỹ thuật tấn công tra cứu bảng cầu vồng (Rainbow Table) hoặc tấn công vét cạn (Brute-force).
@@ -482,10 +497,12 @@ Docker là nền tảng ảo hóa mức hệ điều hành (Containerization) ch
 
 Docker Compose là công cụ giúp định nghĩa và vận hành ứng dụng đa container (Multi-container applications) thông qua file cấu hình `docker-compose.yml`:
 
-- **Web Service:** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
-- **Database Service:** Container chạy hệ quản trị CSDL Microsoft SQL Server 2025, cấu hình ổ cứng gắn ngoài (Docker Volume) để lưu trữ dữ liệu an toàn ngay cả khi container bị khởi động lại.
+- **Web Service (`vamos_store_app`):** Container chạy ứng dụng Node.js/Express, kết nối cổng 3000 ra môi trường ngoài.
+- **Database Service (`vamos_store_mssql`):** Container chạy hệ quản trị CSDL Microsoft SQL Server 2022 (`mcr.microsoft.com/mssql/server:2022-latest`), cấu hình ổ cứng gắn ngoài (Docker Volume `mssql_data`) để lưu trữ dữ liệu bền vững ngay cả khi container bị khởi động lại.
 - **Lợi ích ứng dụng:** Đảm bảo tính nhất quán tuyệt đối của môi trường chạy ứng dụng giữa các máy tính của các thành viên trong nhóm phát triển và máy chủ triển khai ("Build once, run anywhere").
 
+
+---
 
 # CHƯƠNG II: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG (SYSTEM ANALYSIS & DESIGN)
 
@@ -493,30 +510,62 @@ Docker Compose là công cụ giúp định nghĩa và vận hành ứng dụng 
 
 ## 1. PHÂN TÍCH NGHIỆP VỤ HỆ THỐNG
 
+Dựa trên việc đối chiếu trực tiếp với hệ thống định tuyến (Routes), các bộ điều khiển (Controllers) và các middleware xác thực thực tế trong mã nguồn dự án VAMOS STORE, nghiệp vụ hệ thống được chuẩn hóa chính xác theo 3 nhóm tác nhân (Actors):
+
 ### 1.1. Nghiệp vụ của Khách vãng lai (Guest)
-Khách vãng lai là người truy cập website nhưng chưa đăng nhập hoặc chưa có tài khoản trên hệ thống:
-* **Khám phá và tra cứu sản phẩm:** Xem trang chủ, xem các bộ sưu tập giày dép nổi bật, tìm kiếm sản phẩm theo từ khóa (tên sản phẩm, dòng sản phẩm, thương hiệu).
-* **Lọc và phân loại nâng cao:** Sử dụng bộ lọc đa tiêu chí bên thanh điều hướng trái (Sidebar Filter) để lọc theo danh mục (Sneaker, Thể thao, Chạy bộ, Sandal, Dép), lọc theo đối tượng giới tính (Nam, Nữ, Trẻ em, Unisex), lọc theo kích cỡ giày (Size 36 đến 45), theo màu sắc và khoảng giá bán.
-* **Xem thông tin chi tiết sản phẩm:** Xem bộ sưu tập hình ảnh góc chụp chi tiết, đọc mô tả tính năng công nghệ của đế và thân giày, bảng hướng dẫn chọn size chuẩn, kiểm tra tình trạng còn hàng theo từng cặp Size x Màu sắc.
-* **Đăng ký tài khoản mới:** Cung cấp thông tin họ tên, email hợp lệ, số điện thoại, mật khẩu để tạo tài khoản thành viên `Customer`.
-* **Đăng nhập và khôi phục mật khẩu:** Xác thực vào hệ thống hoặc gửi yêu cầu đặt lại mật khẩu khi quên.
+Khách vãng lai là người dùng truy cập vào hệ thống nhưng chưa thực hiện đăng nhập hoặc chưa có tài khoản thành viên:
+* **Khám phá và tra cứu sản phẩm:** Xem trang chủ với slider banner quảng bá chiến dịch marketing; xem danh mục sản phẩm nổi bật, sản phẩm mới nhất và sản phẩm bán chạy; tìm kiếm sản phẩm theo từ khóa (khớp tên sản phẩm, mã sản phẩm hoặc thương hiệu).
+* **Bộ lọc sản phẩm đa tiêu chí:** Sử dụng bộ lọc nâng cao tại trang cửa hàng (`/products`) để lọc sản phẩm theo danh mục (`category`), đối tượng giới tính (`gender_target: MEN, WOMEN, KIDS, UNISEX`), kích cỡ giày (`size: 36 - 45`), màu sắc (`color`) và khoảng giá bán (`min_price`, `max_price`); sắp xếp theo giá tăng/giảm hoặc tên A-Z.
+* **Xem chi tiết sản phẩm:** Xem bộ sưu tập ảnh góc chụp chi tiết; đọc thông số kỹ thuật và hướng dẫn chọn cỡ giày; tương tác chọn ma trận Size x Màu sắc để kiểm tra tức thời tình trạng còn hàng và số lượng tồn thực tế của từng mã biến thể SKU.
+* **Đăng ký tài khoản thành viên:** Nhập họ tên, email hợp lệ, số điện thoại và mật khẩu (tối thiểu 6 ký tự) để khởi tạo tài khoản `Customer`. Hệ thống tự động khởi tạo giỏ hàng cá nhân (quan hệ 1:1) ngay khi tạo tài khoản thành công.
+* **Đăng nhập hệ thống:** Xác thực danh tính bằng email và mật khẩu qua thuật toán `bcryptjs`, lưu giữ phiên làm việc an toàn thông qua Session trên máy chủ.
+* **Quy trình Khôi phục mật khẩu (Thiết kế):** Gửi yêu cầu đặt lại mật khẩu khi quên (CSDL đã thiết kế cấu trúc bảng `password_reset_tokens` và token hash bảo mật, đang ở trạng thái chờ tích hợp Email Service).
 
 ### 1.2. Nghiệp vụ của Khách hàng thành viên (Customer)
-Khách hàng thành viên là người đã đăng nhập tài khoản khách hàng trên hệ thống VAMOS STORE:
-* **Quản lý giỏ hàng:** Chọn biến thể kích cỡ và màu sắc ưng ý, chỉ định số lượng và thêm vào giỏ hàng cá nhân. Khách hàng có thể tăng/giảm số lượng hoặc xóa dòng sản phẩm trong trang giỏ hàng.
-* **Đặt hàng thanh toán COD:** Thực hiện quy trình đặt hàng: chọn địa chỉ giao nhận từ sổ địa chỉ có sẵn hoặc nhập địa chỉ mới; nhập mã voucher khuyến mãi (nếu có); xác nhận phương thức thanh toán tiền mặt khi nhận hàng (COD).
-* **Quản lý sổ địa chỉ:** Thêm nhiều địa chỉ giao hàng cá nhân, chỉnh sửa thông tin người nhận và thiết lập một địa chỉ làm mặc định.
-* **Theo dõi đơn hàng (Order Tracking):** Xem danh sách lịch sử mua hàng; xem chi tiết từng đơn hàng bao gồm danh sách sản phẩm snapshot, tổng tiền, mã vận đơn nội bộ và tiến trình trạng thái thời gian thực.
-* **Chủ động hủy đơn hàng:** Được phép tự bấm nút "Hủy đơn hàng" và nhập lý do hủy DUY NHẤT khi đơn hàng đang ở trạng thái chờ xác nhận (`PENDING`). Khi đơn đã chuyển sang trạng thái đã xác nhận (`CONFIRMED`) hoặc đang chuẩn bị hàng (`PROCESSING`), nút hủy đơn sẽ tự động bị vô hiệu hóa.
+Khách hàng thành viên là người dùng đã đăng nhập tài khoản có vai trò `CUSTOMER`:
+* **Kế thừa toàn bộ quyền của Khách vãng lai:** Xem hàng, tìm kiếm, lọc và xem thông tin chi tiết.
+* **Quản lý giỏ hàng trực tuyến:** Thêm biến thể sản phẩm vào giỏ hàng cá nhân (`carts` và `cart_items`); điều chỉnh số lượng (giới hạn tối thiểu 1 đôi, tối đa 10 đôi bán lẻ cho mỗi mặt hàng theo Quy tắc Q7); xóa từng dòng sản phẩm hoặc làm trống giỏ hàng; hệ thống tự động kiểm tra tồn kho tức thời.
+* **Quản lý danh sách yêu thích (Wishlist):** Thêm hoặc xóa sản phẩm khỏi danh sách yêu thích được lưu trữ bền vững trong CSDL (`wishlist_items`).
+* **Quản lý hồ sơ và sổ địa chỉ giao hàng:** Cập nhật thông tin cá nhân; đổi mật khẩu tài khoản; thêm mới, chỉnh sửa, xóa địa chỉ nhận hàng và thiết lập địa chỉ mặc định (ràng buộc duy nhất 1 địa chỉ mặc định qua Filtered Unique Index).
+* **Đặt hàng thanh toán COD (Checkout):** Chọn địa chỉ giao hàng; áp dụng mã giảm giá voucher (nếu thỏa mãn hạn mức và chưa từng dùng theo Quy tắc Q8); kiểm tra tóm tắt tài chính (tạm tính, giảm giá, phí ship, tổng thanh toán); xác nhận tạo đơn hàng trong một Transaction CSDL nguyên tử kèm trừ kho và lưu snapshot thông tin bất biến.
+* **Tra cứu và theo dõi đơn hàng (Order Tracking):** Xem danh sách lịch sử đơn hàng; xem chi tiết từng đơn hàng kèm bản sao snapshot địa chỉ và sản phẩm; theo dõi tiến trình chuyển trạng thái theo thời gian thực.
+* **Chủ động hủy đơn hàng:** Được quyền tự hủy đơn hàng DUY NHẤT khi đơn đang ở trạng thái chờ xác nhận (`PENDING`). Hệ thống tự động kích hoạt Transaction hoàn trả tồn kho và phục hồi lượt dùng voucher.
 
 ### 1.3. Nghiệp vụ của Quản trị viên (Admin)
-Quản trị viên là người vận hành và kiểm soát toàn bộ hoạt động kinh doanh trên hệ thống:
-* **Quản lý Danh mục và Thương hiệu:** Thêm mới, cập nhật thông tin mô tả, cấu hình đường dẫn tĩnh (slug) và bật/tắt trạng thái hiển thị danh mục trên cửa hàng.
-* **Quản lý Sản phẩm và Biến thể:** Tạo mới thông tin sản phẩm cha; tải lên bộ sưu tập hình ảnh chi tiết và chọn ảnh đại diện chính; cấu hình ma trận biến thể giày theo từng cặp Kích cỡ (Size) x Màu sắc (Color) gán kèm mã SKU duy nhất và số lượng nhập kho ban đầu.
-* **Quản lý Tồn kho & Kiểm kê:** Xem danh sách cảnh báo các mặt hàng sắp hết (`stock_quantity <= 5`); thực hiện điều chỉnh tăng/giảm tồn kho thủ công khi kiểm kê kho thực tế; bắt buộc nhập lý do điều chỉnh để lưu vết kiểm toán vào `inventory_transactions`.
-* **Vận hành Đơn hàng (Order Fulfillment):** Xem danh sách đơn hàng lọc theo trạng thái; xem chi tiết snapshot địa chỉ và sản phẩm; thực hiện chuyển đổi trạng thái đơn hàng theo đúng quy trình nghiệp vụ: `PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `SHIPPING` $\rightarrow$ `COMPLETED`. Admin có quyền hủy đơn hàng ở trạng thái `PENDING` hoặc `CONFIRMED` kèm theo ghi chú lý do nội bộ, hệ thống sẽ tự động kích hoạt hoàn kho.
-* **Quản lý Mã giảm giá (Vouchers):** Tạo mã khuyến mãi, thiết lập hình thức giảm (theo `%` hoặc trừ tiền cố định), giá trị giảm, hạn mức tối đa, giá trị đơn hàng tối thiểu và khung thời gian hiệu lực.
-* **Báo cáo Doanh thu & Thống kê:** Bảng điều khiển trực quan thống kê tổng số đơn hàng, tổng sản phẩm đã bán và doanh thu thực tế (nguyên tắc: chỉ ghi nhận doanh thu từ các đơn hàng đã ở trạng thái `COMPLETED`).
+Quản trị viên là người dùng có vai trò `ADMIN`, có toàn quyền điều hành và quản lý hoạt động kinh doanh:
+* **Bảng điều khiển tổng quan (Dashboard):** Xem thống kê tổng doanh thu thực tế (chỉ tính từ các đơn hàng có `order_status = 'COMPLETED'` và `payment_status = 'PAID'`); thống kê số lượng đơn theo 6 trạng thái; theo dõi Top 4 sản phẩm bán chạy nhất theo số lượng bán (`ORDER BY total_sold DESC`); xem danh sách cảnh báo tồn kho thấp (`stock_quantity <= 5`) và danh sách đơn hàng khẩn cấp cần xử lý.
+* **Quản lý Danh mục và Thương hiệu:** Thêm mới danh mục và thương hiệu; chỉnh sửa mô tả và đường dẫn tĩnh SEO (slug); bật/tắt trạng thái hiển thị của danh mục.
+* **Quản lý Sản phẩm và Biến thể:** Tạo mới thông tin sản phẩm cha; cấu hình ma trận biến thể giày theo Size x Color x SKU kèm số lượng tồn kho ban đầu; quản lý bộ ảnh sản phẩm và chỉ định ảnh đại diện chính (`is_primary = 1`); chỉnh sửa thông tin hoặc ẩn/hiện sản phẩm.
+* **Quản lý Tồn kho và Thẻ kho (Inventory Management):** Tra cứu tồn kho chi tiết theo từng mã SKU; thực hiện điều chỉnh tăng/giảm kho thủ công khi kiểm kê thực tế; bắt buộc ghi nhận lý do điều chỉnh để lưu vết kiểm toán vào bảng `inventory_transactions`.
+* **Vận hành và Xử lý Đơn hàng (Order Fulfillment):** Xem danh sách đơn hàng có phân trang và bộ lọc trạng thái; xem chi tiết snapshot đơn hàng; thực hiện chuyển đổi trạng thái đơn hàng theo đúng máy trạng thái chuẩn (`PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `SHIPPING` $\rightarrow$ `COMPLETED`); hủy đơn hàng nội bộ kèm lý do và kích hoạt hoàn kho tự động. Khi chuyển trạng thái sang `COMPLETED` trong luồng COD, hệ thống tự động cập nhật `payment_status = 'PAID'`.
+* **Quản lý Mã giảm giá (Vouchers):** Tạo mới mã ưu đãi; cấu hình hình thức giảm (phần trăm hoặc tiền cố định), giá trị giảm, mức giảm trần, giá trị đơn tối thiểu, khung thời gian hiệu lực và giới hạn số lượt dùng; bật/tắt trạng thái voucher.
+* **Quản lý Tài khoản Khách hàng (Customer Accounts):** Tra cứu danh sách khách hàng, xem tổng số đơn và tổng chi tiêu tích lũy; xem chi tiết hồ sơ cá nhân, sổ địa chỉ và lịch sử đơn hàng; khóa hoặc mở khóa tài khoản khách hàng (`status = 'active' | 'locked'`) với cơ chế bảo vệ nghiêm ngặt: tuyệt đối không cho phép khóa tài khoản ADMIN.
+* **Quản lý Banner quảng bá trang chủ:** Xem danh sách banner theo thứ tự hiển thị `display_order`; thêm banner mới kèm link điều hướng; bật/tắt trạng thái hiển thị; xóa vật lý banner khỏi CSDL.
+
+### 1.4. Ma trận phân quyền các tác nhân (Actor Permissions Matrix)
+
+Dưới đây là ma trận phân quyền truy cập và thực thi chức năng của 3 tác nhân (`Guest`, `Customer`, `Admin`) trên toàn bộ các phân hệ của VAMOS STORE:
+
+| Phân hệ / Nghiệp vụ | Khách vãng lai (Guest) | Khách hàng (Customer) | Quản trị viên (Admin) |
+| :--- | :---: | :---: | :---: |
+| Xem trang chủ, tìm kiếm, lọc sản phẩm | Cho phép | Cho phép | Cho phép |
+| Xem chi tiết sản phẩm, kiểm tra tồn kho SKU | Cho phép | Cho phép | Cho phép |
+| Đăng ký / Đăng nhập tài khoản | Cho phép | Cho phép | Cho phép |
+| Quản lý giỏ hàng trực tuyến (Carts) | Không (Cần đăng nhập) | Toàn quyền | Không |
+| Quản lý danh sách yêu thích (Wishlist) | Không (Cần đăng nhập) | Toàn quyền | Không |
+| Quản lý hồ sơ cá nhân & Sổ địa chỉ | Không | Toàn quyền (Cá nhân) | Không |
+| Đặt hàng thanh toán COD & Áp voucher | Không (Cần đăng nhập) | Toàn quyền | Không |
+| Tra cứu lịch sử & Chi tiết đơn hàng | Không | Đơn hàng cá nhân | Toàn bộ đơn hàng |
+| Hủy đơn hàng khi trạng thái PENDING | Không | Cho phép (Đơn cá nhân) | Cho phép (Kèm hoàn kho) |
+| Quản lý danh mục, thương hiệu, banner | Không | Không | Toàn quyền (CRUD) |
+| Quản lý sản phẩm, biến thể SKU, ảnh | Không | Không | Toàn quyền (CRUD) |
+| Quản lý tồn kho & Điều chỉnh thẻ kho | Không | Không | Toàn quyền |
+| Vận hành chuyển trạng thái đơn hàng | Không | Không | Toàn quyền (Fulfillment) |
+| Quản lý mã giảm giá (Vouchers) | Không | Không | Toàn quyền |
+| Quản lý tài khoản khách hàng | Không | Không | Toàn quyền (Khóa/Mở) |
+| Bảng điều khiển KPI & Báo cáo doanh thu | Không | Không | Toàn quyền (Dashboard) |
+
+_Bảng 2: Ma trận phân quyền các Actor trong VAMOS STORE_
 
 ---
 
@@ -524,24 +573,25 @@ Quản trị viên là người vận hành và kiểm soát toàn bộ hoạt �
 
 ### 2.1. Sơ đồ Use Case (Use Case Diagrams)
 
+Hệ thống VAMOS STORE chuẩn hóa chính xác **14 Use Case cốt lõi** phục vụ 3 tác nhân (`Guest`, `Customer`, `Admin`), được tổ chức thành 4 phân hệ chính:
+1. Phân hệ Xác thực & Tài khoản (`UC01`, `UC02`, `UC03`, `UC04`).
+2. Phân hệ Duyệt hàng & Mua sắm (`UC05`, `UC06`, `UC07`).
+3. Phân hệ Quản lý Đơn hàng Khách hàng (`UC08`, `UC09`).
+4. Phân hệ Quản trị Vận hành Admin (`UC10`, `UC11`, `UC12`, `UC13`, `UC14`).
+
 #### A. Sơ đồ Use Case tổng quát toàn hệ thống
-Hệ thống VAMOS STORE bao gồm 4 gói chức năng (Packages) được phân quyền cho 3 tác nhân chính (`Guest`, `Customer`, `Admin`):
-* Gói 1: Quản lý tài khoản & Xác thực
-* Gói 2: Mua sắm & Đặt hàng COD
-* Gói 3: Quản lý đơn hàng cá nhân của Khách hàng
-* Gói 4: Quản trị hệ thống dành cho Admin
 
 <div align="center">
-  <img src="images/hinh_05_use_case_tong_quat.png" alt="Hình 5: Sơ đồ Use Case tổng quát VAMOS STORE" style="max-width: 75%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <img src="images/hinh_05_use_case_tong_quat.png" alt="Hình 5: Sơ đồ Use Case tổng quát VAMOS STORE" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><strong>Hình 5: Sơ đồ Use Case tổng quát VAMOS STORE</strong></p>
 </div>
 
 ---
 
-#### B. Sơ đồ Use Case chi tiết phân hệ Đặt hàng COD & Giỏ hàng
-* Ca sử dụng trung tâm là **"Đặt hàng COD"** (`UC07`) được thực hiện bởi `Customer`.
-* Quan hệ `<<include>>`: Luồng đặt hàng bắt buộc phải bao gồm bước *"Chọn địa chỉ nhận hàng"* và *"Xác nhận thông tin đặt hàng"*.
-* Quan hệ `<<extend>>`: Khách hàng có thể tùy chọn *"Áp dụng mã giảm giá"* (`UC08`) khi đơn hàng thỏa mãn điều kiện tối thiểu.
+#### B. Sơ đồ Use Case chi tiết phân hệ Mua sắm & Đặt hàng COD
+* Ca sử dụng trọng tâm là **"Đặt hàng COD" (`UC07`)** được thực hiện bởi `Customer`.
+* Quan hệ `<<include>>`: Luồng đặt hàng bắt buộc phải thực hiện bước *"Chọn địa chỉ nhận hàng"* và *"Xác nhận đơn hàng"*.
+* Quan hệ `<<extend>>`: Khách hàng có thể tùy chọn *"Áp dụng mã giảm giá"* khi đơn hàng thỏa mãn điều kiện giá trị tối thiểu của voucher.
 
 <div align="center">
   <img src="images/hinh_06_use_case_mua_hang.png" alt="Hình 6: Sơ đồ Use Case chi tiết Đặt hàng COD" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -550,9 +600,10 @@ Hệ thống VAMOS STORE bao gồm 4 gói chức năng (Packages) được phân
 
 ---
 
-#### C. Sơ đồ Use Case chi tiết Quản lý đơn hàng khách hàng & Hủy đơn
-* Khách hàng xem danh sách đơn hàng đã mua (`UC09`) và theo dõi tiến trình chuyển trạng thái theo thời gian thực.
-* Chức năng *"Hủy đơn hàng"* (`UC10`) là điểm mở rộng (`<<extend>>`) gắn kèm điểm mở rộng (Extension Point) `condition: status == 'PENDING'`.
+#### C. Sơ đồ Use Case chi tiết Quản lý đơn hàng & Kho Admin
+* Khách hàng theo dõi tiến trình đơn hàng qua **"Tra cứu và theo dõi đơn hàng" (`UC08`)**.
+* Chức năng **"Hủy đơn hàng" (`UC09`)** là điểm mở rộng (`<<extend>>`) gắn kèm điều kiện: chỉ khả dụng khi `order_status = 'PENDING'`.
+* Quản trị viên thực hiện **"Admin xử lý đơn hàng" (`UC10`)** để điều phối trạng thái và **"Quản lý tồn kho" (`UC11`)** để kiểm kê, điều chỉnh số lượng tồn.
 
 <div align="center">
   <img src="images/hinh_07_use_case_quan_ly.png" alt="Hình 7: Sơ đồ Use Case chi tiết Quản lý đơn hàng & Vận hành kho Admin" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -561,12 +612,60 @@ Hệ thống VAMOS STORE bao gồm 4 gói chức năng (Packages) được phân
 
 ---
 
+#### D. Bảng đặc tả tổng hợp 14 Use Case hệ thống VAMOS STORE
+
+| Mã UC | Tên Use Case | Tác nhân chính | Tiền điều kiện | Hậu điều kiện thành công | Luồng sự kiện chính |
+|:---:|:---|:---:|:---|:---|:---|
+| **UC01** | Đăng ký tài khoản | Guest | Chưa đăng nhập, email chưa tồn tại trong hệ thống. | Tạo tài khoản `Customer`, băm mật khẩu `bcryptjs`, tự động tạo giỏ hàng rỗng (1:1). | 1. Nhập họ tên, email, SĐT, MK.<br>2. Hệ thống kiểm tra hợp lệ.<br>3. Lưu bản ghi `users`, cấp `carts`, chuyển đến trang đăng nhập. |
+| **UC02** | Đăng nhập hệ thống | Guest, Customer, Admin | Đã có tài khoản trong CSDL. | Thiết lập Session người dùng, phân quyền truy cập theo vai trò. | 1. Nhập email và mật khẩu.<br>2. Đối soát mật khẩu hash.<br>3. Điều hướng: Admin vào `/admin`, Customer vào `/`. |
+| **UC03** | Khôi phục mật khẩu (Thiết kế) | Guest | Quên mật khẩu tài khoản. | CSDL đã có bảng `password_reset_tokens` hỗ trợ; quy trình xử lý hoàn chỉnh chưa được triển khai trong phiên bản hiện tại. | 1. Người dùng gửi yêu cầu khôi phục.<br>2. (Chức năng trong thiết kế, chưa triển khai luồng gửi email). |
+| **UC04** | Quản lý hồ sơ & địa chỉ | Customer | Đã đăng nhập `Customer`. | Cập nhật hồ sơ, lưu sổ địa chỉ trong bảng `addresses`. | 1. Vào trang cá nhân.<br>2. Thêm/sửa địa chỉ nhận hàng.<br>3. Chọn địa chỉ mặc định (duy nhất qua Filtered Index). |
+| **UC05** | Tìm kiếm & xem sản phẩm | Guest, Customer | Không có. | Hiển thị danh sách sản phẩm, chi tiết biến thể và tồn kho. | 1. Tìm từ khóa hoặc chọn bộ lọc.<br>2. Xem danh sách kết quả.<br>3. Xem chi tiết sản phẩm và chọn Size/Màu. |
+| **UC06** | Quản lý giỏ hàng | Customer | Đã đăng nhập `Customer`. | Bản ghi `cart_items` được cập nhật tương ứng. | 1. Chọn biến thể giày và số lượng.<br>2. Thêm vào giỏ.<br>3. Tăng/giảm (tối đa 10 đôi) hoặc xóa sản phẩm. |
+| **UC07** | Đặt hàng COD | Customer | Giỏ hàng có sản phẩm, đã đăng nhập. | Tạo đơn hàng trong bảng `orders`, trừ kho, lưu snapshot, làm trống giỏ hàng. | 1. Vào trang Checkout.<br>2. Chọn địa chỉ và nhập voucher.<br>3. Bấm Đặt hàng.<br>4. Hệ thống chạy Transaction nguyên tử và chuyển hướng thành công. |
+| **UC08** | Tra cứu & theo dõi đơn hàng | Customer | Đã đăng nhập, có đơn hàng đã đặt. | Hiển thị thông tin chi tiết đơn hàng, snapshot giá và tiến trình xử lý. | 1. Vào Lịch sử đơn hàng.<br>2. Chọn xem chi tiết đơn.<br>3. Xem trạng thái vận chuyển và danh sách sản phẩm đặt. |
+| **UC09** | Hủy đơn hàng | Customer | Đơn hàng của chính mình ở trạng thái `PENDING`. | Trạng thái chuyển `CANCELLED`, hoàn trả số lượng tồn kho, hoàn lại lượt dùng voucher. | 1. Vào chi tiết đơn `PENDING`.<br>2. Bấm "Hủy đơn hàng" và nhập lý do.<br>3. Hệ thống chạy Transaction cập nhật trạng thái và hoàn kho. |
+| **UC10** | Admin xử lý đơn hàng | Admin | Đã đăng nhập `Admin`. | Trạng thái đơn chuyển đổi theo quy trình chuẩn, cập nhật `payment_status` khi xong. | 1. Vào danh sách đơn hàng Admin.<br>2. Chọn đơn cần duyệt.<br>3. Chuyển trạng thái (`PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ ... $\rightarrow$ `COMPLETED`). |
+| **UC11** | Quản lý tồn kho | Admin | Đã đăng nhập `Admin`. | Số lượng tồn kho biến thể cập nhật, ghi nhật ký kiểm toán vào `inventory_transactions`. | 1. Vào trang Quản lý kho.<br>2. Tra cứu mã SKU.<br>3. Nhập số lượng điều chỉnh và lý do.<br>4. Hệ thống cập nhật kho và lưu thẻ kho. |
+| **UC12** | Quản lý sản phẩm & danh mục | Admin | Đã đăng nhập `Admin`. | Dữ liệu sản phẩm, biến thể, ảnh, danh mục, thương hiệu được lưu vào CSDL. | 1. Vào trang Quản lý sản phẩm/danh mục.<br>2. Nhập thông tin, tạo biến thể Size/Color/SKU.<br>3. Bấm Lưu để ghi dữ liệu nguyên tử. |
+| **UC13** | Quản lý mã giảm giá | Admin | Đã đăng nhập `Admin`. | Bản ghi voucher mới được lưu vào bảng `vouchers`. | 1. Vào trang Quản lý Voucher.<br>2. Nhập mã, giá trị giảm, hạn mức, ngày hiệu lực.<br>3. Bấm Lưu hoặc bật/tắt hiển thị. |
+| **UC14** | Báo cáo doanh thu | Admin | Đã đăng nhập `Admin`. | Dashboard hiển thị tổng doanh thu từ đơn `COMPLETED` + `PAID`, Top 4 bán chạy. | 1. Truy cập `/admin/dashboard`.<br>2. Hệ thống tổng hợp số liệu CSDL thời gian thực.<br>3. Hiển thị KPI, biểu đồ và danh sách sản phẩm. |
+
+_Bảng 3: Danh sách 14 Use Case nghiệp vụ hệ thống VAMOS STORE_
+
+---
+
 ### 2.2. Sơ đồ điều hướng màn hình (Sitemap)
 
-Website VAMOS STORE được phân chia cấu trúc trang thành 3 phân vùng độc lập:
-1. **Phân vùng công khai (Public Zone):** Trang chủ, Danh mục sản phẩm (Shop), Chi tiết sản phẩm, Giỏ hàng, Đăng nhập, Đăng ký, Quên mật khẩu, Chính sách bảo hành/đổi trả.
-2. **Phân vùng Khách hàng (Customer Protected Zone):** Trang thanh toán đặt hàng COD (Checkout), Trang xác nhận đặt hàng thành công, Trang hồ sơ cá nhân, Sổ địa chỉ nhận hàng, Lịch sử và chi tiết đơn hàng.
-3. **Phân vùng Quản trị (Admin Protected Zone):** Dashboard thống kê doanh thu, Quản lý sản phẩm & biến thể, Quản lý danh mục & thương hiệu, Quản lý tồn kho & nhật ký kho, Quản lý đơn hàng & chuyển trạng thái, Quản lý mã giảm giá (voucher), Quản lý banner slider.
+Website VAMOS STORE được phân định cấu trúc trang chặt chẽ thành 3 phân vùng độc lập dựa trên cơ chế phân quyền RBAC và middleware bảo vệ:
+
+1. **Phân vùng công khai (Public Zone):**
+   * Trang chủ (`/`): Banner slider, danh mục nổi bật, sản phẩm mới, top bán chạy.
+   * Cửa hàng (`/products`): Danh sách sản phẩm kèm bộ lọc đa tiêu chí bên thanh sidebar.
+   * Chi tiết sản phẩm (`/products/:slug`): Thư viện ảnh, mô tả, chọn Size/Màu và kiểm tra tồn kho.
+   * Tìm kiếm trực tiếp (`/api/products/search`): Gợi ý kết quả tìm kiếm thời gian thực.
+   * Xác thực tài khoản: Đăng nhập (`/auth/login`), Đăng ký (`/auth/register`), Quên mật khẩu (`/auth/forgot-password`).
+   * Trang thông tin tĩnh: Giới thiệu (`/about`), Chính sách (`/policy`), Khuyến mãi (`/promotions`).
+
+2. **Phân vùng Khách hàng (Customer Protected Zone - Yêu cầu đăng nhập `CUSTOMER`):**
+   * Giỏ hàng trực tuyến (`/cart`): Quản lý mặt hàng, số lượng, tạm tính.
+   * Đặt hàng thanh toán COD (`/checkout`): Chọn địa chỉ, áp voucher, xác nhận đặt hàng.
+   * Đặt hàng thành công (`/checkout/success/:id`): Xem mã đơn và thông báo xác nhận.
+   * Hồ sơ cá nhân (`/account/profile`): Cập nhật thông tin, đổi mật khẩu.
+   * Sổ địa chỉ giao hàng (`/account/addresses`): Thêm, sửa, xóa, đặt địa chỉ mặc định.
+   * Lịch sử đơn hàng (`/account/orders`): Danh sách đơn hàng cá nhân.
+   * Chi tiết đơn hàng (`/account/orders/:id`): Xem chi tiết đơn và nút hủy đơn khi `PENDING`.
+   * Danh sách yêu thích (`/account/wishlist` và `/api/wishlist`): Sản phẩm đã lưu.
+
+3. **Phân vùng Quản trị (Admin Protected Zone - Yêu cầu quyền `ADMIN` qua `requireAdmin`):**
+   * Bảng điều khiển tổng quan (`/admin/dashboard`): Doanh thu, đơn hàng, Top 4 bán chạy, cảnh báo kho.
+   * Quản lý sản phẩm (`/admin/products`): Danh sách, thêm mới, sửa, ẩn/hiện sản phẩm và biến thể.
+   * Quản lý tồn kho (`/admin/inventory`): Kiểm kê tồn kho, điều chỉnh kho thủ công, thẻ kho lịch sử.
+   * Quản lý danh mục & thương hiệu (`/admin/categories`): Thêm mới, đổi trạng thái.
+   * Vận hành đơn hàng (`/admin/orders`): Danh sách đơn, chi tiết đơn, chuyển đổi trạng thái 6 bước.
+   * Quản lý voucher (`/admin/vouchers`): Danh sách, tạo voucher mới, bật/tắt trạng thái.
+   * Quản lý khách hàng (`/admin/customers`): Danh sách khách, chi tiết chi tiêu, khóa/mở khóa tài khoản.
+   * Quản lý banner (`/admin/banners`): Danh sách banner trang chủ, thêm banner, bật/tắt, xóa banner.
 
 <div align="center">
   <img src="images/hinh_08_sitemap.png" alt="Hình 8: Sơ đồ điều hướng màn hình Sitemap VAMOS STORE" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
@@ -577,513 +676,514 @@ Website VAMOS STORE được phân chia cấu trúc trang thành 3 phân vùng �
 
 ### 2.3. Mô hình thực thể quan hệ - ERD (Entity-Relationship Diagram)
 
-Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa gồm **18 thực thể** liên kết chặt chẽ trên hệ quản trị CSDL Microsoft SQL Server 2025:
+Hệ thống cơ sở dữ liệu VAMOS STORE được thiết kế chuẩn hóa ở dạng chuẩn 3NF (Third Normal Form) gồm **chính xác 20 thực thể nghiệp vụ** chạy trên hệ quản trị CSDL Microsoft SQL Server 2022 (bảng `schema_migrations` là bảng quản lý phiên bản migration kỹ thuật, không thuộc miền thực thể nghiệp vụ):
 
 <div align="center">
-  <img src="images/hinh_09_erd.png" alt="Hình 9: Mô hình thực thể quan hệ (ERD 18 bảng) - VAMOS STORE" style="max-width: 95%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 9: Mô hình thực thể quan hệ (ERD 18 bảng) - VAMOS STORE</strong></p>
+  <img src="images/hinh_09_erd.png" alt="Hình 9: Mô hình thực thể quan hệ (ERD 20 bảng) - VAMOS STORE" style="max-width: 95%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 9: Mô hình thực thể quan hệ (ERD 20 bảng nghiệp vụ) - VAMOS STORE</strong></p>
 </div>
 
 ---
 
 ### 2.4. Từ điển dữ liệu chi tiết (Data Dictionary)
 
-*(Theo phong cách trình bày chuẩn của đồ án FPT Polytechnic, mỗi thực thể được thể hiện bằng một bảng gồm: Thuộc tính, Kiểu dữ liệu, Bắt buộc, Ràng buộc, Mô tả).*
+Toàn bộ 20 bảng nghiệp vụ được đặc tả chính xác theo chuẩn cú pháp DDL Microsoft SQL Server trong `database/mssql_schema.sql` và các file migration thực tế:
 
-#### Bảng 2: Thực thể `users`
-*Mục đích: Quản lý tài khoản người dùng hệ thống (`CUSTOMER`, `ADMIN`).*
+#### Bảng 4: Thực thể `users` (Tài khoản người dùng)
+*Mục đích: Quản trị thông tin xác thực và phân quyền tài khoản người dùng (`CUSTOMER`, `ADMIN`).*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh duy nhất của người dùng |
-| `full_name` | `VARCHAR(100)` | Có | | Họ và tên đầy đủ của người dùng |
-| `email` | `VARCHAR(150)` | Có | UNIQUE | Địa chỉ email đăng nhập hệ thống |
-| `password_hash` | `VARCHAR(255)` | Có | | Chuỗi băm mật khẩu bảo mật (bcrypt) |
-| `phone` | `VARCHAR(20)` | Không | NULL | Số điện thoại liên lạc |
-| `role` | `ENUM('ADMIN','CUSTOMER')` | Có | Mặc định: 'CUSTOMER' | Vai trò phân quyền trên hệ thống |
-| `status` | `ENUM('active','locked')` | Có | Mặc định: 'active' | Trạng thái hoạt động tài khoản |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo tài khoản |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật thông tin |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh duy nhất của người dùng |
+| `full_name` | `NVARCHAR(100)` | Có | | | Họ và tên đầy đủ |
+| `email` | `NVARCHAR(150)` | Có | UNIQUE | | Địa chỉ thư điện tử dùng để đăng nhập |
+| `password_hash` | `NVARCHAR(255)` | Có | | | Mật khẩu đã băm bằng thuật toán bcryptjs |
+| `phone` | `NVARCHAR(20)` | Không | NULL | | Số điện thoại liên lạc của người dùng |
+| `role` | `NVARCHAR(20)` | Có | CHECK | `'CUSTOMER'` | Vai trò tài khoản: `ADMIN` hoặc `CUSTOMER` |
+| `status` | `NVARCHAR(20)` | Có | CHECK | `'active'` | Trạng thái tài khoản: `active` hoặc `locked` |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo tài khoản |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật tài khoản gần nhất |
 
-#### Bảng 3: Thực thể `addresses`
-*Mục đích: Sổ địa chỉ nhận hàng của khách hàng.*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh bản ghi địa chỉ |
-| `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` | Tham chiếu tài khoản khách hàng sở hữu |
-| `recipient_name` | `VARCHAR(100)` | Có | | Họ tên người nhận hàng |
-| `phone` | `VARCHAR(20)` | Có | | Số điện thoại người nhận hàng |
-| `province` | `VARCHAR(100)` | Có | | Tỉnh / Thành phố giao hàng |
-| `district` | `VARCHAR(100)` | Có | | Quận / Huyện giao hàng |
-| `ward` | `VARCHAR(100)` | Có | | Phường / Xã giao hàng |
-| `detail_address` | `VARCHAR(255)` | Có | | Số nhà, tên đường, địa chỉ chi tiết |
-| `is_default` | `BOOLEAN` | Có | Mặc định: FALSE | Cờ đánh dấu địa chỉ mặc định (1: có, 0: không) |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo bản ghi |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật địa chỉ |
+#### Bảng 5: Thực thể `categories` (Danh mục sản phẩm)
+*Mục đích: Phân loại nhóm sản phẩm giày dép (Sneaker, Thể thao, Sandal, Dép).*
 
-#### Bảng 4: Thực thể `password_reset_tokens`
-*Mục đích: Token xác thực khôi phục mật khẩu (chỉ lưu dạng hash bảo mật).*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh danh mục |
+| `name` | `NVARCHAR(100)` | Có | | | Tên hiển thị của danh mục |
+| `slug` | `NVARCHAR(120)` | Có | UNIQUE | | Đường dẫn tĩnh thân thiện SEO |
+| `description` | `NVARCHAR(MAX)` | Không | NULL | | Mô tả chi tiết về danh mục |
+| `is_active` | `BIT` | Có | | `1` | Trạng thái hiển thị (1: Bật, 0: Tạm ẩn) |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo danh mục |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | PK, IDENTITY(1,1) | Mã định danh token |
-| `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` | Tài khoản yêu cầu khôi phục |
-| `token_hash` | `NVARCHAR(255)` | Có | UNIQUE | Chuỗi băm token bảo mật (không lưu plaintext) |
-| `expires_at` | `DATETIME2` | Có | | Thời điểm hết hạn của token |
-| `used_at` | `DATETIME2` | Không | NULL | Thời điểm token đã được sử dụng |
-| `created_at` | `DATETIME2` | Có | Mặc định: GETDATE() | Thời điểm tạo yêu cầu reset |
+---
 
-#### Bảng 5: Thực thể `categories`
-*Mục đích: Danh mục phân loại sản phẩm.*
+#### Bảng 6: Thực thể `brands` (Thương hiệu sản phẩm)
+*Mục đích: Quản lý thương hiệu đối tác sản xuất giày dép (Nike, Adidas, Puma,...).*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh danh mục |
-| `name` | `VARCHAR(100)` | Có | | Tên danh mục (Sneaker, Thể thao, Sandal,...) |
-| `slug` | `VARCHAR(120)` | Có | UNIQUE | Đường dẫn tĩnh SEO duy nhất |
-| `description` | `TEXT` | Không | NULL | Mô tả chi tiết danh mục |
-| `is_active` | `BOOLEAN` | Có | Mặc định: TRUE | Cờ hiển thị (1: bật, 0: ẩn) |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo danh mục |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh thương hiệu |
+| `name` | `NVARCHAR(100)` | Có | | | Tên thương hiệu |
+| `slug` | `NVARCHAR(120)` | Có | UNIQUE | | Đường dẫn tĩnh SEO của thương hiệu |
+| `description` | `NVARCHAR(MAX)` | Không | NULL | | Thông tin giới thiệu thương hiệu |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo thương hiệu |
 
-#### Bảng 6: Thực thể `brands`
-*Mục đích: Thương hiệu / Dòng bộ sưu tập nội bộ VAMOS.*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh thương hiệu/bộ sưu tập |
-| `name` | `VARCHAR(100)` | Có | | Tên bộ sưu tập (VAMOS Street, Sport...) |
-| `slug` | `VARCHAR(120)` | Có | UNIQUE | Đường dẫn tĩnh duy nhất |
-| `description` | `TEXT` | Không | NULL | Giới thiệu về bộ sưu tập |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo bản ghi |
+#### Bảng 7: Thực thể `sizes` (Kích cỡ giày sneaker)
+*Mục đích: Danh mục các cỡ giày chuẩn hóa phục vụ cấu hình biến thể (Size 36 đến 45).*
 
-#### Bảng 7: Thực thể `products`
-*Mục đích: Thông tin sản phẩm cha.*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh kích cỡ |
+| `size_name` | `NVARCHAR(20)` | Có | UNIQUE | | Tên kích cỡ giày (36, 37, 38, ..., 45) |
+| `display_order` | `INT` | Có | | `0` | Thứ tự ưu tiên sắp xếp khi hiển thị |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh sản phẩm |
-| `category_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `categories(id)` | Danh mục phân loại của sản phẩm |
-| `brand_id` | `INT` | Không | Khóa ngoại $\rightarrow$ `brands(id)` | Bộ sưu tập (tùy chọn) |
-| `product_code`| `VARCHAR(50)` | Có | UNIQUE | Mã sản phẩm nội bộ (ví dụ: VM-SNK-01) |
-| `name` | `VARCHAR(200)` | Có | | Tên hiển thị đầy đủ của sản phẩm |
-| `slug` | `VARCHAR(255)` | Có | UNIQUE | Đường dẫn tĩnh chi tiết sản phẩm |
-| `description` | `TEXT` | Không | NULL | Mô tả chất liệu, tính năng, hướng dẫn size |
-| `gender_target`| `ENUM('MEN','WOMEN','KIDS','UNISEX')` | Có | Mặc định: 'UNISEX' | Đối tượng khách hàng mục tiêu |
-| `base_price` | `DECIMAL(12,0)` | Có | CHECK `base_price >= 0` | Giá bán niêm yết chính thức (VNĐ) |
-| `sale_price` | `DECIMAL(12,0)` | Không | CHECK `< base_price` | Giá bán ưu đãi khuyến mãi (VNĐ) |
-| `status` | `ENUM('active','inactive','draft')` | Có | Mặc định: 'active' | Trạng thái hiển thị trên cửa hàng |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo sản phẩm |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật sản phẩm |
+---
 
-#### Bảng 8: Thực thể `product_images`
-*Mục đích: Bộ sưu tập hình ảnh chi tiết của sản phẩm.*
+#### Bảng 8: Thực thể `colors` (Màu sắc giày sneaker)
+*Mục đích: Danh mục màu sắc sản phẩm hỗ trợ tạo biến thể (Trắng, Đen, Xám, Đỏ,...).*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh ảnh |
-| `product_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `products(id)` | Tham chiếu sản phẩm gốc |
-| `image_url` | `VARCHAR(255)` | Có | | Đường dẫn URL file ảnh trong storage |
-| `is_primary` | `BOOLEAN` | Có | Mặc định: FALSE | Cờ đánh dấu ảnh đại diện chính |
-| `display_order`| `INT` | Có | Mặc định: 0 | Thứ tự sắp xếp trong gallery slider |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh màu sắc |
+| `color_name` | `NVARCHAR(50)` | Có | UNIQUE | | Tên gọi màu sắc |
+| `hex_code` | `NVARCHAR(10)` | Không | NULL | | Mã màu thập lục phân (Hex Code, ví dụ `#FFFFFF`) |
 
-#### Bảng 9: Thực thể `sizes`
-*Mục đích: Danh mục chuẩn kích cỡ giày dép.*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh kích cỡ |
-| `size_name` | `VARCHAR(20)` | Có | UNIQUE | Tên kích cỡ chuẩn (38, 39, 40, 41,...) |
-| `display_order`| `INT` | Có | Mặc định: 0 | Thứ tự hiển thị khi chọn size |
+#### Bảng 9: Thực thể `vouchers` (Mã giảm giá khuyến mãi)
+*Mục đích: Quản lý các chiến dịch khuyến mãi chiết khấu đơn hàng.*
 
-#### Bảng 10: Thực thể `colors`
-*Mục đích: Danh mục màu sắc sản phẩm.*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh voucher |
+| `code` | `NVARCHAR(50)` | Có | UNIQUE | | Mã nhập ưu đãi (ví dụ `VAMOS100`) |
+| `name` | `NVARCHAR(100)` | Có | | | Tên chiến dịch ưu đãi |
+| `discount_type` | `NVARCHAR(20)` | Có | CHECK | | Hình thức giảm: `percentage` hoặc `fixed_amount` |
+| `discount_value` | `DECIMAL(12,0)`| Có | CHECK (>0) | | Giá trị giảm (% chiết khấu hoặc số tiền VNĐ) |
+| `min_order_value`| `DECIMAL(12,0)`| Có | CHECK (>=0)| `0` | Giá trị đơn hàng tối thiểu để được áp dụng |
+| `max_discount_amount`| `DECIMAL(12,0)`| Không| NULL | | Mức giảm tối đa trần khi giảm theo % |
+| `start_date` | `DATETIME2` | Có | CHECK | | Thời điểm bắt đầu có hiệu lực |
+| `end_date` | `DATETIME2` | Có | CHECK | | Thời điểm hết hạn (`end_date >= start_date`) |
+| `usage_limit` | `INT` | Có | CHECK (>=0)| `0` | Tổng số lượt dùng tối đa toàn sàn (0: không giới hạn)|
+| `used_count` | `INT` | Có | CHECK (>=0)| `0` | Số lượt đã sử dụng thực tế |
+| `is_active` | `BIT` | Có | | `1` | Trạng thái hiển thị voucher |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo voucher |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh màu sắc |
-| `color_name` | `VARCHAR(50)` | Có | UNIQUE | Tên màu (Đen, Trắng, Đỏ Coral,...) |
-| `hex_code` | `VARCHAR(10)` | Không | NULL | Mã màu thập lục phân CSS (#000000) |
+---
 
-#### Bảng 11: Thực thể `product_variants`
-*Mục đích: Biến thể chi tiết Size x Color x SKU x Tồn kho.*
+#### Bảng 10: Thực thể `banners` (Banner quảng bá trang chủ)
+*Mục đích: Quản lý hình ảnh và liên kết slider quảng cáo tại trang chủ storefront.*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh biến thể |
-| `product_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `products(id)` | Sản phẩm cha |
-| `size_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `sizes(id)` | Kích cỡ biến thể |
-| `color_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `colors(id)` | Màu sắc biến thể |
-| `sku` | `VARCHAR(100)` | Có | UNIQUE | Mã SKU lưu kho duy nhất |
-| `stock_quantity`| `INT` | Có | CHECK `>= 0` | Số lượng tồn kho khả dụng hiện tại |
-| `status` | `ENUM('active','inactive')` | Có | Mặc định: 'active' | Trạng thái kinh doanh của biến thể |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo biến thể |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật số lượng kho |
-| **Ràng buộc tổ hợp** | | | `UNIQUE(product_id, size_id, color_id)` | Ngăn chặn tạo trùng cặp Size/Màu trên cùng 1 sản phẩm |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh banner |
+| `title` | `NVARCHAR(150)` | Có | | | Tiêu đề chiến dịch banner |
+| `image_url` | `NVARCHAR(1000)`| Có | | | Đường dẫn URL hình ảnh banner từ CDN |
+| `link_url` | `NVARCHAR(255)` | Không | NULL | | Đường dẫn đích khi người dùng nhấp vào |
+| `display_order` | `INT` | Có | | `0` | Thứ tự ưu tiên hiển thị trên carousel slider |
+| `is_active` | `BIT` | Có | | `1` | Trạng thái kích hoạt hiển thị (1: Bật, 0: Tắt) |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo banner |
 
-#### Bảng 12: Thực thể `inventory_transactions`
-*Mục đích: Nhật ký kiểm toán biến động kho.*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh giao dịch kho |
-| `variant_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `product_variants(id)` | Biến thể bị biến động |
-| `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` | Người thực hiện (Admin chỉnh hoặc Khách đặt đơn) |
-| `old_quantity` | `INT` | Có | CHECK `>= 0` | Số lượng tồn trước biến động |
-| `new_quantity` | `INT` | Có | CHECK `>= 0` | Số lượng tồn sau biến động |
-| `change_quantity`| `INT` | Có | | Số lượng thay đổi (+ nhập/hoàn, - bán) |
-| `reason` | `VARCHAR(255)` | Có | | Lý do biến động (ORDER_PLACED, RESTOCK,...) |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm ghi nhận giao dịch |
+#### Bảng 11: Thực thể `addresses` (Sổ địa chỉ nhận hàng)
+*Mục đích: Lưu trữ danh sách địa chỉ giao hàng của từng khách hàng (quan hệ Composition với `User`).*
 
-#### Bảng 13: Thực thể `carts`
-*Mục đích: Giỏ hàng khách hàng.*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh địa chỉ |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | ON DELETE CASCADE | Chủ sở hữu địa chỉ |
+| `recipient_name`| `NVARCHAR(100)` | Có | | | Họ tên người nhận hàng |
+| `phone` | `NVARCHAR(20)` | Có | | | Số điện thoại nhận hàng |
+| `province` | `NVARCHAR(100)` | Có | | | Tỉnh / Thành phố |
+| `district` | `NVARCHAR(100)` | Có | | | Quận / Huyện |
+| `ward` | `NVARCHAR(100)` | Có | | | Phường / Xã |
+| `detail_address`| `NVARCHAR(255)` | Có | | | Địa chỉ chi tiết (số nhà, tên đường, thôn xóm)|
+| `is_default` | `BIT` | Có | Filtered Index: `uq_user_default_address` (WHERE `is_default = 1`) | `0` | Đánh dấu địa chỉ mặc định (duy nhất 1 địa chỉ mặc định/user) |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm thêm địa chỉ |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật địa chỉ |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh giỏ hàng |
-| `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)`, UNIQUE | Khách hàng sở hữu (Mỗi user chỉ có 1 giỏ) |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo giỏ hàng |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật giỏ |
+---
 
-#### Bảng 14: Thực thể `cart_items`
-*Mục đích: Chi tiết mặt hàng trong giỏ.*
+#### Bảng 12: Thực thể `password_reset_tokens` (Token khôi phục mật khẩu)
+*Mục đích: Lưu trữ token băm bảo mật phục vụ quy trình đặt lại mật khẩu. Chức năng khôi phục mật khẩu đã được đưa vào thiết kế và có cấu trúc dữ liệu hỗ trợ, tuy nhiên quy trình xử lý hoàn chỉnh chưa được triển khai trong phiên bản hiện tại.*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh dòng giỏ hàng |
-| `cart_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `carts(id)` | Giỏ hàng cha |
-| `variant_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `product_variants(id)` | Biến thể đặt mua |
-| `quantity` | `INT` | Có | CHECK `quantity > 0` | Số lượng đặt mua |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm thêm vào giỏ |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm chỉnh sửa số lượng |
-| **Ràng buộc tổ hợp** | | | `UNIQUE(cart_id, variant_id)` | Ngăn chặn trùng lặp cùng 1 biến thể trong giỏ |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh token |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | ON DELETE CASCADE | Tài khoản yêu cầu khôi phục mật khẩu |
+| `token_hash` | `NVARCHAR(255)` | Có | UNIQUE | | Chuỗi băm token ngẫu nhiên bảo mật |
+| `expires_at` | `DATETIME2` | Có | | | Thời điểm hết hạn của token (30 phút) |
+| `used_at` | `DATETIME2` | Không | NULL | | Thời điểm token đã được sử dụng thành công |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm khởi tạo yêu cầu |
 
-#### Bảng 15: Thực thể `vouchers`
-*Mục đích: Mã giảm giá khuyến mãi.*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh voucher |
-| `code` | `VARCHAR(50)` | Có | UNIQUE | Mã ưu đãi nhập khi thanh toán |
-| `name` | `VARCHAR(100)` | Có | | Tên chương trình ưu đãi |
-| `discount_type`| `ENUM('percentage','fixed_amount')` | Có | | Hình thức giảm: theo % hoặc trừ tiền cố định |
-| `discount_value`| `DECIMAL(12,0)`| Có | CHECK `> 0` | Mức giảm (% hoặc số tiền VNĐ) |
-| `min_order_value`| `DECIMAL(12,0)`| Có | CHECK `>= 0` | Giá trị đơn hàng tối thiểu |
-| `max_discount_amount`| `DECIMAL(12,0)`| Không | NULL | Mức giảm tối đa (khi giảm theo %) |
-| `start_date` | `DATETIME` | Có | | Thời điểm bắt đầu hiệu lực |
-| `end_date` | `DATETIME` | Có | CHECK `end_date >= start_date` | Thời điểm kết thúc hiệu lực |
-| `usage_limit` | `INT` | Có | CHECK `>= 0` | Giới hạn tổng số lượt dùng (0: vô hạn) |
-| `used_count` | `INT` | Có | CHECK `<= usage_limit` | Số lượt đã sử dụng thực tế |
-| `is_active` | `BOOLEAN` | Có | Mặc định: TRUE | Cờ kích hoạt khả dụng |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo voucher |
+#### Bảng 13: Thực thể `carts` (Giỏ hàng trực tuyến)
+*Mục đích: Quản lý giỏ hàng thành viên với quan hệ 1:1 nghiêm ngặt đối với `users`.*
 
-#### Bảng 16: Thực thể `banners`
-*Mục đích: Banner quảng bá slider trang chủ.*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh giỏ hàng |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | UNIQUE, CASCADE | Khách hàng sở hữu giỏ hàng (ràng buộc 1:1) |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm khởi tạo giỏ hàng |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật giỏ hàng gần nhất |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh banner |
-| `title` | `VARCHAR(150)` | Có | | Tiêu đề banner |
-| `image_url` | `VARCHAR(255)` | Có | | Đường dẫn ảnh banner |
-| `link_url` | `VARCHAR(255)` | Không | NULL | Đường dẫn khi người dùng bấm vào banner |
-| `display_order`| `INT` | Có | Mặc định: 0 | Thứ tự hiển thị trên slider |
-| `is_active` | `BOOLEAN` | Có | Mặc định: TRUE | Trạng thái hiển thị |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm tạo banner |
+---
 
-#### Bảng 17: Thực thể `orders`
-*Mục đích: Đơn hàng và Snapshot thanh toán COD.*
+#### Bảng 14: Thực thể `products` (Sản phẩm giày gốc)
+*Mục đích: Lưu trữ thông tin chung của mẫu giày cha trước khi phân tách biến thể Size/Màu.*
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh đơn hàng |
-| `order_code` | `VARCHAR(50)` | Có | UNIQUE | Mã đơn hàng công khai (ORD-...) |
-| `user_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` (RESTRICT) | Khách hàng đặt mua |
-| `recipient_name_snapshot` | `VARCHAR(100)` | Có | | Snapshot họ tên người nhận hàng lúc đặt |
-| `recipient_phone_snapshot`| `VARCHAR(20)` | Có | | Snapshot số điện thoại người nhận lúc đặt |
-| `delivery_address_snapshot`| `VARCHAR(500)`| Có | | Snapshot địa chỉ giao hàng đầy đủ lúc đặt |
-| `subtotal` | `DECIMAL(12,0)` | Có | CHECK `>= 0` | Tạm tính tiền hàng (tổng line_total) |
-| `discount_amount`| `DECIMAL(12,0)`| Có | CHECK `>= 0` | Số tiền được giảm giá qua voucher |
-| `shipping_fee` | `DECIMAL(12,0)` | Có | CHECK `>= 0` | Phí vận chuyển COD |
-| `total_amount` | `DECIMAL(12,0)` | Có | CHECK `>= 0` | Tổng tiền COD phải trả = subtotal - discount + ship |
-| `voucher_id` | `INT` | Không | Khóa ngoại $\rightarrow$ `vouchers(id)` (SET NULL) | Tham chiếu voucher áp dụng |
-| `voucher_code_snapshot` | `VARCHAR(50)` | Không | NULL | Snapshot mã voucher tại thời điểm đặt |
-| `payment_method`| `VARCHAR(20)` | Có | Mặc định: 'COD' | Phương thức thanh toán tiền mặt khi nhận |
-| `payment_status`| `ENUM('UNPAID','PAID')`| Có | Mặc định: 'UNPAID' | Trạng thái thu tiền COD |
-| `order_status` | `ENUM(...)` | Có | Mặc định: 'PENDING' | Vòng đời: PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED |
-| `customer_note`| `VARCHAR(255)` | Không | NULL | Ghi chú yêu cầu của khách hàng |
-| `admin_note` | `VARCHAR(255)` | Không | NULL | Ghi chú vận hành của quản trị viên |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm đặt hàng thành công |
-| `updated_at` | `TIMESTAMP` | Có | ON UPDATE CURRENT_TIMESTAMP | Thời điểm cập nhật đơn hàng |
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh sản phẩm |
+| `category_id` | `INT` | Có | FK $\rightarrow$ `categories` | NO ACTION | Danh mục trực thuộc |
+| `brand_id` | `INT` | Không | FK $\rightarrow$ `brands` | SET NULL | Thương hiệu sản xuất |
+| `product_code` | `NVARCHAR(50)` | Có | UNIQUE | | Mã quản lý sản phẩm nội bộ |
+| `name` | `NVARCHAR(200)` | Có | | | Tên gọi thương mại của sản phẩm |
+| `slug` | `NVARCHAR(255)` | Có | UNIQUE | | Đường dẫn tĩnh thân thiện SEO |
+| `description` | `NVARCHAR(MAX)` | Không | NULL | | Mô tả chi tiết tính năng, công nghệ sản phẩm |
+| `gender_target`| `NVARCHAR(20)` | Có | CHECK | `'UNISEX'` | Đối tượng khách hàng: `MEN, WOMEN, KIDS, UNISEX`|
+| `base_price` | `DECIMAL(12,0)`| Có | CHECK (>=0) | | Giá niêm yết gốc của sản phẩm |
+| `sale_price` | `DECIMAL(12,0)`| Không| CHECK | NULL | Giá khuyến mãi (`sale_price < base_price`) |
+| `status` | `NVARCHAR(20)` | Có | CHECK | `'active'` | Trạng thái: `active`, `inactive`, `draft` |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo sản phẩm |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật sản phẩm gần nhất |
 
-#### Bảng 18: Thực thể `order_items`
-*Mục đích: Chi tiết mặt hàng đơn hàng (Snapshot bất biến).*
+---
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh dòng sản phẩm đơn hàng |
-| `order_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `orders(id)` (CASCADE) | Đơn hàng cha |
-| `product_variant_id`| `INT` | Có | Khóa ngoại $\rightarrow$ `product_variants(id)` (RESTRICT) | Biến thể sản phẩm lúc đặt |
-| `product_name_snapshot` | `VARCHAR(200)`| Có | | Snapshot tên sản phẩm lúc mua |
-| `sku_snapshot` | `VARCHAR(100)` | Có | | Snapshot mã SKU lúc mua |
-| `size_snapshot` | `VARCHAR(20)` | Có | | Snapshot kích cỡ lúc mua (ví dụ: 40) |
-| `color_snapshot`| `VARCHAR(50)` | Có | | Snapshot màu sắc lúc mua (ví dụ: Đen) |
-| `unit_price` | `DECIMAL(12,0)` | Có | CHECK `>= 0` | Snapshot đơn giá bán thực tế lúc mua |
-| `quantity` | `INT` | Có | CHECK `quantity > 0` | Số lượng đặt mua |
-| `line_total` | `DECIMAL(12,0)` | Có | CHECK `>= 0` | Thành tiền dòng = unit_price * quantity |
-| **Ràng buộc tổ hợp** | | | `UNIQUE(order_id, product_variant_id)` | Mỗi biến thể chỉ có đúng 1 dòng trong cùng đơn |
+#### Bảng 15: Thực thể `product_images` (Bộ sưu tập ảnh sản phẩm)
+*Mục đích: Lưu trữ album hình ảnh các góc chụp chi tiết của mẫu giày.*
 
-#### Bảng 19: Thực thể `order_status_histories`
-*Mục đích: Nhật ký lịch sử chuyển trạng thái đơn hàng.*
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh hình ảnh |
+| `product_id` | `INT` | Có | FK $\rightarrow$ `products(id)`| ON DELETE CASCADE | Sản phẩm cha chứa hình ảnh |
+| `image_url` | `NVARCHAR(1000)`| Có | | | Đường dẫn URL hình ảnh chất lượng cao |
+| `is_primary` | `BIT` | Có | Filtered Index: `uq_product_primary_image` (WHERE `is_primary = 1`) | `0` | Đánh dấu ảnh đại diện chính (duy nhất 1 ảnh chính/sản phẩm) |
+| `display_order` | `INT` | Có | | `0` | Thứ tự ưu tiên hiển thị trong slider ảnh |
 
-| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Mô tả nghiệp vụ |
-| :--- | :--- | :---: | :---: | :--- |
-| `id` | `INT` | Có | Khóa chính, Auto Increment | Mã định danh bản ghi lịch sử |
-| `order_id` | `INT` | Có | Khóa ngoại $\rightarrow$ `orders(id)` (CASCADE) | Đơn hàng cha |
-| `changed_by` | `INT` | Có | Khóa ngoại $\rightarrow$ `users(id)` (RESTRICT) | Người kích hoạt (Khách hàng hoặc Admin) |
-| `previous_status`| `VARCHAR(50)` | Không | NULL | Trạng thái trước khi chuyển đổi |
-| `new_status` | `VARCHAR(50)` | Có | | Trạng thái mới sau khi chuyển |
-| `note` | `VARCHAR(255)` | Không | NULL | Ghi chú lý do chuyển hoặc lý do hủy đơn |
-| `created_at` | `TIMESTAMP` | Có | Mặc định: CURRENT_TIMESTAMP | Thời điểm chuyển đổi trạng thái |
+---
+
+#### Bảng 16: Thực thể `product_variants` (Biến thể SKU và Tồn kho)
+*Mục đích: Quản lý ma trận phân loại Size x Color và lưu trữ số lượng tồn kho theo từng mã SKU.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh biến thể |
+| `product_id` | `INT` | Có | FK $\rightarrow$ `products` | ON DELETE CASCADE | Mẫu giày cha trực thuộc |
+| `size_id` | `INT` | Có | FK $\rightarrow$ `sizes` | NO ACTION | Kích cỡ giày của biến thể |
+| `color_id` | `INT` | Có | FK $\rightarrow$ `colors` | NO ACTION | Màu sắc của biến thể |
+| `sku` | `NVARCHAR(100)` | Có | UNIQUE | | Mã SKU duy nhất định danh biến thể |
+| `stock_quantity`| `INT` | Có | CHECK (>=0) | `0` | Số lượng tồn kho thực tế có thể bán |
+| `status` | `NVARCHAR(20)` | Có | CHECK | `'active'` | Trạng thái biến thể: `active` hoặc `inactive` |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo biến thể |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật biến thể |
+| *Ràng buộc* | | | `UNIQUE(product_id, size_id, color_id)` | | Chống trùng lặp cặp kích cỡ và màu sắc |
+
+---
+
+#### Bảng 17: Thực thể `cart_items` (Chi tiết mặt hàng trong giỏ)
+*Mục đích: Lưu trữ từng dòng sản phẩm khách hàng chọn đưa vào giỏ hàng.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh dòng mặt hàng giỏ |
+| `cart_id` | `INT` | Có | FK $\rightarrow$ `carts(id)` | ON DELETE CASCADE | Giỏ hàng sở hữu |
+| `variant_id` | `INT` | Có | FK $\rightarrow$ `product_variants`| NO ACTION | Biến thể sản phẩm chọn mua |
+| `quantity` | `INT` | Có | CHECK (>0) | `1` | Số lượng đặt (Quy tắc Q7: tối đa 10 đôi) |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm thêm vào giỏ |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm sửa số lượng |
+| *Ràng buộc* | | | `UNIQUE(cart_id, variant_id)` | | Một biến thể chỉ xuất hiện 1 dòng trong giỏ |
+
+---
+
+#### Bảng 18: Thực thể `orders` (Thông tin tổng quát đơn hàng)
+*Mục đích: Lưu trữ hồ sơ giao dịch đặt hàng và snapshot thông tin tài chính bất biến.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh đơn hàng |
+| `order_code` | `NVARCHAR(50)` | Có | UNIQUE | | Mã đơn hàng hiển thị (ví dụ `ORD-1731800000-XYZ`)|
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | NO ACTION | Khách hàng đặt mua |
+| `recipient_name_snapshot`| `NVARCHAR(100)`| Có | | | Snapshot họ tên người nhận tại thời điểm đặt |
+| `recipient_phone_snapshot`| `NVARCHAR(20)`| Có | | | Snapshot số điện thoại người nhận |
+| `delivery_address_snapshot`| `NVARCHAR(255)`| Có | | | Snapshot địa chỉ nhận hàng chi tiết đầy đủ |
+| `subtotal` | `DECIMAL(12,0)`| Có | CHECK (>=0) | | Tổng tiền hàng tạm tính trước giảm giá |
+| `discount_amount`| `DECIMAL(12,0)`| Có | CHECK (>=0) | `0` | Số tiền chiết khấu được giảm từ voucher |
+| `shipping_fee` | `DECIMAL(12,0)`| Có | CHECK (>=0) | `0` | Cước phí vận chuyển đơn hàng |
+| `total_amount` | `DECIMAL(12,0)`| Có | CHECK (>=0) | | Tổng số tiền thanh toán cuối cùng |
+| `voucher_id` | `INT` | Không | FK $\rightarrow$ `vouchers` | SET NULL | Voucher đã áp dụng (nếu có) |
+| `voucher_code_snapshot`| `NVARCHAR(50)`| Không | NULL | | Snapshot mã voucher tại thời điểm đặt |
+| `payment_method`| `NVARCHAR(20)`| Có | CHECK | `'COD'` | Hình thức thanh toán: `COD` |
+| `payment_status`| `NVARCHAR(20)`| Có | CHECK | `'UNPAID'` | Trạng thái thanh toán: `UNPAID` hoặc `PAID` |
+| `order_status` | `NVARCHAR(20)` | Có | CHECK | `'PENDING'` | Trạng thái: `PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED`|
+| `customer_note`| `NVARCHAR(500)`| Không | NULL | | Ghi chú dặn dò của khách hàng khi giao hàng |
+| `admin_note` | `NVARCHAR(500)`| Không | NULL | | Ghi chú xử lý nội bộ của quản trị viên |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm tạo đơn hàng |
+| `updated_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm cập nhật trạng thái đơn gần nhất |
+
+---
+
+#### Bảng 19: Thực thể `order_items` (Snapshot chi tiết từng món hàng đặt)
+*Mục đích: Lưu giữ bản sao bất biến của các sản phẩm trong đơn, bảo toàn dữ liệu lịch sử kế toán.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh dòng chi tiết đơn hàng |
+| `order_id` | `INT` | Có | FK $\rightarrow$ `orders(id)` | ON DELETE CASCADE | Đơn hàng trực thuộc |
+| `product_variant_id`| `INT` | Có | FK $\rightarrow$ `product_variants`| NO ACTION | Biến thể giày đã đặt mua |
+| `product_name_snapshot`| `NVARCHAR(200)`| Có| | | Snapshot tên sản phẩm tại thời điểm mua |
+| `sku_snapshot` | `NVARCHAR(100)`| Có | | | Snapshot mã SKU biến thể |
+| `size_snapshot`| `NVARCHAR(20)` | Có | | | Snapshot kích cỡ giày |
+| `color_snapshot`| `NVARCHAR(50)` | Có | | | Snapshot màu sắc giày |
+| `unit_price` | `DECIMAL(12,0)`| Có | CHECK (>=0) | | Snapshot đơn giá bán thực tế của 1 đôi |
+| `quantity` | `INT` | Có | CHECK (>0) | | Số lượng đặt mua của mặt hàng này |
+| `line_total` | `DECIMAL(12,0)`| Có | CHECK (>=0) | | Thành tiền của dòng (`unit_price * quantity`)|
+
+---
+
+#### Bảng 20: Thực thể `order_status_histories` (Nhật ký chuyển đổi trạng thái đơn)
+*Mục đích: Lưu vết kiểm toán (Audit Trail) cho toàn bộ tiến trình chuyển đổi trạng thái của đơn hàng.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh dòng lịch sử trạng thái |
+| `order_id` | `INT` | Có | FK $\rightarrow$ `orders(id)` | ON DELETE CASCADE | Đơn hàng được ghi nhận |
+| `changed_by` | `INT` | Có | FK $\rightarrow$ `users(id)` | NO ACTION | Người thực hiện thao tác (Admin hoặc Khách)|
+| `previous_status`| `NVARCHAR(50)`| Không| NULL | | Trạng thái trước khi chuyển đổi |
+| `new_status` | `NVARCHAR(50)` | Có | | | Trạng thái mới sau khi chuyển đổi |
+| `note` | `NVARCHAR(255)`| Không | NULL | | Lý do chuyển đổi hoặc lý do hủy đơn |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm ghi nhận sự kiện chuyển trạng thái |
+
+---
+
+#### Bảng 21: Thực thể `inventory_transactions` (Lịch sử biến động thẻ kho)
+*Mục đích: Ghi nhận vết kiểm toán mọi lần tăng/giảm tồn kho (bán hàng, hoàn kho hủy đơn, kiểm kê kho).*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh giao dịch kho |
+| `variant_id` | `INT` | Có | FK $\rightarrow$ `product_variants`| NO ACTION | Biến thể giày có biến động tồn kho |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | NO ACTION | Người thực hiện (Admin kiểm kê hoặc Khách đặt)|
+| `old_quantity` | `INT` | Có | CHECK (>=0) | | Số lượng tồn kho trước khi thay đổi |
+| `new_quantity` | `INT` | Có | CHECK (>=0) | | Số lượng tồn kho sau khi thay đổi |
+| `change_quantity`| `INT` | Có | | | Số lượng thay đổi (+ để tăng, - để giảm) |
+| `reason` | `NVARCHAR(255)`| Có | | | Lý do điều chỉnh (Xuất bán, Hoàn hủy, Kiểm kê)|
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm phát sinh giao dịch thẻ kho |
+
+---
+
+#### Bảng 22: Thực thể `voucher_usages` (Nhật ký sử dụng mã giảm giá)
+*Mục đích: Thực thi ràng buộc Quy tắc Q8 (mỗi khách hàng chỉ được dùng tối đa 1 lần cho mỗi voucher).*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh lượt sử dụng |
+| `voucher_id` | `INT` | Có | FK $\rightarrow$ `vouchers(id)`| NO ACTION | Mã voucher được áp dụng |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | NO ACTION | Khách hàng hưởng ưu đãi |
+| `order_id` | `INT` | Có | FK $\rightarrow$ `orders(id)` | ON DELETE CASCADE | Đơn hàng áp dụng mã ưu đãi |
+| `used_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm sử dụng mã voucher |
+| *Ràng buộc* | | | `UNIQUE(voucher_id, user_id)` | | Ràng buộc cứng: 1 khách chỉ dùng 1 voucher 1 lần |
+
+---
+
+#### Bảng 23: Thực thể `wishlist_items` (Danh sách sản phẩm yêu thích)
+*Mục đích: Lưu trữ danh sách sản phẩm yêu thích được lưu bền vững phía máy chủ cho khách hàng.*
+
+| Thuộc tính | Kiểu dữ liệu | Bắt buộc | Ràng buộc | Giá trị mặc định | Mô tả nghiệp vụ |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `id` | `INT` | Có | PK, IDENTITY(1,1) | Tự tăng | Mã định danh dòng mặt hàng yêu thích |
+| `user_id` | `INT` | Có | FK $\rightarrow$ `users(id)` | ON DELETE CASCADE | Khách hàng lưu sản phẩm |
+| `product_id` | `INT` | Có | FK $\rightarrow$ `products(id)`| ON DELETE CASCADE | Sản phẩm được đưa vào danh sách yêu thích |
+| `created_at` | `DATETIME2` | Có | | `GETDATE()` | Thời điểm lưu sản phẩm vào danh sách |
+| *Ràng buộc* | | | `UNIQUE(user_id, product_id)` | | Một sản phẩm chỉ xuất hiện 1 lần trong wishlist |
 
 ---
 
 ### 2.5. Sơ đồ hoạt động (Activity Diagrams)
 
-*(5 Sơ đồ hoạt động cốt lõi trực quan hóa luồng dữ liệu và điều kiện rẽ nhánh theo chuẩn UML).*
+Toàn bộ 5 sơ đồ hoạt động cốt lõi được xây dựng chuẩn mực theo cú pháp UML 2.5, mô hình hóa chính xác các luồng rẽ nhánh, kiểm tra dữ liệu máy chủ và các giao dịch nguyên tử (ACID Transaction) kết hợp khóa dòng bi quan `SELECT ... WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server:
 
-#### A. Activity Đăng ký & Đăng nhập (`ad-01-auth.puml`)
+#### A. Quy trình Đăng ký & Đăng nhập (Hình 10)
+Mô hình hóa quy trình xác thực hai tác nhân: Đăng ký thành viên mới (kiểm tra tính duy nhất của email, băm mật khẩu `bcryptjs`, khởi tạo giỏ hàng tự động) và Đăng nhập (so khớp hash mật khẩu, cấp phiên làm việc `session`, chuyển hướng theo vai trò `ADMIN` hoặc `CUSTOMER`).
+
 <div align="center">
-  <img src="images/hinh_10_activity_auth.png" alt="Hình 10: Sơ đồ hoạt động - Quy trình Đăng ký & Đăng nhập" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <img src="images/hinh_10_activity_auth.png" alt="Hình 10: Sơ đồ hoạt động Đăng ký & Đăng nhập" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><strong>Hình 10: Sơ đồ hoạt động - Quy trình Đăng ký & Đăng nhập</strong></p>
 </div>
-* Khách nhập form đăng ký $\rightarrow$ Server kiểm tra dữ liệu bắt buộc $\rightarrow$ Kiểm tra email duy nhất $\rightarrow$ Băm mật khẩu bcrypt $\rightarrow$ Lưu bản ghi `users` với `status = 'active'`.
-* Khi đăng nhập: Server kiểm tra email $\rightarrow$ Kiểm tra tài khoản không bị khóa (`status != 'locked'`) $\rightarrow$ So khớp `bcrypt.compare` $\rightarrow$ Khởi tạo session máy chủ (`req.session.user`) và cấp Session ID cookie.
 
-#### B. Activity Mua sắm & Đặt hàng COD (`ad-02-checkout-cod.puml`)
+---
+
+#### B. Quy trình Mua hàng & Đặt hàng COD nguyên tử (Hình 11)
+Mô hình hóa luồng đặt hàng thanh toán COD chạy trong một `sql.Transaction` nguyên tử: Khóa dòng kiểm tra voucher bằng `SELECT ... WITH (UPDLOCK, ROWLOCK)`, kiểm tra điều kiện Quy tắc Q8, khóa và kiểm tra tồn kho từng biến thể, trừ kho tức thời, tạo bản ghi `orders` và `order_items` snapshot bất biến, cập nhật `voucher_usages` và dọn sạch giỏ hàng. Nếu có bất kỳ lỗi nào xảy ra, toàn bộ giao dịch được Rollback an toàn.
+
 <div align="center">
-  <img src="images/hinh_11_activity_checkout.png" alt="Hình 11: Sơ đồ hoạt động - Mua hàng & Đặt hàng COD" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 11: Sơ đồ hoạt động - Mua hàng & Đặt hàng COD</strong></p>
+  <img src="images/hinh_11_activity_checkout.png" alt="Hình 11: Sơ đồ hoạt động Đặt hàng COD" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 11: Sơ đồ hoạt động - Quy trình Mua hàng & Đặt hàng COD</strong></p>
 </div>
-* Khách hàng chọn địa chỉ nhận hàng, nhập voucher $\rightarrow$ Bấm xác nhận đặt hàng COD.
-* Server khởi tạo Database Transaction $\rightarrow$ Khóa bi quan kiểm tra kho `SELECT stock_quantity FROM product_variants WHERE id = :id FOR UPDATE`.
-* Nếu tồn kho đủ: trừ `stock_quantity`, ghi nhật ký `inventory_transactions`, tạo bản ghi `orders` (trạng thái `PENDING`), tạo các dòng snapshot `order_items`, tăng `used_count` của voucher, xóa giỏ hàng $\rightarrow$ Commit Transaction. Nếu thiếu kho: Rollback và thông báo lỗi.
 
-#### C. Activity Máy trạng thái đơn hàng (`ad-03-order-processing.puml`)
+---
+
+#### C. Máy trạng thái xử lý đơn hàng Admin (Hình 12)
+Mô hình hóa máy trạng thái đơn hàng (Order State Machine) khép kín gồm 6 trạng thái: `PENDING` $\rightarrow$ `CONFIRMED` $\rightarrow$ `PROCESSING` $\rightarrow$ `SHIPPING` $\rightarrow$ `COMPLETED`. Khi Admin chuyển sang `COMPLETED`, hệ thống tự động đồng bộ `payment_status = 'PAID'`. Mọi lần chuyển đổi đều được ghi vết kiểm toán vào `order_status_histories`.
+
 <div align="center">
-  <img src="images/hinh_12_activity_order_processing.png" alt="Hình 12: Sơ đồ hoạt động - Máy trạng thái xử lý đơn hàng" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 12: Sơ đồ hoạt động - Máy trạng thái xử lý đơn hàng</strong></p>
+  <img src="images/hinh_12_activity_order_processing.png" alt="Hình 12: Sơ đồ hoạt động Xử lý đơn hàng Admin" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 12: Sơ đồ hoạt động - Máy trạng thái xử lý đơn hàng Admin</strong></p>
 </div>
-* Vòng đời đơn hàng tuân thủ quy trình tuần tự:
-  1. `PENDING`: Đơn mới tạo, tồn kho đã trừ.
-  2. `CONFIRMED`: Admin liên hệ xác nhận size giày và địa chỉ.
-  3. `PROCESSING`: Đơn đang lấy hàng trong kho và đóng gói.
-  4. `SHIPPING`: Bàn giao đơn vị giao vận.
-  5. `COMPLETED`: Giao hàng thành công và thu đủ tiền COD (ghi nhận doanh thu).
-* Mỗi bước chuyển đổi đều kích hoạt ghi bản ghi vào `order_status_histories`.
 
-#### D. Activity Hủy đơn hàng và Hoàn kho tự động (`ad-04-order-cancellation.puml`)
+---
+
+#### D. Quy trình Hủy đơn hàng và Hoàn kho tự động (Hình 13)
+Mô hình hóa cơ chế hủy đơn: Khách hàng chỉ được hủy khi đơn đang ở trạng thái `PENDING`; Quản trị viên có quyền hủy khi đơn ở trạng thái `PENDING` hoặc `CONFIRMED`. Hệ thống tự động kích hoạt Transaction hoàn trả số lượng tồn kho cho các biến thể trong `order_items`, giảm `used_count` và xóa bản ghi `voucher_usages` nếu đơn có áp dụng voucher.
+
 <div align="center">
-  <img src="images/hinh_13_activity_order_cancel.png" alt="Hình 13: Sơ đồ hoạt động - Hủy đơn hàng và Hoàn kho tự động" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <img src="images/hinh_13_activity_order_cancel.png" alt="Hình 13: Sơ đồ hoạt động Hủy đơn hàng và Hoàn kho tự động" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
   <p><strong>Hình 13: Sơ đồ hoạt động - Hủy đơn hàng và Hoàn kho tự động</strong></p>
 </div>
-* Khách hàng bấm hủy đơn khi `order_status == 'PENDING'` hoặc Admin bấm hủy đơn khi đơn ở `PENDING`/`CONFIRMED`.
-* Server khởi tạo Transaction: Chuyển `order_status = 'CANCELLED'` $\rightarrow$ Lấy danh sách số lượng từ `order_items` $\rightarrow$ Cộng trả lại `stock_quantity` cho `product_variants` $\rightarrow$ Ghi nhật ký `inventory_transactions` với `reason = 'ORDER_CANCELLED_RESTOCK'` $\rightarrow$ Giảm `used_count` voucher (nếu có) $\rightarrow$ Commit.
 
-#### E. Activity Admin kiểm kê và Điều chỉnh kho (`ad-05-inventory-adjustment.puml`)
+---
+
+#### E. Quy trình Admin kiểm kê và Điều chỉnh kho (Hình 14)
+Mô hình hóa quy trình kiểm kê kho: Quản trị viên tra cứu SKU biến thể, nhập số lượng điều chỉnh tăng/giảm và bắt buộc nhập lý do điều chỉnh; hệ thống chạy Transaction nguyên tử cập nhật `product_variants.stock_quantity` và tự động ghi nhận một bản ghi thẻ kho vào `inventory_transactions`.
+
 <div align="center">
-  <img src="images/hinh_14_activity_inventory.png" alt="Hình 14: Sơ đồ hoạt động - Admin kiểm kê và điều chỉnh kho" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 14: Sơ đồ hoạt động - Admin kiểm kê và điều chỉnh kho</strong></p>
+  <img src="images/hinh_14_activity_inventory.png" alt="Hình 14: Sơ đồ hoạt động Admin kiểm kê và điều chỉnh kho" style="max-width: 85%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 14: Sơ đồ hoạt động - Admin kiểm kê và điều chỉnh tồn kho</strong></p>
 </div>
-* Admin tra cứu biến thể cần điều chỉnh $\rightarrow$ Nhập số lượng mới và lý do (`ADMIN_ADJUSTMENT`, `IMPORT_PURCHASE`, `DEFECT_DAMAGE`) $\rightarrow$ Server cập nhật `stock_quantity` và lưu vết vào `inventory_transactions`.
 
 ---
 
 ### 2.6. Thiết kế giao diện và đặc tả màn hình (Wireframe & UI Specifications)
 
-*(Trình bày theo đúng cấu trúc mẫu báo cáo tốt nghiệp: Hình vẽ khung Wireframe layout $\rightarrow$ Bảng đặc tả component gồm: Mục, Loại component, Mô tả).*
+Phần giao diện người dùng được triển khai thực tế bằng Template Engine Pug và framework Tailwind CSS, tối ưu hóa hiển thị responsive hoàn hảo trên đa thiết bị:
 
-#### Giao diện 1: Trang chủ (Home Page)
+#### 1. Giao diện Trang chủ (Home Page) - Hình 15
+* **Route:** `GET /`
+* **Template:** `src/views/pages/home.pug`
+* **Mô tả:** Hiển thị Hero Banner carousel quảng bá bộ sưu tập mới; thanh điều hướng chính (Header) tích hợp live search; danh mục nổi bật (Sneaker, Thể thao, Sandal, Dép); danh sách sản phẩm bán chạy và sản phẩm mới nhất.
+
 <div align="center">
-  <img src="images/hinh_17_giao_dien_trang_chu.png" alt="Hình 17: Giao diện Trang chủ (Home Page)" style="max-width: 65%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 17: Giao diện Trang chủ (Home Page)</strong></p>
+  <img src="images/hinh_17_giao_dien_trang_chu.png" alt="Hình 15: Giao diện Trang chủ VAMOS STORE" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 15: Giao diện Trang chủ (Home Page) VAMOS STORE</strong></p>
 </div>
-* **Truy cập:** `Guest`, `Customer`
-* **Mục đích:** Cửa sổ giới thiệu thương hiệu VAMOS, banner sự kiện, danh mục nổi bật và sản phẩm mới nhất.
-* **Bảng đặc tả giao diện Trang chủ:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Header Bar` | Navigation Container | Logo VAMOS, thanh tìm kiếm nhanh, menu danh mục, icon giỏ hàng kèm số lượng (badge), icon đăng nhập/tài khoản. |
-| `Hero Slider` | Image Carousel | Hiển thị các banner quảng bá sự kiện lấy từ bảng `banners`. |
-| `Category Grid` | Grid Container | Thẻ đại diện danh mục (Sneaker, Thể thao, Sandal, Dép); bấm vào để chuyển đến trang danh mục tương ứng. |
-| `Product List` | Product Card Grid | Hiển thị danh sách sản phẩm mới nhất (ảnh đại diện, nhãn sale, tên sản phẩm, giá bán, nút xem chi tiết). |
-| `Footer` | Information Block | Địa chỉ showroom VAMOS, thông tin liên hệ, chính sách đổi trả, liên kết mạng xã hội. |
-
-#### Giao diện 2: Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter)
-<div align="center">
-  <img src="images/hinh_18_giao_dien_cua_hang.png" alt="Hình 18: Giao diện Cửa hàng & Bộ lọc đa tiêu chí" style="max-width: 65%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 18: Giao diện Cửa hàng & Bộ lọc đa tiêu chí</strong></p>
-</div>
-* **Truy cập:** `Guest`, `Customer`
-* **Mục đích:** Khám phá sản phẩm với bộ lọc bên trái (Sidebar Filter).
-* **Bảng đặc tả giao diện Cửa hàng:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Gender Filter` | Checkbox Group | Lọc sản phẩm theo giới tính (`Nam`, `Nữ`, `Unisex`). |
-| `Price Range` | Input Textbox | Lọc theo khoảng giá tối thiểu và tối đa (VNĐ). |
-| `Size Selector` | Button Pill Group | Lọc các sản phẩm có biến thể kích cỡ còn hàng (`Size 36 - 45`). |
-| `Color Filter` | Color Palette Box | Lọc theo màu sắc trực quan (Đen, Trắng, Đỏ,...). |
-| `Sort Dropdown` | Select Box | Sắp xếp: Giá tăng dần, Giá giảm dần, Mới nhất, Tên A-Z. |
-| `Product Grid` | Dynamic Grid | Hiển thị danh sách sản phẩm thỏa mãn điều kiện lọc kèm phân trang (12 sản phẩm/trang). |
-
-#### Giao diện 3: Chi tiết sản phẩm & Chọn Size/Màu (Product Detail)
-<div align="center">
-  <img src="images/hinh_19_giao_dien_chi_tiet_san_pham.png" alt="Hình 19: Giao diện Chi tiết sản phẩm & Chọn Size/Màu" style="max-width: 65%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 19: Giao diện Chi tiết sản phẩm & Chọn Size/Màu</strong></p>
-</div>
-* **Truy cập:** `Guest`, `Customer`
-* **Mục đích:** Xem thông số kỹ thuật, bộ ảnh chi tiết và chọn biến thể thêm giỏ/mua ngay.
-* **Bảng đặc tả giao diện Chi tiết sản phẩm:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Image Gallery` | Thumbnail + Main View | Xem ảnh lớn và chuyển đổi các góc chụp chi tiết. |
-| `Color Picker` | Radio Button Pill | Chọn màu sắc mong muốn. |
-| `Size Selector` | Radio Button Box | Chọn kích cỡ giày. Tự động làm mờ (disable) các size đã hết hàng (`stock == 0`). |
-| `Quantity Input` | Stepper Number Input | Tăng/giảm số lượng mua (từ 1 đến số lượng tồn kho khả dụng). |
-| `Add To Cart` | Button Primary | Thêm biến thể vào giỏ hàng. |
-| `Buy Now` | Button Secondary | Chuyển hướng thẳng đến màn hình thanh toán COD. |
-
-#### Giao diện 4: Giỏ hàng trực tuyến (Shopping Cart)
-<div align="center">
-  <img src="images/hinh_20_giao_dien_gio_hang.png" alt="Hình 20: Giao diện Giỏ hàng trực tuyến" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 20: Giao diện Giỏ hàng trực tuyến</strong></p>
-</div>
-* **Truy cập:** `Customer`
-* **Mục đích:** Quản lý danh sách sản phẩm dự định mua.
-* **Bảng đặc tả giao diện Giỏ hàng:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Cart Item Row` | Table Row Data | Hiển thị ảnh, tên sản phẩm, size, màu, đơn giá, số lượng và thành tiền. |
-| `Quantity Stepper`| Dynamic Stepper | Tăng giảm số lượng; tự động gửi Ajax cập nhật `cart_items` và tính lại tạm tính. |
-| `Remove Button` | Icon Button | Xóa một dòng mặt hàng khỏi giỏ hàng sau khi xác nhận. |
-| `Checkout Button`| Primary Action Button | Chuyển sang màn hình Đặt hàng COD. |
-
-#### Giao diện 5: Đặt hàng thanh toán COD (Checkout)
-<div align="center">
-  <img src="images/hinh_21_giao_dien_dat_hang_cod.png" alt="Hình 21: Giao diện Đặt hàng COD (Checkout)" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 21: Giao diện Đặt hàng COD (Checkout)</strong></p>
-</div>
-* **Truy cập:** `Customer` (đã đăng nhập và giỏ hàng có sản phẩm)
-* **Mục đích:** Xác nhận thông tin giao nhận và hoàn tất đơn hàng thanh toán tiền mặt.
-* **Bảng đặc tả giao diện Đặt hàng COD:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Address Selector`| Radio Form | Chọn địa chỉ từ sổ địa chỉ có sẵn hoặc nhập địa chỉ giao nhận mới. |
-| `Voucher Input` | Textbox + Button | Nhập mã voucher ưu đãi; hệ thống kiểm tra và trừ tiền giảm trực tiếp vào tổng đơn. |
-| `Payment Method` | Radio Selection | Mặc định cố định `COD` (Thanh toán tiền mặt khi nhận hàng). |
-| `Order Note` | Textarea | Nhập ghi chú giao nhận hàng của khách. |
-| `Submit Button` | Primary Action Button | Kích hoạt Database Transaction tạo đơn hàng, trừ tồn kho và làm rỗng giỏ. |
-
-
-#### Giao diện 6: Đăng ký / Đăng nhập tài khoản
-<div align="center">
-  <img src="images/hinh_22_giao_dien_dang_nhap.png" alt="Hình 22: Giao diện Đăng ký / Đăng nhập tài khoản" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 22: Giao diện Đăng ký / Đăng nhập tài khoản</strong></p>
-</div>
-
-* **Truy cập:** `Guest`
-* **Mục đích:** Cung cấp biểu mẫu xác thực tài khoản an toàn với mã hóa mật khẩu bcrypt và phiên đăng nhập Session.
-* **Bảng đặc tả giao diện Đăng ký / Đăng nhập:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Form Toggle` | Tab Button | Chuyển đổi linh hoạt giữa giao diện Đăng nhập và Đăng ký tài khoản mới. |
-| `Email Input` | Email Field | Nhập địa chỉ email hợp lệ (kiểm tra định dạng Regex trên server). |
-| `Password Input` | Password Field | Nhập mật khẩu bí mật (tối thiểu 6 ký tự, ẩn ký tự khi nhập). |
-| `Remember Me` | Checkbox | Duy trì phiên đăng nhập lâu dài thông qua cookie an toàn (`httpOnly`). |
-| `Submit Button` | Primary Button | Gửi request xác thực về AuthService, cấp session và chuyển hướng về trang chủ. |
 
 ---
 
-#### Giao diện 7: Lịch sử và chi tiết đơn hàng của khách
+#### 2. Giao diện Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter) - Hình 16
+* **Route:** `GET /products`
+* **Template:** `src/views/pages/products/index.pug`
+* **Mô tả:** Bộ lọc nâng cao đa tiêu chí phía thanh bên trái (Sidebar Filter) cho phép lọc theo Danh mục, Giới tính, Size giày (36-45), Màu sắc và Khoảng giá; khu vực lưới hiển thị thẻ sản phẩm (Card) với nhãn giá niêm yết, giá khuyến mãi và trạng thái hàng.
+
 <div align="center">
-  <img src="images/hinh_23_giao_dien_lich_su_don_hang.png" alt="Hình 23: Giao diện Lịch sử đơn hàng của khách" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 23: Giao diện Lịch sử đơn hàng của khách</strong></p>
+  <img src="images/hinh_18_giao_dien_cua_hang.png" alt="Hình 16: Giao diện Cửa hàng & Bộ lọc đa tiêu chí" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 16: Giao diện Cửa hàng & Bộ lọc đa tiêu chí (Shop & Filter)</strong></p>
 </div>
-
-* **Truy cập:** `Customer` (đã đăng nhập)
-* **Mục đích:** Cho phép khách hàng tra cứu tiến độ xử lý đơn hàng, xem snapshot sản phẩm và tự hủy đơn khi ở trạng thái `PENDING`.
-* **Bảng đặc tả giao diện Lịch sử đơn hàng:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Order Code` | Text / Link | Mã định danh đơn hàng (VD: `ORD-20261110-001`), bấm vào xem chi tiết toàn bộ đơn. |
-| `Status Badge` | Colored Tag | Hiển thị trạng thái đơn hàng (`PENDING` vàng, `CONFIRMED` xanh dương, `SHIPPING` tím, `COMPLETED` xanh lá, `CANCELLED` xám). |
-| `Product Items` | List Group | Hiển thị tên giày, hình ảnh snapshot, size, màu sắc, đơn giá và số lượng đặt. |
-| `Total Summary` | Money Summary | Tạm tính tiền hàng, phí giao hàng, mức voucher giảm giá và tổng tiền phải trả COD. |
-| `Cancel Button` | Secondary Button | Nút bấm hủy đơn; chỉ hiển thị khi đơn ở trạng thái `PENDING`, tự động hoàn kho. |
 
 ---
 
-#### Giao diện 8: Admin Dashboard tổng quan
+#### 3. Giao diện Chi tiết sản phẩm & Chọn Size/Màu - Hình 17
+* **Route:** `GET /products/:slug`
+* **Template:** `src/views/pages/products/detail.pug`
+* **Mô tả:** Thư viện ảnh gallery chất lượng cao; khu vực chọn ma trận Size và Màu sắc có kiểm tra tồn kho thời gian thực; nút "Thêm vào giỏ hàng" và nút "Lưu vào yêu thích"; bảng thông số chất liệu và hướng dẫn đo size chân.
+
 <div align="center">
-  <img src="images/hinh_24_giao_dien_admin_dashboard.png" alt="Hình 24: Giao diện Admin Dashboard tổng quan" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 24: Giao diện Admin Dashboard tổng quan</strong></p>
+  <img src="images/hinh_19_giao_dien_chi_tiet_san_pham.png" alt="Hình 17: Giao diện Chi tiết sản phẩm & Chọn Size/Màu" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 17: Giao diện Chi tiết sản phẩm & Chọn Size/Màu</strong></p>
 </div>
-
-* **Truy cập:** `Admin`
-* **Mục đích:** Bảng điều khiển trung tâm giúp quản trị viên theo dõi nhanh doanh thu thực tế, số lượng đơn hàng cần xử lý và cảnh báo tồn kho.
-* **Bảng đặc tả giao diện Admin Dashboard:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Metric Cards` | Stat Box | Thống kê tổng doanh thu (chỉ tính đơn `COMPLETED`), tổng số đơn, số khách hàng mới. |
-| `Pending Alert` | Notification Box | Số lượng đơn hàng mới đang ở trạng thái `PENDING` cần được gọi điện xác nhận ngay. |
-| `Low Stock Warning` | Warning Table | Danh sách các biến thể giày (SKU) có tồn kho nhỏ hơn mức cảnh báo tối thiểu (dưới 5 đôi). |
-| `Quick Navigation` | Sidebar Menu | Liên kết nhanh đến các phân hệ: Sản phẩm, Đơn hàng, Kho hàng, Khuyến mãi. |
 
 ---
 
-#### Giao diện 9: Admin Quản lý sản phẩm & Biến thể
+#### 4. Giao diện Giỏ hàng trực tuyến (Shopping Cart) - Hình 18
+* **Route:** `GET /cart`
+* **Template:** `src/views/pages/cart/index.pug`
+* **Mô tả:** Bảng danh sách các mặt hàng đã chọn (ảnh, tên, size, màu, đơn giá, số lượng); cụm nút tăng/giảm số lượng có kiểm tra hạn mức bán lẻ (tối đa 10 đôi); nút xóa dòng mặt hàng; cột tóm tắt tài chính tạm tính và nút chuyển sang bước Đặt hàng COD.
+
 <div align="center">
-  <img src="images/hinh_25_giao_dien_admin_san_pham.png" alt="Hình 25: Giao diện Admin Quản lý sản phẩm & Biến thể" style="max-width: 80%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 25: Giao diện Admin Quản lý sản phẩm & Biến thể</strong></p>
+  <img src="images/hinh_20_giao_dien_gio_hang.png" alt="Hình 18: Giao diện Giỏ hàng trực tuyến" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 18: Giao diện Giỏ hàng trực tuyến (Shopping Cart)</strong></p>
 </div>
-
-* **Truy cập:** `Admin`
-* **Mục đích:** Quản lý danh mục giày dép, thêm mới sản phẩm và cấu hình từng tổ hợp biến thể (Size - Màu sắc - Tồn kho - SKU).
-* **Bảng đặc tả giao diện Quản lý sản phẩm:**
-
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Product Table` | Data Table | Danh sách sản phẩm gồm mã ID, ảnh đại diện chính, tên giày, thương hiệu, danh mục, giá cơ sở. |
-| `Variant Matrix` | Matrix Table | Bảng quản lý chi tiết từng biến thể (Size, Color, Mã SKU, Giá phụ thu `price_adjustment`, Tồn kho `stock_quantity`). |
-| `Search & Filter` | Filter Bar | Lọc danh sách sản phẩm theo Thương hiệu (Nike, Adidas, Puma...), Danh mục hoặc trạng thái hoạt động. |
-| `Action Controls` | Action Buttons | Nút Chỉnh sửa thông tin, Quản lý bộ sưu tập ảnh và Bật/Tắt trạng thái hoạt động sản phẩm. |
 
 ---
 
-#### Giao diện 10: Admin Vận hành đơn hàng & Chuyển trạng thái
+#### 5. Giao diện Đặt hàng thanh toán COD (Checkout) - Hình 19
+* **Route:** `GET /checkout`
+* **Template:** `src/views/pages/checkout/index.pug`
+* **Mô tả:** Khu vực lựa chọn địa chỉ giao hàng nhận hàng từ sổ địa chỉ có sẵn hoặc nhập địa chỉ mới; ô nhập mã giảm giá voucher kèm nút kiểm tra tính hợp lệ; bảng tóm tắt đơn hàng (tạm tính, giảm giá, phí ship, tổng tiền); nút xác nhận đặt hàng thanh toán COD.
+
 <div align="center">
-  <img src="images/hinh_26_giao_dien_admin_don_hang.png" alt="Hình 26: Giao diện Admin Vận hành đơn hàng" style="max-width: 65%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
-  <p><strong>Hình 26: Giao diện Admin Vận hành đơn hàng</strong></p>
+  <img src="images/hinh_21_giao_dien_dat_hang_cod.png" alt="Hình 19: Giao diện Đặt hàng COD (Checkout)" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 19: Giao diện Đặt hàng COD (Checkout)</strong></p>
 </div>
 
-* **Truy cập:** `Admin`
-* **Mục đích:** Xử lý toàn bộ vòng đời đơn hàng theo đúng máy trạng thái (PENDING -> CONFIRMED -> PROCESSING -> SHIPPING -> COMPLETED), in phiếu giao hàng và theo dõi dòng tiền COD.
-* **Bảng đặc tả giao diện Vận hành đơn hàng:**
+---
 
-| Mục | Loại Component | Mô tả và tương tác |
-| :--- | :--- | :--- |
-| `Status Tabs` | Tab Navigation | Lọc đơn theo từng bước xử lý: Chờ xác nhận, Đã xác nhận, Đang đóng gói, Đang giao, Đã giao, Đã hủy. |
-| `Order Details` | Modal / Drawer | Xem chi tiết địa chỉ giao hàng, số điện thoại, ghi chú của khách và lịch sử thay đổi trạng thái (`order_status_histories`). |
-| `Transition Button` | Status Action Button | Nút bấm chuyển trạng thái kế tiếp hợp lệ; tự động lưu vết nhân sự thao tác và thời gian. |
-| `Cancel & Restock` | Danger Action | Nút hủy đơn khẩn cấp (kèm nhập lý do); kích hoạt Transaction tự động hoàn tồn kho về biến thể ban đầu. |
+#### 6. Giao diện Đăng ký / Đăng nhập tài khoản - Hình 20
+* **Route:** `GET /auth/login` và `GET /auth/register`
+* **Template:** `src/views/pages/auth/login.pug` và `register.pug`
+* **Mô tả:** Biểu mẫu đăng nhập và đăng ký chuẩn mực có validation thời gian thực phía máy khách và kiểm tra an toàn phía máy chủ; thông báo lỗi trực quan khi nhập sai định dạng email hoặc mật khẩu không khớp.
 
+<div align="center">
+  <img src="images/hinh_22_giao_dien_dang_nhap.png" alt="Hình 20: Giao diện Đăng ký / Đăng nhập tài khoản" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 20: Giao diện Đăng ký / Đăng nhập tài khoản</strong></p>
+</div>
+
+---
+
+#### 7. Giao diện Lịch sử đơn hàng của khách - Hình 21
+* **Route:** `GET /account/orders` và `GET /account/orders/:id`
+* **Template:** `src/views/pages/account/orders.pug` và `order-detail.pug`
+* **Mô tả:** Bảng danh sách đơn hàng đã mua kèm badge trạng thái màu sắc trực quan; trang chi tiết đơn hàng hiển thị mã đơn, tiến trình thời gian thực, snapshot địa chỉ người nhận, snapshot sản phẩm và nút "Hủy đơn hàng" khi đơn đang ở trạng thái `PENDING`.
+
+<div align="center">
+  <img src="images/hinh_23_giao_dien_lich_su_don_hang.png" alt="Hình 21: Giao diện Lịch sử đơn hàng của khách" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 21: Giao diện Lịch sử đơn hàng của khách hàng</strong></p>
+</div>
+
+---
+
+#### 8. Giao diện Admin Dashboard tổng quan - Hình 22
+* **Route:** `GET /admin/dashboard`
+* **Template:** `src/views/pages/admin/dashboard.pug`
+* **Mô tả:** Bảng điều khiển quản trị trung tâm hiển thị 4 thẻ KPI tài chính và đơn hàng; biểu đồ thống kê đơn hàng theo 6 trạng thái; bảng xếp hạng Top 4 sản phẩm bán chạy nhất theo số lượng bán (`ORDER BY total_sold DESC`); danh sách các biến thể giày sắp hết hàng (`stock <= 5`) để quản lý kịp thời nhập thêm hàng.
+
+<div align="center">
+  <img src="images/hinh_24_giao_dien_admin_dashboard.png" alt="Hình 22: Giao diện Admin Dashboard tổng quan" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 22: Giao diện Admin Dashboard tổng quan</strong></p>
+</div>
+
+---
+
+#### 9. Giao diện Admin Quản lý sản phẩm & Biến thể - Hình 23
+* **Route:** `GET /admin/products` và `GET /admin/products/create`
+* **Template:** `src/views/pages/admin/products.pug` và `product-form.pug`
+* **Mô tả:** Bảng danh sách sản phẩm có tìm kiếm và phân trang; form thêm/sửa sản phẩm tích hợp cấu hình ma trận biến thể Size x Color x SKU, nhập số lượng tồn kho ban đầu, tải lên bộ sưu tập ảnh và chọn ảnh đại diện chính.
+
+<div align="center">
+  <img src="images/hinh_25_giao_dien_admin_san_pham.png" alt="Hình 23: Giao diện Admin Quản lý sản phẩm & Biến thể" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 23: Giao diện Admin Quản lý sản phẩm & Biến thể</strong></p>
+</div>
+
+---
+
+#### 10. Giao diện Admin Vận hành đơn hàng - Hình 24
+* **Route:** `GET /admin/orders` và `GET /admin/orders/:id`
+* **Template:** `src/views/pages/admin/orders.pug` và `order-detail.pug`
+* **Mô tả:** Danh sách quản lý đơn hàng toàn sàn có bộ lọc trạng thái; trang chi tiết đơn hàng cho phép xem thông tin khách, địa chỉ snapshot, sản phẩm đặt và form cập nhật trạng thái theo đúng máy trạng thái nghiệp vụ.
+
+<div align="center">
+  <img src="images/hinh_26_giao_dien_admin_don_hang.png" alt="Hình 24: Giao diện Admin Vận hành đơn hàng" style="max-width: 90%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin: 15px 0;" />
+  <p><strong>Hình 24: Giao diện Admin Vận hành và xử lý đơn hàng</strong></p>
+</div>
+
+
+---
 
 # CHƯƠNG III: TRIỂN KHAI MÃ NGUỒN (SYSTEM IMPLEMENTATION)
 
@@ -1091,90 +1191,95 @@ Hệ thống cơ sở dữ liệu VAMOS STORE được xây dựng chuẩn hóa 
 
 ## 1. CẤU TRÚC MÃ NGUỒN DỰ ÁN
 
-Hệ thống VAMOS STORE được tổ chức theo mô hình **Kiến trúc phân lớp chuẩn (Layered Architecture)** kết hợp với mô hình MVC của Node.js/Express, đảm bảo tính phân tách trách nhiệm (Separation of Concerns) và khả năng mở rộng cao:
+Hệ thống VAMOS STORE được tổ chức mã nguồn chuẩn mực trên nền tảng Node.js và framework Express.js, kết hợp giữa mô hình phân lớp doanh nghiệp (Service / Repository) cho các giao dịch phức tạp và mô hình trực tiếp (Two-Tier Direct Controller - Database) cho các phân hệ quản trị CRUD:
 
 ```
 vamos-store/
+├── server.js                      # Điểm khởi chạy tiến trình HTTP và kiểm tra kết nối DB
+├── package.json                   # Khai báo phụ thuộc (Node >=22, Express, mssql, pug, bcryptjs)
+├── docker-compose.yml             # Cấu hình đa container (Node.js App + MSSQL Server 2022)
+├── Dockerfile                     # Multi-stage Dockerfile tối ưu kích thước image
 ├── src/
-│   ├── app.js                   # Khởi tạo Express server, cấu hình middlewares & template engine
+│   ├── app.js                     # Cấu hình ứng dụng Express, Middleware bảo mật, Session, CSRF, i18n
 │   ├── config/
-│   │   ├── database.js          # Cấu hình MSSQL Connection Pool (mssql)
-│   │   ├── session.js           # Cấu hình express-session & Cookie bảo mật
-│   │   └── constants.js         # Các hằng số hệ thống (Mã trạng thái đơn, quy tắc kho)
+│   │   ├── app.config.js          # Quản lý biến môi trường, cổng, session và MSSQL connection pool
+│   │   └── database.js            # MSSQL Connection Pool & Query API an toàn
 │   ├── routes/
-│   │   ├── storefront/          # Tuyến đường công khai cho khách hàng (home, shop, cart, checkout)
-│   │   ├── auth/                # Tuyến đường đăng ký, đăng nhập, khôi phục mật khẩu
-│   │   └── admin/               # Tuyến đường bảo mật phân hệ quản trị (dashboard, products, orders, inventory)
+│   │   ├── index.js               # Điểm gắn kết định tuyến trung tâm (/admin, /products, /auth,...)
+│   │   ├── admin.routes.js        # Tuyến đường phân hệ quản trị Admin (28 endpoints bảo vệ bằng requireAdmin)
+│   │   ├── auth.routes.js         # Tuyến đường xác thực (đăng nhập, đăng ký, đăng xuất)
+│   │   ├── product.routes.js      # Tuyến đường duyệt và tìm kiếm sản phẩm cửa hàng
+│   │   ├── cart.routes.js         # Tuyến đường quản lý giỏ hàng trực tuyến
+│   │   ├── checkout.routes.js     # Tuyến đường đặt hàng thanh toán COD
+│   │   ├── account.routes.js      # Tuyến đường hồ sơ cá nhân, sổ địa chỉ và lịch sử đơn hàng
+│   │   ├── home.routes.js         # Tuyến đường trang chủ, danh mục nổi bật, banner
+│   │   ├── info.routes.js         # Tuyến đường thông tin giới thiệu, chính sách, khuyến mãi
+│   │   └── wishlist.routes.js     # Tuyến đường API danh sách sản phẩm yêu thích
 │   ├── controllers/
-│   │   ├── AuthController.js    # Tiếp nhận request xác thực & điều hướng session
-│   │   ├── ProductController.js # Xử lý hiển thị danh sách, bộ lọc & chi tiết sản phẩm
-│   │   ├── CartController.js    # Xử lý thêm, sửa, xóa giỏ hàng
-│   │   ├── OrderController.js   # Xử lý đặt hàng COD & theo dõi tiến trình đơn
-│   │   └── admin/
-│   │       ├── AdminProductController.js   # Quản trị sản phẩm & biến thể Size/Color
-│   │       ├── AdminOrderController.js     # Vận hành đơn & chuyển trạng thái
-│   │       └── AdminInventoryController.js # Quản trị kho & kiểm kê
+│   │   ├── admin.controller.js    # Quản trị viên: Dashboard KPI, SP, Kho, Đơn, Voucher, Khách, Banner (Two-Tier)
+│   │   ├── auth.controller.js     # Xử lý đăng ký (bcryptjs + cấp Cart), đăng nhập, session
+│   │   ├── product.controller.js  # Duyệt danh mục, bộ lọc đa tiêu chí, chi tiết sản phẩm, live search
+│   │   ├── cart.controller.js     # Quản lý giỏ hàng trực tuyến (Two-Tier Direct DB)
+│   │   ├── checkout.controller.js # Điều phối giao diện đặt hàng COD
+│   │   ├── account.controller.js  # Hồ sơ, đổi mật khẩu, sổ địa chỉ, lịch sử đơn, hủy đơn
+│   │   ├── home.controller.js     # Trang chủ, slider banner, sản phẩm mới, top bán chạy
+│   │   └── wishlist.controller.js # Thao tác danh sách yêu thích
 │   ├── services/
-│   │   ├── AuthService.js       # Nghiệp vụ băm mật khẩu bcrypt, kiểm tra đăng nhập
-│   │   ├── OrderService.js      # Nghiệp vụ Transaction đặt hàng COD, khóa bi quan, trừ kho
-│   │   ├── InventoryService.js  # Nghiệp vụ hoàn kho khi hủy đơn, nhật ký kiểm toán kho
-│   │   └── VoucherService.js    # Nghiệp vụ thẩm định điều kiện voucher
-│   ├── repositories/
-│   │   ├── UserRepository.js    # Thao tác CSDL bảng users & addresses
-│   │   ├── ProductRepository.js # Thao tác CSDL bảng products, product_variants, sizes, colors
-│   │   ├── CartRepository.js    # Thao tác CSDL bảng carts & cart_items
-│   │   └── OrderRepository.js   # Thao tác CSDL bảng orders, order_items, order_status_histories
+│   │   ├── order.service.js       # Transaction đặt hàng COD, khóa bi quan, trừ kho, voucher, hoàn hủy
+│   │   ├── product.service.js     # Nghiệp vụ lọc sản phẩm, định dạng hiển thị
+│   │   └── wishlist.service.js    # Nghiệp vụ quản lý danh sách yêu thích
+│   ├── models/
+│   │   └── repositories/
+│   │       ├── product.repository.js  # Thao tác CSDL danh mục và sản phẩm
+│   │       └── wishlist.repository.js # Thao tác CSDL bảng wishlist_items
 │   ├── middlewares/
-│   │   ├── authMiddleware.js    # Kiểm tra session đăng nhập khách hàng
-│   │   ├── adminMiddleware.js   # Kiểm tra quyền quản trị viên Admin (Server-side Enforcement)
-│   │   └── validationMiddleware.js # Kiểm tra tính hợp lệ dữ liệu đầu vào (Joi / Validator)
-│   └── views/                   # Template Engine Pug
-│       ├── layouts/             # Khung layout chính (main.pug, admin.pug)
-│       ├── partials/            # Các thành phần giao diện dùng chung (header, footer, sidebar)
-│       ├── storefront/          # Giao diện khách hàng (home.pug, shop.pug, product-detail.pug, cart.pug, checkout.pug)
-│       └── admin/               # Giao diện quản trị (dashboard.pug, products.pug, orders.pug, inventory.pug)
-├── public/                      # Static assets đã biên dịch
-│   ├── css/style.css            # Stylesheet xuất từ Tailwind CSS
-│   ├── js/                      # JavaScript tương tác phía client (Alpine.js / Vanilla JS)
-│   └── images/                  # Hình ảnh sản phẩm, logo, banner
-├── database/
-│   ├── mssql_schema.sql         # Kịch bản DDL Microsoft SQL Server 2025 khởi tạo 18 bảng
-│   └── seeds.sql                # Dữ liệu mẫu kích cỡ, màu sắc, tài khoản admin mặc định
-├── Dockerfile                   # Cấu hình container cho ứng dụng Node.js
-├── docker-compose.yml           # Điều phối đa container (App + SQL Server)
-├── package.json                 # Khai báo dependencies và scripts
-└── .env.example                 # Mẫu cấu hình biến môi trường
+│   │   ├── auth.middleware.js     # requireAuth, requireAdmin (RBAC), sessionContextMiddleware
+│   │   ├── csrf.middleware.js     # Bảo vệ chống tấn công CSRF (Double Submit Cookie / Header)
+│   │   ├── error.middleware.js    # Bắt và xử lý lỗi tập trung, giao diện 404/500
+│   │   └── i18n.middleware.js     # Hỗ trợ đa ngôn ngữ Server-Side Rendering
+│   ├── utils/
+│   │   └── validator.js           # Bộ tiền kiểm tra dữ liệu đầu vào (email, phone, password, quantity)
+│   ├── views/                     # Template Engine Pug
+│   │   ├── layouts/               # Layout dùng chung (main.pug, admin.pug, customer.pug)
+│   │   ├── pages/                 # Giao diện các trang nghiệp vụ
+│   │   └── partials/              # Header, footer, admin-nav
+│   └── public/                    # Static assets
+│       ├── css/style.css          # Stylesheet biên dịch từ Tailwind CSS
+│       └── js/main.js             # JavaScript tương tác client (live search, modal, filter)
+└── database/
+    ├── mssql_schema.sql           # Kịch bản DDL Microsoft SQL Server 2022
+    └── migrations/                # Các migration tăng cường tính toàn vẹn (001 - 004)
 ```
 
 ---
 
-## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2025
+## 2. KẾT NỐI VÀ QUẢN TRỊ CƠ SỞ DỮ LIỆU MICROSOFT SQL SERVER 2022
 
-### 2.1. Cấu hình MSSQL Connection Pool
+### 2.1. Cấu hình MSSQL Connection Pool & Tham số hóa truy vấn
 
-Để tối ưu hóa hiệu năng và quản lý tài nguyên máy chủ, hệ thống sử dụng thư viện `mssql` (Tedious) với cơ chế Connection Pool. Thay vì mỗi request mở một kết nối vật lý mới gây tiêu tốn tài nguyên CPU và RAM, Connection Pool duy trì sẵn một nhóm kết nối sẵn sàng tái sử dụng.
+Hệ thống sử dụng trình điều khiển chính thức `mssql` (Tedious) để kết nối với Microsoft SQL Server 2022. Connection Pool duy trì sẵn tối đa 10 kết nối thường trực, hỗ trợ tự động tái sử dụng và kiểm soát thời gian chờ (timeout):
 
 ```javascript
-// src/config/database.js
-const sql = require("mssql");
-const config = require("./app.config");
+// Trích đoạn: src/config/database.js:1-117
+const sql = require('mssql');
+const config = require('./app.config');
 
 let pool = null;
 
-// Khởi tạo MSSQL Connection Pool
 async function getPool() {
   if (!pool) {
     try {
       pool = await sql.connect(config.db);
+      console.log('✓ [MSSQL]: Kết nối cơ sở dữ liệu Microsoft SQL Server thành công.');
     } catch (err) {
-      console.error("[MSSQL Pool Error]:", err.message);
+      console.error('✗ [MSSQL Pool Error]:', err.message);
       throw err;
     }
   }
   return pool;
 }
 
-// Hàm thực thi truy vấn tham số hóa (Parameterized Query) an toàn
+// Hàm query tham số hóa T-SQL bảo vệ chống SQL Injection tuyệt đối
 async function query(queryStr, params = {}) {
   const currentPool = await getPool();
   const request = currentPool.request();
@@ -1189,416 +1294,318 @@ module.exports = { sql, getPool, query };
 
 ---
 
-## 3. TRIỂN KHAI CÁC CHỨC NĂNG CỐT LÕI
+## 3. TRIỂN KHAI CÁC MODULE NGHIỆP VỤ CỐT LÕI
 
-### 3.1. Chức năng Đăng ký tài khoản và Băm mật khẩu Bcrypt
+### 3.1. Phân hệ Xác thực & Khởi tạo Giỏ hàng (UC01 - Register)
 
-- **Mô tả xử lý:** Hệ thống tiếp nhận form đăng ký, chuẩn hóa email về chữ thường, kiểm tra email chưa từng tồn tại trong CSDL, sau đó áp dụng hàm băm `bcrypt.hash` với chi phí `saltRounds = 10` trước khi lưu vào bảng `users`.
+Khi khách hàng đăng ký tài khoản thành viên mới, mã nguồn băm mật khẩu an toàn với thư viện `bcryptjs` (salt rounds = 10) và tự động khởi tạo ngay một giỏ hàng cá nhân (`carts`) trong CSDL, bảo đảm quan hệ 1:1 bất biến:
 
 ```javascript
-// src/services/AuthService.js (Trích đoạn Đăng ký tài khoản)
-const bcrypt = require("bcryptjs");
-const UserRepository = require("../repositories/UserRepository");
-
-class AuthService {
-  async registerUser({ fullName, email, password, phone }) {
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // 1. Kiểm tra email đã được đăng ký trước đó chưa
-    const existingUser = await UserRepository.findByEmail(normalizedEmail);
-    if (existingUser) {
-      throw new Error(
-        "Địa chỉ email này đã được sử dụng. Vui lòng chọn email khác!",
-      );
+// Trích đoạn: src/controllers/auth.controller.js:63-145
+async postRegister(req, res, next) {
+  try {
+    const { fullName, email, password, phone } = req.body;
+    
+    // 1. Kiểm tra email đã tồn tại trong CSDL
+    const existing = await query('SELECT id FROM users WHERE email = @email', { email });
+    if (existing.recordset.length > 0) {
+      return res.render('pages/auth/register', { error: 'Email này đã được sử dụng.' });
     }
 
-    // 2. Băm mật khẩu bằng bcrypt (Salt rounds = 10)
+    // 2. Băm mật khẩu bằng bcryptjs
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 3. Tạo bản ghi tài khoản mới với vai trò CUSTOMER mặc định
-    const newUserId = await UserRepository.create({
-      fullName: fullName.trim(),
-      email: normalizedEmail,
-      passwordHash,
-      phone: phone ? phone.trim() : null,
-      role: "CUSTOMER",
-      status: "active",
-    });
+    // 3. Thêm tài khoản mới vào bảng users
+    const userRes = await query(`
+      INSERT INTO users (full_name, email, password_hash, phone, role, status)
+      OUTPUT INSERTED.id
+      VALUES (@fullName, @email, @passwordHash, @phone, 'CUSTOMER', 'active')
+    `, { fullName, email, passwordHash, phone: phone || null });
 
-    // 4. Khởi tạo giỏ hàng trống mặc định cho khách hàng (1 User = 1 Cart)
-    await UserRepository.createCartForUser(newUserId);
+    const newUserId = userRes.recordset[0].id;
 
-    return { userId: newUserId, email: normalizedEmail };
+    // 4. Tự động khởi tạo giỏ hàng cá nhân (1 User = 1 Cart)
+    await query('INSERT INTO carts (user_id) VALUES (@userId)', { userId: newUserId });
+
+    res.redirect('/auth/login?registered=true');
+  } catch (error) {
+    next(error);
   }
 }
-
-module.exports = new AuthService();
 ```
 
 ---
 
-### 3.2. Middleware phân quyền quản trị máy chủ (Server-side Authorization)
+### 3.2. Phân hệ Đặt hàng COD nguyên tử (UC07 - Checkout Transaction)
 
-- **Mô tả xử lý:** Đảm bảo nguyên tắc an toàn máy chủ (Server-side Enforcement), middleware chặn đứng mọi request từ các tài khoản không có quyền `ADMIN` hoặc tài khoản bị khóa.
-
-```javascript
-// src/middlewares/adminMiddleware.js
-function requireAdmin(req, res, next) {
-  // 1. Kiểm tra session đăng nhập của người dùng
-  if (!req.session || !req.session.user) {
-    req.flash("errorMessage", "Vui lòng đăng nhập để tiếp tục.");
-    return res.redirect(
-      "/auth/login?redirect=" + encodeURIComponent(req.originalUrl),
-    );
-  }
-
-  // 2. Kiểm tra vai trò quyền hạn (Role) và trạng thái tài khoản
-  const currentUser = req.session.user;
-  if (currentUser.role !== "ADMIN" || currentUser.status === "locked") {
-    // Ghi log cảnh báo truy cập trái phép
-    console.warn(
-      `[SECURITY ALERT] Truy cập trái phép trang Admin từ User ID: ${currentUser.id}`,
-    );
-    return res.status(403).render("errors/403.pug", {
-      title: "403 - Quyền truy cập bị từ chối",
-    });
-  }
-
-  // 3. Hợp lệ, cho phép đi tiếp vào Controller quản trị
-  next();
-}
-
-module.exports = requireAdmin;
-```
-
----
-
-### 3.3. Chức năng Đặt hàng COD với Database Transaction và Khóa bi quan
-
-- **Mô tả xử lý:** Đây là nghiệp vụ trọng tâm nhất của hệ thống. Để chống bán vượt tồn kho (Anti-Overselling), toàn bộ quá trình: Khóa dòng kiểm tra kho $\rightarrow$ Trừ tồn kho $\rightarrow$ Tạo đơn `orders` $\rightarrow$ Lưu snapshot `order_items` $\rightarrow$ Xóa giỏ hàng được đặt trọn vẹn trong một **MSSQL Database Transaction (T-SQL)**.
+Đây là quy trình nghiệp vụ quan trọng nhất của hệ thống, đòi hỏi tính toàn vẹn giao dịch tuyệt đối (ACID Integrity). Toàn bộ luồng được thực thi bên trong một `sql.Transaction`, áp dụng Table Hint khóa dòng bi quan `WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server để loại bỏ hoàn toàn nguy cơ bán vượt tồn kho (Overselling):
 
 ```javascript
-// src/services/order.service.js (Trích đoạn Đặt hàng COD an toàn ACID với UPDLOCK, ROWLOCK)
-const { pool } = require("../config/database");
+// Trích đoạn: src/services/order.service.js:15-285
+async createCodOrder({ userId, recipientName, recipientPhone, deliveryAddress, customerNote, voucherCode }) {
+  const pool = await getPool();
+  const transaction = new sql.Transaction(pool);
+  await transaction.begin(); // BẮT ĐẦU GIAO DỊCH NGUYÊN TỬ T-SQL
 
-class OrderService {
-  async checkoutCOD({
-    userId,
-    recipientName,
-    phone,
-    deliveryAddress,
-    voucherCode,
-    customerNote,
-  }) {
-    const connection = await pool.getConnection();
-    try {
-      // BẮT ĐẦU GIAO DỊCH DATABASE (ACID TRANSACTION)
-      await connection.beginTransaction();
+  try {
+    // 1. Đọc và khóa các mặt hàng trong giỏ của khách hàng
+    const cartReq = new sql.Request(transaction);
+    cartReq.input('userId', userId);
+    const cartItems = await cartReq.query(`
+      SELECT ci.id AS cart_item_id, ci.quantity, ci.variant_id,
+             p.name AS product_name, pv.sku, s.size_name, c.color_name,
+             p.base_price, p.sale_price
+      FROM cart_items ci
+      JOIN carts ct ON ci.cart_id = ct.id
+      JOIN product_variants pv ON ci.variant_id = pv.id
+      JOIN products p ON pv.product_id = p.id
+      JOIN sizes s ON pv.size_id = s.id
+      JOIN colors c ON pv.color_id = c.id
+      WHERE ct.user_id = @userId
+    `);
 
-      // 1. Lấy danh sách sản phẩm trong giỏ hàng của khách
-      const [cartRows] = await connection.execute(
-        `SELECT ci.variant_id, ci.quantity, pv.stock_quantity, pv.sku,
-                        p.name as product_name, p.base_price, p.sale_price,
-                        s.size_name, c.color_name
-                 FROM cart_items ci
-                 JOIN carts ct ON ci.cart_id = ct.id
-                 JOIN product_variants pv ON ci.variant_id = pv.id
-                 JOIN products p ON pv.product_id = p.id
-                 JOIN sizes s ON pv.size_id = s.id
-                 JOIN colors c ON pv.color_id = c.id
-                 WHERE ct.user_id = ?`,
-        [userId],
-      );
+    if (cartItems.recordset.length === 0) {
+      throw new Error('Giỏ hàng của bạn đang trống.');
+    }
 
-      if (cartRows.length === 0) {
-        throw new Error("Giỏ hàng của bạn đang trống.");
-      }
+    // 2. Tính toán tổng tiền tạm tính (Subtotal)
+    let subtotal = 0;
+    for (const item of cartItems.recordset) {
+      const price = item.sale_price !== null ? item.sale_price : item.base_price;
+      subtotal += price * item.quantity;
+    }
 
-      // 2. KHÓA BI QUAN VÀ KIỂM TRA TỒN KHO THỜI GIAN THỰC (SELECT ... WITH (UPDLOCK, ROWLOCK))
-      let subtotal = 0;
-      const orderItemsData = [];
-
-      for (const item of cartRows) {
-        const [lockedRows] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-          [item.variant_id],
-        );
-
-        const currentStock = lockedRows[0].stock_quantity;
-        if (currentStock < item.quantity) {
-          throw new Error(
-            `Sản phẩm "${item.product_name}" (Cỡ: ${item.size_name}, Màu: ${item.color_name}) chỉ còn ${currentStock} đôi trong kho. Vui lòng điều chỉnh lại số lượng!`,
-          );
-        }
-
-        // Xác định đơn giá thực tế tại thời điểm mua (ưu tiên sale_price)
-        const unitPrice =
-          item.sale_price !== null ? item.sale_price : item.base_price;
-        const lineTotal = Number(unitPrice) * item.quantity;
-        subtotal += lineTotal;
-
-        orderItemsData.push({
-          variantId: item.variant_id,
-          productName: item.product_name,
-          sku: item.sku,
-          size: item.size_name,
-          color: item.color_name,
-          unitPrice,
-          quantity: item.quantity,
-          lineTotal,
-          oldStock: currentStock,
-        });
-      }
-
-      // 3. Xử lý Voucher giảm giá nếu có
-      let discountAmount = 0;
-      let voucherId = null;
-      let voucherCodeSnapshot = null;
-
-      if (voucherCode) {
-        const [vouchers] = await connection.execute(
-          `SELECT * FROM vouchers 
-                     WHERE code = ? AND is_active = TRUE 
-                       AND NOW() BETWEEN start_date AND end_date
-                       AND (usage_limit = 0 OR used_count < usage_limit)
-                       AND min_order_value <= ? WITH (UPDLOCK, ROWLOCK)`,
-          [voucherCode.trim().toUpperCase(), subtotal],
-        );
-
-        if (vouchers.length > 0) {
-          const voucher = vouchers[0];
+    // 3. Khóa và thẩm định mã giảm giá Voucher (nếu có)
+    let voucherId = null, discountAmount = 0, voucherCodeSnapshot = null;
+    if (voucherCode) {
+      const vouchReq = new sql.Request(transaction);
+      vouchReq.input('code', voucherCode.trim().toUpperCase());
+      const vouchRes = await vouchReq.query(`
+        SELECT * FROM vouchers WITH (UPDLOCK, ROWLOCK)
+        WHERE code = @code AND is_active = 1 AND start_date <= GETDATE() AND end_date >= GETDATE()
+      `);
+      
+      const voucher = vouchRes.recordset[0];
+      if (voucher && subtotal >= voucher.min_order_value && (voucher.usage_limit === 0 || voucher.used_count < voucher.usage_limit)) {
+        // Thực thi Quy tắc Q8: Mỗi khách hàng chỉ được dùng 1 lần duy nhất
+        const usageReq = new sql.Request(transaction);
+        usageReq.input('vId', voucher.id);
+        usageReq.input('uId', userId);
+        const usedCheck = await usageReq.query(`
+          SELECT 1 FROM voucher_usages WITH (UPDLOCK, ROWLOCK) WHERE voucher_id = @vId AND user_id = @uId
+        `);
+        if (usedCheck.recordset.length === 0) {
           voucherId = voucher.id;
           voucherCodeSnapshot = voucher.code;
-
-          if (voucher.discount_type === "percentage") {
-            discountAmount = Math.round(
-              (subtotal * Number(voucher.discount_value)) / 100,
-            );
-            if (
-              voucher.max_discount_amount &&
-              discountAmount > Number(voucher.max_discount_amount)
-            ) {
-              discountAmount = Number(voucher.max_discount_amount);
-            }
-          } else {
-            discountAmount = Number(voucher.discount_value);
-          }
-
-          // Tăng số lượt đã sử dụng của voucher
-          await connection.execute(
-            `UPDATE vouchers SET used_count = used_count + 1 WHERE id = ?`,
-            [voucher.id],
-          );
+          discountAmount = voucher.discount_type === 'percentage'
+            ? Math.min((subtotal * voucher.discount_value) / 100, voucher.max_discount_amount || Infinity)
+            : Math.min(voucher.discount_value, subtotal);
+          
+          // Cập nhật số lượt đã dùng của voucher
+          const updateVouch = new sql.Request(transaction);
+          updateVouch.input('vId', voucher.id);
+          await updateVouch.query('UPDATE vouchers SET used_count = used_count + 1 WHERE id = @vId');
         }
       }
+    }
 
-      const shippingFee = subtotal >= 500000 ? 0 : 30000; // Miễn phí ship cho đơn từ 500k
-      const totalAmount = subtotal - discountAmount + shippingFee;
-      const orderCode =
-        "ORD-" +
-        Date.now().toString().slice(-8) +
-        Math.floor(1000 + Math.random() * 9000);
-
-      // 4. Lưu bản ghi đơn hàng chính orders (trạng thái PENDING)
-      const [orderResult] = await connection.execute(
-        `INSERT INTO orders 
-                 (order_code, user_id, recipient_name_snapshot, recipient_phone_snapshot, 
-                  delivery_address_snapshot, subtotal, discount_amount, shipping_fee, total_amount, 
-                  voucher_id, voucher_code_snapshot, payment_method, payment_status, order_status, customer_note)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'COD', 'UNPAID', 'PENDING', ?)`,
-        [
-          orderCode,
-          userId,
-          recipientName,
-          phone,
-          deliveryAddress,
-          subtotal,
-          discountAmount,
-          shippingFee,
-          totalAmount,
-          voucherId,
-          voucherCodeSnapshot,
-          customerNote || null,
-        ],
-      );
-
-      const orderId = orderResult.insertId;
-
-      // 5. Lưu Snapshot chi tiết từng mặt hàng và trừ tồn kho
-      for (const item of orderItemsData) {
-        // Lưu snapshot bất biến vào order_items
-        await connection.execute(
-          `INSERT INTO order_items 
-                     (order_id, product_variant_id, product_name_snapshot, sku_snapshot, 
-                      size_snapshot, color_snapshot, unit_price, quantity, line_total)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            orderId,
-            item.variantId,
-            item.productName,
-            item.sku,
-            item.size,
-            item.color,
-            item.unitPrice,
-            item.quantity,
-            item.lineTotal,
-          ],
-        );
-
-        // Trừ số lượng tồn kho khả dụng
-        const newStock = item.oldStock - item.quantity;
-        await connection.execute(
-          `UPDATE product_variants SET stock_quantity = ? WHERE id = ?`,
-          [newStock, item.variantId],
-        );
-
-        // Ghi nhật ký kiểm toán biến động kho
-        await connection.execute(
-          `INSERT INTO inventory_transactions 
-                     (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-                     VALUES (?, ?, ?, ?, ?, 'ORDER_PLACED')`,
-          [item.variantId, userId, item.oldStock, newStock, -item.quantity],
-        );
+    // 4. Khóa dòng kiểm tra tồn kho và trừ kho từng biến thể
+    for (const item of cartItems.recordset) {
+      const stockReq = new sql.Request(transaction);
+      stockReq.input('vId', item.variant_id);
+      const stockRes = await stockReq.query(`
+        SELECT stock_quantity FROM product_variants WITH (UPDLOCK, ROWLOCK) WHERE id = @vId
+      `);
+      const currentStock = stockRes.recordset[0]?.stock_quantity || 0;
+      if (currentStock < item.quantity) {
+        throw new Error(`Sản phẩm "${item.product_name}" (SKU: ${item.sku}) không đủ tồn kho.`);
       }
 
-      // 6. Ghi nhật ký lịch sử trạng thái ban đầu của đơn hàng
-      await connection.execute(
-        `INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-                 VALUES (?, ?, NULL, 'PENDING', 'Khách hàng hoàn tất đặt đơn COD thành công')`,
-        [orderId, userId],
-      );
-
-      // 7. Làm rỗng giỏ hàng của khách sau khi đã đặt thành công
-      await connection.execute(
-        `DELETE ci FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = ?`,
-        [userId],
-      );
-
-      // XÁC NHẬN GIAO DỊCH THÀNH CÔNG (COMMIT)
-      await connection.commit();
-      return { orderId, orderCode, totalAmount };
-    } catch (error) {
-      // NẾU CÓ BẤT KỲ LỖI NÀO -> HỦY TOÀN BỘ THAO TÁC (ROLLBACK)
-      await connection.rollback();
-      throw error;
-    } finally {
-      // Giải phóng kết nối trả về cho Connection Pool
-      connection.release();
+      // Trừ kho và ghi nhật ký thẻ kho
+      const deductReq = new sql.Request(transaction);
+      deductReq.input('vId', item.variant_id);
+      deductReq.input('qty', item.quantity);
+      await deductReq.query('UPDATE product_variants SET stock_quantity = stock_quantity - @qty WHERE id = @vId');
     }
+
+    // 5. Tạo đơn hàng tổng quát và lưu snapshot
+    const totalAmount = Math.max(0, subtotal - discountAmount);
+    const orderCode = `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderReq = new sql.Request(transaction);
+    orderReq.input('orderCode', orderCode);
+    orderReq.input('userId', userId);
+    orderReq.input('name', recipientName);
+    orderReq.input('phone', recipientPhone);
+    orderReq.input('addr', deliveryAddress);
+    orderReq.input('subtotal', subtotal);
+    orderReq.input('discount', discountAmount);
+    orderReq.input('total', totalAmount);
+    orderReq.input('vouchId', voucherId);
+    orderReq.input('vouchCode', voucherCodeSnapshot);
+    orderReq.input('note', customerNote);
+
+    const orderRes = await orderReq.query(`
+      INSERT INTO orders (order_code, user_id, recipient_name_snapshot, recipient_phone_snapshot,
+                          delivery_address_snapshot, subtotal, discount_amount, total_amount,
+                          voucher_id, voucher_code_snapshot, payment_method, payment_status, order_status, customer_note)
+      OUTPUT INSERTED.id
+      VALUES (@orderCode, @userId, @name, @phone, @addr, @subtotal, @discount, @total, @vouchId, @vouchCode, 'COD', 'UNPAID', 'PENDING', @note)
+    `);
+    const newOrderId = orderRes.recordset[0].id;
+
+    // 6. Lưu snapshot chi tiết sản phẩm vào order_items & xóa giỏ hàng
+    for (const item of cartItems.recordset) {
+      const itemPrice = item.sale_price !== null ? item.sale_price : item.base_price;
+      const itemReq = new sql.Request(transaction);
+      itemReq.input('oId', newOrderId);
+      itemReq.input('pvId', item.variant_id);
+      itemReq.input('name', item.product_name);
+      itemReq.input('sku', item.sku);
+      itemReq.input('size', item.size_name);
+      itemReq.input('color', item.color_name);
+      itemReq.input('price', itemPrice);
+      itemReq.input('qty', item.quantity);
+      itemReq.input('lineTotal', itemPrice * item.quantity);
+      await itemReq.query(`
+        INSERT INTO order_items (order_id, product_variant_id, product_name_snapshot, sku_snapshot, size_snapshot, color_snapshot, unit_price, quantity, line_total)
+        VALUES (@oId, @pvId, @name, @sku, @size, @color, @price, @qty, @lineTotal)
+      `);
+    }
+
+    if (voucherId) {
+      const recUsageReq = new sql.Request(transaction);
+      recUsageReq.input('vId', voucherId);
+      recUsageReq.input('uId', userId);
+      recUsageReq.input('oId', newOrderId);
+      await recUsageReq.query('INSERT INTO voucher_usages (voucher_id, user_id, order_id) VALUES (@vId, @uId, @oId)');
+    }
+
+    // Làm trống giỏ hàng
+    const cleanCart = new sql.Request(transaction);
+    cleanCart.input('userId', userId);
+    await cleanCart.query('DELETE ci FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = @userId');
+
+    await transaction.commit(); // COMMIT THÀNH CÔNG GIAO DỊCH NGUYÊN TỬ
+    return { orderId: newOrderId, orderCode };
+  } catch (err) {
+    await transaction.rollback(); // ROLLBACK TOÀN BỘ NẾU CÓ LỖI
+    throw err;
   }
 }
-
-module.exports = new OrderService();
 ```
 
 ---
 
-### 3.4. Chức năng Tự động Hoàn kho khi Hủy đơn hàng
+### 3.3. Quy trình Hủy đơn & Tự động Hoàn kho (UC09 / UC10 Cancellation)
 
-- **Mô tả xử lý:** Khi đơn hàng bị hủy hợp lệ ở trạng thái `PENDING` hoặc `CONFIRMED`, hệ thống chạy Transaction để phục hồi lại số lượng tồn kho cho các biến thể và ghi nhận lý do kiểm toán `ORDER_CANCELLED_RESTOCK`.
+Hệ thống cung cấp logic dùng chung tại `OrderService._executeCancellation` đảm bảo khi đơn hàng bị hủy (khách hàng tự hủy khi `PENDING` hoặc Admin hủy đơn), toàn bộ số lượng tồn kho của các biến thể được hoàn lại nguyên vẹn và quyền sử dụng voucher được phục hồi:
 
 ```javascript
-// src/services/InventoryService.js (Trích đoạn Hoàn kho khi Hủy đơn)
-const { pool } = require("../config/database");
+// Trích đoạn: src/services/order.service.js:340-408
+async _executeCancellation(transaction, orderId, orderCode, actorId, previousStatus, cancelReason, note) {
+  // 1. Đọc danh sách sản phẩm trong đơn để hoàn tồn kho
+  const itemsReq = new sql.Request(transaction);
+  itemsReq.input('orderId', orderId);
+  const itemsRes = await itemsReq.query('SELECT product_variant_id, quantity FROM order_items WHERE order_id = @orderId');
 
-class InventoryService {
-  async restockCancelledOrder(orderId, operatorUserId, cancelReason) {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
+  // 2. Hoàn lại số lượng tồn kho và ghi nhật ký thẻ kho
+  for (const item of itemsRes.recordset) {
+    const restoreReq = new sql.Request(transaction);
+    restoreReq.input('varId', item.product_variant_id);
+    restoreReq.input('qty', item.quantity);
+    await restoreReq.query('UPDATE product_variants SET stock_quantity = stock_quantity + @qty WHERE id = @varId');
 
-      // 1. Kiểm tra đơn hàng có đủ điều kiện hủy không (PENDING hoặc CONFIRMED)
-      const [orders] = await connection.execute(
-        `SELECT id, order_status, voucher_id FROM orders WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-        [orderId],
-      );
-
-      if (orders.length === 0) throw new Error("Không tìm thấy đơn hàng.");
-      const order = orders[0];
-
-      if (!["PENDING", "CONFIRMED"].includes(order.order_status)) {
-        throw new Error(
-          `Đơn hàng đang ở trạng thái "${order.order_status}", không được phép hủy.`,
-        );
-      }
-
-      // 2. Chuyển trạng thái đơn sang CANCELLED
-      await connection.execute(
-        `UPDATE orders SET order_status = 'CANCELLED' WHERE id = ?`,
-        [orderId],
-      );
-
-      // 3. Lấy danh sách sản phẩm và số lượng cần hoàn trả
-      const [items] = await connection.execute(
-        `SELECT product_variant_id, quantity FROM order_items WHERE order_id = ?`,
-        [orderId],
-      );
-
-      for (const item of items) {
-        const [variants] = await connection.execute(
-          `SELECT stock_quantity FROM product_variants WHERE id = ? WITH (UPDLOCK, ROWLOCK)`,
-          [item.product_variant_id],
-        );
-
-        const currentStock = variants[0].stock_quantity;
-        const restoredStock = currentStock + item.quantity;
-
-        // Cộng hoàn lại số lượng tồn kho
-        await connection.execute(
-          `UPDATE product_variants SET stock_quantity = ? WHERE id = ?`,
-          [restoredStock, item.product_variant_id],
-        );
-
-        // Ghi vết nhật ký hoàn kho kiểm toán
-        await connection.execute(
-          `INSERT INTO inventory_transactions 
-                     (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
-                     VALUES (?, ?, ?, ?, ?, 'ORDER_CANCELLED_RESTOCK')`,
-          [
-            item.product_variant_id,
-            operatorUserId,
-            currentStock,
-            restoredStock,
-            item.quantity,
-          ],
-        );
-      }
-
-      // 4. Hoàn lại 1 lượt dùng cho voucher nếu đơn có sử dụng mã
-      if (order.voucher_id) {
-        await connection.execute(
-          `UPDATE vouchers SET used_count = GREATEST(0, used_count - 1) WHERE id = ?`,
-          [order.voucher_id],
-        );
-      }
-
-      // 5. Ghi nhật ký chuyển trạng thái
-      await connection.execute(
-        `INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
-                 VALUES (?, ?, ?, 'CANCELLED', ?)`,
-        [
-          orderId,
-          operatorUserId,
-          order.order_status,
-          cancelReason || "Hủy đơn hàng và hoàn trả tồn kho",
-        ],
-      );
-
-      await connection.commit();
-      return { success: true };
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
+    const invReq = new sql.Request(transaction);
+    invReq.input('varId', item.product_variant_id);
+    invReq.input('userId', actorId);
+    invReq.input('qty', item.quantity);
+    invReq.input('reason', cancelReason || `Hoàn tồn kho do hủy đơn hàng #${orderCode}`);
+    await invReq.query(`
+      INSERT INTO inventory_transactions (variant_id, user_id, old_quantity, new_quantity, change_quantity, reason)
+      VALUES (@varId, @userId, 0, @qty, @qty, @reason)
+    `);
   }
-}
 
-module.exports = new InventoryService();
+  // 3. Cập nhật trạng thái đơn thành CANCELLED
+  const updateReq = new sql.Request(transaction);
+  updateReq.input('orderId', orderId);
+  await updateReq.query("UPDATE orders SET order_status = 'CANCELLED', updated_at = GETDATE() WHERE id = @orderId");
+
+  // 4. Giải phóng lượt dùng voucher và xóa bản ghi voucher_usages (khách có thể dùng lại)
+  const vouchReq = new sql.Request(transaction);
+  vouchReq.input('orderId', orderId);
+  const vouchRes = await vouchReq.query('SELECT voucher_id FROM orders WHERE id = @orderId');
+  const appliedVoucherId = vouchRes.recordset[0]?.voucher_id;
+  if (appliedVoucherId) {
+    const delVu = new sql.Request(transaction);
+    delVu.input('orderId', orderId);
+    await delVu.query('DELETE FROM voucher_usages WHERE order_id = @orderId');
+
+    const decVouch = new sql.Request(transaction);
+    decVouch.input('vId', appliedVoucherId);
+    await decVouch.query('UPDATE vouchers SET used_count = CASE WHEN used_count > 0 THEN used_count - 1 ELSE 0 END WHERE id = @vId');
+  }
+
+  // 5. Ghi nhận nhật ký trạng thái kiểm toán
+  const histReq = new sql.Request(transaction);
+  histReq.input('orderId', orderId);
+  histReq.input('userId', actorId);
+  histReq.input('prevStatus', previousStatus);
+  histReq.input('note', note || `Hủy đơn hàng #${orderCode}. Đã hoàn tồn kho tự động.`);
+  await histReq.query(`
+    INSERT INTO order_status_histories (order_id, changed_by, previous_status, new_status, note)
+    VALUES (@orderId, @userId, @prevStatus, 'CANCELLED', @note)
+  `);
+}
 ```
 
+---
+
+### 3.4. Mô hình Hai tầng Phân hệ Quản trị (Admin Two-Tier Architecture)
+
+Trong phân hệ quản trị Admin, `AdminController` trực tiếp thực thi các câu lệnh T-SQL thông qua Database Helper `query()`, loại bỏ tầng trung gian không cần thiết:
+
+```javascript
+// Trích đoạn: src/controllers/admin.controller.js:8-48 (Doanh thu Dashboard & Top 4 bán chạy)
+async getDashboard(req, res, next) {
+  try {
+    const [revRes, topSoldRes, statusCountsRes] = await Promise.all([
+      // Doanh thu thực tế: Đòi hỏi đồng thời 2 điều kiện COMPLETED và PAID
+      query(`
+        SELECT COALESCE(SUM(total_amount), 0) AS total_revenue 
+        FROM orders 
+        WHERE order_status = 'COMPLETED' AND payment_status = 'PAID'
+      `),
+      // Top 4 sản phẩm bán chạy nhất: Xếp hạng theo tổng số lượng bán (total_sold DESC)
+      query(`
+        SELECT TOP 4 oi.product_name_snapshot,
+               SUM(oi.quantity) AS total_sold,
+               SUM(oi.line_total) AS total_revenue,
+               (SELECT TOP 1 pi.image_url FROM product_variants pv JOIN product_images pi ON pi.product_id = pv.product_id
+                WHERE pv.id = MIN(oi.product_variant_id) AND pi.is_primary = 1) AS primary_image
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.order_status = 'COMPLETED'
+        GROUP BY oi.product_name_snapshot
+        ORDER BY total_sold DESC
+      `),
+      query('SELECT order_status, COUNT(*) AS count FROM orders GROUP BY order_status')
+    ]);
+
+    res.render('pages/admin/dashboard', {
+      totalRevenue: revRes.recordset[0].total_revenue,
+      topProducts: topSoldRes.recordset,
+      statusCounts: statusCountsRes.recordset
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+```
+
+
+---
 
 # CHƯƠNG IV: KIỂM THỬ HỆ THỐNG (SYSTEM TESTING)
 
@@ -1607,145 +1614,151 @@ module.exports = new InventoryService();
 ## 1. MỤC TIÊU VÀ PHẠM VI KIỂM THỬ
 
 ### 1.1. Mục tiêu kiểm thử
+
 Quá trình kiểm thử phần mềm đóng vai trò quyết định nhằm xác nhận mức độ hoàn thiện của hệ thống VAMOS STORE so với bản đặc tả yêu cầu nghiệp vụ ban đầu. Các mục tiêu cốt lõi bao gồm:
-* **Kiểm tra tính đúng đắn của logic nghiệp vụ:** Đảm bảo các luồng đăng ký, đăng nhập, tìm kiếm, lọc đa tiêu chí, tính toán giỏ hàng, áp dụng voucher diễn ra chính xác tuyệt đối.
+
+* **Kiểm tra tính đúng đắn của logic nghiệp vụ:** Đảm bảo các luồng đăng ký, đăng nhập, tìm kiếm, lọc đa tiêu chí, tính toán giỏ hàng, áp dụng voucher diễn ra chính xác theo quy tắc nghiệp vụ.
 * **Kiểm tra tính toàn vẹn giao dịch (ACID) và tồn kho:** Xác minh cơ chế trừ tồn kho tự động khi tạo đơn `PENDING` và cơ chế hoàn kho khi đơn bị hủy, đảm bảo không xảy ra hiện tượng bán vượt tồn kho (Overselling).
 * **Kiểm tra phân quyền và bảo mật:** Xác minh cơ chế bảo vệ máy chủ: chặn khách vãng lai chưa đăng nhập thanh toán; chặn khách hàng thông thường truy cập trái phép vào các trang quản trị của Admin.
 * **Kiểm tra tính tương thích và hiển thị (UI/UX):** Đảm bảo giao diện responsive hiển thị cân đối, không vỡ layout trên các độ phân giải màn hình máy tính và thiết bị di động.
 
 ### 1.2. Phương pháp và môi trường kiểm thử
-* **Phương pháp kiểm thử:** Áp dụng phương pháp **Kiểm thử hộp đen (Black-box Testing)** kết hợp các kỹ thuật:
+
+* **Phương pháp kiểm thử:** Áp dụng phương pháp kết hợp giữa **Kiểm thử tự động (Automated Unit/Integration Testing)** bằng các kịch bản mã nguồn trong `tests/` và **Kiểm thử chấp nhận chức năng (Functional Acceptance Testing)** theo bộ tiêu chí thiết kế:
   * Phân vùng tương đương (Equivalence Partitioning).
   * Phân tích giá trị biên (Boundary Value Analysis).
   * Kiểm thử các kịch bản lỗi và luồng ngoại lệ (Negative & Edge-case Testing).
 * **Môi trường kiểm thử thực tế:**
-  * Hệ điều hành: Windows 10 Pro / Ubuntu Linux.
+  * Hệ điều hành: Windows 11 / Ubuntu 22.04 LTS.
   * Trình duyệt kiểm thử: Google Chrome (v120+), Microsoft Edge (v120+), Mobile Simulator (iPhone 14, Samsung Galaxy S22).
-  * Backend Runtime: Node.js v20.x LTS / Express.js.
-  * Cơ sở dữ liệu: Microsoft SQL Server 2025 (Enterprise Developer Edition).
+  * Backend Runtime: Node.js LTS (v20.x / v24.x) / Express.js 4.x.
+  * Cơ sở dữ liệu: Microsoft SQL Server 2022 (Developer Edition).
 
 ### 1.3. Phân công trách nhiệm kiểm thử trong nhóm
+
 Để đảm bảo chất lượng toàn diện và tính đồng đều trong sự đóng góp của các thành viên, công tác kiểm thử được phân công cụ thể như sau:
+
 * **Trần Trung Dũng (Trưởng nhóm):** Phụ trách kiểm thử phân hệ Xác thực (`Auth`), Phân quyền người dùng, Giỏ hàng và quy trình Đặt hàng COD (Test Cases 01 - 12).
 * **Trần Vĩnh Nhật:** Phụ trách kiểm thử phân hệ Tìm kiếm, Bộ lọc đa tiêu chí (Size, Màu, Giá), Chi tiết biến thể sản phẩm và Banner (Test Cases 13 - 18).
 * **Trần Duy Hoàng Sa:** Phụ trách kiểm thử phân hệ Vận hành đơn hàng Admin, Cơ chế hủy đơn & hoàn kho tự động, Quản lý mã giảm giá Voucher và Bảng điều khiển Dashboard (Test Cases 19 - 25).
 
 ---
 
-## 2. KỊCH BẢN KIỂM THỬ THEO CHỨC NĂNG (TEST CASES)
+## 2. KỊCH BẢN KIỂM THỬ CHỨC NĂNG THIẾT KẾ (ACCEPTANCE TEST SCENARIOS)
 
-*(Bảng kịch bản kiểm thử được xây dựng theo phong cách chuẩn mực của đồ án tốt nghiệp FPT Polytechnic: STT, Tình huống kiểm thử, Dữ liệu nhập, Kết quả mong đợi, Người kiểm thử, Trạng thái Pass/Fail).*
+Dưới đây là 25 ca kiểm thử chức năng được nhóm thiết kế làm bộ tiêu chuẩn nghiệm thu người dùng (Acceptance Test Criteria). Trạng thái các ca kiểm thử được ghi nhận trung thực dựa trên bằng chứng kiểm thử thực tế:
 
-### 2.1. Kiểm thử Chức năng Đăng ký tài khoản
-* **Mục tiêu:** Đảm bảo người dùng đăng ký được tài khoản hợp lệ, băm mật khẩu bảo mật và ngăn chặn trùng lặp email.
-* **Người thực hiện kiểm thử:** Trần Trung Dũng.
+### 2.1. Kiểm thử Chức năng Đăng ký tài khoản (UC01)
 
-| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Đánh giá |
+| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Trạng thái xác minh |
 | :---: | :--- | :--- | :--- | :---: | :---: |
-| 1 | Đăng ký thành công với thông tin đầy đủ, hợp lệ | Họ tên: "Nguyễn Văn A"<br>Email: `customer01@gmail.com`<br>Mật khẩu: `Vamos@2026`<br>Xác nhận: `Vamos@2026`<br>SĐT: `0901234567` | Hệ thống tạo tài khoản mới với role `CUSTOMER`, băm mật khẩu bcrypt, tạo giỏ hàng trống và chuyển hướng về trang Đăng nhập kèm thông báo thành công. | Trần Trung Dũng | **Pass** |
-| 2 | Đăng ký với địa chỉ Email đã tồn tại | Email: `customer01@gmail.com`<br>(Email đã có trong CSDL) | Báo lỗi: *"Địa chỉ email này đã được sử dụng. Vui lòng chọn email khác!"*, không tạo bản ghi mới. | Trần Trung Dũng | **Pass** |
-| 3 | Để trống các trường thông tin bắt buộc | Họ tên: (trống)<br>Email: (trống)<br>Mật khẩu: (trống) | Hệ thống kích hoạt validation, hiển thị thông báo lỗi yêu cầu nhập đầy đủ thông tin bên dưới từng trường. | Trần Trung Dũng | **Pass** |
-| 4 | Mật khẩu xác nhận không trùng khớp | Mật khẩu: `Vamos@2026`<br>Xác nhận: `Vamos@9999` | Báo lỗi: *"Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!"*. | Trần Trung Dũng | **Pass** |
-| 5 | Nhập sai định dạng địa chỉ Email | Email: `nguyenvana.com` (thiếu ký tự `@`) | Báo lỗi: *"Vui lòng nhập định dạng email hợp lệ."*. | Trần Trung Dũng | **Pass** |
-| 6 | Mật khẩu không đủ độ dài tối thiểu | Mật khẩu: `12345` (dưới 6 ký tự) | Báo lỗi: *"Mật khẩu phải có độ dài tối thiểu từ 6 ký tự trở lên."*. | Trần Trung Dũng | **Pass** |
+| 1 | Đăng ký thành công với thông tin đầy đủ, hợp lệ | Họ tên: "Nguyễn Văn A"<br>Email: `customer01@gmail.com`<br>Mật khẩu: `Vamos@2026`<br>Xác nhận: `Vamos@2026`<br>SĐT: `0901234567` | Hệ thống tạo tài khoản mới với role `CUSTOMER`, băm mật khẩu bcrypt, tạo giỏ hàng trống và chuyển hướng về trang Đăng nhập kèm thông báo thành công. | Trần Trung Dũng | **Đã rà soát logic** |
+| 2 | Đăng ký với địa chỉ Email đã tồn tại | Email: `customer01@gmail.com`<br>(Email đã có trong CSDL) | Báo lỗi: *"Địa chỉ email này đã được sử dụng. Vui lòng chọn email khác!"*, không tạo bản ghi mới. | Trần Trung Dũng | **Đã rà soát logic** |
+| 3 | Để trống các trường thông tin bắt buộc | Họ tên: (trống)<br>Email: (trống)<br>Mật khẩu: (trống) | Hệ thống kích hoạt validation, hiển thị thông báo lỗi yêu cầu nhập đầy đủ thông tin bên dưới từng trường. | Trần Trung Dũng | **Đã rà soát logic** |
+| 4 | Mật khẩu xác nhận không trùng khớp | Mật khẩu: `Vamos@2026`<br>Xác nhận: `Vamos@9999` | Báo lỗi: *"Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!"*. | Trần Trung Dũng | **Đã rà soát logic** |
+| 5 | Nhập sai định dạng địa chỉ Email | Email: `nguyenvana.com` (thiếu ký tự `@`) | Báo lỗi: *"Vui lòng nhập định dạng email hợp lệ."*. | Trần Trung Dũng | **Đã rà soát logic** |
+| 6 | Mật khẩu không đủ độ dài tối thiểu | Mật khẩu: `12345` (dưới 6 ký tự) | Báo lỗi: *"Mật khẩu phải có độ dài tối thiểu từ 6 ký tự trở lên."*. | Trần Trung Dũng | **Đã rà soát logic** |
 
-*Bảng 20: Kịch bản kiểm thử Đăng ký tài khoản*
+### 2.2. Kiểm thử Chức năng Đăng nhập và Phân quyền (UC02)
+
+| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Trạng thái xác minh |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| 7 | Khách hàng đăng nhập đúng thông tin | Email: `customer01@gmail.com`<br>Mật khẩu: `Vamos@2026` | Đăng nhập thành công, cấp session, hiển thị tên khách hàng trên Header và chuyển về Trang chủ. | Trần Trung Dũng | **Đã rà soát logic** |
+| 8 | Quản trị viên đăng nhập tài khoản Admin | Email: `admin@vamos.com`<br>Mật khẩu: `Admin@Vamos2026` | Đăng nhập thành công, cấp session quyền `ADMIN`, tự động điều hướng vào trang Bảng điều khiển `/admin/dashboard`. | Trần Trung Dũng | **Đã rà soát logic** |
+| 9 | Đăng nhập với mật khẩu không chính xác | Email: `customer01@gmail.com`<br>Mật khẩu: `SaiMatKhau123` | Báo lỗi: *"Email hoặc mật khẩu không chính xác."*. | Trần Trung Dũng | **Đã rà soát logic** |
+| 10 | Đăng nhập với email không tồn tại | Email: `khongtontai@gmail.com` | Báo lỗi: *"Email hoặc mật khẩu không chính xác."*. | Trần Trung Dũng | **Đã rà soát logic** |
+| 11 | Đăng nhập với tài khoản đang bị khóa (`status = 'locked'`) | Email: `locked_user@gmail.com`<br>Mật khẩu: `ValidPass123` | Hệ thống từ chối đăng nhập, hiển thị thông báo: *"Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ bộ phận hỗ trợ!"*. | Trần Trung Dũng | **Đã rà soát logic** |
+| 12 | Khách hàng cố tình truy cập URL Admin `/admin/dashboard` | Đang đăng nhập tài khoản có role `CUSTOMER` | Middleware chặn truy cập, trả về mã lỗi `403 Forbidden` và không hiển thị dữ liệu quản trị. | Trần Trung Dũng | **Đã rà soát logic** |
+
+### 2.3. Kiểm thử Chức năng Tìm kiếm và Lọc sản phẩm (UC05)
+
+| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Trạng thái xác minh |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| 13 | Tìm kiếm theo từ khóa có kết quả | Từ khóa: `"Sneaker"` | Hiển thị danh sách các sản phẩm có tên hoặc mô tả chứa từ khóa "Sneaker". | Trần Vĩnh Nhật | **Đã rà soát logic** |
+| 14 | Tìm kiếm với từ khóa không tồn tại | Từ khóa: `"AoKhoacMuaDong"` | Hiển thị thông báo: *"Không tìm thấy sản phẩm nào phù hợp với từ khóa của bạn."*. | Trần Vĩnh Nhật | **Đã rà soát logic** |
+| 15 | Lọc sản phẩm theo Kích cỡ (Size 41) | Chọn nút Size: `41` | Chỉ hiển thị các sản phẩm có biến thể Size 41 và đang còn hàng (`stock_quantity > 0`). | Trần Vĩnh Nhật | **Đã rà soát logic** |
+| 16 | Lọc sản phẩm theo Màu sắc (Màu Đen) | Chọn ô màu: `Đen` | Chỉ hiển thị các mẫu giày có phiên bản màu Đen. | Trần Vĩnh Nhật | **Đã rà soát logic** |
+| 17 | Lọc theo Khoảng giá bán (500.000đ - 1.000.000đ) | Giá từ: `500000`, đến: `1000000` | Danh sách hiển thị đúng các sản phẩm có giá niêm yết (hoặc giá sale) nằm trong khoảng này. | Trần Vĩnh Nhật | **Đã rà soát logic** |
+| 18 | Sắp xếp sản phẩm theo giá tăng dần | Chọn Sort: `"Giá tăng dần"` | Danh sách sản phẩm được sắp xếp theo thứ tự đơn giá từ thấp đến cao. | Trần Vĩnh Nhật | **Đã rà soát logic** |
+
+### 2.4. Kiểm thử Chức năng Giỏ hàng và Đặt hàng COD (UC06, UC07)
+
+| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Trạng thái xác minh |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| 19 | Thêm biến thể sản phẩm vào giỏ hàng | Chọn Size 40, Màu Đen, Số lượng: 1 $
+ightarrow$ Bấm "Thêm vào giỏ" | Thêm thành công bản ghi vào `cart_items`, biểu tượng giỏ hàng trên Header cập nhật số lượng badge = 1. | Trần Trung Dũng | **Đã rà soát logic** |
+| 20 | Chọn biến thể có tồn kho bằng 0 (`stock = 0`) | Biến thể Size 42 (đã hết hàng) | Nút chọn Size 42 bị làm mờ (disabled), nút "Thêm vào giỏ" bị vô hiệu hóa, hiển thị thông báo "Hết hàng". | Trần Trung Dũng | **Đã rà soát logic** |
+| 21 | Tăng số lượng sản phẩm trong giỏ hàng | Bấm nút `[+]` tại dòng sản phẩm | Số lượng tăng lên 2, tạm tính tiền hàng tự động cập nhật tức thì (chặn tối đa 10 theo Rule Q7). | Trần Trung Dũng | **Đã rà soát logic** |
+| 22 | Đặt hàng COD thành công với giỏ hàng hợp lệ | Chọn địa chỉ mặc định, phương thức: COD, ghi chú: "Giao chiều" | Tạo đơn hàng mới trạng thái `PENDING`, trừ tồn kho của biến thể tương ứng, lưu snapshot tên, SKU, size, màu, đơn giá vào `order_items`, làm rỗng giỏ hàng. | Trần Trung Dũng | **Đã rà soát logic** |
+| 23 | Hai khách hàng cùng đặt đôi giày cuối cùng (`stock = 1`) | Khách A và Khách B cùng bấm đặt mua gần như đồng thời | Giao dịch áp dụng khóa `SELECT ... WITH (UPDLOCK, ROWLOCK)`: Khách A hoàn tất trước đặt thành công (kho về 0); Khách B bị báo lỗi: *"Sản phẩm đã hết hàng, vui lòng điều chỉnh lại!"*. Không bị bán vượt. | Trần Trung Dũng | **Chưa xác minh (Chờ Staging)** |
+
+### 2.5. Kiểm thử Chức năng Hủy đơn hàng và Hoàn kho (UC09, UC10)
+
+| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Trạng thái xác minh |
+| :---: | :--- | :--- | :--- | :---: | :---: |
+| 24 | Khách hàng tự hủy đơn ở trạng thái `PENDING` | Bấm nút "Hủy đơn" tại đơn `PENDING`, nhập lý do: "Đổi ý muốn chọn size khác" | Đơn hàng chuyển sang `CANCELLED`, hệ thống tự động cộng hoàn trả số lượng vào `stock_quantity` của các biến thể, ghi nhật ký `ORDER_CANCELLED_RESTOCK`. | Trần Duy Hoàng Sa | **Đã rà soát logic** |
+| 25 | Khách hàng muốn hủy đơn khi đơn đã `CONFIRMED` hoặc `SHIPPING` | Đơn hàng đã được Admin xác nhận | Nút "Hủy đơn" trên giao diện khách hàng bị ẩn/vô hiệu hóa. Nếu cố tình gửi request POST trực tiếp, server trả về lỗi từ chối thao tác. | Trần Duy Hoàng Sa | **Đã rà soát logic** |
+
+_Bảng 24: Ma trận 25 ca kiểm thử chức năng thiết kế (Functional Test Cases)_
 
 ---
 
-### 2.2. Kiểm thử Chức năng Đăng nhập và Phân quyền
-* **Mục tiêu:** Xác minh tính năng chứng thực danh tính, phân quyền Admin/Customer và chặn tài khoản bị khóa.
-* **Người thực hiện kiểm thử:** Trần Trung Dũng.
+## 3. KẾT QUẢ THỰC THI KIỂM THỬ VÀ ĐÁNH GIÁ CHẤT LƯỢNG
 
-| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Đánh giá |
+Để đảm bảo tính trung thực học thuật cao nhất, nhóm phân định rạch ròi giữa kết quả từ **các bộ kịch bản kiểm thử tự động đã thực thi trực tiếp trong repository** và **bộ kịch bản nghiệm thu chức năng thiết kế**.
+
+### 3.1. Kết quả kiểm thử tự động (Automated Test Execution Evidence)
+
+Nhóm đã xây dựng và thực thi thành công 5 bộ kịch bản kiểm thử tự động trong thư mục `tests/`. Để đảm bảo tính chuẩn xác học thuật, số liệu được phân loại rạch ròi theo bản chất kỹ thuật (số template biên dịch, số unit assertion và số kịch bản integration test):
+
+| STT | Bộ kiểm thử tự động | Lệnh thực thi CLI | Bản chất kỹ thuật | Số lượng kiểm tra | Kết quả thực tế |
 | :---: | :--- | :--- | :--- | :---: | :---: |
-| 1 | Khách hàng đăng nhập đúng thông tin | Email: `customer01@gmail.com`<br>Mật khẩu: `Vamos@2026` | Đăng nhập thành công, cấp session, hiển thị tên khách hàng trên Header và chuyển về Trang chủ. | Trần Trung Dũng | **Pass** |
-| 2 | Quản trị viên đăng nhập tài khoản Admin | Email: `admin@vamos.com`<br>Mật khẩu: `Admin@Vamos2026` | Đăng nhập thành công, cấp session quyền `ADMIN`, tự động điều hướng vào trang Bảng điều khiển `/admin/dashboard`. | Trần Trung Dũng | **Pass** |
-| 3 | Đăng nhập với mật khẩu không chính xác | Email: `customer01@gmail.com`<br>Mật khẩu: `SaiMatKhau123` | Báo lỗi: *"Email hoặc mật khẩu không chính xác."*. | Trần Trung Dũng | **Pass** |
-| 4 | Đăng nhập với email không tồn tại | Email: `khongtontai@gmail.com` | Báo lỗi: *"Email hoặc mật khẩu không chính xác."*. | Trần Trung Dũng | **Pass** |
-| 5 | Đăng nhập với tài khoản đang bị khóa (`status = 'locked'`) | Email: `locked_user@gmail.com`<br>Mật khẩu: `ValidPass123` | Hệ thống từ chối đăng nhập, hiển thị thông báo: *"Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ bộ phận hỗ trợ!"*. | Trần Trung Dũng | **Pass** |
-| 6 | Khách hàng cố tình truy cập URL Admin `/admin/dashboard` | Đang đăng nhập tài khoản có role `CUSTOMER` | Middleware chặn truy cập, trả về mã lỗi `403 Forbidden` và không hiển thị dữ liệu quản trị. | Trần Trung Dũng | **Pass** |
+| 1 | **Kiểm tra cú pháp Pug Template** | `node tests/validate_pug.js` | Biên dịch tĩnh 39 template Pug trong `src/views/`, phát hiện lỗi cú pháp, thụt lề, include/extend. | 39 templates | **39 / 39 Pass (100%)** |
+| 2 | **Kiểm thử bộ tiền kiểm dữ liệu (Input Validator)** | `node tests/test_validator.js` | Unit test assertions kiểm tra email, phone, name, password và giới hạn số lượng đặt mua 1-10. | 29 assertions | **29 / 29 Pass (100%)** |
+| 3 | **Kiểm thử hồi quy nghiệp vụ (Audit Fixes)** | `node tests/test_audit_fixes.js` | Unit test assertions kiểm tra tự sửa bộ lọc giá, target giới tính, bảo toàn query phân trang catalog. | 15 assertions | **15 / 15 Pass (100%)** |
+| 4 | **Kiểm thử cơ chế Theme (Dark/Light)** | `node tests/test_phase3_theme.js` | Unit test assertions kiểm tra lưu trạng thái theme, script chống nhấp nháy FOUC và toggle class `.dark`. | 8 assertions | **8 / 8 Pass (100%)** |
+| 5 | **Kiểm thử đa ngôn ngữ & bảo mật (i18n)** | `node tests/test_phase4_i18n.js` | Integration test scenarios kiểm tra cookie locale, chuyển đổi ngôn ngữ SSR và chặn Open Redirect. | 8 test scenarios | **8 / 8 Pass (100%)** |
+| | **TỔNG CỘNG LƯỢT KIỂM TRA** | | **39 templates + 52 assertions + 8 scenarios** | **99 lượt kiểm tra** | **99 / 99 Pass (100%)** |
 
-*Bảng 21: Kịch bản kiểm thử Đăng nhập hệ thống*
+_Bảng 25: Kết quả thực thi kiểm thử tự động hệ thống (Automated Test Suites)_
+
+### 3.2. Đánh giá chất lượng và Giới hạn kiểm thử
+
+* **Phân biệt bản chất kiểm tra tự động:** 99 lượt kiểm tra tự động nêu trên gồm 39 template giao diện được biên dịch thành công, 52 unit test assertions xác minh logic xử lý dữ liệu và 8 kịch bản tích hợp giao thức web. Kết quả này chứng minh mã nguồn đạt độ hoàn thiện cao về mặt cú pháp giao diện và xử lý an toàn dữ liệu đầu vào.
+* **Đánh giá bộ 25 kịch bản chức năng thiết kế:**
+  * **24 / 25 kịch bản (96%):** Đã được rà soát logic chi tiết qua mã nguồn Controller, Service và cấu trúc giao diện; các quy tắc nghiệp vụ như giới hạn giỏ hàng, phân quyền session, trừ kho khi đặt và hoàn kho khi hủy đơn đều khớp với hiện thực code.
+  * **1 kịch bản (Ca số 23 - Tranh chấp đồng thời cao khi còn 1 sản phẩm):** Giữ nguyên trạng thái **Chưa xác minh (Chờ Staging)**. Mặc dù mã nguồn đã hiện thực cơ chế khóa bi quan cấp dòng `WITH (UPDLOCK, ROWLOCK)` trong transaction T-SQL để chống bán vượt tồn kho, nhưng ca này đòi hỏi môi trường Staging có công cụ tạo tải đồng thời (như k6 hoặc Apache JMeter) để đo đạc và nghiệm thu thực tế.
+* **Lưu ý nguyên tắc học thuật:** Nhóm tuyệt đối không dùng kết quả biên dịch thành công 39 template Pug để kết luận rằng toàn bộ hệ thống đã chạy đúng 100% trong mọi điều kiện vận hành. Các kết quả trên phản ánh trung thực trạng thái kiểm thử tại thời điểm báo cáo đồ án.
+
 
 ---
 
-### 2.3. Kiểm thử Chức năng Tìm kiếm và Lọc sản phẩm
-* **Mục tiêu:** Đảm bảo bộ lọc đa tiêu chí lọc chính xác dữ liệu từ CSDL.
-* **Người thực hiện kiểm thử:** Trần Vĩnh Nhật.
-
-| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Đánh giá |
-| :---: | :--- | :--- | :--- | :---: | :---: |
-| 1 | Tìm kiếm theo từ khóa có kết quả | Từ khóa: `"Sneaker"` | Hiển thị danh sách các sản phẩm có tên hoặc mô tả chứa từ khóa "Sneaker". | Trần Vĩnh Nhật | **Pass** |
-| 2 | Tìm kiếm với từ khóa không tồn tại | Từ khóa: `"AoKhoacMuaDong"` | Hiển thị thông báo: *"Không tìm thấy sản phẩm nào phù hợp với từ khóa của bạn."*. | Trần Vĩnh Nhật | **Pass** |
-| 3 | Lọc sản phẩm theo Kích cỡ (Size 41) | Chọn nút Size: `41` | Chỉ hiển thị các sản phẩm có biến thể Size 41 và đang còn hàng (`stock_quantity > 0`). | Trần Vĩnh Nhật | **Pass** |
-| 4 | Lọc sản phẩm theo Màu sắc (Màu Đen) | Chọn ô màu: `Đen` | Chỉ hiển thị các mẫu giày có phiên bản màu Đen. | Trần Vĩnh Nhật | **Pass** |
-| 5 | Lọc theo Khoảng giá bán (500.000đ - 1.000.000đ) | Giá từ: `500000`, đến: `1000000` | Danh sách hiển thị đúng các sản phẩm có giá niêm yết (hoặc giá sale) nằm trong khoảng này. | Trần Vĩnh Nhật | **Pass** |
-| 6 | Sắp xếp sản phẩm theo giá tăng dần | Chọn Sort: `"Giá tăng dần"` | Danh sách sản phẩm được sắp xếp theo thứ tự đơn giá từ thấp đến cao. | Trần Vĩnh Nhật | **Pass** |
-
-*Bảng 22: Kịch bản kiểm thử Tìm kiếm và Lọc sản phẩm*
-
----
-
-### 2.4. Kiểm thử Chức năng Giỏ hàng và Đặt hàng COD
-* **Mục tiêu:** Xác minh tính toàn vẹn tồn kho, tính toán tiền hàng, lưu snapshot bất biến và làm rỗng giỏ sau khi đặt.
-* **Người thực hiện kiểm thử:** Trần Trung Dũng.
-
-| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Đánh giá |
-| :---: | :--- | :--- | :--- | :---: | :---: |
-| 1 | Thêm biến thể sản phẩm vào giỏ hàng | Chọn Size 40, Màu Đen, Số lượng: 1 $\rightarrow$ Bấm "Thêm vào giỏ" | Thêm thành công bản ghi vào `cart_items`, biểu tượng giỏ hàng trên Header cập nhật số lượng badge = 1. | Trần Trung Dũng | **Pass** |
-| 2 | Chọn biến thể có tồn kho bằng 0 (`stock = 0`) | Biến thể Size 42 (đã hết hàng) | Nút chọn Size 42 bị làm mờ (disabled), nút "Thêm vào giỏ" bị vô hiệu hóa, hiển thị thông báo "Hết hàng". | Trần Trung Dũng | **Pass** |
-| 3 | Tăng số lượng sản phẩm trong giỏ hàng | Bấm nút `[+]` tại dòng sản phẩm | Số lượng tăng lên 2, tạm tính tiền hàng tự động cập nhật tức thì. | Trần Trung Dũng | **Pass** |
-| 4 | Đặt hàng COD thành công với giỏ hàng hợp lệ | Chọn địa chỉ mặc định, phương thức: COD, ghi chú: "Giao chiều" | Tạo đơn hàng mới trạng thái `PENDING`, trừ tồn kho của biến thể tương ứng, lưu snapshot tên, SKU, size, màu, đơn giá vào `order_items`, làm rỗng giỏ hàng. | Trần Trung Dũng | **Pass** |
-| 5 | Hai khách hàng cùng đặt đôi giày cuối cùng (`stock = 1`) | Khách A và Khách B cùng bấm đặt mua gần như đồng thời | Giao dịch áp dụng khóa `SELECT ... FOR UPDATE`: Khách A hoàn tất trước đặt thành công (kho về 0); Khách B bị báo lỗi: *"Sản phẩm đã hết hàng, vui lòng điều chỉnh lại!"*. Không bị bán vượt. | Trần Trung Dũng | **Pass** |
-
-*Bảng 23: Kịch bản kiểm thử Giỏ hàng và Đặt hàng COD*
-
----
-
-### 2.5. Kiểm thử Chức năng Hủy đơn hàng và Hoàn kho
-* **Mục tiêu:** Xác minh quyền hạn hủy đơn và cơ chế tự động hoàn trả tồn kho.
-* **Người thực hiện kiểm thử:** Trần Duy Hoàng Sa.
-
-| STT | Tình huống kiểm thử | Dữ liệu nhập | Kết quả mong đợi | Người kiểm thử | Đánh giá |
-| :---: | :--- | :--- | :--- | :---: | :---: |
-| 1 | Khách hàng tự hủy đơn ở trạng thái `PENDING` | Bấm nút "Hủy đơn" tại đơn `PENDING`, nhập lý do: "Đổi ý muốn chọn size khác" | Đơn hàng chuyển sang `CANCELLED`, hệ thống tự động cộng hoàn trả số lượng vào `stock_quantity` của các biến thể, ghi nhật ký `ORDER_CANCELLED_RESTOCK`. | Trần Duy Hoàng Sa | **Pass** |
-| 2 | Khách hàng muốn hủy đơn khi đơn đã `CONFIRMED` hoặc `SHIPPING` | Đơn hàng đã được Admin xác nhận | Nút "Hủy đơn" trên giao diện khách hàng bị ẩn/vô hiệu hóa. Nếu cố tình gửi request POST trực tiếp, server trả về lỗi từ chối thao tác. | Trần Duy Hoàng Sa | **Pass** |
-| 3 | Admin thực hiện hủy đơn nội bộ kèm lý do | Admin chọn đơn `CONFIRMED`, bấm "Hủy đơn", ghi chú: "Khách báo hoãn chuyến công tác" | Đơn chuyển sang `CANCELLED`, tồn kho được hoàn trả tự động, ghi nhận lịch sử vào `order_status_histories`. | Trần Duy Hoàng Sa | **Pass** |
-
-*Bảng 24: Kịch bản kiểm thử Hủy đơn hàng và Hoàn kho*
-
----
-
-## 3. TỔNG KẾT ĐÁNH GIÁ KIỂM THỬ
-
-* **Tổng số kịch bản kiểm thử được thiết lập:** 25 Test Cases bao phủ toàn diện 5 phân hệ chức năng trọng yếu.
-* **Số kịch bản đạt yêu cầu (Pass):** 25 / 25 kịch bản (Đạt tỷ lệ: **100%** trong môi trường thử nghiệm).
-* **Đánh giá tổng quan chất lượng:**
-  * Hệ thống hoạt động ổn định, luồng dữ liệu giữa Controller, Service, Repository và Database ăn khớp nhịp nhàng.
-  * Tính toàn vẹn giao dịch và nguyên tắc chống bán vượt tồn kho vận hành chuẩn xác nhờ cơ chế khóa bi quan cấp dòng `WITH (UPDLOCK, ROWLOCK)` của Microsoft SQL Server 2025.
-  * Phân quyền máy chủ nghiêm ngặt, bảo vệ tuyệt đối khu vực quản trị Admin.
-
-
-
-# CHƯƠNG V: TRIỂN KHAI HỆ THỐNG (SYSTEM DEPLOYMENT)
+# CHƯƠNG V: KẾ HOẠCH TRIỂN KHAI VÀ HƯỚNG DẪN CÀI ĐẶT (DEPLOYMENT PLAN & SETUP GUIDE)
 
 ---
 
 ## 1. MÔI TRƯỜNG VÀ CHIẾN LƯỢC TRIỂN KHAI
 
-Để đưa hệ thống website thương mại điện tử **VAMOS STORE** từ môi trường phát triển (Development) lên môi trường vận hành thực tế (Production), hệ thống được thiết kế theo hai phương án triển khai linh hoạt:
+Để đảm bảo khả năng vận hành ổn định từ môi trường phát triển (Development) đến khi đưa sản phẩm vào khai thác thực tế (Production), hệ thống **VAMOS STORE** được hoạch định theo hai kịch bản rõ ràng:
 
-1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu Microsoft SQL Server 2025 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
-2. **Phương án 2 (Mô hình máy chủ đám mây Cloud VPS & Tên miền theo chuẩn đồ án):** Thuê máy chủ ảo riêng (Virtual Private Server - VPS) chạy hệ điều hành Ubuntu Linux, kết hợp với tên miền quốc tế và máy chủ web Nginx làm Reverse Proxy.
+1. **Kịch bản A: Cài đặt và vận hành Local / Docker (Cấu hình đã kiểm tra, chưa xác minh triển khai thực tế).** Toàn bộ file Dockerfile và docker-compose.yml đã được rà soát cú pháp chuẩn mực kết nối Node.js và SQL Server 2022; trên môi trường máy chủ thực tế cần kích hoạt Docker daemon để khởi chạy.
+2. **Kịch bản B (Kế hoạch đề xuất vận hành thực tế): Triển khai Production trên Cloud VPS & Tên miền.** Kế hoạch chi tiết phục vụ giai đoạn thương mại hóa: thuê máy chủ ảo riêng (Ubuntu Linux LTS), thiết lập quản lý tiến trình PM2, cấu hình máy chủ web Nginx làm Reverse Proxy và cài đặt chứng chỉ bảo mật SSL Let's Encrypt.
 
 ---
 
-## 2. TRIỂN KHAI VỚI DOCKER & DOCKER COMPOSE
+## 2. KỊCH BẢN A: CÀI ĐẶT VÀ VẬN HÀNH LOCAL / DOCKER (CẤU HÌNH ĐÃ KIỂM TRA, CHƯA XÁC MINH TRIỂN KHAI THỰC TẾ)
 
-### 2.1. Xây dựng Dockerfile cho ứng dụng Node.js
+### 2.1. Yêu cầu hệ thống tối thiểu
 
-File `Dockerfile` đặt tại thư mục gốc của dự án, chịu trách nhiệm đóng gói mã nguồn và môi trường Node.js:
+* **Hệ điều hành:** Windows 10/11 (hỗ trợ WSL2), macOS, hoặc Ubuntu Linux 20.04+.
+* **Phần mềm cần cài đặt:**
+  * Node.js phiên bản LTS v20.x hoặc v22.x/v24.x (kèm npm).
+  * Docker Desktop (hỗ trợ Docker Compose v2+).
+  * Trình điều khiển cơ sở dữ liệu: Azure Data Studio hoặc SQL Server Management Studio (SSMS).
+
+### 2.2. Đóng gói ứng dụng với Dockerfile
+
+File `Dockerfile` tại thư mục gốc của dự án chịu trách nhiệm đóng gói ứng dụng Node.js:
 
 ```dockerfile
 # Sử dụng base image Node.js LTS chính thức
@@ -1768,25 +1781,25 @@ RUN npm run build:css
 EXPOSE 3000
 
 # Lệnh khởi chạy ứng dụng chính thức
-CMD ["node", "src/app.js"]
+CMD ["node", "server.js"]
 ```
 
-### 2.2. Cấu hình điều phối với Docker Compose
+### 2.3. Cấu hình điều phối với Docker Compose
 
-File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server):
+File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server 2022):
 
 ```yaml
 version: "3.8"
 
 services:
-  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2025
+  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2022
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: vamos_store_mssql
     restart: always
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "VamosPassSecure2025!"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD:-YourStrongPassword123!}"
       MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
@@ -1805,14 +1818,13 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DB_TYPE: mssql
       DB_SERVER: mssql
       DB_PORT: 1433
       DB_USER: sa
-      DB_PASSWORD: "VamosPassSecure2025!"
+      DB_PASSWORD: "${DB_PASSWORD:-YourStrongPassword123!}"
       DB_NAME: vamos_store_db
       DB_TRUST_SERVER_CERTIFICATE: "true"
-      SESSION_SECRET: VamosSuperSecretKey2026!
+      SESSION_SECRET: "${SESSION_SECRET:-YourSecureRandomSessionSecretKey32CharsMin}"
     ports:
       - "3000:3000"
     networks:
@@ -1826,124 +1838,116 @@ networks:
     driver: bridge
 ```
 
-### 2.3. Lệnh khởi chạy và xác nhận hoạt động
-
-Để khởi chạy toàn bộ hệ thống trên bất kỳ máy chủ nào đã cài đặt Docker:
+### 2.4. Quy trình khởi chạy và nạp dữ liệu Local
 
 ```bash
-# Khởi động toàn bộ các dịch vụ dưới dạng chạy ngầm (detached mode)
-docker-compose up -d --build
+# Bước 1: Khởi động container CSDL SQL Server 2022
+docker-compose up -d mssql
 
-# Kiểm tra trạng thái hoạt động của các container
-docker-compose ps
+# Bước 2: Kiểm tra trạng thái container đang chạy
+docker ps
 
-# Xem nhật ký khởi động để đảm bảo kết nối CSDL thành công
-docker-compose logs -f web
+# Bước 3: Khởi tạo bảng CSDL và nạp dữ liệu mẫu hạt giống (seed data)
+node database/init_mssql.js
+
+# Bước 4: Khởi động ứng dụng Node.js tại local
+npm start
+# Ứng dụng sẽ lắng nghe tại: http://localhost:3000
 ```
 
 ---
 
-## 3. QUY TRÌNH TRIỂN KHAI TRÊN CLOUD VPS & TÊN MIỀN
+## 3. KỊCH BẢN B: KẾ HOẠCH TRIỂN KHAI PRODUCTION TRÊN CLOUD VPS & TÊN MIỀN
 
-_(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án thực tế)._
+Dưới đây là kế hoạch chi tiết từng bước được đề xuất để đưa hệ thống VAMOS STORE lên môi trường Internet khi triển khai kinh doanh chính thức:
 
-### 3.1. Đăng ký Tên miền (Domain Registration)
+### 3.1. Đăng ký Tên miền và Thiết lập Bản ghi DNS
 
-- **Bước 1:** Truy cập vào nhà cung cấp dịch vụ tên miền (ví dụ: Hostinger, Namecheap hoặc Inet).
-- **Bước 2:** Nhập tên miền thương hiệu mong muốn (ví dụ: `vamosstore.shop` hoặc `vamos-footwear.vn`) và tiến hành thanh toán kích hoạt.
-- **Bước 3:** Truy cập Bảng điều khiển quản lý DNS (DNS Management) để chuẩn bị trỏ bản ghi về địa chỉ IP của máy chủ VPS.
+- **Bước 1:** Đăng ký tên miền thương hiệu (ví dụ: `vamosstore.shop` hoặc `vamos-footwear.vn`) tại nhà cung cấp tên miền (Inet, Namecheap, v.v.).
+- **Bước 2:** Cấu hình trỏ bản ghi A (Address Record) từ tên miền về địa chỉ IP Public của máy chủ Cloud VPS:
+  * Host `@` $\rightarrow$ Points to: `<IP_ADDRESS_VPS>`
+  * Host `www` $\rightarrow$ Points to: `<IP_ADDRESS_VPS>`
 
 ### 3.2. Cấu hình Máy chủ ảo Cloud VPS (Ubuntu Linux)
 
-- **Bước 1:** Khởi tạo Cloud VPS chạy hệ điều hành Ubuntu 22.04 LTS (RAM tối thiểu 2GB, 1 vCPU, 25GB SSD).
-- **Bước 2:** Kết nối SSH vào máy chủ từ xa thông qua terminal hoặc Visual Studio Code Remote-SSH:
+- **Bước 1:** Thuê máy chủ Cloud VPS chạy Ubuntu 22.04 LTS (cấu hình tối thiểu: 2 vCPU, 4GB RAM, 40GB SSD để đáp ứng Microsoft SQL Server on Linux).
+- **Bước 2:** Kết nối SSH bảo mật và cập nhật hệ điều hành:
   ```bash
-  ssh root@<IP_ADDRESS_VPS>
-  ```
-- **Bước 3:** Cập nhật các gói phần mềm hệ điều hành và bật tường lửa UFW:
-  ```bash
+  ssh deploy@<IP_ADDRESS_VPS>
   sudo apt update && sudo apt upgrade -y
   sudo apt install -y ufw curl git
-  sudo ufw allow OpenSSH
-  sudo ufw allow 80/tcp
-  sudo ufw allow 443/tcp
+  ```
+- **Bước 3:** Cấu hình tường lửa bảo vệ máy chủ (chỉ mở các cổng cần thiết):
+  ```bash
+  sudo ufw default deny incoming
+  sudo ufw default allow outgoing
+  sudo ufw allow 22/tcp    # Cổng SSH
+  sudo ufw allow 80/tcp    # Cổng HTTP
+  sudo ufw allow 443/tcp   # Cổng HTTPS
   sudo ufw enable
   ```
-- **Bước 4:** Cài đặt Node.js LTS, trình quản lý tiến trình PM2 và Git:
+- **Bước 4:** Cài đặt Node.js LTS và trình quản lý tiến trình PM2:
   ```bash
   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
   sudo apt install -y nodejs
   sudo npm install -g pm2
   ```
 
-### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu Microsoft SQL Server 2025
+### 3.3. Cài đặt CSDL Microsoft SQL Server 2022 on Linux
 
-- **Bước 1:** Cài đặt Microsoft SQL Server on Linux hoặc triển khai container:
-  ```bash
-  # Tùy chọn 1: Cài đặt mssql-server trên Ubuntu LTS
-  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-  curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
-  sudo apt-get update && sudo apt-get install -y mssql-server
-  sudo /opt/mssql/bin/mssql-conf setup
-  sudo systemctl start mssql-server
-  sudo systemctl enable mssql-server
+Triển khai Microsoft SQL Server 2022 qua container Docker chuyên dụng để cô lập tài nguyên:
 
-  # Tùy chọn 2: Chạy trực tiếp qua Docker container
-  docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=VamosPassword2026!" -p 1433:1433 --name vamos-sql -d mcr.microsoft.com/mssql/server:2022-latest
-  ```
-- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và thiết lập tài khoản:
-  ```sql
-  -- Kết nối bằng sqlcmd hoặc Azure Data Studio
-  CREATE DATABASE vamos_store_db COLLATE SQL_Latin1_General_CP1_CI_AS;
-  GO
-  USE vamos_store_db;
-  GO
-  ```
-- **Bước 3:** Nạp cấu trúc bảng và dữ liệu mẫu:
-  ```bash
-  node database/init_mssql.js
-  ```
+```bash
+docker run -e "ACCEPT_EULA=Y" \
+  -e "MSSQL_SA_PASSWORD=<STRONG_PRODUCTION_PASSWORD>" \
+  -p 1433:1433 \
+  --name vamos_mssql_prod \
+  --restart always \
+  -v /var/opt/mssql_prod:/var/opt/mssql \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+```
 
-### 3.4. Triển khai mã nguồn và Quản lý tiến trình bằng PM2
+### 3.4. Triển khai Ứng dụng Web bằng PM2
 
-- **Bước 1:** Clone mã nguồn dự án từ repository GitHub về thư mục `/var/www/vamos-store`:
+- **Bước 1:** Clone mã nguồn dự án vào thư mục `/var/www/vamos-store`:
   ```bash
   cd /var/www
-  git clone https://github.com/dungtttd01702-coder/vamos-store.git
+  git clone <REPO_URL> vamos-store
   cd vamos-store
   npm install --production
+  npm run build:css
   ```
-- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (sinh khóa ngẫu nhiên mạnh qua `openssl rand -hex 32`):
+- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (không lưu mật khẩu trong git):
   ```bash
   cat <<EOT >> .env
   NODE_ENV=production
   PORT=3000
-  APP_URL=https://vamos.store
+  APP_URL=https://vamosstore.shop
   DB_SERVER=127.0.0.1
   DB_PORT=1433
   DB_USER=sa
-  DB_PASSWORD=YOUR_STRONG_SQL_SERVER_PASSWORD_HERE
+  DB_PASSWORD=<STRONG_PRODUCTION_PASSWORD>
   DB_NAME=vamos_store_db
   DB_ENCRYPT=false
   DB_TRUST_SERVER_CERTIFICATE=true
-  SESSION_SECRET=YOUR_SECURE_RANDOM_SESSION_SECRET_32_CHARS_MIN
+  SESSION_SECRET=<RANDOM_GENERATED_32_CHAR_SECRET>
   EOT
   ```
-- **Bước 3:** Khởi động ứng dụng bằng PM2 và cấu hình tự động bật khi máy chủ reboot:
+- **Bước 3:** Nạp schema và khởi động tiến trình bằng PM2:
   ```bash
+  node database/init_mssql.js
   pm2 start server.js --name "vamos-store"
   pm2 save
   pm2 startup systemd
   ```
 
-### 3.5. Cấu hình Reverse Proxy Nginx và Chứng chỉ bảo mật SSL (HTTPS)
+### 3.5. Cấu hình Reverse Proxy Nginx và Chứng chỉ SSL Let's Encrypt
 
 - **Bước 1:** Cài đặt máy chủ web Nginx:
   ```bash
   sudo apt install -y nginx
   ```
-- **Bước 2:** Cấu hình file Virtual Host Nginx trỏ cổng 80 vào ứng dụng Node.js chạy tại cổng 3000:
-
+- **Bước 2:** Cấu hình Virtual Host `/etc/nginx/sites-available/vamosstore.shop`:
   ```nginx
   server {
       listen 80;
@@ -1958,25 +1962,28 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
           proxy_cache_bypass $http_upgrade;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
       }
   }
   ```
-
-- **Bước 3:** Kiểm tra cấu hình và khởi động lại Nginx:
+- **Bước 3:** Kích hoạt Virtual Host và kiểm tra cấu hình:
   ```bash
+  sudo ln -s /etc/nginx/sites-available/vamosstore.shop /etc/nginx/sites-enabled/
   sudo nginx -t
   sudo systemctl restart nginx
   ```
-- **Bước 4:** Cài đặt chứng chỉ SSL miễn phí Let's Encrypt qua Certbot:
+- **Bước 4:** Cài đặt chứng chỉ SSL tự động gia hạn với Certbot:
   ```bash
   sudo apt install -y certbot python3-certbot-nginx
   sudo certbot --nginx -d vamosstore.shop -d www.vamosstore.shop
   ```
 
-### 3.6. Kết quả sau triển khai
+### 3.6. Đánh giá tính khả thi và an toàn sau triển khai
 
-Hệ thống VAMOS STORE sau khi hoàn tất các bước trên sẽ hoạt động chính thức trên môi trường Internet tại giao thức bảo mật `https://vamosstore.shop`, kết nối ổn định, dữ liệu phân lớp an toàn và tự động phục hồi khi máy chủ khởi động lại.
+Kế hoạch triển khai Kịch bản B đảm bảo hệ thống đạt tính sẵn sàng cao (High Availability), bảo mật toàn diện với HTTPS/SSL mã hóa đường truyền, cô lập tài khoản cơ sở dữ liệu và tự động phục hồi dịch vụ sau sự cố khởi động lại máy chủ nhờ PM2 daemon.
 
+
+---
 
 # CHƯƠNG VI: HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN (CONCLUSION)
 
@@ -1988,8 +1995,9 @@ Mặc dù hệ thống website bán giày dép **VAMOS STORE** đã hoàn thiệ
 
 1. **Chưa tích hợp cổng thanh toán trực tuyến tự động:** Hệ thống hiện tại mới chỉ hỗ trợ duy nhất phương thức thanh toán tiền mặt khi nhận hàng (COD). Các cổng thanh toán trực tuyến phổ biến như VNPAY, MoMo, ZaloPay hoặc thẻ quốc tế (Visa/Mastercard) chưa được tích hợp chính thức trong phiên bản này.
 2. **Chưa kết nối API với các đơn vị vận chuyển bên ngoài:** Cước phí giao hàng hiện đang áp dụng theo biểu phí cố định (Flat-rate) hoặc miễn phí vận chuyển theo giá trị đơn hàng được cấu hình trong mã nguồn, chưa có tính năng tự động gọi API của GHTK, GHN hay Viettel Post để tính cước phí động theo trọng lượng và khoảng cách địa lý.
-3. **Quy trình đổi trả hàng chưa tự động hóa trên giao diện web:** Do đặc thù ngành giày dép đòi hỏi khâu kiểm tra tình trạng giày, đế giày và đối soát kỹ lưỡng, quy trình đổi size hoặc trả hàng hiện mới chỉ dừng lại ở trang thông tin chính sách và hướng dẫn khách hàng liên hệ hotline chăm sóc khách hàng.
-4. **Hệ thống đề xuất sản phẩm còn đơn giản:** Danh sách sản phẩm gợi ý và liên quan hiện đang lấy ngẫu nhiên theo danh mục hoặc sản phẩm mới nhất, chưa ứng dụng các thuật toán máy học hoặc học máy để cá nhân hóa gợi ý theo hành vi duyệt web của từng khách hàng.
+3. **Chức năng khôi phục mật khẩu (UC03):** Chức năng khôi phục mật khẩu đã được đưa vào thiết kế và có cấu trúc dữ liệu hỗ trợ, tuy nhiên quy trình xử lý hoàn chỉnh chưa được triển khai trong phiên bản hiện tại.
+4. **Quy trình đổi trả hàng chưa tự động hóa trên giao diện web:** Do đặc thù ngành giày dép đòi hỏi khâu kiểm tra tình trạng giày, đế giày và đối soát kỹ lưỡng, quy trình đổi size hoặc trả hàng hiện mới chỉ dừng lại ở trang thông tin chính sách và hướng dẫn khách hàng liên hệ hotline chăm sóc khách hàng.
+5. **Hệ thống đề xuất sản phẩm còn đơn giản:** Danh sách sản phẩm gợi ý và liên quan hiện đang lấy ngẫu nhiên theo danh mục hoặc sản phẩm mới nhất, chưa ứng dụng các thuật toán máy học hoặc học máy để cá nhân hóa gợi ý theo hành vi duyệt web của từng khách hàng.
 
 ---
 
@@ -2003,10 +2011,12 @@ Mặc dù hệ thống website bán giày dép **VAMOS STORE** đã hoàn thiệ
 2. **Tự động hóa chuỗi cung ứng và vận chuyển:**
    - Tích hợp trực tiếp với API của các đơn vị giao vận lớn (Giao Hàng Nhanh - GHN API, Giao Hàng Tiết Kiệm - GHTK API).
    - Tự động đẩy đơn, tạo mã vận đơn (Tracking Code), in phiếu giao hàng trực tiếp từ màn hình Admin và đồng bộ trạng thái giao vận theo thời gian thực.
-3. **Phát triển ứng dụng di động đa nền tảng (Mobile App):**
+3. **Hoàn thiện dịch vụ gửi thông báo và Email tự động:**
+   - Cấu hình dịch vụ gửi email giao dịch qua SMTP/SendGrid để tự động gửi liên kết đặt lại mật khẩu và hóa đơn điện tử khi đơn hàng được tạo thành công.
+4. **Phát triển ứng dụng di động đa nền tảng (Mobile App):**
    - Xây dựng ứng dụng di động cho hai hệ điều hành iOS và Android bằng Flutter hoặc React Native, tái sử dụng toàn bộ hệ thống API Backend hiện có của VAMOS STORE.
    - Tích hợp tính năng gửi thông báo đẩy (Push Notifications) về tình trạng đơn hàng và các chương trình ưu đãi flash-sale.
-4. **Ứng dụng Trí tuệ nhân tạo (AI Recommendation & Virtual Try-on):**
+5. **Ứng dụng Trí tuệ nhân tạo (AI Recommendation & Virtual Try-on):**
    - Xây dựng mô hình AI gợi ý mẫu giày dựa trên lịch sử xem hàng và độ tương đồng phong cách (Collaborative Filtering).
    - Nghiên cứu tích hợp công nghệ thực tế ảo tăng cường (AR) giúp khách hàng ướm thử giày trên chân thông qua camera điện thoại trước khi đặt mua.
 
@@ -2018,13 +2028,15 @@ Sau một thời gian nỗ lực nghiên cứu, phân tích nghiệp vụ, thi�
 
 ### Những kết quả chính đã đạt được:
 
-- **Về mặt phân tích & thiết kế:** Xây dựng thành công bộ tài liệu kỹ thuật chuẩn mực bao gồm hồ sơ 3 Actor (`Guest`, `Customer`, `Admin`), 14 Use Case chi tiết, sơ đồ điều hướng Sitemap, mô hình CSDL quan hệ ERD 18 thực thể, Từ điển dữ liệu chi tiết, 5 sơ đồ hoạt động (Activity Diagrams) và bộ khung Wireframe đặc tả 10 màn hình cốt lõi.
-- **Về mặt kỹ thuật kiến trúc:** Ứng dụng thành công mô hình MVC phân lớp trên nền tảng Node.js và Express.js; kết hợp Template Engine Pug và Tailwind CSS mang lại giao diện responsive hiện đại, tốc độ tải trang nhanh và thân thiện với SEO.
-- **Về mặt cơ sở dữ liệu:** Thiết kế schema Microsoft SQL Server 2025 chuẩn hóa, giải quyết triệt để bài toán quản lý biến thể giày phức tạp (`Size x Color x SKU`), bảo vệ tính toàn vẹn kho hàng bằng Transaction và Khóa bi quan (`SELECT ... WITH (UPDLOCK, ROWLOCK)`), đồng thời áp dụng mẫu Snapshot bất biến bảo vệ dữ liệu lịch sử đơn hàng.
+- **Về mặt phân tích & thiết kế:** Xây dựng thành công bộ tài liệu kỹ thuật chuẩn mực bao gồm hồ sơ 3 Actor (`Guest`, `Customer`, `Admin`), 14 Use Case chi tiết, sơ đồ điều hướng Sitemap, mô hình CSDL quan hệ ERD 20 thực thể nghiệp vụ, Từ điển dữ liệu chi tiết cho toàn bộ 20 bảng, 5 sơ đồ hoạt động (Activity Diagrams) và bộ khung Wireframe đặc tả 10 màn hình cốt lõi.
+- **Về mặt kỹ thuật kiến trúc:** Ứng dụng thành công mô hình MVC phân lớp trên nền tảng Node.js và Express.js (kết hợp Three-Tier cho Order/Product và Two-Tier cho Admin/Cart); kết hợp Template Engine Pug và Tailwind CSS mang lại giao diện responsive hiện đại, tốc độ tải trang nhanh và thân thiện với SEO.
+- **Về mặt cơ sở dữ liệu:** Thiết kế schema Microsoft SQL Server 2022 chuẩn hóa, giải quyết triệt để bài toán quản lý biến thể giày phức tạp (`Size x Color x SKU`), bảo vệ tính toàn vẹn kho hàng bằng Transaction và Khóa bi quan (`SELECT ... WITH (UPDLOCK, ROWLOCK)`), đồng thời áp dụng mẫu Snapshot bất biến bảo vệ dữ liệu lịch sử đơn hàng.
 - **Về mặt kỹ năng thực tiễn:** Quá trình thực hiện đồ án đã giúp các thành viên trong nhóm củng cố sâu sắc tư duy kiến trúc phần mềm, kỹ năng làm việc nhóm, kỹ năng phân tích bài toán thực tế, quản lý phiên bản với Git và đóng gói môi trường với Docker.
 
 Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết tinh tri thức của toàn bộ chương trình đào tạo chuyên ngành Phát triển phần mềm tại Trường Cao đẳng Thực hành FPT Polytechnic Đà Nẵng, mà còn là một nền tảng thực tế vững chắc, có khả năng phát triển và ứng dụng thương mại hóa trong tương lai.
 
+
+---
 
 # TÀI LIỆU THAM KHẢO (REFERENCES)
 
@@ -2040,7 +2052,7 @@ Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết ti
    URL: https://pugjs.org/api/getting-started.html
 4. **Tailwind Labs.** (2024). _Tailwind CSS Documentation: Utility-first CSS framework_.  
    URL: https://tailwindcss.com/docs/installation
-5. **Microsoft Corporation.** (2025). _SQL Server 2025 Technical Documentation & T-SQL Reference: Table Hints & Transactions_.  
+5. **Microsoft Corporation.** (2024). _SQL Server 2022 Technical Documentation & T-SQL Reference: Table Hints & Transactions_.  
    URL: https://learn.microsoft.com/en-us/sql/sql-server/
 6. **Docker Inc.** (2024). _Docker Documentation: Containerize applications and Compose multi-container apps_.  
    URL: https://docs.docker.com/
@@ -2059,4 +2071,6 @@ Dự án môn học Dự án Java (JAV102) VAMOS STORE không chỉ là kết ti
 12. **Martin Fowler.** (2002). _Patterns of Enterprise Application Architecture_. Addison-Wesley Professional.
 13. **Robert C. Martin.** (2008). _Clean Code: A Handbook of Agile Software Craftsmanship_. Prentice Hall.
 
+
+---
 

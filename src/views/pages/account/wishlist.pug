@@ -1,0 +1,166 @@
+extends ../../layouts/main
+
+block content
+  //- ── BREADCRUMB NAVIGATION ──
+  section.w-full.bg-slate-50.border-b.border-slate-200
+    .max-w-7xl.mx-auto.px-4.py-3.flex.items-center.justify-between.text-xs(class="lg:px-16")
+      nav.flex.items-center.gap-2.text-gray-500
+        a.transition-colors(class="hover:text-vamos-red" href="/") Trang chủ
+        span /
+        a.transition-colors(class="hover:text-vamos-red" href="/account/profile") Tài khoản cá nhân
+        span /
+        span.text-slate-900.font-bold Sản phẩm yêu thích
+      .hidden.items-center.gap-2.text-emerald-700.bg-emerald-50.px-3.py-1.rounded-full.font-medium(class="sm:flex")
+        span 🛡️
+        span Đồng kiểm &amp; Đổi size miễn phí trong 7 ngày
+
+  //- ── MAIN ACCOUNT CONTAINER ──
+  main.max-w-7xl.mx-auto.px-4.py-8(class="sm:px-6 lg:px-16")
+    .grid.grid-cols-1.gap-8.items-start(class="lg:grid-cols-12")
+
+      //- ── CỘT TRÁI: ACCOUNT SIDEBAR (3 cols) ──
+      aside.space-y-6(class="lg:col-span-3")
+        //- User Profile Card
+        .bg-white.rounded-xl.p-5.border.border-slate-200.shadow-sm
+          .flex.items-center.gap-3.pb-4.border-b.border-slate-100
+            .w-12.h-12.rounded-full.bg-slate-900.text-white.flex.items-center.justify-center.font-bold.text-base.shrink-0
+              = (user && user.full_name ? user.full_name : (user && user.email ? user.email : 'U')).charAt(0).toUpperCase()
+            .overflow-hidden
+              h2.text-sm.font-bold.text-slate-900.truncate= user && user.full_name ? user.full_name : 'Khách hàng VAMOS'
+              p.text-xs.text-slate-400.truncate= user && user.email ? user.email : ''
+              span.inline-flex.items-center.gap-1.text-xs.font-bold.text-vamos-red.mt-1
+                span 🏅
+                | Thành viên VIP
+
+        //- Navigation Menu Links
+        .bg-white.rounded-xl.p-3.border.border-slate-200.shadow-sm
+          nav.space-y-1.text-xs.font-semibold
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/rewards")
+              .flex.items-center.gap-3
+                span 🎁
+                span VAMOS Club (Điểm &amp; Quà)
+              span →
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/orders")
+              .flex.items-center.gap-3
+                span 📦
+                span Đơn hàng của tôi
+              span →
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/profile")
+              .flex.items-center.gap-3
+                span 👤
+                span Thông tin tài khoản
+              span →
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/addresses")
+              .flex.items-center.gap-3
+                span 📍
+                span Sổ địa chỉ giao hàng
+              span →
+            a.flex.items-center.justify-between.px-3.rounded-lg.bg-red-50.text-vamos-red.font-bold(class="py-2.5")
+              .flex.items-center.gap-3
+                span ❤️
+                span Sản phẩm yêu thích
+              span.text-xs.bg-red-100.text-vamos-red.px-2.rounded-full.font-bold(class="py-0.5")= (wishlistCount || (wishlistItems ? wishlistItems.length : 0))
+
+        //- Hotline Support Card
+        .bg-slate-900.text-white.p-4.rounded-xl.flex.items-center.gap-3.shadow-sm
+          .w-10.h-10.rounded-lg.bg-white-10.flex.items-center.justify-center.text-vamos-red.text-lg 📞
+          div
+            p.text-xs.text-slate-400 Cần hỗ trợ khẩn cấp?
+            p.text-sm.font-bold.text-white 1900 2126 (8h-21h)
+
+      //- ── CỘT PHẢI: WISHLIST CONTENT (9 cols) ──
+      section.space-y-6(class="lg:col-span-9")
+        //- Header Toolbar
+        .bg-white.rounded-xl.p-6.border.border-slate-200.shadow-sm.flex.flex-col.gap-4(class="sm:flex-row sm:items-center sm:justify-between")
+          div
+            h1.text-xl.font-black.text-slate-900.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
+              | SẢN PHẨM YÊU THÍCH
+            p.text-xs.text-slate-500.mt-1
+              | Danh sách những mẫu giày bạn đã lưu để theo dõi giá và đặt mua sau.
+          .flex.items-center.gap-2
+            span.px-3.py-1.rounded-full.bg-red-50.border.border-red-200.text-xs.font-bold.text-vamos-red
+              = `${wishlistItems ? wishlistItems.length : 0} sản phẩm đã lưu`
+
+        if !wishlistItems || wishlistItems.length === 0
+          //- Empty State
+          .bg-white.rounded-xl.p-12.border.border-slate-200.shadow-sm.text-center.space-y-4
+            .w-16.h-16.rounded-full.bg-red-50.text-vamos-red.flex.items-center.justify-center.text-3xl.mx-auto
+              | 💖
+            h2.text-base.font-bold.text-slate-900 Danh sách yêu thích của bạn đang trống
+            p.text-xs.text-slate-500.max-w-md.mx-auto
+              | Hãy duyệt qua các bộ sưu tập sneaker nam, nữ mới nhất và nhấn vào biểu tượng trái tim để lưu lại những đôi giày ưng ý nhất!
+            .pt-2
+              a.inline-flex.items-center.gap-2.px-6.py-3.bg-red-600.text-white.text-xs.font-bold.rounded-lg.shadow-md.transition-all(class="hover:bg-red-700 shadow-red-500/20" href="/products")
+                | KHÁM PHÁ CỬA HÀNG
+                span →
+        else
+          //- Product Grid
+          .grid.grid-cols-1.gap-6(class="sm:grid-cols-2 xl:grid-cols-3")
+            each item in wishlistItems
+              .group.bg-white.rounded-xl.border.border-slate-200.hover.border-red-200.p-4.transition-all.duration-300.hover.shadow-xl.hover.-translate-y-1.relative.flex.flex-col.justify-between(id=`wishlist-card-${item.id}`)
+                div
+                  //- Top Card Controls (Gender badge + Remove button)
+                  .flex.items-center.justify-between.mb-2
+                    span.px-2.rounded.bg-slate-100.text-slate-600.font-bold.uppercase(class="py-0.5 text-[10px]")
+                      = item.gender_target ? item.gender_target : 'UNISEX'
+                    button.w-8.h-8.rounded-full.flex.items-center.justify-center.text-red-500.transition-colors(
+                      class="hover:bg-red-50"
+                      type="button" 
+                      title="Bỏ lưu khỏi danh sách"
+                      onclick=`removeWishlistItem(${item.id})`
+                    )
+                      span.text-base ❤️
+
+                  //- Product Image Canvas
+                  a.block.w-full.aspect-square.bg-slate-50.rounded-lg.p-4.overflow-hidden.flex.items-center.justify-center(href=`/products/${item.slug}`)
+                    img.w-full.h-full.object-contain.mix-blend-multiply.group-hover.scale-105.transition-transform.duration-500(
+                      src=item.img || item.image_url || item.primary_image_url || '/images/placeholder-shoe.png'
+                      alt=item.name
+                      loading="lazy"
+                    )
+
+                  //- Product Info
+                  .mt-4
+                    a.block.text-sm.font-bold.text-slate-900.hover.text-red-600.transition-colors.line-clamp-2(href=`/products/${item.slug}`)
+                      = item.name
+                    
+                    //- Price row
+                    .flex.items-baseline.gap-2.mt-2
+                      span.text-base.font-extrabold.text-red-600
+                        = (Number(item.price || item.sale_price || item.base_price || 0)).toLocaleString('vi-VN') + ' ₫'
+                      if item.sale_price && item.base_price && Number(item.base_price) > Number(item.sale_price)
+                        span.text-xs.text-slate-400.line-through
+                          = Number(item.base_price).toLocaleString('vi-VN') + ' ₫'
+
+                //- Action Buttons
+                .mt-4.pt-3.border-t.border-slate-100.grid.grid-cols-2.gap-2
+                  a.py-2.px-3.rounded-lg.border.border-slate-200.hover.border-slate-900.text-xs.font-bold.text-slate-700.text-center.transition-colors(href=`/products/${item.slug}`)
+                    | Xem chi tiết
+                  a.py-2.px-3.rounded-lg.bg-red-600.hover.bg-red-700.text-xs.font-bold.text-white.text-center.shadow-sm.transition-all(href=`/products/${item.slug}`)
+                    | Mua ngay
+
+  //- JavaScript AJAX for 1-click remove
+  script.
+    async function removeWishlistItem(productId) {
+      if (!confirm('Bạn có chắc chắn muốn bỏ lưu sản phẩm này?')) return;
+      try {
+        const res = await fetch('/api/wishlist/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const card = document.getElementById('wishlist-card-' + productId);
+          if (card) {
+            card.classList.add('opacity-0', 'scale-95', 'transition-all', 'duration-300');
+            setTimeout(() => {
+              card.remove();
+              window.location.reload();
+            }, 300);
+          }
+        }
+      } catch (err) {
+        console.error('Lỗi khi xóa sản phẩm yêu thích:', err);
+      }
+    }

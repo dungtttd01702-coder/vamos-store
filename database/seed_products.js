@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const config = require('../src/config/app.config');
+const { getPool, closePool } = require('../src/config/database');
 
 const productsData = [
   // ══════════════════════════════════════════════════════════════
@@ -815,7 +816,7 @@ const productsData = [
 async function seed() {
   console.log('--- SEEDING 40 REALISTIC FOOTWEAR PRODUCTS & VARIANTS ---');
   try {
-    const pool = await sql.connect(config.db);
+    const pool = await getPool();
 
     // Get categories map
     const catResult = await pool.request().query('SELECT id, slug FROM categories');
@@ -875,7 +876,7 @@ async function seed() {
           .query(`
             INSERT INTO products (category_id, brand_id, product_code, name, slug, description, gender_target, base_price, sale_price, status, created_at, updated_at)
             OUTPUT INSERTED.id
-            VALUES (@catId, @brandId, @code, @name, @slug, @desc, @gender, @basePrice, @salePrice, 'active', GETDATE(), GETDATE())
+            VALUES (@catId, @brandId, @code, @name, @slug, @desc, @gender, @basePrice, @salePrice, 'active', SYSUTCDATETIME(), SYSUTCDATETIME())
           `);
         productId = insertRes.recordset[0].id;
         console.log(`[INSERTED PRODUCT] ID: ${productId} - ${prod.name}`);
@@ -890,7 +891,7 @@ async function seed() {
           .input('basePrice', prod.base_price)
           .query(`
             UPDATE products 
-            SET name = @name, slug = @slug, description = @desc, base_price = @basePrice, sale_price = @salePrice, updated_at = GETDATE()
+            SET name = @name, slug = @slug, description = @desc, base_price = @basePrice, sale_price = @salePrice, updated_at = SYSUTCDATETIME()
             WHERE id = @id
           `);
       }
@@ -962,7 +963,7 @@ async function seed() {
 
     console.log('✅ All 40 realistic products, studio images, and variant matrices seeded successfully!');
     if (require.main === module) {
-      await pool.close();
+      await closePool();
       process.exit(0);
     }
   } catch (err) {

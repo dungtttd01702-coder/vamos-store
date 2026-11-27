@@ -40,10 +40,20 @@ block content
                 span 📦
                 span Đơn hàng của tôi
               span.text-xs.bg-red-100.text-vamos-red.px-2.rounded-full.font-bold(class="py-0.5")= (orders ? orders.length : 0)
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/rewards")
+              .flex.items-center.gap-3
+                span 🎁
+                span VAMOS Club (Điểm &amp; Voucher)
+              span →
             a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/profile")
               .flex.items-center.gap-3
                 span 👤
                 span Thông tin tài khoản
+              span →
+            a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/wishlist")
+              .flex.items-center.gap-3
+                span ❤️
+                span Sản phẩm yêu thích
               span →
             a.flex.items-center.justify-between.px-3.rounded-lg.text-slate-700.transition-colors(class="py-2.5 hover:bg-slate-50 hover:text-vamos-red" href="/account/addresses")
               .flex.items-center.gap-3
@@ -89,7 +99,7 @@ block content
                           span.px-2.rounded-full.text-xs.font-bold.bg-emerald-100.text-emerald-800(class="py-0.5") GIAO THÀNH CÔNG
                         else if o.order_status === 'CANCELLED'
                           span.px-2.rounded-full.text-xs.font-bold.bg-red-100.text-red-700(class="py-0.5") ĐÃ HỦY ĐƠN
-                      p.text-xs.text-slate-500(class="mt-0.5")= `Ngày đặt: ${new Date(o.created_at).toLocaleString('vi-VN')}`
+                      p.text-xs.text-slate-500(class="mt-0.5")= `Ngày đặt: ${fmtVnDateTime(o.created_at)}`
 
                   .text-right
                     span.text-xs.text-slate-400.block Tổng thanh toán COD
@@ -159,6 +169,14 @@ block content
                   .flex.items-center.gap-2.shrink-0
                     a.btn-outline.text-xs.px-4(class="py-2" href=`/account/orders/${o.id}`)
                       | Xem chi tiết
+                    if o.order_status === 'COMPLETED' || o.order_status === 'DELIVERED'
+                      button.btn-open-review.px-4.py-2.bg-red-600.text-white.text-xs.font-bold.rounded-xl.shadow-sm.transition-all(
+                        class="hover:bg-red-700 flex items-center gap-1"
+                        type="button"
+                        onclick=`openOrderReviewModal(${o.id}, '${o.order_code}')`
+                      )
+                        span ⭐
+                        span Đánh Giá Nhận Điểm
                     if o.order_status === 'PENDING'
                       form(action=`/account/orders/${o.id}/cancel` method="POST" onsubmit="return confirm('Xác nhận: Bạn có chắc chắn muốn hủy đơn hàng này không? Tồn kho sản phẩm và mã voucher (nếu có) sẽ được tự động hoàn lại!')")
                         input(type="hidden" name="_csrf" value=csrfToken)
@@ -172,3 +190,399 @@ block content
             h3.text-base.font-bold.text-slate-900.mb-1(style="font-family:'Space Grotesk',sans-serif") Bạn chưa có đơn hàng nào
             p.text-xs.text-slate-400.mb-5 Hãy dạo một vòng cửa hàng và chọn cho mình một đôi giày ưng ý nhé!
             a.btn-primary.text-xs.px-6.py-3.inline-block(href="/products") Mua Sắm Ngay
+
+  //- ── REVIEW MODAL: ĐÁNH GIÁ SẢN PHẨM & NHẬN ĐIỂM THƯỞNG VAMOS CLUB ──
+  #review-modal.fixed.inset-0.z-50.hidden.items-center.justify-center.p-4.bg-black.bg-opacity-50.backdrop-blur-sm
+    .bg-white.rounded-2xl.border.border-slate-200.shadow-2xl.w-full.max-w-xl.overflow-hidden.transform.transition-all
+      //- Modal Header
+      .p-5.bg-slate-900.text-white.flex.items-center.justify-between
+        div
+          .flex.items-center.gap-2
+            span.text-xs.font-black.tracking-widest.text-red-500.uppercase(style="font-family:'Space Grotesk',sans-serif") VAMOS CLUB REWARDS
+            span.text-xs.bg-red-600.text-white.px-2.py-1.rounded-full.font-bold +300 ĐIỂM
+          h3#modal-title.text-base.font-bold.text-white.mt-1 Đánh Giá Sản Phẩm &amp; Nhận Đến 300 Điểm
+        button.text-slate-400.transition-colors(class="hover:text-white" type="button" onclick="closeOrderReviewModal()")
+          svg.w-6.h-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
+
+      //- Live Point Reward Meter
+      .bg-red-50.border-b.border-red-100.px-5.py-3.flex.items-center.justify-between.text-xs
+        .flex.items-center.gap-2
+          span.text-lg 🎁
+          span.text-slate-700 Điểm thưởng tạm tính:
+        span#preview-points-meter.text-sm.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
+          | +100 ĐIỂM
+
+      //- Modal Body
+      .p-6.space-y-5.overflow-y-auto(style="max-height: calc(85vh - 180px);")
+        //- Step 1: Chọn sản phẩm trong đơn (nếu có nhiều sản phẩm)
+        div#product-selection-box
+          label.block.text-xs.font-bold.text-slate-700.mb-2 1. Chọn sản phẩm cần đánh giá:
+          #modal-products-list.space-y-2
+
+        //- Selected product summary
+        #selected-product-card.hidden.p-3.rounded-xl.bg-slate-50.border.border-slate-200.items-center.gap-3
+          img#modal-prod-img.w-12.h-12.rounded-lg.object-cover.bg-white.border.border-slate-200(src="" alt="")
+          div
+            h4#modal-prod-name.text-xs.font-bold.text-slate-900 Tên sản phẩm
+            p#modal-prod-variant.text-xs.text-slate-500 Size: -- • Màu: --
+
+        //- Step 2: Rating Stars
+        #rating-box.hidden
+          label.block.text-xs.font-bold.text-slate-700.mb-2 2. Đánh giá chất lượng (+100 điểm):
+          .flex.items-center.gap-2
+            .flex.items-center.gap-1#star-rating-container
+              each star in [1, 2, 3, 4, 5]
+                button.star-btn.text-2xl.text-slate-300.transition-transform(
+                  type="button"
+                  data-star=star
+                  class="hover:scale-110 focus:outline-none"
+                  onclick=`selectRating(${star})`
+                  onmouseenter=`hoverRating(${star})`
+                  onmouseleave="resetHoverRating()"
+                ) ★
+            span#rating-label.text-xs.font-bold.text-amber-600.ml-2 5 sao - Rất hài lòng
+
+        //- Step 3: Quick Tags & Comment
+        #comment-box.hidden.space-y-3
+          label.block.text-xs.font-bold.text-slate-700
+            | 3. Cảm nhận thực tế (+100 điểm khi chọn tag hoặc viết &gt;= 50 ký tự):
+          
+          //- Quick tags
+          .flex.flex-wrap.gap-2
+            - const tags = ['Vừa vặn chuẩn size', 'Đế Phylon cực êm', 'Đẹp như hình', 'Giao hàng nhanh', 'Chất lượng xuất sắc', 'Đóng gói cẩn thận']
+            each tag in tags
+              button.quick-tag-btn.text-xs.px-3.py-1.rounded-lg.border.border-slate-200.bg-slate-50.text-slate-700.font-medium.transition-all(
+                type="button"
+                data-tag=tag
+                onclick=`toggleQuickTag(this, '${tag}')`
+              )= tag
+
+          //- Comment textarea
+          .relative
+            textarea#review-comment-input.w-full.rounded-xl.border.border-slate-300.p-3.text-xs(
+              rows="3"
+              placeholder="Chia sẻ trải nghiệm sử dụng giày VAMOS (Chất liệu, độ êm, form dáng...)"
+              maxlength="2000"
+              oninput="handleCommentInput(this)"
+            )
+            .flex.items-center.justify-between.text-xs.text-slate-400.mt-1
+              span#char-milestone-text.text-xs.text-slate-500 Tối thiểu 50 ký tự để nhận trọn vẹn điểm thưởng
+              span#char-counter 0 / 2000
+
+        //- Step 4: Photo Attachments
+        #media-box.hidden.space-y-2
+          label.block.text-xs.font-bold.text-slate-700 4. Đính kèm hình ảnh thực tế (+100 điểm):
+          p.text-xs.text-slate-500 Chụp ảnh sản phẩm trên tay hoặc trên chân (Tối đa 5 ảnh, định dạng JPG/PNG/WEBP, tối đa 5MB/ảnh).
+          
+          input#review-media-input.hidden(type="file" accept="image/jpeg,image/png,image/webp" multiple onchange="handleMediaSelect(this)")
+          button.flex.items-center.gap-2.px-4.py-2.rounded-xl.border.border-dashed.border-slate-300.bg-slate-50.text-slate-700.text-xs.font-bold.transition-colors(
+            class="hover:bg-slate-100 hover:border-slate-400"
+            type="button"
+            onclick="document.getElementById('review-media-input').click()"
+          )
+            span 📷
+            span Chọn ảnh từ thiết bị
+
+          #media-preview-container.flex.flex-wrap.gap-2.pt-2
+
+        //- Error Alert inside modal
+        #modal-error-alert.hidden.p-3.rounded-xl.bg-red-50.border.border-red-200.text-xs.text-red-700.font-semibold
+
+      //- Modal Footer Submit
+      .p-5.bg-slate-50.border-t.border-slate-200.flex.items-center.justify-between
+        button.text-xs.font-bold.text-slate-500(type="button" onclick="closeOrderReviewModal()")
+          | Hủy bỏ
+        button#btn-submit-review.hidden.px-6.py-2.rounded-xl.bg-vamos-red.text-white.text-xs.font-bold.shadow-md.transition-all(
+          class="hover:bg-red-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+          onclick="submitReviewForm()"
+        )
+          | GỬI ĐÁNH GIÁ &amp; NHẬN ĐIỂM NGAY
+
+  //- ── CLIENT JAVASCRIPT FOR ORDER REVIEWS ──
+  script.
+    var currentReviewOrderId = null;
+    var selectedProductId = null;
+    var currentRating = 5;
+    var selectedQuickTags = new Set();
+    var selectedFiles = [];
+
+    var RATING_LABELS = {
+      1: '1 sao - Rất không hài lòng',
+      2: '2 sao - Chưa ưng ý',
+      3: '3 sao - Bình thường',
+      4: '4 sao - Hài lòng',
+      5: '5 sao - Rất hài lòng'
+    };
+
+    function openOrderReviewModal(orderId, orderCode) {
+      currentReviewOrderId = orderId;
+      selectedProductId = null;
+      currentRating = 5;
+      selectedQuickTags.clear();
+      selectedFiles = [];
+
+      var modal = document.getElementById('review-modal');
+      var prodList = document.getElementById('modal-products-list');
+      var errorAlert = document.getElementById('modal-error-alert');
+      errorAlert.classList.add('hidden');
+      document.getElementById('modal-title').innerText = 'Đánh Giá Đơn Hàng #' + orderCode;
+      prodList.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Đang tải sản phẩm trong đơn...</div>';
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      fetch('/account/orders/' + orderId + '/review-status')
+        .then(function(res) { return res.json(); })
+        .then(function(json) {
+          if (!json.success || !json.data.items || json.data.items.length === 0) {
+            prodList.innerHTML = '<div class="text-xs text-red-600 py-3 text-center">Không tìm thấy sản phẩm hợp lệ để đánh giá trong đơn hàng này.</div>';
+            return;
+          }
+
+          var items = json.data.items;
+          prodList.innerHTML = '';
+
+          items.forEach(function(item) {
+            var btn = document.createElement('div');
+            btn.className = 'p-3 rounded-xl border transition-all flex items-center justify-between cursor-pointer ' +
+              (item.isReviewed ? 'bg-slate-50 border-slate-200 opacity-60 cursor-default' : 'bg-white border-slate-300 hover:border-red-600 hover:shadow-sm');
+
+            btn.innerHTML = [
+              '<div class="flex items-center gap-3">',
+                '<img src="' + (item.image_url || '/images/products/vamos-stride-x1.png') + '" class="w-12 h-12 rounded-lg object-cover bg-white border border-slate-200" alt="' + item.product_name + '"/>',
+                '<div>',
+                  '<h4 class="text-xs font-bold text-slate-900">' + item.product_name + '</h4>',
+                  '<p class="text-xs text-slate-400">Size: ' + item.size_snapshot + ' • Màu: ' + item.color_snapshot + '</p>',
+                '</div>',
+              '</div>',
+              '<div>',
+                (item.isReviewed 
+                  ? '<span class="text-xs font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600">Đã đánh giá ✓</span>' 
+                  : '<button type="button" class="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-lg shadow-sm">Chọn đánh giá →</button>'
+                ),
+              '</div>'
+            ].join('');
+
+            if (!item.isReviewed) {
+              btn.onclick = function() { selectProductForReview(item); };
+            }
+            prodList.appendChild(btn);
+          });
+
+          var unreviewed = items.filter(function(i) { return !i.isReviewed; });
+          if (unreviewed.length === 1) {
+            selectProductForReview(unreviewed[0]);
+          } else if (unreviewed.length === 0) {
+            var allDoneBanner = document.createElement('div');
+            allDoneBanner.className = 'p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center text-xs text-emerald-800 font-bold';
+            allDoneBanner.innerHTML = '🎉 Bạn đã hoàn thành đánh giá cho tất cả sản phẩm trong đơn hàng này!<br><span class="text-xs font-normal text-slate-500 mt-1 inline-block">Toàn bộ điểm thưởng VAMOS Club tương ứng đã được cộng vào ví của bạn.</span>';
+            prodList.appendChild(allDoneBanner);
+          }
+        })
+        .catch(function() {
+          prodList.innerHTML = '<div class="text-xs text-red-600 py-3 text-center">Lỗi tải dữ liệu đơn hàng. Vui lòng thử lại.</div>';
+        });
+    }
+
+    function selectProductForReview(prod) {
+      selectedProductId = prod.product_id;
+
+      document.getElementById('product-selection-box').classList.add('hidden');
+      var selCard = document.getElementById('selected-product-card');
+      selCard.classList.remove('hidden');
+      selCard.classList.add('flex');
+
+      document.getElementById('modal-prod-img').src = prod.image_url || '/images/products/vamos-stride-x1.png';
+      document.getElementById('modal-prod-name').innerText = prod.product_name;
+      document.getElementById('modal-prod-variant').innerText = 'Size: ' + prod.size_snapshot + ' • Màu: ' + prod.color_snapshot;
+
+      document.getElementById('rating-box').classList.remove('hidden');
+      document.getElementById('comment-box').classList.remove('hidden');
+      document.getElementById('media-box').classList.remove('hidden');
+      document.getElementById('btn-submit-review').classList.remove('hidden');
+
+      selectRating(5);
+      updatePointsPreview();
+    }
+
+    function closeOrderReviewModal() {
+      var modal = document.getElementById('review-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function selectRating(star) {
+      currentRating = star;
+      var btns = document.querySelectorAll('#star-rating-container .star-btn');
+      btns.forEach(function(btn, idx) {
+        if (idx < star) {
+          btn.classList.add('text-amber-400');
+          btn.classList.remove('text-slate-300');
+        } else {
+          btn.classList.remove('text-amber-400');
+          btn.classList.add('text-slate-300');
+        }
+      });
+      document.getElementById('rating-label').innerText = RATING_LABELS[star] || '';
+      updatePointsPreview();
+    }
+
+    function hoverRating(star) {
+      var btns = document.querySelectorAll('#star-rating-container .star-btn');
+      btns.forEach(function(btn, idx) {
+        if (idx < star) {
+          btn.classList.add('text-amber-300');
+        } else {
+          btn.classList.remove('text-amber-300');
+        }
+      });
+    }
+
+    function resetHoverRating() {
+      selectRating(currentRating);
+    }
+
+    function toggleQuickTag(btn, tag) {
+      if (selectedQuickTags.has(tag)) {
+        selectedQuickTags.delete(tag);
+        btn.classList.remove('bg-red-50', 'border-red-500', 'text-vamos-red', 'font-bold');
+        btn.classList.add('bg-slate-50', 'border-slate-200', 'text-slate-700');
+      } else {
+        selectedQuickTags.add(tag);
+        btn.classList.add('bg-red-50', 'border-red-500', 'text-vamos-red', 'font-bold');
+        btn.classList.remove('bg-slate-50', 'border-slate-200', 'text-slate-700');
+      }
+      updatePointsPreview();
+    }
+
+    function handleCommentInput(textarea) {
+      var len = textarea.value.length;
+      document.getElementById('char-counter').innerText = len + ' / 2000';
+      var milestone = document.getElementById('char-milestone-text');
+      if (len >= 50) {
+        milestone.innerText = '✓ Đã đạt mốc 50 ký tự (+100 điểm)';
+        milestone.classList.add('text-emerald-600', 'font-bold');
+        milestone.classList.remove('text-slate-500');
+      } else {
+        milestone.innerText = 'Cần thêm ' + (50 - len) + ' ký tự để nhận thêm +100 điểm';
+        milestone.classList.remove('text-emerald-600', 'font-bold');
+        milestone.classList.add('text-slate-500');
+      }
+      updatePointsPreview();
+    }
+
+    function handleMediaSelect(input) {
+      var files = Array.from(input.files);
+      if (files.length + selectedFiles.length > 5) {
+        alert('Tối đa chỉ được đính kèm 5 hình ảnh.');
+        return;
+      }
+
+      files.forEach(function(f) {
+        if (f.size > 5 * 1024 * 1024) {
+          alert('File ' + f.name + ' vượt quá 5MB. Vui lòng chọn ảnh nhỏ hơn.');
+          return;
+        }
+        selectedFiles.push(f);
+      });
+
+      renderMediaPreviews();
+      updatePointsPreview();
+    }
+
+    function renderMediaPreviews() {
+      var container = document.getElementById('media-preview-container');
+      container.innerHTML = '';
+      selectedFiles.forEach(function(file, index) {
+        var wrap = document.createElement('div');
+        wrap.className = 'relative w-16 h-16 rounded-xl border border-slate-300 overflow-hidden group';
+        var img = document.createElement('img');
+        img.className = 'w-full h-full object-cover';
+        img.src = URL.createObjectURL(file);
+
+        var rmBtn = document.createElement('button');
+        rmBtn.className = 'absolute top-1 right-1 bg-black bg-opacity-70 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-80 hover:opacity-100';
+        rmBtn.innerText = '×';
+        rmBtn.onclick = function() {
+          selectedFiles.splice(index, 1);
+          renderMediaPreviews();
+          updatePointsPreview();
+        };
+
+        wrap.appendChild(img);
+        wrap.appendChild(rmBtn);
+        container.appendChild(wrap);
+      });
+    }
+
+    function updatePointsPreview() {
+      var pts = 100;
+      var commentVal = (document.getElementById('review-comment-input') ? document.getElementById('review-comment-input').value : '');
+      var commentLen = (commentVal || '').trim().length;
+      if (commentLen >= 50 || selectedQuickTags.size > 0) {
+        pts += 100;
+      }
+      if (selectedFiles.length > 0) {
+        pts += 100;
+      }
+      var meter = document.getElementById('preview-points-meter');
+      if (meter) {
+        meter.innerText = '+' + pts + ' ĐIỂM THƯỞNG';
+      }
+    }
+
+    function submitReviewForm() {
+      if (!selectedProductId || !currentReviewOrderId) {
+        alert('Vui lòng chọn sản phẩm cần đánh giá.');
+        return;
+      }
+
+      var btn = document.getElementById('btn-submit-review');
+      var errBox = document.getElementById('modal-error-alert');
+      errBox.classList.add('hidden');
+
+      btn.disabled = true;
+      var origText = btn.innerText;
+      btn.innerText = 'Đang xử lý...';
+
+      var csrfToken = window.CSRF_TOKEN || '#{csrfToken}';
+      var formData = new FormData();
+      formData.append('_csrf', csrfToken);
+      formData.append('product_id', selectedProductId);
+      formData.append('rating', currentRating);
+      formData.append('comment', document.getElementById('review-comment-input').value);
+      formData.append('quick_tags', JSON.stringify(Array.from(selectedQuickTags)));
+
+      selectedFiles.forEach(function(f) {
+        formData.append('media', f);
+      });
+
+      fetch('/account/orders/' + currentReviewOrderId + '/reviews', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(json) {
+        if (json.success) {
+          alert('🎉 Chúc mừng! Đánh giá thành công!\nBạn đã nhận được +' + json.data.pointsEarned + ' điểm VAMOS Club.\nSố dư hiện tại: ' + json.data.newBalance.toLocaleString('vi-VN') + ' điểm.');
+          window.location.reload();
+        } else {
+          errBox.innerText = json.message || 'Lỗi gửi đánh giá.';
+          errBox.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerText = origText;
+        }
+      })
+      .catch(function() {
+        errBox.innerText = 'Có lỗi kết nối mạng. Vui lòng thử lại sau.';
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = origText;
+      });
+    }

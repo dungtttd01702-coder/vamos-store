@@ -1,0 +1,61 @@
+@startuml DEPLOYMENT_ARCHITECTURE
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam nodeBackgroundColor #F8FAFC
+skinparam nodeBorderColor #475569
+
+title SƠ ĐỒ VẬN HÀNH & TRIỂN KHAI HỆ THỐNG (DEPLOYMENT ARCHITECTURE)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+node "Thiết bị Khách hàng (Client Devices)" as NodeClient #F1F5F9 {
+  artifact [Trình duyệt Web (Web Browser)\nChrome / Firefox / Edge / Safari\n- HTML5 DOM\n- Tailwind CSS (style.css)\n- Vanilla JS Client (main.js)\n- Cookie: vamos_sid, vamos_locale] as ArtifactBrowser
+}
+
+cloud "Mạng Internet / Mạng Nội bộ (Network Channel)" as NetCloud #E2E8F0 {
+  [Giao thức HTTP / HTTPS\n(Port 80 / 443 hoặc Port 3000 Development)] as HttpProto
+}
+
+node "Máy chủ Ứng dụng (Application Server Node)" as NodeApp #EFF6FF {
+  node "Node.js Runtime Environment (v22+)" {
+    component [Express.js Web Server (server.js)\nLắng nghe Port 3000\nBắt tín hiệu SIGTERM Graceful Shutdown] as CompServer
+    
+    component [Express Application Engine (src/app.js)\n- Pipeline Middleware (Security, CSRF, i18n)\n- Động cơ Pug 3.0.3 SSR Template Engine\n- Bộ định tuyến phân hệ (Modular Routers)] as CompAppEngine
+    
+    component [Bộ nhớ Phiên làm việc (Memory Session Store)\nexpress-session (cookie: vamos_sid, maxAge: 7 ngày)\nLưu trữ: user, cartCount, csrfToken, guestCart] as CompSession
+    
+    component [Tài nguyên Tĩnh (Static Asset Provider)\nThư mục src/public: CSS, JS, Ảnh cục bộ] as CompStatic
+    
+    component [MSSQL Database Driver (mssql 12.7.14)\n- Connection Pool: 0 - 10 kết nối đồng thời\n- Idle Timeout: 30,000 ms\n- Connection & Request Timeout: 15,000 ms] as CompDriver
+    
+    CompServer --> CompAppEngine
+    CompAppEngine --> CompSession
+    CompAppEngine --> CompStatic
+    CompAppEngine --> CompDriver
+  }
+}
+
+node "Máy chủ Cơ sở Dữ liệu (Database Server Node)" as NodeDb #FFF1F2 {
+  node "Microsoft SQL Server Instance (2019 / 2022)" {
+    database "Cơ sở Dữ liệu vamos_store_db" as DbInstance {
+      [Tệp Dữ liệu Chính (.mdf)\n21 Bảng dữ liệu quan hệ, Clustered PKs,\nCheck constraints, Filtered Indexes] as DataFiles
+      [Tệp Nhật ký Giao dịch (.ldf)\nTransaction Log, ACID WAL,\nKhóa bi quan UPDLOCK & ROWLOCK] as LogFiles
+    }
+  }
+}
+
+NodeClient -down-> HttpProto : Gửi Request (HTML, AJAX, Form)
+HttpProto -down-> CompServer : Chuyển tiếp Request tới Port 3000
+CompDriver <--> NodeDb : Giao thức TDS / TCP Port 1433\n(Mạng nội bộ bảo mật / Intranet)
+
+note right of NodeApp #FEF3C7
+  **LƯU Ý HỌC THUẬT VỀ TRIỂN KHAI:**
+  Mô hình trên phản ánh đúng cấu hình hiện tại:
+  - Máy chủ đơn (Monolithic Node.js Express).
+  - Kết nối trực tiếp SQL Server qua Connection Pool.
+  - Không sử dụng các thành phần ảo (Redis, Docker,
+    K8s, API Gateway) do mã nguồn chưa tích hợp.
+end note
+
+@enduml

@@ -1,0 +1,94 @@
+@startuml AD13_CATALOG_MANAGEMENT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN QUẢN LÝ DANH MỤC & SẢN PHẨM (AD13 — CATALOG MANAGEMENT)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Quản lý Sản phẩm (/admin/products);
+
+|Hệ thống (Web App)|
+:Kiểm tra quyền Admin (requireAdmin middleware);
+if (Quyền ADMIN hợp lệ?) then ([Không])
+  :Từ chối truy cập (403 / Redirect login);
+  stop
+else ([Hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Truy vấn danh sách sản phẩm kèm danh mục, thương hiệu,\ngiá bán, ảnh đại diện và tồn kho tổng hợp;
+  |Hệ thống (Web App)|
+  :Hiển thị giao diện Quản lý Danh mục & Sản phẩm;
+endif
+
+|Quản trị viên (Admin)|
+if (Thao tác quản trị?) then ([Tạo sản phẩm mới])
+  :Nhấp "Thêm sản phẩm mới" (/admin/products/create);
+  |Hệ thống (Web App)|
+  |Cơ sở Dữ liệu (SQL Server)|
+  :Tải danh mục (categories), thương hiệu (brands),\nkích cỡ (sizes) và màu sắc (colors);
+  |Hệ thống (Web App)|
+  :Hiển thị form tạo sản phẩm;
+  |Quản trị viên (Admin)|
+  :Nhập Tên, Mã SP, Danh mục, Thương hiệu, Đối tượng,\nGiá gốc, Giá khuyến mãi, Mô tả, URL ảnh, Size, Màu, Tồn kho ban đầu;\nNhấn "Lưu sản phẩm";
+  |Hệ thống (Web App)|
+  :Kiểm tra tính hợp lệ dữ liệu (admin.controller.js):;
+  if (Thiếu trường bắt buộc HOẶC Giá gốc <= 0 HOẶC Giá KM > Giá gốc?) then ([Không hợp lệ])
+    :Báo lỗi validation (Giá gốc > 0, Giá KM <= Giá gốc, đầy đủ trường bắt buộc);
+    stop
+  else ([Hợp lệ])
+    |Cơ sở Dữ liệu (SQL Server)|
+    partition "SQL Server Transaction (ACID)" {
+      :BEGIN TRANSACTION;
+      :Tạo slug từ tên sản phẩm;\nThêm sản phẩm mới vào bảng products:\nINSERT INTO products (category_id, brand_id, product_code,\nname, slug, description, gender_target, base_price, sale_price, status)\nOUTPUT INSERTED.id;
+      
+      if (Có cung cấp URL ảnh?) then ([Có])
+        :Thêm ảnh chính vào product_images:\nINSERT INTO product_images (product_id, image_url, is_primary, display_order)\nVALUES (@pId, @url, 1, 1);
+      endif
+      
+      if (Có chọn size và màu?) then ([Có])
+        :Tạo SKU tự động (CODE-SIZE-COLOR);\nThêm biến thể vào product_variants:\nINSERT INTO product_variants (product_id, size_id, color_id, sku, stock_quantity, status)\nVALUES (@pId, @sId, @cId, @sku, @stock, 'active');
+      endif
+      
+      :COMMIT TRANSACTION;
+    }
+    |Hệ thống (Web App)|
+    :Chuyển hướng về /admin/products?success=created;
+  endif
+
+else if (Thao tác quản trị?) then ([Chỉnh sửa sản phẩm])
+  :Chọn sản phẩm cần sửa (/admin/products/:id/edit);
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT p.*, pv.*, pi.* FROM products ... WHERE p.id = @id;
+  |Hệ thống (Web App)|
+  :Hiển thị form chỉnh sửa sản phẩm kèm dữ liệu hiện tại;
+  |Quản trị viên (Admin)|
+  :Thay đổi tên, giá bán, danh mục, thương hiệu, trạng thái, ảnh;\nNhấn "Cập nhật sản phẩm";
+  |Cơ sở Dữ liệu (SQL Server)|
+  :UPDATE products SET name=@name, category_id=@catId, base_price=@basePrice,\nsale_price=@salePrice, status=@status, updated_at=GETDATE() WHERE id=@id;
+  |Hệ thống (Web App)|
+  :Chuyển hướng về /admin/products?success=updated;
+
+else if (Thao tác quản trị?) then ([Bật/Tắt trạng thái sản phẩm])
+  :Nhấn nút Đổi trạng thái (Active <-> Inactive);
+  |Cơ sở Dữ liệu (SQL Server)|
+  :UPDATE products\nSET status = CASE WHEN status = 'active' THEN 'inactive' ELSE 'active' END\nWHERE id = @id;
+  |Hệ thống (Web App)|
+  :Cập nhật trạng thái hiển thị trên catalog;
+
+else ([Quản lý Danh mục / Thương hiệu])
+  :Truy cập Quản lý Danh mục (/admin/categories);\nNhập Tên, Slug, Mô tả danh mục / thương hiệu mới;\nNhấn "Thêm mới";
+  |Cơ sở Dữ liệu (SQL Server)|
+  :INSERT INTO categories (name, slug, description, is_active) VALUES (...);\nhoặc INSERT INTO brands (name, slug, description) VALUES (...);
+  |Hệ thống (Web App)|
+  :Chuyển hướng về /admin/categories?success=category_created;
+endif
+
+|Quản trị viên (Admin)|
+:Quan sát kết quả cập nhật danh mục / sản phẩm trên hệ thống;
+stop
+
+@enduml
+

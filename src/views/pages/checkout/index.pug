@@ -211,34 +211,42 @@ block content
                   value=(formData && formData.voucherCode ? formData.voucherCode : '')
                   placeholder="Nhập mã: VAMOS100"
                   type="text"
+                  oninput="resetCheckoutVoucherPreview()"
                 )
-                button.bg-slate-900.text-white.px-4.rounded-lg.font-bold.text-xs.uppercase.tracking-wider.transition-colors.shrink-0(
+                button#btn-apply-voucher.bg-slate-900.text-white.px-4.rounded-lg.font-bold.text-xs.uppercase.tracking-wider.transition-colors.shrink-0(
                   class="py-2.5 hover:bg-slate-800"
                   type="button"
-                  onclick="window.showToast ? window.showToast('Mã voucher đang được áp dụng trực tiếp cho đơn hàng!', 'success') : null"
+                  onclick="applyCheckoutVoucher()"
                 )
                   | Áp Dụng
+              #checkout-voucher-feedback.hidden.text-xs.font-semibold.px-3.py-2.rounded-lg
 
             //- Chi tiết bảng giá
             .space-y-2.border-t.border-slate-100.pt-4.text-xs
               .flex.justify-between.text-slate-600
-                span Tạm tính (#{items.length} sản phẩm):
-                span.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                span Tạm tính sản phẩm (#{items.length} sản phẩm):
+                span#checkout-subtotal.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                   = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)
+              #checkout-discount-row.hidden.justify-between.text-vamos-red
+                span Giảm giá sản phẩm (Voucher):
+                span#checkout-discount-amount.font-bold 0 ₫
               .flex.justify-between.text-slate-600
                 span Phí vận chuyển toàn quốc:
                 if shippingFee === 0
-                  span.font-bold.text-emerald-700 Miễn phí (0 ₫)
+                  span#checkout-shipping-fee.font-bold.text-emerald-700 Miễn phí (0 ₫)
                 else
-                  span.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
+                  span#checkout-shipping-fee.font-semibold.text-slate-900(style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)
+              #checkout-shipping-discount-row.hidden.justify-between.text-emerald-700
+                span Giảm phí vận chuyển (Voucher):
+                span#checkout-shipping-discount-amount.font-bold 0 ₫
               
               //- Tổng cộng thanh toán
               .border-t.border-slate-200.pt-4.mt-2.flex.items-baseline.justify-between
                 div
                   span.text-sm.font-bold.text-slate-900.block(style="font-family:'Space Grotesk',sans-serif") TỔNG CỘNG COD
                   span.text-xs.text-slate-400.block Đã bao gồm thuế VAT &amp; phí đồng kiểm
-                span.text-2xl.font-black.text-vamos-red.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
+                span#checkout-total-amount.text-2xl.font-black.text-vamos-red.tracking-tight(style="font-family:'Space Grotesk',sans-serif")
                   = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)
 
             //- Nút Chốt Đơn lớn COD
@@ -273,3 +281,110 @@ block content
               span ⏱️
               span Khóa giữ sản phẩm trong giỏ:
             span.font-bold.text-slate-900(style="font-family:'Space Grotesk',sans-serif") 14:52
+
+  script.
+    var CHECKOUT_BASE_TOTAL = #{Number(totalAmount || 0)};
+
+    function formatCheckoutVnd(val) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(val || 0));
+    }
+
+    function setVoucherFeedback(message, isSuccess) {
+      var box = document.getElementById('checkout-voucher-feedback');
+      if (!box) return;
+      if (!message) {
+        box.className = 'hidden text-xs font-semibold px-3 py-2.rounded-lg';
+        box.innerText = '';
+        return;
+      }
+      box.innerText = message;
+      box.className = isSuccess
+        ? 'text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700'
+        : 'text-xs font-semibold px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700';
+    }
+
+    function resetCheckoutVoucherPreview() {
+      var dRow = document.getElementById('checkout-discount-row');
+      var sRow = document.getElementById('checkout-shipping-discount-row');
+      var totalEl = document.getElementById('checkout-total-amount');
+      if (dRow) {
+        dRow.classList.add('hidden');
+        dRow.classList.remove('flex');
+      }
+      if (sRow) {
+        sRow.classList.add('hidden');
+        sRow.classList.remove('flex');
+      }
+      if (totalEl) totalEl.innerText = formatCheckoutVnd(CHECKOUT_BASE_TOTAL);
+      setVoucherFeedback('', false);
+    }
+
+    function applyCheckoutVoucher() {
+      var input = document.getElementById('checkout_voucher_code');
+      var btn = document.getElementById('btn-apply-voucher');
+      var code = input ? input.value.trim() : '';
+      if (!code) {
+        resetCheckoutVoucherPreview();
+        setVoucherFeedback('Vui lòng nhập mã voucher muốn áp dụng.', false);
+        return;
+      }
+
+      var csrfToken = window.CSRF_TOKEN || '#{csrfToken}';
+      if (btn) btn.disabled = true;
+
+      fetch('/checkout/apply-voucher', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ voucher_code: code, _csrf: csrfToken })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(json) {
+        if (!json.success || !json.data) {
+          resetCheckoutVoucherPreview();
+          setVoucherFeedback(json.message || 'Mã voucher không hợp lệ.', false);
+          return;
+        }
+        var data = json.data;
+        var dRow = document.getElementById('checkout-discount-row');
+        var dVal = document.getElementById('checkout-discount-amount');
+        var sRow = document.getElementById('checkout-shipping-discount-row');
+        var sVal = document.getElementById('checkout-shipping-discount-amount');
+        var totalEl = document.getElementById('checkout-total-amount');
+
+        if (dRow && dVal) {
+          if (Number(data.discountAmount || 0) > 0) {
+            dVal.innerText = '-' + formatCheckoutVnd(data.discountAmount);
+            dRow.classList.remove('hidden');
+            dRow.classList.add('flex');
+          } else {
+            dRow.classList.add('hidden');
+            dRow.classList.remove('flex');
+          }
+        }
+        if (sRow && sVal) {
+          if (Number(data.shippingDiscountAmount || 0) > 0) {
+            sVal.innerText = '-' + formatCheckoutVnd(data.shippingDiscountAmount);
+            sRow.classList.remove('hidden');
+            sRow.classList.add('flex');
+          } else {
+            sRow.classList.add('hidden');
+            sRow.classList.remove('flex');
+          }
+        }
+        if (totalEl) {
+          totalEl.innerText = formatCheckoutVnd(data.totalAmount);
+        }
+        setVoucherFeedback(json.message, true);
+      })
+      .catch(function() {
+        resetCheckoutVoucherPreview();
+        setVoucherFeedback('Không thể kiểm tra voucher lúc này. Vui lòng thử lại.', false);
+      })
+      .finally(function() {
+        if (btn) btn.disabled = false;
+      });
+    }

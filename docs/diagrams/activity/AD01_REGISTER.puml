@@ -1,0 +1,98 @@
+@startuml AD01_REGISTER
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ĐĂNG KÝ TÀI KHOẢN (AD01 — REGISTER)\nHỆ THỐNG VAMOS STORE
+
+|Khách vãng lai (Guest)|
+start
+:Truy cập trang đăng ký (/auth/register);
+
+|Hệ thống (Web App)|
+:Hiển thị form đăng ký tài khoản;
+
+|Khách vãng lai (Guest)|
+:Nhập thông tin: Họ tên, Email, Số điện thoại,\nMật khẩu và Xác nhận mật khẩu;
+:Nhấn nút "Đăng ký tài khoản";
+
+|Hệ thống (Web App)|
+:Kiểm tra tính hợp lệ dữ liệu đầu vào (Server validation):
+- Các trường bắt buộc không rỗng
+- Họ tên 2-100 ký tự
+- Email chuẩn regex RFC 5322
+- SĐT 10 chữ số chuẩn đầu số VN
+- Mật khẩu tối thiểu 6 ký tự
+- Mật khẩu xác nhận trùng khớp;
+
+if (Dữ liệu đầu vào hợp lệ?) then ([Không])
+  :Hiển thị thông báo lỗi trên form đăng ký;
+  |Khách vãng lai (Guest)|
+  :Xem thông báo lỗi và nhập lại;
+  stop
+else ([Có])
+  |Hệ thống (Web App)|
+  :Chuẩn hóa email (trim, lowercase);
+  :Gửi truy vấn kiểm tra trùng lặp email;
+
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT id FROM users WHERE email = @email;
+
+  |Hệ thống (Web App)|
+  if (Email đã tồn tại trong CSDL?) then ([Có])
+    :Hiển thị lỗi: "Email này đã được sử dụng";
+    |Khách vãng lai (Guest)|
+    :Xem thông báo lỗi, đổi email hoặc đăng nhập;
+    stop
+  else ([Không])
+    |Hệ thống (Web App)|
+    :Băm mật khẩu bằng bcrypt (10 rounds);
+    :Mở Transaction ghi nhận người dùng mới;
+
+    |Cơ sở Dữ liệu (SQL Server)|
+    partition "SQL Server Transaction" {
+      :BEGIN TRANSACTION;
+      :INSERT INTO users (role='CUSTOMER', status='active');
+      :Lấy ID người dùng vừa sinh (OUTPUT INSERTED.id);
+      :INSERT INTO carts (user_id = @newUserId);
+    }
+
+    |Hệ thống (Web App)|
+    if (Transaction thành công?) then ([Lỗi DB])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :ROLLBACK TRANSACTION;
+      |Hệ thống (Web App)|
+      :Hiển thị lỗi hệ thống;
+      stop
+    else ([Thành công])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :COMMIT TRANSACTION;
+
+      |Hệ thống (Web App)|
+      if (Có giỏ hàng tạm trong Session (guestCart)?) then ([Có])
+        :Hợp nhất các mặt hàng guestCart vào giỏ hàng CSDL (cart_items);
+        :Cập nhật số lượng giỏ hàng registeredCartCount;
+      else ([Không])
+        :Thiết lập registeredCartCount = 0;
+      endif
+
+      :Tạo mới Session chống Session Fixation (session.regenerate);
+      :Lưu thông tin User vào Session:
+      - user.id, email, full_name, role='CUSTOMER', cartId
+      - cartCount = registeredCartCount
+      - guestCart = [];
+      :Lưu Session (session.save);
+      :Chuyển hướng về Trang chủ (/);
+
+      |Khách vãng lai (Guest)|
+      :Được xác thực thành Khách hàng (Customer);
+      :Xem trang chủ với trạng thái đã đăng nhập;
+      stop
+    endif
+  endif
+endif
+
+@enduml
+

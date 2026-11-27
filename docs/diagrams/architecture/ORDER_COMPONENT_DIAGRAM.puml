@@ -1,0 +1,73 @@
+@startuml ORDER_COMPONENT_DIAGRAM
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+skinparam componentStyle uml2
+
+title SƠ ĐỒ THÀNH PHẦN: PHÂN HỆ ĐẶT HÀNG & THEO DÕI ĐƠN HÀNG COD (ORDER COMPONENT)\nHỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ VAMOS STORE
+
+package "Tầng Giao diện Người dùng (Presentation Tier)" #F1F5F9 {
+  component [Trang Thanh toán COD\n(pages/checkout/index.pug)] as ViewCheckout
+  component [Trang Đặt hàng Thành công\n(pages/checkout/success.pug)] as ViewSuccess
+  component [Danh sách Đơn hàng của tôi\n(pages/account/orders.pug)] as ViewOrders
+  component [Chi tiết Đơn hàng & Hủy đơn\n(pages/account/order-detail.pug)] as ViewOrderDetail
+}
+
+package "Tầng Điều tuyến & Middleware (Routing & Middleware Tier)" #EFF6FF {
+  component [Checkout Router\n(src/routes/checkout.routes.js)] as CheckRouter
+  component [Account Router\n(src/routes/account.routes.js)] as AccRouter
+  component [Xác thực Khách hàng & CSRF\n(requireCustomer & csrfMiddleware)] as SecGuard
+  
+  CheckRouter --> SecGuard
+  AccRouter --> SecGuard
+}
+
+ViewCheckout --> CheckRouter : GET /checkout, POST /checkout
+ViewSuccess <-- CheckRouter : GET /checkout/success/:id
+ViewOrders --> AccRouter : GET /account/orders
+ViewOrderDetail --> AccRouter : GET /account/orders/:id\nPOST /account/orders/:id/cancel
+
+package "Tầng Điều khiển (Controller Tier)" #F0FDF4 {
+  component [Checkout Controller\n(src/controllers/checkout.controller.js)] as CheckCtrl
+  component [Account Controller\n(src/controllers/account.controller.js)] as AccCtrl
+  
+  SecGuard --> CheckCtrl
+  SecGuard --> AccCtrl
+}
+
+package "Tầng Dịch vụ Đơn hàng & Kho (Order Service Engine)" #FEF3C7 {
+  component [Order Service\n(src/services/order.service.js)] as OrderService
+  
+  CheckCtrl --> OrderService : createCodOrder(...)
+  AccCtrl --> OrderService : getOrdersByUser(userId),\ngetOrderDetails(id, userId),\ncancelOrder(orderId, userId, reason)
+}
+
+package "Tầng Thực thi Giao dịch (Transaction & Lock Engine)" #EEF2FF {
+  component [Database Transaction Module\n(src/config/database.js - sql.Transaction)] as TxEngine
+  
+  OrderService --> TxEngine : Mở Transaction, khóa dòng bi quan\n(UPDLOCK, ROWLOCK, HOLDLOCK)
+}
+
+package "Tầng Cơ sở Dữ liệu (Microsoft SQL Server)" #FFF1F2 {
+  database [SQL Server (vamos_store_db)] as SqlDb {
+    [orders\n(order_code, snapshots, total_amount, payment_status, order_status)] as TblOrders
+    [order_items\n(snapshots: name, sku, size, color, unit_price, quantity)] as TblOrderItems
+    [order_status_histories\n(previous_status, new_status, changed_by, note)] as TblHistories
+    [inventory_transactions\n(change_quantity, reason: Xuất kho / Hoàn kho)] as TblInvTx
+    [vouchers & voucher_usages\n(used_count, 1 use per customer rule)] as TblVouchers
+    [product_variants\n(stock_quantity - UPDLOCK)] as TblVariants
+    [cart_items\n(DELETE cart sau khi hoàn tất tạo đơn)] as TblCartItems
+  }
+  
+  TxEngine <--> TblOrders : INSERT đơn mới / UPDATE CANCELLED
+  TxEngine <--> TblOrderItems : INSERT snapshot chi tiết món
+  TxEngine <--> TblHistories : INSERT lịch sử PENDING / CANCELLED
+  TxEngine <--> TblInvTx : Ghi log trừ tồn (-qty) / hoàn tồn (+qty)
+  TxEngine <--> TblVouchers : Cập nhật used_count / DELETE usage
+  TxEngine <--> TblVariants : Trừ tồn khi đặt / Cộng lại khi hủy
+  TxEngine <--> TblCartItems : Xóa sạch giỏ hàng khi commit
+}
+
+@enduml

@@ -1,0 +1,129 @@
+@startuml AD11_ADMIN_ORDER_PROCESSING
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN XỬ LÝ & CẬP NHẬT ĐƠN HÀNG (AD11 — ADMIN ORDER PROCESSING)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Quản lý Đơn hàng (/admin/orders);
+
+|Hệ thống (Web App)|
+:Xác thực quyền Admin (requireAdmin middleware);
+if (Tài khoản là ADMIN và đang active?) then ([Không])
+  :Từ chối truy cập (403 Forbidden hoặc chuyển về /auth/login);
+  stop
+else ([Hợp lệ])
+  |Cơ sở Dữ liệu (SQL Server)|
+  :SELECT o.*, (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) AS item_count\nFROM orders o ORDER BY o.id DESC;
+  |Hệ thống (Web App)|
+  :Hiển thị danh sách đơn hàng, bộ lọc trạng thái và tìm kiếm;
+endif
+
+|Quản trị viên (Admin)|
+:Xem danh sách;\nNhấp chọn đơn hàng cụ thể để xem chi tiết (/admin/orders/:id);
+
+|Hệ thống (Web App)|
+|Cơ sở Dữ liệu (SQL Server)|
+:Truy vấn chi tiết đơn hàng (orders), danh sách mặt hàng (order_items)\nvà lịch sử trạng thái (order_status_histories);
+
+|Hệ thống (Web App)|
+:Hiển thị chi tiết đơn hàng: Mã đơn, Khách hàng, Địa chỉ, Danh sách món,\nTổng tiền, Trạng thái đơn (oldStatus), Trạng thái thanh toán (payment_status);
+
+|Quản trị viên (Admin)|
+:Chọn Trạng thái mới (newStatus) từ dropdown;\nNhập ghi chú xử lý (note);\nNhấn "Cập nhật trạng thái";
+
+|Hệ thống (Web App)|
+:Nhận request POST /admin/orders/:id/status;\nGọi orderService.updateOrderStatusByAdmin;
+
+|Cơ sở Dữ liệu (SQL Server)|
+partition "SQL Server Transaction" {
+  :BEGIN TRANSACTION;
+
+  :Khóa đơn hàng kiểm tra:\nSELECT id, order_code, order_status, payment_status\nFROM orders WITH (UPDLOCK, ROWLOCK) WHERE id = @orderId;
+
+  |Hệ thống (Web App)|
+  if (Đơn hàng tồn tại?) then ([Không])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :ROLLBACK TRANSACTION;
+    |Hệ thống (Web App)|
+    :Báo lỗi 404: "Không tìm thấy đơn hàng";
+    stop
+  else ([Tồn tại])
+    if (oldStatus == newStatus?) then ([Trùng trạng thái cũ])
+      |Cơ sở Dữ liệu (SQL Server)|
+      :COMMIT TRANSACTION;
+      |Hệ thống (Web App)|
+      :Giữ nguyên, chuyển hướng về trang chi tiết đơn;
+      stop
+    else ([Khác trạng thái])
+      :Đối soát Ma trận chuyển đổi trạng thái (VALID_TRANSITIONS):
+      - PENDING -> [CONFIRMED, CANCELLED]
+      - CONFIRMED -> [PROCESSING, CANCELLED]
+      - PROCESSING -> [SHIPPING]
+      - SHIPPING -> [COMPLETED];
+
+      if (Chuyển đổi trạng thái có hợp lệ theo ma trận?) then ([Không hợp lệ])
+        |Cơ sở Dữ liệu (SQL Server)|
+        :ROLLBACK TRANSACTION;
+        |Hệ thống (Web App)|
+        :Báo lỗi: "Không thể chuyển trạng thái từ oldStatus sang newStatus.\nLuồng chuyển trạng thái không được phép.";
+        stop
+      else ([Hợp lệ])
+      endif
+    endif
+  endif
+
+  if (newStatus == 'CANCELLED'?) then ([Admin chọn Hủy đơn])
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Truy vấn danh sách mặt hàng trong order_items;
+    while (Còn mặt hàng trong đơn?) is ([Tiếp tục])
+      :Khóa biến thể và hoàn trả tồn kho:\nUPDATE product_variants SET stock_quantity = stock_quantity + @qty\nWHERE id = @variantId;
+      :Ghi sổ kiểm toán kho:\nINSERT INTO inventory_transactions\n(variant_id, user_id = adminId, old_qty, new_qty, change_qty = +qty, reason = 'Admin hủy đơn');
+    endwhile ([Hoàn tất hoàn kho])
+
+    if (Đơn hàng có áp dụng Voucher?) then ([Có Voucher])
+      :Giải phóng lượt dùng voucher:\nDELETE FROM voucher_usages WHERE order_id = @orderId;\nUPDATE vouchers SET used_count = used_count - 1 WHERE id = @voucherId;
+    endif
+
+    :Cập nhật đơn hàng: order_status = 'CANCELLED';
+    :Ghi nhật ký lịch sử: new_status = 'CANCELLED';
+
+  else ([Chuyển tiến trình: CONFIRMED / PROCESSING / SHIPPING / COMPLETED])
+    |Hệ thống (Web App)|
+    note right
+      **LƯU Ý QUAN TRỌNG:**
+      Không trừ tồn kho lần thứ hai
+      (Kho đã được trừ khi tạo đơn)
+    end note
+
+    if (newStatus == 'COMPLETED'?) then ([Đơn hàng hoàn tất])
+      |Hệ thống (Web App)|
+      :Xác định trạng thái thanh toán mới:\nnewPaymentStatus = 'PAID'\n(Giao hàng COD thành công đồng nghĩa đã thu tiền mặt);
+    else ([CONFIRMED / PROCESSING / SHIPPING])
+      |Hệ thống (Web App)|
+      :Giữ nguyên trạng thái thanh toán hiện tại;
+    endif
+
+    |Cơ sở Dữ liệu (SQL Server)|
+    :Cập nhật đơn hàng:\nUPDATE orders SET order_status = @newStatus,\npayment_status = @newPaymentStatus, updated_at = GETDATE()\nWHERE id = @orderId;
+
+    :Ghi nhật ký lịch sử chuyển trạng thái:\nINSERT INTO order_status_histories\n(order_id, changed_by = adminId, previous_status = oldStatus,\n new_status = newStatus, note = @note);
+  endif
+
+  |Cơ sở Dữ liệu (SQL Server)|
+  :COMMIT TRANSACTION;
+}
+
+|Hệ thống (Web App)|
+:Chuyển hướng về /admin/orders/:id?success=updated;
+
+|Quản trị viên (Admin)|
+:Xem chi tiết đơn hàng đã cập nhật trạng thái mới và dòng thời gian xử lý;
+stop
+
+@enduml
+

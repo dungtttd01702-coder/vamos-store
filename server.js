@@ -1,6 +1,6 @@
 const app = require('./src/app');
 const config = require('./src/config/app.config');
-const { testDbConnection } = require('./src/config/database');
+const { testDbConnection, closePool } = require('./src/config/database');
 
 const PORT = config.app.port;
 
@@ -23,10 +23,15 @@ const server = app.listen(PORT, async () => {
 });
 
 // Graceful Shutdown
-process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
+function handleShutdown(signal) {
+  console.log(`👋 ${signal} received. Shutting down gracefully...`);
+  server.close(async () => {
+    await closePool();
     console.log('💤 Process terminated.');
+    process.exit(0);
   });
-});
+}
+
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+process.on('SIGINT', () => handleShutdown('SIGINT'));
 

@@ -41,7 +41,7 @@ block content
               h1.text-xl.font-black.text-vamos-dark(style="font-family:'Space Grotesk',sans-serif")
                 = `CHI TIẾT ĐƠN HÀNG #${order.order_code}`
               p.text-xs.text-gray-400(class="mt-0.5")
-                = `Đặt ngày: ${new Date(order.created_at).toLocaleString('vi-VN')}`
+                = `Đặt ngày: ${fmtVnDateTime(order.created_at)}`
 
             //- Status Badge & Cancel Button
             .flex.items-center.gap-3
@@ -145,13 +145,17 @@ block content
             .flex.justify-between
               span.text-gray-500 Tiền hàng:
               span.font-bold= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.subtotal)
-            if order.discount_amount > 0
+            if Number(order.discount_amount || 0) > 0
               .flex.justify-between.text-vamos-red
-                span Giảm giá voucher:
+                span Giảm giá sản phẩm (Voucher):
                 span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.discount_amount)}`
             .flex.justify-between
               span.text-gray-500 Phí vận chuyển:
               span.font-bold= order.shipping_fee === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
+            if Number(order.shipping_discount_amount || 0) > 0
+              .flex.justify-between.text-emerald-700
+                span Giảm phí vận chuyển (Voucher):
+                span.font-bold= `-${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_discount_amount)}`
             .border-t.border-gray-200.pt-2.flex.justify-between.items-baseline.text-sm
               span.font-bold.text-vamos-dark Tổng thanh toán COD:
               span.text-xl.font-black.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
@@ -167,4 +171,4 @@ block content
                     span.w-2.h-2.rounded-full.bg-vamos-red.mt-1.flex-shrink-0
                     div
                       .font-bold.text-vamos-dark= `Chuyển trạng thái: ${h.new_status}`
-                      p.text-gray-400= `${new Date(h.created_at).toLocaleString('vi-VN')} - ${h.note || ''}`
+                      p.text-gray-400= `${fmtVnDateTime(h.created_at)} - ${h.note || ''}`

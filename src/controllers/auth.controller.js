@@ -29,6 +29,9 @@ class AuthController {
    */
   getLogin(req, res) {
     if (req.session?.user) {
+      if (req.session.user.role === 'ADMIN') {
+        return res.redirect('/admin/dashboard');
+      }
       return res.redirect('/');
     }
     const returnUrl = getSafeReturnUrl(req.query.returnUrl);
@@ -138,6 +141,15 @@ class AuthController {
 
         req.session.save((saveErr) => {
           if (saveErr) return next(saveErr);
+          if (user.role === 'ADMIN') {
+            if (safeReturnUrl && safeReturnUrl.startsWith('/admin')) {
+              return res.redirect(safeReturnUrl);
+            }
+            return res.redirect('/admin/dashboard');
+          }
+          if (safeReturnUrl && safeReturnUrl.startsWith('/admin')) {
+            return res.redirect('/');
+          }
           res.redirect(safeReturnUrl);
         });
       });
@@ -151,6 +163,9 @@ class AuthController {
    */
   getRegister(req, res) {
     if (req.session?.user) {
+      if (req.session.user.role === 'ADMIN') {
+        return res.redirect('/admin/dashboard');
+      }
       return res.redirect('/');
     }
     res.render('pages/auth/register', {

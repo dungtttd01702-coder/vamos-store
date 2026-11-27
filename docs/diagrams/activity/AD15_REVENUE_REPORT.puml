@@ -1,0 +1,56 @@
+@startuml AD15_REVENUE_REPORT
+!theme plain
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam ArrowColor #1E293B
+
+title SƠ ĐỒ HOẠT ĐỘNG: ADMIN BÁO CÁO DOANH THU & DASHBOARD (AD15 — REVENUE REPORT)\nHỆ THỐNG VAMOS STORE
+
+|Quản trị viên (Admin)|
+start
+:Truy cập Bảng điều khiển Quản trị (/admin/dashboard);
+
+|Hệ thống (Web App)|
+:Kiểm tra phiên đăng nhập và quyền Admin (requireAdmin);
+if (Là ADMIN hợp lệ?) then ([Không])
+  :Từ chối truy cập (403 / Redirect login);
+  stop
+else ([Hợp lệ])
+  |Hệ thống (Web App)|
+  :Khởi chạy truy vấn bất đồng bộ song song (Promise.all);
+  
+  |Cơ sở Dữ liệu (SQL Server)|
+  fork
+    :1. Tổng Doanh thu Thực tế:\nSELECT COALESCE(SUM(total_amount), 0) AS total_revenue\nFROM orders\nWHERE order_status = 'COMPLETED' AND payment_status = 'PAID';
+    note right
+      Nguyên tắc tài chính kế toán:
+      Chỉ tính đơn đã giao thành công (COMPLETED)
+      và đã thu tiền (PAID).
+      Tuyệt đối loại trừ đơn HỦY và đơn ĐANG XỬ LÝ.
+    end note
+  fork again
+    :2. Tổng số Đơn hàng & Đơn chờ duyệt:\nSELECT COUNT(*) AS total_orders FROM orders;\nSELECT COUNT(*) AS pending_orders FROM orders WHERE order_status = 'PENDING';
+  fork again
+    :3. Quy mô Catalog & SKU:\nSELECT COUNT(*) AS total_products FROM products WHERE status = 'active';\nSELECT COUNT(*) AS total_skus FROM product_variants WHERE status = 'active';
+  fork again
+    :4. Cảnh báo Tồn kho thấp (Ngưỡng <= 5):\nSELECT TOP 8 pv.id, pv.sku, pv.stock_quantity, p.name, s.size_name, c.color_name\nFROM product_variants pv JOIN products p ... WHERE pv.stock_quantity <= 5\nORDER BY pv.stock_quantity ASC;
+  fork again
+    :5. Phân bổ Đơn hàng theo Trạng thái:\nSELECT COUNT(*), SUM(CASE WHEN order_status='PENDING' THEN 1 ...),\nSUM(CASE WHEN order_status='CONFIRMED' ...),\nSUM(CASE WHEN order_status='PROCESSING' ...),\nSUM(CASE WHEN order_status='SHIPPING' ...),\nSUM(CASE WHEN order_status='COMPLETED' ...),\nSUM(CASE WHEN order_status='CANCELLED' ...)\nFROM orders;
+  fork again
+    :6. Bảng xếp hạng Sản phẩm bán chạy:\nSELECT TOP 4 oi.product_name_snapshot, SUM(oi.quantity) AS total_sold,\nSUM(oi.line_total) AS total_revenue\nFROM order_items oi JOIN orders o ON oi.order_id = o.id\nWHERE o.order_status = 'COMPLETED'\nGROUP BY oi.product_name_snapshot ORDER BY total_sold DESC;
+  fork again
+    :7. Danh sách Đơn hàng cần xử lý gấp (Urgent):\nSELECT TOP 5 * FROM orders WHERE order_status = 'PENDING' ORDER BY id DESC;
+  end fork
+
+  |Hệ thống (Web App)|
+  :Tổng hợp dữ liệu kết quả từ recordsets;\nRender giao diện Admin Dashboard (pages/admin/dashboard.pug);
+  :Hiển thị trực quan:\n- Thẻ KPI Doanh thu thực thu, Tổng đơn hàng, Đơn chờ xử lý\n- Danh sách cảnh báo hàng sắp hết kho\n- Biểu đồ / Thống kê cơ cấu đơn hàng theo State Machine\n- Top sản phẩm bán chạy nhất kèm doanh số đóng góp\n- Danh sách đơn hàng mới đặt cần duyệt ngay;
+endif
+
+|Quản trị viên (Admin)|
+:Phân tích báo cáo hoạt động kinh doanh;\nNhấp xem chi tiết đơn hàng gấp hoặc nhấp điều chỉnh tồn kho cho SKU cạn hàng;
+stop
+
+@enduml
+

@@ -1,21 +1,29 @@
-# CHƯƠNG V: TRIỂN KHAI HỆ THỐNG (SYSTEM DEPLOYMENT)
+# CHƯƠNG V: KẾ HOẠCH TRIỂN KHAI VÀ HƯỚNG DẪN CÀI ĐẶT (DEPLOYMENT PLAN & SETUP GUIDE)
 
 ---
 
 ## 1. MÔI TRƯỜNG VÀ CHIẾN LƯỢC TRIỂN KHAI
 
-Để đưa hệ thống website thương mại điện tử **VAMOS STORE** từ môi trường phát triển (Development) lên môi trường vận hành thực tế (Production), hệ thống được thiết kế theo hai phương án triển khai linh hoạt:
+Để đảm bảo khả năng vận hành ổn định từ môi trường phát triển (Development) đến khi đưa sản phẩm vào khai thác thực tế (Production), hệ thống **VAMOS STORE** được hoạch định theo hai kịch bản rõ ràng:
 
-1. **Phương án 1 (Khuyến nghị chuẩn hóa): Triển khai Container hóa bằng Docker & Docker Compose.** Toàn bộ ứng dụng Node.js và cơ sở dữ liệu Microsoft SQL Server 2025 được đóng gói thành các container độc lập, tự động liên kết mạng nội bộ và ánh xạ dữ liệu ra ổ cứng ngoài (Docker Volume).
-2. **Phương án 2 (Mô hình máy chủ đám mây Cloud VPS & Tên miền theo chuẩn đồ án):** Thuê máy chủ ảo riêng (Virtual Private Server - VPS) chạy hệ điều hành Ubuntu Linux, kết hợp với tên miền quốc tế và máy chủ web Nginx làm Reverse Proxy.
+1. **Kịch bản A: Cài đặt và vận hành Local / Docker (Cấu hình đã kiểm tra, chưa xác minh triển khai thực tế).** Toàn bộ file Dockerfile và docker-compose.yml đã được rà soát cú pháp chuẩn mực kết nối Node.js và SQL Server 2022; trên môi trường máy chủ thực tế cần kích hoạt Docker daemon để khởi chạy.
+2. **Kịch bản B (Kế hoạch đề xuất vận hành thực tế): Triển khai Production trên Cloud VPS & Tên miền.** Kế hoạch chi tiết phục vụ giai đoạn thương mại hóa: thuê máy chủ ảo riêng (Ubuntu Linux LTS), thiết lập quản lý tiến trình PM2, cấu hình máy chủ web Nginx làm Reverse Proxy và cài đặt chứng chỉ bảo mật SSL Let's Encrypt.
 
 ---
 
-## 2. TRIỂN KHAI VỚI DOCKER & DOCKER COMPOSE
+## 2. KỊCH BẢN A: CÀI ĐẶT VÀ VẬN HÀNH LOCAL / DOCKER (CẤU HÌNH ĐÃ KIỂM TRA, CHƯA XÁC MINH TRIỂN KHAI THỰC TẾ)
 
-### 2.1. Xây dựng Dockerfile cho ứng dụng Node.js
+### 2.1. Yêu cầu hệ thống tối thiểu
 
-File `Dockerfile` đặt tại thư mục gốc của dự án, chịu trách nhiệm đóng gói mã nguồn và môi trường Node.js:
+* **Hệ điều hành:** Windows 10/11 (hỗ trợ WSL2), macOS, hoặc Ubuntu Linux 20.04+.
+* **Phần mềm cần cài đặt:**
+  * Node.js phiên bản LTS v20.x hoặc v22.x/v24.x (kèm npm).
+  * Docker Desktop (hỗ trợ Docker Compose v2+).
+  * Trình điều khiển cơ sở dữ liệu: Azure Data Studio hoặc SQL Server Management Studio (SSMS).
+
+### 2.2. Đóng gói ứng dụng với Dockerfile
+
+File `Dockerfile` tại thư mục gốc của dự án chịu trách nhiệm đóng gói ứng dụng Node.js:
 
 ```dockerfile
 # Sử dụng base image Node.js LTS chính thức
@@ -38,25 +46,25 @@ RUN npm run build:css
 EXPOSE 3000
 
 # Lệnh khởi chạy ứng dụng chính thức
-CMD ["node", "src/app.js"]
+CMD ["node", "server.js"]
 ```
 
-### 2.2. Cấu hình điều phối với Docker Compose
+### 2.3. Cấu hình điều phối với Docker Compose
 
-File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server):
+File `docker-compose.yml` liên kết hai dịch vụ chính: `app` (Node.js App) và `mssql` (SQL Server 2022):
 
 ```yaml
 version: "3.8"
 
 services:
-  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2025
+  # 1. Dịch vụ Cơ sở dữ liệu Microsoft SQL Server 2022
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: vamos_store_mssql
     restart: always
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "VamosPassSecure2025!"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD:-YourStrongPassword123!}"
       MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
@@ -75,14 +83,13 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DB_TYPE: mssql
       DB_SERVER: mssql
       DB_PORT: 1433
       DB_USER: sa
-      DB_PASSWORD: "VamosPassSecure2025!"
+      DB_PASSWORD: "${DB_PASSWORD:-YourStrongPassword123!}"
       DB_NAME: vamos_store_db
       DB_TRUST_SERVER_CERTIFICATE: "true"
-      SESSION_SECRET: VamosSuperSecretKey2026!
+      SESSION_SECRET: "${SESSION_SECRET:-YourSecureRandomSessionSecretKey32CharsMin}"
     ports:
       - "3000:3000"
     networks:
@@ -96,124 +103,116 @@ networks:
     driver: bridge
 ```
 
-### 2.3. Lệnh khởi chạy và xác nhận hoạt động
-
-Để khởi chạy toàn bộ hệ thống trên bất kỳ máy chủ nào đã cài đặt Docker:
+### 2.4. Quy trình khởi chạy và nạp dữ liệu Local
 
 ```bash
-# Khởi động toàn bộ các dịch vụ dưới dạng chạy ngầm (detached mode)
-docker-compose up -d --build
+# Bước 1: Khởi động container CSDL SQL Server 2022
+docker-compose up -d mssql
 
-# Kiểm tra trạng thái hoạt động của các container
-docker-compose ps
+# Bước 2: Kiểm tra trạng thái container đang chạy
+docker ps
 
-# Xem nhật ký khởi động để đảm bảo kết nối CSDL thành công
-docker-compose logs -f web
+# Bước 3: Khởi tạo bảng CSDL và nạp dữ liệu mẫu hạt giống (seed data)
+node database/init_mssql.js
+
+# Bước 4: Khởi động ứng dụng Node.js tại local
+npm start
+# Ứng dụng sẽ lắng nghe tại: http://localhost:3000
 ```
 
 ---
 
-## 3. QUY TRÌNH TRIỂN KHAI TRÊN CLOUD VPS & TÊN MIỀN
+## 3. KỊCH BẢN B: KẾ HOẠCH TRIỂN KHAI PRODUCTION TRÊN CLOUD VPS & TÊN MIỀN
 
-_(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án thực tế)._
+Dưới đây là kế hoạch chi tiết từng bước được đề xuất để đưa hệ thống VAMOS STORE lên môi trường Internet khi triển khai kinh doanh chính thức:
 
-### 3.1. Đăng ký Tên miền (Domain Registration)
+### 3.1. Đăng ký Tên miền và Thiết lập Bản ghi DNS
 
-- **Bước 1:** Truy cập vào nhà cung cấp dịch vụ tên miền (ví dụ: Hostinger, Namecheap hoặc Inet).
-- **Bước 2:** Nhập tên miền thương hiệu mong muốn (ví dụ: `vamosstore.shop` hoặc `vamos-footwear.vn`) và tiến hành thanh toán kích hoạt.
-- **Bước 3:** Truy cập Bảng điều khiển quản lý DNS (DNS Management) để chuẩn bị trỏ bản ghi về địa chỉ IP của máy chủ VPS.
+- **Bước 1:** Đăng ký tên miền thương hiệu (ví dụ: `vamosstore.shop` hoặc `vamos-footwear.vn`) tại nhà cung cấp tên miền (Inet, Namecheap, v.v.).
+- **Bước 2:** Cấu hình trỏ bản ghi A (Address Record) từ tên miền về địa chỉ IP Public của máy chủ Cloud VPS:
+  * Host `@` $\rightarrow$ Points to: `<IP_ADDRESS_VPS>`
+  * Host `www` $\rightarrow$ Points to: `<IP_ADDRESS_VPS>`
 
 ### 3.2. Cấu hình Máy chủ ảo Cloud VPS (Ubuntu Linux)
 
-- **Bước 1:** Khởi tạo Cloud VPS chạy hệ điều hành Ubuntu 22.04 LTS (RAM tối thiểu 2GB, 1 vCPU, 25GB SSD).
-- **Bước 2:** Kết nối SSH vào máy chủ từ xa thông qua terminal hoặc Visual Studio Code Remote-SSH:
+- **Bước 1:** Thuê máy chủ Cloud VPS chạy Ubuntu 22.04 LTS (cấu hình tối thiểu: 2 vCPU, 4GB RAM, 40GB SSD để đáp ứng Microsoft SQL Server on Linux).
+- **Bước 2:** Kết nối SSH bảo mật và cập nhật hệ điều hành:
   ```bash
-  ssh root@<IP_ADDRESS_VPS>
-  ```
-- **Bước 3:** Cập nhật các gói phần mềm hệ điều hành và bật tường lửa UFW:
-  ```bash
+  ssh deploy@<IP_ADDRESS_VPS>
   sudo apt update && sudo apt upgrade -y
   sudo apt install -y ufw curl git
-  sudo ufw allow OpenSSH
-  sudo ufw allow 80/tcp
-  sudo ufw allow 443/tcp
+  ```
+- **Bước 3:** Cấu hình tường lửa bảo vệ máy chủ (chỉ mở các cổng cần thiết):
+  ```bash
+  sudo ufw default deny incoming
+  sudo ufw default allow outgoing
+  sudo ufw allow 22/tcp    # Cổng SSH
+  sudo ufw allow 80/tcp    # Cổng HTTP
+  sudo ufw allow 443/tcp   # Cổng HTTPS
   sudo ufw enable
   ```
-- **Bước 4:** Cài đặt Node.js LTS, trình quản lý tiến trình PM2 và Git:
+- **Bước 4:** Cài đặt Node.js LTS và trình quản lý tiến trình PM2:
   ```bash
   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
   sudo apt install -y nodejs
   sudo npm install -g pm2
   ```
 
-### 3.3. Cài đặt và cấu hình Cơ sở dữ liệu Microsoft SQL Server 2025
+### 3.3. Cài đặt CSDL Microsoft SQL Server 2022 on Linux
 
-- **Bước 1:** Cài đặt Microsoft SQL Server on Linux hoặc triển khai container:
-  ```bash
-  # Tùy chọn 1: Cài đặt mssql-server trên Ubuntu LTS
-  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-  curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
-  sudo apt-get update && sudo apt-get install -y mssql-server
-  sudo /opt/mssql/bin/mssql-conf setup
-  sudo systemctl start mssql-server
-  sudo systemctl enable mssql-server
+Triển khai Microsoft SQL Server 2022 qua container Docker chuyên dụng để cô lập tài nguyên:
 
-  # Tùy chọn 2: Chạy trực tiếp qua Docker container
-  docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=VamosPassword2026!" -p 1433:1433 --name vamos-sql -d mcr.microsoft.com/mssql/server:2022-latest
-  ```
-- **Bước 2:** Tạo cơ sở dữ liệu `vamos_store_db` và thiết lập tài khoản:
-  ```sql
-  -- Kết nối bằng sqlcmd hoặc Azure Data Studio
-  CREATE DATABASE vamos_store_db COLLATE SQL_Latin1_General_CP1_CI_AS;
-  GO
-  USE vamos_store_db;
-  GO
-  ```
-- **Bước 3:** Nạp cấu trúc bảng và dữ liệu mẫu:
-  ```bash
-  node database/init_mssql.js
-  ```
+```bash
+docker run -e "ACCEPT_EULA=Y" \
+  -e "MSSQL_SA_PASSWORD=<STRONG_PRODUCTION_PASSWORD>" \
+  -p 1433:1433 \
+  --name vamos_mssql_prod \
+  --restart always \
+  -v /var/opt/mssql_prod:/var/opt/mssql \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+```
 
-### 3.4. Triển khai mã nguồn và Quản lý tiến trình bằng PM2
+### 3.4. Triển khai Ứng dụng Web bằng PM2
 
-- **Bước 1:** Clone mã nguồn dự án từ repository GitHub về thư mục `/var/www/vamos-store`:
+- **Bước 1:** Clone mã nguồn dự án vào thư mục `/var/www/vamos-store`:
   ```bash
   cd /var/www
-  git clone https://github.com/dungtttd01702-coder/vamos-store.git
+  git clone <REPO_URL> vamos-store
   cd vamos-store
   npm install --production
+  npm run build:css
   ```
-- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (sinh khóa ngẫu nhiên mạnh qua `openssl rand -hex 32`):
+- **Bước 2:** Tạo file biến môi trường bảo mật `.env` (không lưu mật khẩu trong git):
   ```bash
   cat <<EOT >> .env
   NODE_ENV=production
   PORT=3000
-  APP_URL=https://vamos.store
+  APP_URL=https://vamosstore.shop
   DB_SERVER=127.0.0.1
   DB_PORT=1433
   DB_USER=sa
-  DB_PASSWORD=YOUR_STRONG_SQL_SERVER_PASSWORD_HERE
+  DB_PASSWORD=<STRONG_PRODUCTION_PASSWORD>
   DB_NAME=vamos_store_db
   DB_ENCRYPT=false
   DB_TRUST_SERVER_CERTIFICATE=true
-  SESSION_SECRET=YOUR_SECURE_RANDOM_SESSION_SECRET_32_CHARS_MIN
+  SESSION_SECRET=<RANDOM_GENERATED_32_CHAR_SECRET>
   EOT
   ```
-- **Bước 3:** Khởi động ứng dụng bằng PM2 và cấu hình tự động bật khi máy chủ reboot:
+- **Bước 3:** Nạp schema và khởi động tiến trình bằng PM2:
   ```bash
+  node database/init_mssql.js
   pm2 start server.js --name "vamos-store"
   pm2 save
   pm2 startup systemd
   ```
 
-### 3.5. Cấu hình Reverse Proxy Nginx và Chứng chỉ bảo mật SSL (HTTPS)
+### 3.5. Cấu hình Reverse Proxy Nginx và Chứng chỉ SSL Let's Encrypt
 
 - **Bước 1:** Cài đặt máy chủ web Nginx:
   ```bash
   sudo apt install -y nginx
   ```
-- **Bước 2:** Cấu hình file Virtual Host Nginx trỏ cổng 80 vào ứng dụng Node.js chạy tại cổng 3000:
-
+- **Bước 2:** Cấu hình Virtual Host `/etc/nginx/sites-available/vamosstore.shop`:
   ```nginx
   server {
       listen 80;
@@ -228,21 +227,22 @@ _(Quy trình triển khai từng bước chi tiết theo chuẩn mẫu đồ án
           proxy_cache_bypass $http_upgrade;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
       }
   }
   ```
-
-- **Bước 3:** Kiểm tra cấu hình và khởi động lại Nginx:
+- **Bước 3:** Kích hoạt Virtual Host và kiểm tra cấu hình:
   ```bash
+  sudo ln -s /etc/nginx/sites-available/vamosstore.shop /etc/nginx/sites-enabled/
   sudo nginx -t
   sudo systemctl restart nginx
   ```
-- **Bước 4:** Cài đặt chứng chỉ SSL miễn phí Let's Encrypt qua Certbot:
+- **Bước 4:** Cài đặt chứng chỉ SSL tự động gia hạn với Certbot:
   ```bash
   sudo apt install -y certbot python3-certbot-nginx
   sudo certbot --nginx -d vamosstore.shop -d www.vamosstore.shop
   ```
 
-### 3.6. Kết quả sau triển khai
+### 3.6. Đánh giá tính khả thi và an toàn sau triển khai
 
-Hệ thống VAMOS STORE sau khi hoàn tất các bước trên sẽ hoạt động chính thức trên môi trường Internet tại giao thức bảo mật `https://vamosstore.shop`, kết nối ổn định, dữ liệu phân lớp an toàn và tự động phục hồi khi máy chủ khởi động lại.
+Kế hoạch triển khai Kịch bản B đảm bảo hệ thống đạt tính sẵn sàng cao (High Availability), bảo mật toàn diện với HTTPS/SSL mã hóa đường truyền, cô lập tài khoản cơ sở dữ liệu và tự động phục hồi dịch vụ sau sự cố khởi động lại máy chủ nhờ PM2 daemon.

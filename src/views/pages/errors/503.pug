@@ -1,0 +1,12 @@
+extends ../../layouts/main
+
+block content
+  .container.mx-auto.px-4.py-20.text-center
+    .max-w-xl.mx-auto
+      .text-8xl.font-black.text-amber-600.mb-4 503
+      h1.text-2xl.font-bold.text-gray-800.mb-2 Dịch Vụ Tạm Thời Gián Đoạn
+      p.text-sm.text-gray-600.mb-6
+        = message || 'Hệ thống hiện đang tạm thời gián đoạn và chưa thể xử lý yêu cầu của bạn. Vui lòng thử lại sau ít phút.'
+      .flex.justify-center.space-x-4
+        a.btn-primary(href="/") Quay Lại Trang Chủ
+        a.btn-outline(href="javascript:location.reload()") Thử Lại

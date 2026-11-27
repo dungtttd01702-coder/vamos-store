@@ -1,7 +1,6 @@
-extends ../../layouts/main
+extends ../../layouts/admin
 
 block content
-  include ../../partials/admin-nav
 
   .vamos-container.py-8.space-y-6
     //- TOP ADMIN HEADER
@@ -166,7 +165,7 @@ block content
                     span.font-medium.text-slate-800= o.first_item_name || 'Giày VAMOS Sneaker'
                     if o.item_count && o.item_count > 1
                       span.text-2xs.text-gray-400.block= `+ ${o.item_count - 1} sản phẩm khác`
-                  td.py-4.px-5.text-gray-400= new Date(o.created_at).toLocaleDateString('vi-VN')
+                  td.py-4.px-5.text-gray-400= fmtVnDate(o.created_at)
                   td.py-4.px-5.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount)
                   td.py-4.px-5

@@ -1,7 +1,6 @@
-extends ../../layouts/main
+extends ../../layouts/admin
 
 block content
-  include ../../partials/admin-nav
 
   .vamos-container.py-8
     .flex.flex-col.gap-4.mb-6(class="sm:flex-row sm:items-center sm:justify-between")
@@ -46,7 +45,7 @@ block content
                     a.font-bold.text-vamos-dark(class="hover:text-vamos-red hover:underline" href=`/admin/customers/${u.id}`)= u.full_name
                   td.py-3.px-4.text-gray-600= u.email
                   td.py-3.px-4.text-gray-600= u.phone || 'Chưa cập nhật'
-                  td.py-3.px-4.text-gray-400= new Date(u.created_at).toLocaleDateString('vi-VN')
+                  td.py-3.px-4.text-gray-400= fmtVnDate(u.created_at)
                   td.py-3.px-4.font-bold= `${u.order_count} đơn`
                   td.py-3.px-4.font-bold.text-vamos-red(style="font-family:'Space Grotesk',sans-serif")
                     = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(u.total_spent)
